@@ -6,17 +6,18 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Customer;
+use Session;
 
 class CustomerController extends Controller
 {
     public function index()
     {
-		$customer = Customer::all();
+  		$customer = Customer::all();
 
     	return view('pages.customer.indexs')
-		->with('customers', $customer)
-		->with('page_title', 'Customer')
-		->with('page_description', 'Index');
+  		->with('customers', $customer)
+  		->with('page_title', 'Customer')
+  		->with('page_description', 'Index');
     }
 
     public function create()
@@ -28,12 +29,12 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
-    	
+
     	//$product = new Product;
     	//$product->name = $request->name;
     	//$product->price = $request->price;
     	//$product->save();
-    	
+
     	$inputs = $request->all();
 
     	//return $inputs;
@@ -87,6 +88,7 @@ class CustomerController extends Controller
     public function destroy($id)
     {
     	Customer::destroy($id);
+      Session::flash('message', 'Delete is successful!');
 
     	return redirect()->route('customer.index');
     }

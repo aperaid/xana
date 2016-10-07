@@ -35,6 +35,11 @@
 		<!-- Main content -->
 		<section class="content">
 
+      @if(Session::has('message'))
+        <div class="callout callout-danger">
+          <h4>{{Session::get('message')}}</h4>
+        </div>
+      @endif
 		  <!-- Your Page Content Here -->
 		  @yield('content')
 		</section>

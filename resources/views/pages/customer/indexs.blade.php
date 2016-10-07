@@ -8,6 +8,8 @@
 @stop
 
 @section('content')
+
+
 <div class="row">
 <div class="col-md-12">
 <div class="box box-info">
@@ -32,10 +34,6 @@
 </div>
 <!-- box body -->
 
-<div class="box-footer">
-
-</div>
-<!-- footer -->
 </div>
 <!-- box -->
 </div>

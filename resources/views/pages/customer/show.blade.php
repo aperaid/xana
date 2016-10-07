@@ -16,7 +16,7 @@
         <div class="box-body">
 
         <div class="form-group">
-          {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-1 control-label"]) !!}
+          {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
           <div class="col-md-4">
       	     {!! Form::text('CCode', $customer->CCode, array('class' => 'form-control', 'readonly')) !!}
       	  </div>
@@ -24,7 +24,7 @@
 
         <div class="form-group">
           <!-- NAMA PERUSAHAAN -->
-          {!! Form::label('Nama Perusahaan', 'Nama Perusahaan', ['class' => "col-md-1 control-label"]) !!}
+          {!! Form::label('Nama Perusahaan', 'Nama Perusahaan', ['class' => "col-md-2 control-label"]) !!}
           <div class="col-md-4">
             {!! Form::text('Company', $customer->Company, array('class' => 'form-control', 'readonly')) !!}
           </div>
@@ -40,7 +40,7 @@
 
         <div class="form-group">
           <!-- Alamat -->
-          {!! Form::label('Alamat', 'Alamat', ['class' => "col-md-1 control-label"]) !!}
+          {!! Form::label('Alamat', 'Alamat', ['class' => "col-md-2 control-label"]) !!}
           <div class="col-md-4">
             {!! Form::text('Alamat', $customer->Alamat, array('class' => 'form-control', 'readonly')) !!}
           </div>
@@ -57,7 +57,7 @@
         </div>
         <hr>
         <div class="form-group">
-          {!! Form::label('Telp', 'Telp', ['class' => "col-md-1 control-label"]) !!}
+          {!! Form::label('Telp', 'Telp', ['class' => "col-md-2 control-label"]) !!}
           <div class="col-md-2">
           	<div class="input-group">
           	  <div class="input-group-addon">
