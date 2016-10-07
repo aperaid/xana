@@ -13,10 +13,10 @@
 <div class="wrapper">
 	<!--main header -->
 	@include('layouts.xana.mainheader')
-	
+
 	<!-- Sidebar Menu -->
 	@include('layouts.xana.menu')
-	
+
 	<!-- Content Wrapper. Contains page content -->
 	  <div class="content-wrapper">
 		<!-- Content Header (Page header) -->
@@ -50,8 +50,4 @@
 	</body>
 </html>
 
-<script>
-$(function (){
-	$("#datatables").DataTable();
-})
-</script>
+@yield('script')

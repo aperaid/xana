@@ -44,3 +44,11 @@
 </div>
 <!-- row -->
 @stop
+
+@section('script')
+<script>
+$(function (){
+	$("#datatables").DataTable();
+})
+</script>
+@stop
