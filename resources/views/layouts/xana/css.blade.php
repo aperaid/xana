@@ -6,6 +6,8 @@
 <link href="{{ asset('/css/bootstrap.css') }}" rel="stylesheet">
 <!-- Font Awesome -->
 <link href="{{ asset('/mystyles/font-awesome-4.6.3/css/font-awesome.min.css') }}" rel="stylesheet">
+<!-- Jquery UI -->
+<link href="{{ asset('/plugins/jQueryUI/jquery-ui.min.css') }}" rel="stylesheet">
 <!-- Ionicons -->
 <link href="{{ asset('/mystyles/ionicons-2.0.1/css/ionicons.min.css') }}" rel="stylesheet">
 <!-- DataTables -->

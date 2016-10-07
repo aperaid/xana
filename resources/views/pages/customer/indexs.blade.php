@@ -17,13 +17,16 @@
 <table id="datatables" class="table table-hover table-bordered">
 	<thead>
 		<tr>
+			<th>Id</th>
 			<th>Customer Code</th>
 			<th>Company Name</th>
+			<th>View</th>
 		</tr>
 	</thead>
 	<tbody>
 		@foreach($customers as $customer)
 		<tr>
+      <td>{{$customer->id}}</td>
 			<td>{{$customer->CCode}}</td>
 			<td>{{$customer->Company}}</td>
 		</tr>
@@ -46,7 +49,7 @@
 @section('script')
 <script>
 $(function (){
-	$("#datatables").DataTable();
+	var table = $("#datatables").DataTable();
 })
 </script>
 @stop
