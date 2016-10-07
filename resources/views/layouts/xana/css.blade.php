@@ -12,6 +12,8 @@
 <link href="{{ asset('/mystyles/ionicons-2.0.1/css/ionicons.min.css') }}" rel="stylesheet">
 <!-- DataTables -->
 <link href="{{ asset('/plugins/datatables/dataTables.bootstrap.css') }}" rel="stylesheet">
+<!-- Autocomplete -->
+<link href="{{ asset('/css/jquery.ui.autocomplete.css') }}" rel="stylesheet">
 <!-- Theme style -->
 <link href="{{ asset('/css/AdminLTE.min.css') }}" rel="stylesheet">
 <!-- AdminLTE Skins. Choose a skin from the css/skins
