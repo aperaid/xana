@@ -30,10 +30,10 @@
 						<li class="user-footer">
 							<div class="pull-right">
 								<a href="{{ url('/logout') }}" 
-										class="btn btn-default btn-flat"
-                                        onclick="event.preventDefault();
-                                                 document.getElementById('logout-form').submit();">
-                                        Logout
+									class="btn btn-default btn-flat"
+									onclick="event.preventDefault();
+											 document.getElementById('logout-form').submit();">
+									Logout
                                 </a>
 								
 								<form id="logout-form" action="{{ url('/logout') }}" method="POST" style="display: none;">

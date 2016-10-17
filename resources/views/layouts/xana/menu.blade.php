@@ -15,10 +15,10 @@
 			<i class="fa fa-angle-left pull-right"></i>
 		</a>
 		<ul class="treeview-menu">
-			<li><a href="{{route('customer.index')}}"><i class="fa fa-users"></i> <span>Customer</span></a></li>
-			<li><a href="{{route('customer.index')}}"><i class="fa fa-building-o"></i> <span>Project</span></a></li>
+			<li><a href="{{route('customer.index')}}"><i class="fa fa-users"></i> <span>Customers</span></a></li>
+			<li><a href="{{route('project.index')}}"><i class="fa fa-building-o"></i> <span>Project</span></a></li>
 			<li><a href="{{route('customer.index')}}"><i class="fa fa-envelope-o"></i> <span>Penawaran</span></a></li>
-			<li><a href="{{route('customer.index')}}"><i class="fa fa-file-text-o"></i> <span>Referensi</span></a></li>
+			<li><a href="{{route('reference.index')}}"><i class="fa fa-file-text-o"></i> <span>Referensi</span></a></li>
 			<li><a href="{{route('customer.index')}}"><i class="fa fa-money"></i> <span>Transaksi</span></a></li>
 			<li><a href="{{route('customer.index')}}"><i class="fa fa-automobile"></i> <span>SJ Kirim</span></a></li>
 			<li><a href="{{route('customer.index')}}"><i class="fa fa-automobile"></i> <span>SJ Kembali</span></a></li>
