@@ -7,6 +7,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Customer;
 use Session;
+use DB;
 
 class CustomerController extends Controller
 {
@@ -16,15 +17,21 @@ class CustomerController extends Controller
 
     	return view('pages.customer.indexs')
   		->with('customers', $customer)
+      ->with('top_menu_sel', 'menu_customer')
   		->with('page_title', 'Customer')
   		->with('page_description', 'Index');
     }
 
     public function create()
     {
+      $customer = Customer::orderby('id', 'desc')
+      ->first();
+      
     	return view('pages.customer.create')
-		->with('page_title', 'Customer')
-		->with('page_description', 'Create');
+      ->with('customer', $customer)
+      ->with('top_menu_sel', 'menu_customer')
+      ->with('page_title', 'Customer')
+      ->with('page_description', 'Create');
     }
 
     public function store(Request $request)
@@ -49,9 +56,10 @@ class CustomerController extends Controller
     	$customer = Customer::find($id);
 
     	return view('pages.customer.show')
-		->with('customer', $customer)
-		->with('page_title', 'Customer')
-		->with('page_description', 'View');
+      ->with('customer', $customer)
+      ->with('top_menu_sel', 'menu_customer')
+      ->with('page_title', 'Customer')
+      ->with('page_description', 'View');
     }
 
     public function edit($id)
@@ -59,9 +67,10 @@ class CustomerController extends Controller
     	$customer = Customer::find($id);
 
     	return view('pages.customer.edit')
-		->with('customer', $customer)
-		->with('page_title', 'Customer')
-		->with('page_description', 'Edit');
+      ->with('customer', $customer)
+      ->with('top_menu_sel', 'menu_customer')
+      ->with('page_title', 'Customer')
+      ->with('page_description', 'Edit');
     }
 
     public function update(Request $request, $id)

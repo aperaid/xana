@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Project;
+use Session;
+Use DB;
 
 class ProjectController extends Controller
 {
@@ -72,6 +74,7 @@ class ProjectController extends Controller
     public function destroy($id)
     {
     	Project::destroy($id);
+      Session::flash('message', 'Delete is successful!');
 
     	return redirect()->route('project.index');
     }

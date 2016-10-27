@@ -4,12 +4,11 @@
 @stop
 
 @section('content')
-	{!! Form::open([
-	'method' => 'delete',
-	'route' => ['reference.destroy', $detail->id]
-	]) !!}
-	
-<section class="content">
+{!! Form::open([
+  'method' => 'delete',
+  'route' => ['reference.destroy', $detail->pocusid]
+]) !!}
+<div class="row">
 	<div class="col-md-12">
 		<div class="nav-tabs-custom">
 			<ul class="nav nav-tabs">
@@ -160,9 +159,9 @@
 									<a href="{{route('sjkirim.create', $detail->Reference)}}"><button id="SJKirim_button" type="button" style="margin-right: 5px;" @if ( $sjkircheck == 0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right"	@endif	>SJ Kirim</button></a>
 									<a href="{{route('sjkembali.create', $detail->Reference)}}"><button id="SJKembali_button" type="button" style="margin-right: 5px;"	@if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right"	@endif	>SJ Kembali</button></a>
 									<a href="{{route('claim.create', $detail->Reference)}}">	<button id="claim_button" type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif	>Claim</button></a>
-									<a href="{{route('reference.edit', $detail->id)}}"><button id="edit_button" type="button" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right"	@endif >Edit</button></a>
-									<button id="delete_button" type="button" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
-									<a href="{{route('po.create')}}"><button id="insertPO_button" type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert PO</button></a>
+									<a href="{{route('reference.edit', $detail->pocusid)}}"><button id="edit_button" type="button" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right"	@endif >Edit</button></a>
+									<button id="delete_button" type="submit" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
+									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button id="insertPO_button" type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert PO</button></a>
 								</div>
 							</div>
 						</div>
@@ -184,7 +183,7 @@
 									<tr>
 										<td>{{ $po -> POCode }}</td>
 										<td>{{ $po -> Tgl }}</td>
-										<td><a href="{{route('po.show', $po -> POCode)}}"><button class="btn btn-primary btn-block btn-sm">View</button></a></td>
+										<td><a href="{{route('po.show', $po -> POCode)}}"><button type="button" class="btn btn-primary btn-block btn-sm">View</button></a></td>
 									</tr>
 									@endforeach
 								</tbody>
@@ -364,7 +363,8 @@
     <!-- /.tab-custom -->
 	</div>
   <!-- col -->
-	<div class="clearfix"></div>
-</section>
+</div>
+<!-- row -->
+<div class="clearfix"></div>
 {!! Form::close() !!}
 @stop

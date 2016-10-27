@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Project;
+use Session;
+use DB;
 
 class ProjectController extends Controller
 {
@@ -15,13 +17,19 @@ class ProjectController extends Controller
 
     	return view('pages.project.indexs')
       ->with('project', $project)
+      ->with('top_menu_sel', 'menu_project')
       ->with('page_title', 'Project')
       ->with('page_description', 'Index');
     }
 
     public function create()
     {
+      $project = Project::orderby('id', 'desc')
+      ->first();
+      
     	return view('pages.project.create')
+      ->with('project', $project)
+      ->with('top_menu_sel', 'menu_project')
       ->with('page_title', 'Project')
       ->with('page_description', 'Create');
     }
@@ -42,6 +50,7 @@ class ProjectController extends Controller
 
     	return view('pages.project.show')
       ->with('project', $project)
+      ->with('top_menu_sel', 'menu_project')
       ->with('page_title', 'Project')
       ->with('page_description', 'View');
     }
@@ -52,6 +61,7 @@ class ProjectController extends Controller
 
     	return view('pages.project.edit')
       ->with('project', $project)
+      ->with('top_menu_sel', 'menu_project')
       ->with('page_title', 'Project')
       ->with('page_description', 'Edit');
     }
@@ -72,6 +82,7 @@ class ProjectController extends Controller
     public function destroy($id)
     {
     	Project::destroy($id);
+      Session::flash('message', 'Delete is successful!');
 
     	return redirect()->route('project.index');
     }

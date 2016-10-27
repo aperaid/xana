@@ -4,12 +4,19 @@
 @stop
 
 @section('content')
-{!! Form::open(['route' => 'customer.store']) !!}
+{!! Form::open([
+  'route' => 'customer.store'
+]) !!}
 <div class="row">
   <div class="col-md-12">
     <div class="box box-info">
+      <div class="box-header with-border">
+        <h3 class="box-title">Customer Detail</h3>
+      </div>
+      <!-- box-header -->
       <div class="box-body with-border">
         <div class="form-horizontal">
+          {!! Form::hidden('id', $customer->id+1) !!}
           <div class="form-group">
             {!! Form::label('Company Code', 'Company Code', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-4">
@@ -74,7 +81,6 @@
         </div>
       </div>
       <!-- box body -->
-
       <div class="box-footer">
       	{!! Form::submit('Create',  array('class' => 'btn btn-info pull-right')) !!}
       	<a href="{{route('customer.index')}}"><button type="button" class="btn btn-default pull-Left">Cancel</button></a>
@@ -90,10 +96,10 @@
 @stop
 
 <script>
-function capital() {
+  function capital() {
     var x = document.getElementById("CCode");
     x.value = x.value.toUpperCase();
-	var x = document.getElementById("Company");
+    var x = document.getElementById("Company");
     x.value = x.value.toUpperCase();
-}
+  }
 </script>

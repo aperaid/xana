@@ -15,6 +15,7 @@
 	@include('layouts.xana.mainheader')
 
 	<!-- Sidebar Menu -->
+  {{ $top_menu_sel or "menu_home" }}
 	@include('layouts.xana.menu')
 
 	<!-- Content Wrapper. Contains page content -->
@@ -22,7 +23,7 @@
 		<!-- Content Header (Page header) -->
 		<section class="content-header">
 		  <h1>
-			{{ $page_title or "Page Title" }}
+			{{ $page_title }}
 			<small>{{ $page_description or null }}</small>
 			@yield('button')
 		  </h1>

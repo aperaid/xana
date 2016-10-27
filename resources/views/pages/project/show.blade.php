@@ -4,14 +4,17 @@
 @stop
 
 @section('content')
-	{!! Form::open([
-	'method' => 'delete',
-	'route' => ['project.destroy', $project->id]
-	]) !!}
-	
+{!! Form::open([
+  'method' => 'delete',
+  'route' => ['project.destroy', $project->id]
+]) !!}
 <div class="row">
   <div class="col-md-12">
     <div class="box box-info">
+      <div class="box-header with-border">
+        <h3 class="box-title">Project Detail</h3>
+      </div>
+      <!-- box-header -->
       <div class="form-horizontal">
         <div class="box-body">
           <div class="form-group">
@@ -20,28 +23,24 @@
               {!! Form::text('PCode', $project->PCode, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
-
           <div class="form-group">
             {!! Form::label('Project Name', 'Project Name', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
               {!! Form::text('Project', $project->Project, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
-
           <div class="form-group">
             {!! Form::label('Project Address', 'Project Address', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
               {!! Form::text('Alamat', $project->Alamat, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
-          
           <div class="form-group">
             {!! Form::label('Company Code', 'Company Code', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
               {!! Form::text('CCode', $project->CCode, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
-          
           <div class="form-group">
             {!! Form::label('Company Name', 'Company Name', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
@@ -82,7 +81,6 @@
         <!-- box body -->
       </div>
       <!-- form-horizontal -->
-      
       <div class="box-footer">
         <a href="{{route('project.index')}}"><button type="button" class="btn btn-default pull-left">Back</button></a>
         {!! Form::submit('Delete',  array('class' => 'btn btn-danger pull-left')) !!}

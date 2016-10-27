@@ -6,28 +6,41 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Reference;
+use App\Transaksi;
+use App\PO;
+use App\SJKirim;
+use App\IsiSJKirim;
+use App\SJKembali;
+use App\IsiSJKembali;
+use App\Periode;
+use App\TransaksiClaim;
+use Session;
 use DB;
+
 class ReferenceController extends Controller
 {
     public function index()
     {
-    $reference = Reference::join('project', 'pocustomer.PCode', '=', 'project.PCode')
+    $reference = Reference::select('pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id')
+            ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
             ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
             ->get();
 
-         
     	return view('pages.reference.indexs')
       ->with('reference', $reference)
+      ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'Index');
     }
 
     public function create()
     {
-      $reference = DB::table('pocustomer')->orderby('id', 'desc')->first();
+      $reference = Reference::orderby('id', 'desc')
+      ->first();
       
     	return view('pages.reference.create')
       ->with('reference', $reference)
+      ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'Create');
     }
@@ -44,24 +57,20 @@ class ReferenceController extends Controller
 
     public function show($id)
     {
-    	$detail = DB::table('pocustomer')
-      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    	$detail = Reference::leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-      ->select('pocustomer.*', 'project.*', 'customer.*', 'customer.Alamat as custalamat', 'project.Alamat as projalamat')
+      ->select('pocustomer.id as pocusid', 'pocustomer.*', 'project.*', 'customer.*', 'customer.Alamat as custalamat', 'project.Alamat as projalamat')
       ->where('pocustomer.id', $id)
       ->first();
       
-      $purchase = DB::table('transaksi')
-      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      $purchase = Transaksi::leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
       ->where('transaksi.reference', $detail -> Reference)
       ->get();
       
       $sjkircheck = 0;
-      $kirexist = DB::table('transaksi')
-      ->where('transaksi.Reference', $detail -> Reference)
+      $kirexist = Transaksi::where('transaksi.Reference', $detail -> Reference)
       ->count();
-      $kirfound = DB::table('transaksi')
-      ->selectRaw('SUM(QSisaKirInsert) as kirfound')
+      $kirfound = Transaksi::selectRaw('SUM(QSisaKirInsert) as kirfound')
       ->where('transaksi.Reference', $detail -> Reference)
       ->first();
       if($kirexist == 0){
@@ -75,11 +84,9 @@ class ReferenceController extends Controller
       }
       
       $sjkemcheck = 0;
-      $kemexist = DB::table('transaksi')
-      ->where('transaksi.Reference', $detail -> Reference)
+      $kemexist = Transaksi::where('transaksi.Reference', $detail -> Reference)
       ->count();
-      $kemfound = DB::table('transaksi')
-      ->selectRaw('SUM(QSisaKem) as kemfound')
+      $kemfound = Transaksi::selectRaw('SUM(QSisaKem) as kemfound')
       ->where('transaksi.Reference', $detail -> Reference)
       ->first();
       if($kemexist == 0){
@@ -92,8 +99,7 @@ class ReferenceController extends Controller
         }
       }
       
-      $pocheck = DB::table('sjkirim')
-      ->where('sjkirim.Reference', $detail -> Reference)
+      $pocheck = SJKirim::where('sjkirim.Reference', $detail -> Reference)
       ->count();
       if($pocheck == 0){
         $pocheck = 0;
@@ -101,26 +107,22 @@ class ReferenceController extends Controller
         $pocheck = 1;
       }
       
-      $po = DB::table('po')
-      ->leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
+      $po = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
       ->where('transaksi.Reference', $detail -> Reference)
       ->groupBy('po.POCode')
       ->get();
 
-      $sjkirim = DB::table('isisjkirim')
-      ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+      $sjkirim = IsiSJKirim::leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
       ->where('sjkirim.Reference', $detail -> Reference)
       ->groupBy('sjkirim.SJKir')
       ->get();
       
-      $sjkembali = DB::table('isisjkembali')
-      ->leftJoin('sjkembali', 'isisjkembali.SJKem', '=', 'sjkembali.SJKem')
+      $sjkembali = IsiSJKembali::leftJoin('sjkembali', 'isisjkembali.SJKem', '=', 'sjkembali.SJKem')
       ->where('sjkembali.Reference', $detail -> Reference)
       ->groupBy('sjkembali.SJKem')
       ->get();
       
-      $maxid = DB::table('periode')
-      ->select([
+      $maxid = Periode::select([
         'periode.Reference',
         'periode.IsiSJKir',
         DB::raw('MAX(periode.id) AS maxid')
@@ -129,8 +131,7 @@ class ReferenceController extends Controller
       ->groupBy('periode.IsiSJKir')
       ->orderBy('periode.id', 'asc');
       
-      $sewa = DB::table('periode')
-      ->select([
+      $sewa = Periode::select([
         'invoice.Invoice',
         'periode.*',
         'maxid'
@@ -152,8 +153,7 @@ class ReferenceController extends Controller
       ->groupBy('invoice.Reference','invoice.Periode')
       ->get();
       
-      $jual = DB::table('periode')
-      ->select([
+      $jual = Periode::select([
         'pocustomer.Reference',
         'invoice.Invoice',
         'project.Project'
@@ -173,8 +173,7 @@ class ReferenceController extends Controller
       ->groupBy('periode.Reference','periode.Periode')
       ->get();
       
-      $transaksiclaim = DB::table('periode')
-      ->select([
+      $transaksiclaim = Periode::select([
         'periode.Reference',
         'periode.Claim',
         'periode.Periode',
@@ -182,15 +181,13 @@ class ReferenceController extends Controller
       ])
       ->whereRaw('(periode.Deletes = "Claim")');
       
-      $transaksiextend = DB::table('periode')
-      ->select([
+      $transaksiextend = Periode::select([
         'periode.Reference',
         DB::raw('MAX(periode.Periode) AS periodeextend')
       ])
       ->whereRaw('(periode.Deletes = "Extend" OR periode.Deletes = "Sewa")');
       
-      $claim = DB::table('transaksiclaim')
-      ->select([
+      $claim = TransaksiClaim::select([
         'transaksiclaim.*',
         'periodeclaim',
         'periodeextend',
@@ -236,37 +233,39 @@ class ReferenceController extends Controller
       ->with('sewas', $sewa)
       ->with('juals', $jual)
       ->with('claims', $claim)
+      ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'View');
     }
-/*
+
     public function edit($id)
     {
-    	$project = Project::find($id);
+    	$reference = Reference::find($id);
 
-    	return view('pages.project.edit')
-      ->with('project', $project)
-      ->with('page_title', 'Project')
+    	return view('pages.reference.edit')
+      ->with('reference', $reference)
+      ->with('top_menu_sel', 'menu_referensi')
+      ->with('page_title', 'Reference')
       ->with('page_description', 'Edit');
     }
 
     public function update(Request $request, $id)
     {
-    	$project = Project::find($id);
+    	$reference = Reference::find($id);
 
-    	$project->PCode = $request->PCode;
-    	$project->Project = $request->Project;
-      $project->Alamat = $request->Alamat;
-    	$project->CCode = $request->CCode;
-    	$project->save();
+    	$reference->Reference = $request->Reference;
+    	$reference->Tgl = $request->Tgl;
+      $reference->PCode = $request->PCode;
+    	$reference->save();
 
-    	return redirect()->route('project.show', $id);
+    	return redirect()->route('reference.show', $id);
     }
 
     public function destroy($id)
     {
-    	Project::destroy($id);
+    	Reference::destroy($id);
+      Session::flash('message', 'Delete is successful!');
 
-    	return redirect()->route('project.index');
-    }*/
+    	return redirect()->route('reference.index');
+    }
 }

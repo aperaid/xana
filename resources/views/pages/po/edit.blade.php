@@ -1,96 +1,138 @@
 @extends('layouts.xana.layout')
 @section('title')
-	Edit Project
+	Edit PO
 @stop
 
 @section('content')
-	{!! Form::model($project, [
+	{!! Form::model($po, [
 	'method' => 'patch',
-	'route' => ['project.update', $project->id]
+	'route' => ['po.update', $po->id]
 	]) !!}
 	
 <div class="row">
-  <div class="col-md-12">
-    <div class="box box-info">
-      <div class="form-horizontal">
-        <div class="box-body">
-          <div class="form-group">
-            {!! Form::label('Project Code', 'Project Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              {!! Form::text('PCode', $project->PCode, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'Project Code', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
-            </div>
-          </div>
-          
-          <div class="form-group">
-            {!! Form::label('Project Name', 'Project Name', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('Project', $project->Project, array('class' => 'form-control', 'id' => 'Project', 'placeholder' => 'Project Name', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
-            </div>
-          </div>
-          
-          <div class="form-group">
-            {!! Form::label('Project Address', 'Project Address', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('Alamat', $project->Alamat, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
-            </div>
-          </div>
-          
-          <div class="form-group">
-            {!! Form::label('Company Code', 'Company Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('CCode', $project->CCode, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'Company Code', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
-            </div>
-          </div>
-          
-        </div>
-        <!-- box body -->
+  <div class="col-xs-12">
+    <div class="box box-primary">
+      <div class="box-body">
+        <a href="{{route('po.show', $po -> POCode )}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
+        <button type="submit" class="btn btn-success pull-right">Update</button>
       </div>
-      <!-- form-horizontal -->
-
-<div class="box-footer">
-	<a href="{{route('project.show', $project->id)}}"><button type="button" class="btn btn-default pull-left">cancel</button></a>
-	{!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
+      <!-- /.box-body -->
+    </div>
+    <!-- /.box -->
+  </div>
+  <!-- /.col -->
 </div>
-<!-- footer -->
-{!! Form::close() !!}
+<!-- /.row -->
 
+<!-- CONTENT ROW -->
+<div class="row">
+  <!-- PO INFO BOX -->
+  <div class="col-md-3">
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">PO Detail</h3>
+      </div>
+      <div class="box-body">
+        {!! Form::hidden('poid', $po->id) !!}
+        <div class="form-group">
+          {!! Form::label('Nomor PO', 'Nomor PO') !!}
+          {!! Form::text('POCode', $po -> POCode, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Input PO Number', 'required')) !!}
+        </div>
+        <div class="form-group">
+          {!! Form::label('Tanggal', 'Tanggal') !!}
+          {!! Form::text('Tgl', $po -> Tgl, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Date', 'required')) !!}
+        </div>
+        <div class="form-group">
+          {!! Form::label('Transport', 'Transport') !!}
+          {!! Form::text('Transport', $po -> Transport, array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Transport Fee', 'required')) !!}
+        </div>
+        <div class="form-group">
+          {!! Form::label('Catatan', 'Catatan') !!}
+          {!! Form::textarea('Catatan', $po -> Catatan, array('id' => 'Catatan', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '5', 'required')) !!}
+        </div>
+      </div>
+      <!-- /.box-body -->
+    </div>
+    <!-- /.box -->
+  </div>
+  <!-- /.col -->
+  <!-- POITEM BOX -->
+  <div class="col-md-9">
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">PO Item</h3>
+      </div>
+      <div class="box-body">
+        <table class="table table-hover table-bordered" id="customFields">
+          <thead>
+            <th><a id="addCF" class=" glyphicon glyphicon-plus"></a></th>
+            <th>Barang</th>
+            <th>J/S</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </thead>
+        </table>
+      </div>
+      <!-- /.box-body -->
+    </div>
+    <!-- /.box -->
+  </div>
+    <!-- /.col -->
 </div>
-<!-- col -->
-
-</div>
-<!-- row -->
+<!-- /.row -->
 
 @stop
 
+@section('script')
 <script>
-function capital() {
-    var x = document.getElementById("PCode");
-    x.value = x.value.toUpperCase();
-	var x = document.getElementById("Project");
-    x.value = x.value.toUpperCase();
-	var x = document.getElementById("CCode");
-    x.value = x.value.toUpperCase();
-}
+$(function() {
+  $('#Tgl').datepicker({
+	  format: "dd/mm/yyyy",
+	  todayHighlight: true,
+	  autoclose: true,
+	  startDate: '-7d',
+	  endDate: '+7d'
+  }); 
+}); 
 </script>
-   <script>
-   $(document).ready(function() {
-    src = "{{ route('searchajax') }}";
-     $("#CCode").autocomplete({
-        source: function(request, response) {
-            $.ajax({
-                url: src,
-                dataType: "json",
-                data: {
-                    term : request.term
-                },
-                success: function(data) {
-                    response(data);
-                   
-                }
-            });
-        },
-        min_length: 3,
-       
-    });
-});
+<script>
+    $(document).ready(function(){
+		var max_fields      = 10; //maximum input boxes allowed
+		
+    var x = 0; //initial text box count
+		var y = <?php echo $last_purchase ?>;
+		var z = y;
+    
+		@foreach($transaksis as $transaksi)
+			if(x < max_fields){ //max input box allowed
+				x++; //text box count increment
+				z++;
+				$("#customFields").append('<tr><td><a class="remCF glyphicon glyphicon-remove"></a></td>{!! Form::hidden('transaksiid', $transaksi->id) !!}<input type="hidden" name="tx_editpo_Purchase[]" class="textbox" value="'+ z +'"><td>{!! Form::text('Barang', $transaksi->Barang, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::select('JS', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], $transaksi->JS, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Quantity', $transaksi->Quantity, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::number('Amount', $transaksi->Amount, ['id' => 'Amount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+			}
+		@endforeach
+		
+		$("#addCF").click(function(){
+			if(x < max_fields){ //max input box allowed
+				x++; //text box count increment
+				z++;
+				$("#customFields").append('<tr><td><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td>{!! Form::hidden('transaksiid', $transaksi->id+1) !!}<input type="hidden" name="Purchase" value="'+ z +'"><td>{!! Form::text('Barang', null, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::select('JS', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Quantity', null, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::number('Amount', null, ['id' => 'Amount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+			}
+		});
+		
+		$("#customFields").on('click','.remCF',function(){
+			$(this).parent().parent().remove();
+			x--;
+		});	
+	});
 </script>
+<script>
+  $(document).ready(function(){
+		
+		//Mask Transport
+		$("#Transport").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+		//Mask Price
+		$("#Discount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+    $("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	});
+</script>
+@stop

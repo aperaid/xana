@@ -27,13 +27,25 @@ Route::resource('reference', 'ReferenceController');
 
 Route::resource('po', 'POController');
 
+Route::resource('transaksi', 'TransaksiController');
+
+Route::resource('extend', 'ExtendController');
+
 Route::resource('sjkirim', 'SJKirimController');
 
-Route::resource('sjkembali', 'SJKirimController');
+Route::resource('sjkembali', 'SJKembaliController');
 
 Route::resource('claim', 'ClaimController');
 
+Route::get('invoice/showsewa', 'InvoiceController@getInvoiceSewa');
+
 Route::resource('invoice', 'InvoiceController');
+
+Route::resource('viewinventory', 'ViewInventoryController');
+
+Route::resource('adjustinventory', 'AdjustInventoryController');
+
+Route::resource('registerinventory', 'RegisterInventoryController');
 
 Route::get('searchajax',array('as'=>'searchajax','uses'=>'AutoCompleteController@autoComplete'));
 

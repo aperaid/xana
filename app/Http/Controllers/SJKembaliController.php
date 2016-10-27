@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Project;
+use Session;
+Use DB;
 
 class SJKembaliController extends Controller
 {
@@ -72,6 +74,7 @@ class SJKembaliController extends Controller
     public function destroy($id)
     {
     	Project::destroy($id);
+      Session::flash('message', 'Delete is successful!');
 
     	return redirect()->route('project.index');
     }
