@@ -12,7 +12,7 @@
           <thead>
             <tr>
               <th>id</th>
-              <th>qttd</th>
+              <th>QTertanda</th>
               <th>SJ Code</th>
               <th>Tgl Kirim</th>
               <th>Customer</th>

@@ -21,7 +21,7 @@
 			<li @if ($top_menu_sel=="menu_referensi") class="active" @endif ><a href="{{route('reference.index')}}"><i class="fa fa-file-text-o"></i> <span>Referensi</span></a></li>
 			<li @if ($top_menu_sel=="menu_transaksi") class="active" @endif ><a href="{{route('transaksi.index')}}"><i class="fa fa-money"></i> <span>Transaksi</span></a></li>
 			<li @if ($top_menu_sel=="menu_sjkirim") class="active" @endif ><a href="{{route('sjkirim.index')}}"><i class="fa fa-automobile"></i> <span>SJ Kirim</span></a></li>
-			<li @if ($top_menu_sel=="menu_sjkembali") class="active" @endif ><a href="{{route('customer.index')}}"><i class="fa fa-automobile"></i> <span>SJ Kembali</span></a></li>
+			<li @if ($top_menu_sel=="menu_sjkembali") class="active" @endif ><a href="{{route('sjkembali.index')}}"><i class="fa fa-automobile"></i> <span>SJ Kembali</span></a></li>
 			<li @if ($top_menu_sel=="menu_invoice") class="active" @endif ><a href="{{route('invoice.index')}}"><i class="fa fa-list-alt"></i> <span>Invoice</span></a></li>
 		</ul>
 	</li>

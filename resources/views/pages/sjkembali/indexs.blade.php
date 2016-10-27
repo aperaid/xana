@@ -1,31 +1,33 @@
 @extends('layouts.xana.layout')
 @section('title')
-	All Project
-@stop
-
-@section('button')
-	<large><a href="{{route('project.create')}}"><button class="btn btn-success btn-sm">Create</button></a></large>
+	All SJ Kembali
 @stop
 
 @section('content')
 <div class="row">
-  <div class="col-md-12">
-    <div class="box box-info">
-      <div class="box-body with-border">
-        <table id="datatables" class="table table-hover table-bordered">
+  <div class="col-xs-12">
+    <div class="box">
+      <div class="box-body">
+        <table id="datatables" class="table table-bordered table-striped">
           <thead>
             <tr>
-              <th>Id</th>
-              <th>Project Code</th>
-              <th>Project Name</th>
+              <th>id</th>
+              <th>QTerima</th>
+              <th>SJ Code</th>
+              <th>Tgl Tertanda</th>
+              <th>Customer</th>
+              <th>Project</th>
             </tr>
           </thead>
           <tbody>
-            @foreach($project as $project)
+            @foreach($sjkembalis as $sjkembali)
             <tr>
-              <td>{{$project->id}}</td>
-              <td>{{$project->PCode}}</td>
-              <td>{{$project->Project}}</td>
+              <td>{{$sjkembali->id}}</td>
+              <td>{{$sjkembali->qtrima}}</td>
+              <td>{{$sjkembali->SJKem}}</td>
+              <td>{{$sjkembali->Tgl}}</td>
+              <td>{{$sjkembali->Customer}}</td>
+              <td>{{$sjkembali->Project}}</td>
             </tr>
             @endforeach
           </tbody>
@@ -52,6 +54,11 @@
           "targets": [0],
           "visible": false,
           "searchable": false
+        },
+        {
+          "targets": [1],
+          "visible": false,
+          "searchable": false
         }
       ],
       "order": [[0, "desc"]]
@@ -59,7 +66,7 @@
 		
 		$('#datatables tbody').on('click', 'tr', function () {
 			var data = table.row( this ).data();
-			window.open("project/"+ data[0],"_self");
+			window.open("sjkembali/"+ data[0],"_self");
 		});
 	});
 </script>

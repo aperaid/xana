@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Periode;
 use App\SJKirim;
 use App\IsiSJKirim;
 use Session;
@@ -14,25 +15,25 @@ class SJKirimController extends Controller
 {
     public function index()
     {
-		$sum = IsiSJKirim::select([
-        'isisjkirim.SJKir',
-        DB::raw('sum(isisjkirim.QTertanda) AS qttd')
+      $sum = IsiSJKirim::select([
+          'isisjkirim.SJKir',
+          DB::raw('sum(isisjkirim.QTertanda) AS qttd')
+        ])
+        ->groupBy('isisjkirim.SJKir');
+      $sjkirim = SJKirim::select([
+        'qttd',
+        'sjkirim.*',
+        'project.Project',
+        'customer.Customer',
       ])
-      ->groupBy('isisjkirim.SJKir');
-    $sjkirim = SJKirim::select([
-      'qttd',
-      'sjkirim.*',
-      'project.Project',
-      'customer.Customer',
-    ])
-    ->leftJoin('pocustomer', 'sjkirim.Reference', '=', 'pocustomer.Reference')
-    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->leftJoin(DB::raw(sprintf( '(%s) AS T1', $sum->toSql() )), function($join){
-        $join->on('T1.SJKir', '=', 'sjkirim.SJKir');
-      })
-    ->orderBy('sjkirim.id', 'asc')
-    ->get();
+      ->leftJoin('pocustomer', 'sjkirim.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+      ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+      ->leftJoin(DB::raw(sprintf( '(%s) AS T1', $sum->toSql() )), function($join){
+          $join->on('T1.SJKir', '=', 'sjkirim.SJKir');
+        })
+      ->orderBy('sjkirim.id', 'asc')
+      ->get();
 
     	return view('pages.sjkirim.indexs')
       ->with('sjkirims', $sjkirim)
@@ -60,37 +61,15 @@ class SJKirimController extends Controller
 
     public function show($id)
     {
-      $sum = IsiSJKirim::select([
-        'isisjkirim.SJKir',
-        DB::raw('sum(isisjkirim.QTertanda) AS qttd')
-      ])
-      ->groupBy('isisjkirim.SJKir');
       $sjkirim = SJKirim::select([
-      'sjkirim.*',
+        'sjkirim.*',
       ])
       ->leftJoin('pocustomer', 'sjkirim.Reference', '=', 'pocustomer.Reference')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
       ->where('sjkirim.id', $id)
       ->first();
-      
-    	$isisjkirim = IsiSJKirim::select([
-        'isisjkirim.*',
-        'periode.Periode',
-        'transaksi.*',
-        'project.*',
-        'customer.*'
-      ])
-      ->leftJoin('periode', 'isisjkirim.IsiSJKir', '=', 'periode.IsiSJKir')
-      ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
-      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
-      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-      ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-      ->where('isisjkirim.SJKir', $sjkirim->id)
-      ->groupBy('periode.IsiSJKir')
-      ->orderBy('isisjkirim.id', 'asc')
-      ->first();
-      
+
       $isisjkirims = IsiSJKirim::select([
         'isisjkirim.*',
         'periode.Periode',
@@ -103,15 +82,34 @@ class SJKirimController extends Controller
       ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-      ->where('isisjkirim.SJKir', $sjkirim->id)
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir)
       ->groupBy('periode.IsiSJKir')
       ->orderBy('isisjkirim.id', 'asc')
       ->get();
+      
+      $isisjkirim = $isisjkirims->first();
+      
+      $jumlah = $isisjkirims->sum('QTertanda');
+
+      $qttdcheck = Periode::select([
+        DB::raw('max(periode.Periode) as found')
+      ])
+      ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir)
+      ->first();
+      if($qttdcheck->found > 1){
+        $qttdcheck = 1;
+      }else{
+        $qttdcheck = 0;
+      }
       
     	return view('pages.sjkirim.show')
       ->with('sjkirim', $sjkirim)
       ->with('isisjkirim', $isisjkirim)
       ->with('isisjkirims', $isisjkirims)
+      ->with('jumlah', $jumlah)
+      ->with('qttdcheck', $qttdcheck)
+      ->with('top_menu_sel', 'menu_sjkirim')
       ->with('page_title', 'Surat Jalan Kirim')
       ->with('page_description', 'View');
     }
