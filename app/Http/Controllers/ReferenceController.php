@@ -59,7 +59,7 @@ class ReferenceController extends Controller
     {
     	$detail = Reference::leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-      ->select('pocustomer.id as pocusid', 'pocustomer.*', 'project.*', 'customer.*', 'customer.Alamat as custalamat', 'project.Alamat as projalamat')
+      ->select('pocustomer.id as pocusid', 'pocustomer.*', 'project.*', 'customer.*')
       ->where('pocustomer.id', $id)
       ->first();
       

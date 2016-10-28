@@ -6,7 +6,7 @@
 @section('content')
 {!! Form::open([
   'method' => 'delete',
-  'route' => ['project.destroy', $project->id]
+  'route' => ['project.destroy', $project->proid]
 ]) !!}
 <div class="row">
   <div class="col-md-12">
@@ -18,36 +18,45 @@
       <div class="form-horizontal">
         <div class="box-body">
           <div class="form-group">
-            {!! Form::label('Project Code', 'Project Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            {!! Form::label('Project Code', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
               {!! Form::text('PCode', $project->PCode, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Project Name', 'Project Name', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            {!! Form::label('Project Name', 'Project Name', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-6">
               {!! Form::text('Project', $project->Project, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Project Address', 'Project Address', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              {!! Form::text('Alamat', $project->Alamat, array('class' => 'form-control', 'readonly')) !!}
+            {!! Form::label('Project Address', 'Project Address', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
+              {!! Form::text('ProjAlamat', $project->ProjAlamat, array('class' => 'form-control', 'readonly')) !!}
+            </div>
+            {!! Form::label('City', 'City', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-2">
+              {!! Form::text('ProjKota', $project->ProjKota, array('class' => 'form-control', 'readonly')) !!}
+            </div>
+            {!! Form::label('Zip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-2">
+              {!! Form::text('ProjZip', $project->ProjZip, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
+          <hr>
           <div class="form-group">
-            {!! Form::label('Company Code', 'Company Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
               {!! Form::text('CCode', $project->CCode, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Company Name', 'Company Name', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            {!! Form::label('Company Name', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-6">
               {!! Form::text('Company', $project->Company, array('class' => 'form-control', 'readonly')) !!}
             </div>
-            {!! Form::label('Telp', 'Telp', ['class' => "col-sm-1 control-label"]) !!}
-            <div class="col-sm-3">
+            {!! Form::label('Phone', 'Phone', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-phone"></i>
@@ -58,8 +67,8 @@
           </div>
           <hr>
           <div class="form-group">
-            {!! Form::label('CP', 'CP', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            {!! Form::label('Contact Person', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-6">
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-user"></i>
@@ -67,8 +76,8 @@
                 {!! Form::text('Customer', $project->Customer, array('class' => 'form-control', 'readonly')) !!}
               </div>
             </div>
-            {!! Form::label('Telp', 'Telp', ['class' => "col-sm-1 control-label"]) !!}
-            <div class="col-sm-3">
+            {!! Form::label('Phone CP', 'Phone CP', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-phone"></i>
@@ -84,7 +93,7 @@
       <div class="box-footer">
         <a href="{{route('project.index')}}"><button type="button" class="btn btn-default pull-left">Back</button></a>
         {!! Form::submit('Delete',  array('class' => 'btn btn-danger pull-left')) !!}
-        <a href="{{route('project.edit', $project->id)}}"><button type="button" class="btn btn-info pull-right">Edit</button></a>
+        <a href="{{route('project.edit', $project->proid)}}"><button type="button" class="btn btn-info pull-right">Edit</button></a>
       </div>
       <!-- box footer -->
     </div>

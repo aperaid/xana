@@ -18,18 +18,18 @@
         <div class="form-horizontal">
           {!! Form::hidden('id', $customer->id+1) !!}
           <div class="form-group">
-            {!! Form::label('Company Code', 'Company Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'Company Code', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+            {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
+              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Nama Perusahaan', 'Nama Perusahaan', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('Company', null, array('class' => 'form-control', 'id' => 'Company', 'placeholder' => 'Nama Perusahaan', 'onKeyUp' => 'capital()', 'required')) !!}
+            {!! Form::label('Company Name', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-6">
+              {!! Form::text('Company', null, array('class' => 'form-control', 'id' => 'Company', 'placeholder' => 'PT. COMPANY', 'onKeyUp' => 'capital()', 'required')) !!}
             </div>
-            {!! Form::label('NPWP', 'NPWP', ['class' => "col-sm-1 control-label"]) !!}
-            <div class="col-sm-2">
+            {!! Form::label('NPWP', 'NPWP', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-legal"></i></span>
                 {!! Form::number('NPWP', null, array('class' => 'form-control', 'placeholder' => '12.456.789.0-012.123')) !!}
@@ -37,23 +37,22 @@
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Alamat', 'Alamat', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('Alamat', null, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota')) !!}
+            {!! Form::label('Company Address', 'Company Address', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
+              {!! Form::text('CompAlamat', null, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota')) !!}
             </div>
-            {!! Form::label('Kota', 'Kota', ['class' => "col-sm-1 control-label"]) !!}
-            <div class="col-sm-2">
-              {!! Form::text('Kota', null, array('class' => 'form-control', 'placeholder' => 'Kota')) !!}
+            {!! Form::label('City', 'City', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-2">
+              {!! Form::text('CompKota', null, array('class' => 'form-control', 'placeholder' => 'Jakarta')) !!}
             </div>
-            {!! Form::label('Kodepos', 'Kodepos', ['class' => "col-sm-1 control-label"]) !!}
-            <div class="col-sm-2">
-              {!! Form::number('Zip', null, array('class' => 'form-control', 'placeholder' => '10203')) !!}
+            {!! Form::label('Zip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-2">
+              {!! Form::number('CompZip', null, array('class' => 'form-control', 'placeholder' => '10203')) !!}
             </div>
           </div>
-          <hr>
           <div class="form-group">
-            {!! Form::label('Telp', 'Telp', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-2">
+            {!! Form::label('Company Phone', 'Company Phone', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-2">
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-phone"></i>
@@ -61,8 +60,8 @@
                 {!! Form::text('CompPhone', null, array('class' => 'form-control', 'placeholder' => '021-123456')) !!}
               </div>
             </div>
-            {!! Form::label('Fax', 'Fax', ['class' => "col-sm-1 control-label"]) !!}
-            <div class="col-sm-2">
+            {!! Form::label('Fax', 'Fax', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-fax"></i>
@@ -70,11 +69,41 @@
                 {!! Form::text('Fax', null, array('class' => 'form-control', 'placeholder' => '021-123456')) !!}
               </div>
             </div>
-            {!! Form::label('Email', 'Email', ['class' => "col-sm-1 control-label"]) !!}
-            <div class="col-sm-2">
+            {!! Form::label('Email', 'Email', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
-                {!! Form::text('CompEmail', null, array('class' => 'form-control', 'placeholder' => 'Email')) !!}
+                {!! Form::text('CompEmail', null, array('class' => 'form-control', 'placeholder' => 'company@email.co.id')) !!}
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div class="form-group">
+            {!! Form::label('Contact Person', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-6">
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-user"></i>
+                </div>
+                {!! Form::text('Customer', null, array('class' => 'form-control', 'placeholder' => 'CP Name')) !!}
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Phone CP', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-2">
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-phone"></i>
+                </div>
+                {!! Form::text('CustPhone', null, array('class' => 'form-control', 'placeholder' => '021-123456')) !!}
+              </div>
+            </div>
+            {!! Form::label('Email CP', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                {!! Form::text('CustEmail', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id')) !!}
               </div>
             </div>
           </div>

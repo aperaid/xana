@@ -23,8 +23,8 @@
       Company
       <address>
         <strong>{{ $isisjkembali -> Company }}</strong><br>
-        {{ $isisjkembali -> Alamat }}<br>
-        {{ $isisjkembali -> Kota }},  {{ $isisjkembali -> Zip }}<br>
+        {{ $isisjkembali -> CompAlamat }}<br>
+        {{ $isisjkembali -> CompKota }},  {{ $isisjkembali -> CompZip }}<br>
         Phone: {{ $isisjkembali -> CompPhone }}<br>
         Email: {{ $isisjkembali -> CompEmail }}
       </address>
@@ -33,8 +33,8 @@
       Project
       <address>
         <strong>{{ $isisjkembali -> Project }}</strong><br>
-        {{ $isisjkembali -> Alamat }}<br>
-        {{ $isisjkembali -> Kota }},  {{ $isisjkembali -> Zip }}<br>
+        {{ $isisjkembali -> ProjAlamat }}<br>
+        {{ $isisjkembali -> ProjKota }},  {{ $isisjkembali -> ProjZip }}<br>
       </address>
     </div>
     <div class="col-sm-4 invoice-col">

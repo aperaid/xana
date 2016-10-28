@@ -46,7 +46,10 @@ class ProjectController extends Controller
 
     public function show($id)
     {
-    	$project = Project::find($id);
+    	$project = Project::leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+      ->select('project.id as proid', 'project.*', 'customer.*')
+      ->where('project.id', $id)
+      ->first();
 
     	return view('pages.project.show')
       ->with('project', $project)
@@ -72,7 +75,9 @@ class ProjectController extends Controller
 
     	$project->PCode = $request->PCode;
     	$project->Project = $request->Project;
-      $project->Alamat = $request->Alamat;
+      $project->ProjAlamat = $request->ProjAlamat;
+      $project->ProjZip = $request->ProjZip;
+      $project->ProjKota = $request->ProjKota;
     	$project->CCode = $request->CCode;
     	$project->save();
 

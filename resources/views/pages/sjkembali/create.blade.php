@@ -32,7 +32,7 @@
           <div class="form-group">
             {!! Form::label('Project Address', 'Project Address', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-4">
-              {!! Form::text('Alamat', null, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
+              {!! Form::text('ProjAlamat', null, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
             </div>
           </div>
           <div class="form-group">

@@ -18,27 +18,35 @@
       <div class="form-horizontal">
         <div class="box-body">
           <div class="form-group">
-            {!! Form::label('Project Code', 'Project Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              {!! Form::text('PCode', $project->PCode, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+            {!! Form::label('Project Code', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
+              {!! Form::text('PCode', $project->PCode, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Project Name', 'Project Name', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
+            {!! Form::label('Project Name', 'Project Name', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-6">
               {!! Form::text('Project', $project->Project, array('class' => 'form-control', 'id' => 'Project', 'placeholder' => 'Project Name', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Project Address', 'Project Address', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('Alamat', $project->Alamat, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
+            {!! Form::label('Project Address', 'Project Address', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
+              {!! Form::text('ProjAlamat', $project->ProjAlamat, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
+            </div>
+            {!! Form::label('City', 'City', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-2">
+              {!! Form::text('ProjKota', $project->ProjKota, array('class' => 'form-control', 'placeholder' => 'Jakarta', 'autocomplete' => 'off', 'required')) !!}
+            </div>
+            {!! Form::label('Zip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-2">
+              {!! Form::text('ProjZip', $project->ProjZip, array('class' => 'form-control', 'placeholder' => '10203', 'autocomplete' => 'off', 'required')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Company Code', 'Company Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('CCode', $project->CCode, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'Company Code', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+            {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
+              {!! Form::text('CCode', $project->CCode, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
             </div>
           </div>
         </div>
@@ -61,8 +69,6 @@
 
 <script>
   function capital() {
-    var x = document.getElementById("PCode");
-    x.value = x.value.toUpperCase();
     var x = document.getElementById("Project");
     x.value = x.value.toUpperCase();
     var x = document.getElementById("CCode");

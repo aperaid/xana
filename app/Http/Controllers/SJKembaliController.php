@@ -77,7 +77,7 @@ class SJKembaliController extends Controller
         'sjkirim.Tgl',
         'sjkirim.Reference',
         'transaksi.Barang',
-        'project.Project',
+        'project.*',
         'customer.*'
       ])
       ->leftJoin('isisjkirim', 'isisjkembali.IsiSJKir', '=', 'isisjkirim.IsiSJKir')

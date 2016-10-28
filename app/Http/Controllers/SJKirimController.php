@@ -61,14 +61,7 @@ class SJKirimController extends Controller
 
     public function show($id)
     {
-      $sjkirim = SJKirim::select([
-        'sjkirim.*',
-      ])
-      ->leftJoin('pocustomer', 'sjkirim.Reference', '=', 'pocustomer.Reference')
-      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-      ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-      ->where('sjkirim.id', $id)
-      ->first();
+      $sjkirim = SJKirim::find($id);
 
       $isisjkirims = IsiSJKirim::select([
         'isisjkirim.*',
@@ -113,17 +106,31 @@ class SJKirimController extends Controller
       ->with('page_title', 'Surat Jalan Kirim')
       ->with('page_description', 'View');
     }
-/*
+
     public function edit($id)
     {
-    	$project = Project::find($id);
-
+    	$sjkirim = SJKirim::find($id);
+      
+      $isisjkirims = IsiSJKirim::select([
+        'isisjkirim.*',
+        'sjkirim.Tgl',
+        'transaksi.*',
+        'project.Project',
+      ])
+      ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+      ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir)
+      ->orderBy('isisjkirim.id', 'asc')
+      ->get();
+      
     	return view('pages.project.edit')
       ->with('project', $project)
       ->with('page_title', 'Project')
       ->with('page_description', 'Edit');
     }
-
+/*
     public function update(Request $request, $id)
     {
     	$project = Project::find($id);
