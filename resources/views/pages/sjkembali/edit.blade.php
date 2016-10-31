@@ -1,55 +1,58 @@
 @extends('layouts.xana.layout')
 @section('title')
-	Edit Project
+	Edit SJ Kembali
 @stop
 
 @section('content')
-{!! Form::model($project, [
+{!! Form::model($sjkembali, [
   'method' => 'patch',
-  'route' => ['project.update', $project->id]
+  'route' => ['sjkembali.update', $sjkembali->id]
 ]) !!}
 <div class="row">
-  <div class="col-md-12">
-    <div class="box box-info">
-      <div class="box-header with-border">
-        <h3 class="box-title">Project Detail</h3>
-      </div>
-      <!-- box-header -->
-      <div class="form-horizontal">
-        <div class="box-body">
-          <div class="form-group">
-            {!! Form::label('Project Code', 'Project Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              {!! Form::text('PCode', $project->PCode, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
-            </div>
-          </div>
-          <div class="form-group">
-            {!! Form::label('Project Name', 'Project Name', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('Project', $project->Project, array('class' => 'form-control', 'id' => 'Project', 'placeholder' => 'Project Name', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
-            </div>
-          </div>
-          <div class="form-group">
-            {!! Form::label('Project Address', 'Project Address', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('Alamat', $project->Alamat, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
-            </div>
-          </div>
-          <div class="form-group">
-            {!! Form::label('Company Code', 'Company Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('CCode', $project->CCode, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'Company Code', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
-            </div>
-          </div>
-        </div>
-        <!-- box body -->
-      </div>
-      <!-- form-horizontal -->
+  <div class="col-xs-12">
+    <div class="box box-primary">
+      <div class="box-body no-padding">
+        <table id="datatables" class="table table-bordered">
+					<thead>
+            <tr>
+              <th>Tanggal Kirim</th>
+              <th>Barang</th>
+              <th>Warehouse</th>
+              <th>Q di Proyek</th>
+              <th>Q Pengambilan</th>
+            </tr>
+					</thead>
+					<tbody>
+            @foreach($isisjkembalis as $isisjkembali)
+            <tr>
+              {!! Form::hidden('Purchase', $isisjkembali->Purchase) !!}
+							{!! Form::hidden('IsiSJKem', $isisjkembali->IsiSJKem) !!}
+              {!! Form::hidden('IsiSJKir', $isisjkembali->IsiSJKir) !!}
+              {!! Form::hidden('QTerima', $isisjkembali->QTerima) !!}
+              <td>{!! Form::text('Tgl', $isisjkembali->Tgl, ['class' => 'form-control', 'readonly']) !!}</td>
+              <td>{!! Form::text('Barang', $isisjkembali->Barang, ['class' => 'form-control', 'autocomplete' => 'off', 'readonly']) !!}</td>
+              <td>{!! Form::text('Warehouse', $isisjkembali->Warehouse, ['class' => 'form-control', 'autocomplete' => 'off']) !!}</td>
+              <td>{!! Form::text('QSisaKem', $isisjkembali->QSisaKem, ['class' => 'form-control', 'readonly']) !!}</td>
+              <td>{!! Form::text('QTertanda', $isisjkembali->SumQTertanda, ['class' => 'form-control', 'autocomplete' => 'off', 'onkeyup' => 'this.value = minmax(this.value, 0, $isisjkembali->QSisaKem)', 'required']) !!}</td>
+						</tr>
+						@endforeach
+					</tbody>
+        </table>
+			</div>
       <div class="box-footer">
-        <a href="{{route('project.show', $project->id)}}"><button type="button" class="btn btn-default pull-left">cancel</button></a>
-        {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
+        <label>Tanggal SJ Kembali</label>
+        <div class="input-group">
+          <div class="input-group-addon">
+            <i class="fa fa-calendar"></i>
+          </div>
+          {!! Form::text('Tgl2', $sjkembali->Tgl, ['id' => 'Tgl2', 'class' => 'form-control', 'autocomplete' => 'off', 'required']) !!}
+        </div>
+				<br>
+        <div class="box-footer">
+          <a href="{{route('sjkembali.show', $sjkembali->id)}}"><button type="button" class="btn btn-default">Cancel</button></a>
+          {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
+        </div>
       </div>
-      <!-- footer -->
     </div>
     <!-- box -->
   </div>
@@ -59,34 +62,28 @@
 {!! Form::close() !!}
 @stop
 
+@section('script')
 <script>
-  function capital() {
-    var x = document.getElementById("PCode");
-    x.value = x.value.toUpperCase();
-    var x = document.getElementById("Project");
-    x.value = x.value.toUpperCase();
-    var x = document.getElementById("CCode");
-    x.value = x.value.toUpperCase();
-  }
+var Min = '{{ $TglMin->S }}';
+var Max = '{{ $TglMax->E }}';
+$(function() {
+  $('#Tgl2').datepicker({
+	  format: "dd/mm/yyyy",
+	  startDate: Min,
+	  endDate: Max,
+	  todayHighlight: true,
+	  autoclose: true
+  }); 
+}); 
 </script>
 <script>
-  $(document).ready(function() {
-    src = "{{ route('searchajax') }}";
-      $("#CCode").autocomplete({
-        source: function(request, response) {
-          $.ajax({
-            url: src,
-            dataType: "json",
-            data: {
-              term : request.term
-            },
-            success: function(data) {
-              response(data);
-               
-            }
-          });
-        },
-        min_length: 3,
-    });
-  });
+function minmax(value, min, max) 
+{
+	if(parseInt(value) < min || isNaN(value)) 
+        return 0; 
+    if(parseInt(value) > max) 
+        return parseInt(max); 
+    else return value;
+}
 </script>
+@stop

@@ -31,6 +31,8 @@ Route::resource('transaksi', 'TransaksiController');
 
 Route::resource('extend', 'ExtendController');
 
+Route::get('sjkirim/qtertanda', 'SJKirimController@getQTertanda');
+
 Route::resource('sjkirim', 'SJKirimController');
 
 Route::resource('sjkembali', 'SJKembaliController');

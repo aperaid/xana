@@ -7,6 +7,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\SJKembali;
 use App\IsiSJKembali;
+use App\Periode;
 use Session;
 Use DB;
 
@@ -70,10 +71,9 @@ class SJKembaliController extends Controller
       ->first();
       
       $isisjkembalis = IsiSJKembali::select([
-        DB::raw('sum(isisjkembali.QTertanda) as QTertanda2'),
-        DB::raw('sum(isisjkembali.QTerima) as QTerima2'),
+        DB::raw('sum(isisjkembali.QTertanda) as SumQTertanda'),
+        DB::raw('sum(isisjkembali.QTerima) as SumQTerima'),
         'isisjkembali.*',
-        'isisjkirim.QSisaKem',
         'sjkirim.Tgl',
         'sjkirim.Reference',
         'transaksi.Barang',
@@ -113,17 +113,75 @@ class SJKembaliController extends Controller
       ->with('page_title', 'Surat Jalan Kembali')
       ->with('page_description', 'View');
     }
-/*
+
     public function edit($id)
     {
-    	$project = Project::find($id);
+      $sjkembali = SJKembali::find($id);
+      
+      $TglMin = Periode::select([
+        'periode.S',
+      ])
+      ->where('periode.Reference', $sjkembali->Reference)
+      ->where('periode.Deletes', 'Sewa')
+      ->first();
+      
+      $TglMax = Periode::select([
+        'periode.E',
+      ])
+      ->where('periode.Reference', $sjkembali->Reference)
+      ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Extend")')
+      ->orderBy('Periode.id', 'desc')
+      ->first();
+      
+      $maxperiode = Periode::select([
+        DB::raw('MAX(periode.Periode) AS maxper'),
+      ])
+      ->where('periode.Reference', $sjkembali->SJKem)
+      ->first();
+      
+      $isisjkembalis = IsiSJKembali::select([
+        DB::raw('sum(isisjkembali.QTertanda) as SumQTertanda'),
+        DB::raw('sum(isisjkembali.QTerima) as SumQTerima'),
+        'isisjkembali.*',
+        'sjkirim.Tgl',
+        'transaksi.Barang',
+        'transaksi.QSisaKem',
+        'project.Project',
+      ])
+      ->leftJoin('isisjkirim', 'isisjkembali.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+      ->leftJoin('transaksi', 'isisjkembali.Purchase', '=', 'transaksi.Purchase')
+      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+      ->where('isisjkembali.SJKem', $sjkembali->SJKem)
+      ->groupBy('isisjkembali.Purchase')
+      ->orderBy('isisjkembali.id', 'asc')
+      ->get();
+      
+      $isisjkembali2s = IsiSJKembali::select([
+        'isisjkembali.*',
+      ])
+      ->leftJoin('isisjkirim', 'isisjkembali.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+      ->leftJoin('transaksi', 'isisjkembali.Purchase', '=', 'transaksi.Purchase')
+      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+      ->where('isisjkembali.SJKem', $sjkembali->SJKem)
+      ->orderBy('isisjkembali.id', 'asc')
+      ->get();
 
-    	return view('pages.project.edit')
-      ->with('project', $project)
-      ->with('page_title', 'Project')
+    	return view('pages.sjkembali.edit')
+      ->with('sjkembali', $sjkembali)
+      ->with('TglMin', $TglMin)
+      ->with('TglMax', $TglMax)
+      ->with('maxperiode', $maxperiode)
+      ->with('isisjkembalis', $isisjkembalis)
+      ->with('isisjkembali2s', $isisjkembali2s)
+      ->with('top_menu_sel', 'menu_sjkembali')
+      ->with('page_title', 'Surat Jalan Kembali')
       ->with('page_description', 'Edit');
     }
-
+/*
     public function update(Request $request, $id)
     {
     	$project = Project::find($id);

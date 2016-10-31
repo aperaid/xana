@@ -8,7 +8,7 @@
   <div class="col-xs-12">
     <div class="box">
       <div class="box-body">
-        <table id="datatables" class="table table-bordered table-striped">
+        <table id="datatables" class="table table-hover table-bordered">
           <thead>
             <tr>
               <th>id</th>

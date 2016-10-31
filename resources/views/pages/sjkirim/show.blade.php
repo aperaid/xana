@@ -76,8 +76,8 @@
     <div class="box-footer">
       <a href="{{route('sjkirim.index')}}"><button type="button" class="btn btn-default">Back</button></a>
       <a href="#"><button type="button" class="btn btn-default">Print</button></a>
-      <a href="EditSJKirimQuantity.php?SJKir={{ $isisjkirim->SJKir }}&Periode={{ $isisjkirim->Periode }}&Reference={{ $isisjkirim->Reference }}"><button type="button" @if ($qttdcheck > 0) class="btn btn-default pull-right" disabled @else class="btn btn-success pull-right" @endif >Q Tertanda</button></a>
-      <a href="{{route('sjkirim.edit', $isisjkirim->SJKir)}}"><button type="button" @if ($jumlah > 0) style="margin-right: 5px" class="btn btn-default pull-right" disabled @else style="margin-right: 5px" class="btn btn-primary pull-right" @endif >Edit Pengiriman</button></a>
+      <a href="{{url('sjkirim/qtertanda?id=' . $sjkirim->id)}}"><button type="button" @if ($qttdcheck > 0) class="btn btn-default pull-right" disabled @else class="btn btn-success pull-right" @endif >Q Tertanda</button></a>
+      <a href="{{route('sjkirim.edit', $sjkirim->id)}}"><button type="button" @if ($jumlah > 0) style="margin-right: 5px" class="btn btn-default pull-right" disabled @else style="margin-right: 5px" class="btn btn-primary pull-right" @endif >Edit Pengiriman</button></a>
       <a href="#"><button type="button" style="margin-right: 5px" class="btn btn-danger pull-right">Delete</button></a>
     </div>
     <!-- box footer -->

@@ -26,7 +26,7 @@
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
             </div>
-            {!! Form::text('Tgl', null, array('class' => 'form-control pull-right date', 'id' => 'Tgl', 'required')) !!}
+            {!! Form::text('Tgl', null, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'required')) !!}
           </div>
         </div>
         <div class="form-group">

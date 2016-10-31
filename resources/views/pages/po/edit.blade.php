@@ -127,7 +127,6 @@ $(function() {
 </script>
 <script>
   $(document).ready(function(){
-		
 		//Mask Transport
 		$("#Transport").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 		//Mask Price

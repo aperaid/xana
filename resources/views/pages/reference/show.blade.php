@@ -39,8 +39,8 @@
 									Company
 									<address>
 										<strong>{{ $detail -> Company }}</strong><br>
-										{{ $detail -> custalamat }}<br>
-										{{ $detail -> Kota }},  {{ $detail -> Zip }}<br>
+										{{ $detail -> CompAlamat }}<br>
+										{{ $detail -> CompKota }},  {{ $detail -> CompZip }}<br>
 										Phone: {{ $detail -> CompPhone }}<br>
 										Email: {{ $detail -> CompEmail }}
 									</address>
@@ -49,8 +49,8 @@
 									Project
 									<address>
 										<strong>{{ $detail -> Project }}</strong><br>
-										{{ $detail -> projalamat }}<br>
-										{{ $detail -> Kota }}<br>
+										{{ $detail -> ProjAlamat }}<br>
+										{{ $detail -> ProjKota }},  {{ $detail -> ProjZip }}<br>
 									</address>
 								</div>
 								<div class="col-sm-4">

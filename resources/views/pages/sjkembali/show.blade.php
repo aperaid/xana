@@ -65,8 +65,8 @@
             <td>{{ $isisjkembali->Tgl }}</td>
             <td>{{ $isisjkembali->Barang }}</td>
             <td>{{ $isisjkembali->Warehouse }}</td>
-            <td>{{ $isisjkembali->QTertanda2 }}</td>
-            <td>{{ $isisjkembali->QTerima2 }}</td>
+            <td>{{ $isisjkembali->SumQTertanda }}</td>
+            <td>{{ $isisjkembali->SumQTerima }}</td>
           </tr>
           @endforeach
         </tbody>

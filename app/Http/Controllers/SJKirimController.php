@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Input;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Periode;
 use App\SJKirim;
 use App\IsiSJKirim;
+use App\Reference;
 use Session;
 use DB;
 
@@ -125,9 +127,19 @@ class SJKirimController extends Controller
       ->orderBy('isisjkirim.id', 'asc')
       ->get();
       
-    	return view('pages.project.edit')
-      ->with('project', $project)
-      ->with('page_title', 'Project')
+      $TglMin = Reference::select([
+        'pocustomer.Tgl',
+      ])
+      ->leftJoin('sjkirim', 'pocustomer.Reference', '=', 'sjkirim.Reference')
+      ->where('sjkirim.SJKir', $sjkirim->SJKir)
+      ->first();
+      
+    	return view('pages.sjkirim.edit')
+      ->with('sjkirim', $sjkirim)
+      ->with('isisjkirims', $isisjkirims)
+      ->with('TglMin', $TglMin)
+      ->with('top_menu_sel', 'menu_sjkirim')
+      ->with('page_title', 'Surat Jalan Kirim')
       ->with('page_description', 'Edit');
     }
 /*
@@ -142,8 +154,55 @@ class SJKirimController extends Controller
     	$project->save();
 
     	return redirect()->route('project.show', $id);
+    }*/
+    
+    public function getQTertanda()
+    { 
+      $id = Input::get('id');
+      
+    	$sjkirim = SJKirim::find($id);
+      
+      $parameter = IsiSJKirim::select([
+        'periode.Periode',
+        'periode.Reference',
+      ])
+      ->leftJoin('periode', 'isisjkirim.IsiSJKir', '=', 'periode.IsiSJKir')
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir)
+      ->groupBy('periode.IsiSJKir')
+      ->first();
+      
+      $Tgl = Periode::select([
+        'periode.*',
+        'periode.S',
+      ])
+      ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      ->where('periode.Reference', $parameter->Reference)
+      ->where('periode.Periode', $parameter->Periode)
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir)
+      ->first();
+      
+      $isisjkirims = IsiSJKirim::select([
+        'isisjkirim.*',
+        'transaksi.*',
+        'project.Project',
+      ])
+      ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir)
+      ->orderBy('isisjkirim.id', 'asc')
+      ->get();
+      
+    	return view('pages.sjkirim.qtertanda')
+      ->with('sjkirim', $sjkirim)
+      ->with('isisjkirims', $isisjkirims)
+      ->with('Tgl', $Tgl)
+      ->with('top_menu_sel', 'menu_sjkirim')
+      ->with('page_title', 'Surat Jalan Kirim')
+      ->with('page_description', 'QTertanda');
     }
-
+  
+/*
     public function destroy($id)
     {
     	Project::destroy($id);
