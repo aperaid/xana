@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Input;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\SJKembali;
@@ -36,6 +37,7 @@ class SJKembaliController extends Controller
       ->get();
 
     	return view('pages.sjkembali.indexs')
+      ->with('url', 'sjkembali')
       ->with('sjkembalis', $sjkembali)
       ->with('top_menu_sel', 'menu_sjkembali')
       ->with('page_title', 'Surat Jalan Kembali')
@@ -105,6 +107,7 @@ class SJKembaliController extends Controller
       }
       
     	return view('pages.sjkembali.show')
+      ->with('url', 'sjkembali')
       ->with('sjkembali', $sjkembali)
       ->with('isisjkembali', $isisjkembali)
       ->with('isisjkembalis', $isisjkembalis)
@@ -140,8 +143,7 @@ class SJKembaliController extends Controller
       ->first();
       
       $isisjkembalis = IsiSJKembali::select([
-        DB::raw('sum(isisjkembali.QTertanda) as SumQTertanda'),
-        DB::raw('sum(isisjkembali.QTerima) as SumQTerima'),
+        DB::raw('sum(isisjkembali.QTertanda) as QTertanda2'),
         'isisjkembali.*',
         'sjkirim.Tgl',
         'transaksi.Barang',
@@ -171,6 +173,7 @@ class SJKembaliController extends Controller
       ->get();
 
     	return view('pages.sjkembali.edit')
+      ->with('url', 'sjkembali')
       ->with('sjkembali', $sjkembali)
       ->with('TglMin', $TglMin)
       ->with('TglMax', $TglMax)
@@ -193,8 +196,69 @@ class SJKembaliController extends Controller
     	$project->save();
 
     	return redirect()->route('project.show', $id);
+    }*/
+  
+    public function getQTerima()
+    { 
+      $id = Input::get('id');
+      
+    	$sjkembali = SJKembali::find($id);
+      
+      $isisjkembalis = IsiSJKembali::select([
+        DB::raw('sum(isisjkembali.QTertanda) as QTertanda2'),
+        DB::raw('sum(isisjkembali.QTerima) as QTerima2'),
+        'isisjkembali.*',
+        'isisjkirim.QSisaKem',
+        'sjkirim.Tgl',
+        'transaksi.Barang',
+        'project.Project',
+      ])
+      ->leftJoin('isisjkirim', 'isisjkembali.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+      ->leftJoin('transaksi', 'isisjkembali.Purchase', '=', 'transaksi.Purchase')
+      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+      ->where('isisjkembali.SJKem', $sjkembali->SJKem)
+      ->groupBy('isisjkembali.Purchase')
+      ->orderBy('isisjkembali.id', 'asc')
+      ->get();
+      
+      $isisjkembali = IsiSJKembali::select([
+        'isisjkembali.*',
+      ])
+      ->leftJoin('isisjkirim', 'isisjkembali.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+      ->leftJoin('transaksi', 'isisjkembali.Purchase', '=', 'transaksi.Purchase')
+      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+      ->where('isisjkembali.SJKem', $sjkembali->SJKem)
+      ->orderBy('isisjkembali.id', 'asc')
+      ->get();
+      
+      $QTerima2 = $isisjkembali->pluck('QTerima');
+      $IsiSJKir = $isisjkembali->pluck('IsiSJKir');
+      
+      $Tgl = Periode::select([
+        'Periode.E',
+      ])
+      ->whereIn('periode.IsiSJKir', $IsiSJKir)
+      ->where('periode.Deletes', 'Kembali')
+      ->first();
+      
+      $x = 1;
+      
+    	return view('pages.sjkembali.qterima')
+      ->with('url', 'sjkembali')
+      ->with('sjkembali', $sjkembali)
+      ->with('isisjkembalis', $isisjkembalis)
+      ->with('QTerima2', $QTerima2)
+      ->with('Tgl', $Tgl)
+      ->with('top_menu_sel', 'menu_sjkirim')
+      ->with('page_title', 'Surat Jalan Kembali')
+      ->with('page_description', 'QTerima');
     }
-
+    
+/*
     public function destroy($id)
     {
     	Project::destroy($id);

@@ -1,6 +1,6 @@
 @extends('layouts.xana.layout')
 @section('title')
-	View Invoice Sewa
+	View Invoice Jual
 @stop
 
 @section('content')
@@ -9,9 +9,8 @@
     <div class="box box-info">
       <div class='form-horizontal'>
         <div class="box-header with-border">
-          <h3 class="box-title">Invoice Sewa Detail</h3>
+          <h3 class="box-title">Invoice Jual Detail</h3>
         </div>
-        <!-- box-header -->
         <div class="box-body with-border">
           <div class="col-sm-9">
             <div class="form-group">
@@ -33,7 +32,7 @@
               </div>
             </div>
           </div>
-          <div class="col-sm-3">
+          <div class="col-md-3">
             <table class="table table-bordered">
               <thead>
                 <tr>
@@ -53,34 +52,22 @@
             <thead>
               <tr>
                 <th align="center">SJ Kirim</th>
-                <th align="center">SJ Kembali</th>
                 <th align="center">Item</th>
-                <th>S</th>
-                <th>E</th>
-                <th>S-E</th>
-                <th>Periode</th>
-                <th>I</th>
-                <th>Quantity</th>
+                <th>Quantity Kirim</th>
                 <th>Price</th>
                 <th>Total</th>
               </tr>
             </thead>
             <tbody>
               <?php $x = 0 ?>
-              @foreach($periodes as $periode)
+              @foreach($transaksis as $transaksi)
               <tr>
-                {!! Form::hidden('POCode', $periode->POCode) !!}
-                <td>{{$periode->SJKir}}</td>
-                <td>{{$periode->SJKem}}</td>
-                <td>{{$periode->Barang}}</td>
-                <td>{{$periode->S}}</td>
-                <td>{{$periode->E}}</td>
-                <td>{{$SE[$x]}}</td>
-                <td>{{$Days2[$x]}}</td>
-                <td>{{$I[$x]}}</td>
-                <td>{{$periode->SumQuantity}}</td>
-                <td>Rp {{ number_format($periode->Amount, 2, ',', '.') }}</td>
-                <td>Rp {{ number_format($total2[$x], 2, ',', '.') }}</td>
+                {!! Form::hidden('POCode', $transaksi->POCode) !!}
+                <td>{{$transaksi->SJKir}}</td>
+                <td>{{$transaksi->Barang}}</td>
+                <td>{{$transaksi->QKirim}}</td>
+                <td>Rp {{ number_format($transaksi->Amount, 2, ',', '.') }}</td>
+                <td>Rp <?php echo number_format($total2[$x], 2,',','.') ?></td>
               </tr>
               <?php $x++ ?>
               @endforeach
@@ -119,11 +106,10 @@
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+$toss-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+              {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+$transport-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
             </div>
-              {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}
+            {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}
           </div>
-          <!-- Footer Box -->
           <div class="box-footer">
             <!-- Back Button -->
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>
@@ -134,13 +120,13 @@
           </div>
           <!-- box-footer -->
         </div>
-      <!-- box-body -->
+        <!-- box-body -->
       </div>
+      <!-- form -->
     </div>
     <!-- box -->
   </div>
   <!-- col -->
 </div>
 <!-- row -->
-{!! Form::close() !!}
 @stop

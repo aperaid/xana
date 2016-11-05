@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests;
+use App\Http\Controllers\Controller;
+use Session;
+use DB;
 
 class HomeController extends Controller
 {
@@ -23,6 +27,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+      return view('home')
+      ->with('url', 'home')
+      ->with('top_menu_sel', 'menu_home')
+  		->with('page_title', 'Dashboard')
+  		->with('page_description', 'Home');
     }
 }

@@ -54,7 +54,7 @@
 				</div>
 				<br>
 				<a href="{{route('sjkirim.show', $sjkirim->id)}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
-				<button type="submit" name="bt_editsjkirimquantity_submit" id="bt_editsjkirimquantity_submit" class="btn btn-success pull-right">Update</button>
+				{!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
 			</div>
       <!-- box-footer -->
     </div>
@@ -67,7 +67,7 @@
 @stop
 
 @section('script')
-<script language="javascript">
+<script>
   function sisa() {
   for(x = 1; x < 11; x++){
     var txtFirstNumberValue = document.getElementById('hd_editsjkirimquantity_QSisaKir2'+x).value;
@@ -80,7 +80,7 @@
    }
 </script>
 
-<script type="text/javascript">
+<script>
 function minmax(value, min, max) 
 {
 	if(parseInt(value) < min || isNaN(value)) 

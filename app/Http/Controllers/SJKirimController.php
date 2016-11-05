@@ -38,6 +38,7 @@ class SJKirimController extends Controller
       ->get();
 
     	return view('pages.sjkirim.indexs')
+      ->with('url', 'sjkirim')
       ->with('sjkirims', $sjkirim)
       ->with('top_menu_sel', 'menu_sjkirim')
       ->with('page_title', 'Surat Jalan Kirim')
@@ -99,6 +100,7 @@ class SJKirimController extends Controller
       }
       
     	return view('pages.sjkirim.show')
+      ->with('url', 'sjkirim')
       ->with('sjkirim', $sjkirim)
       ->with('isisjkirim', $isisjkirim)
       ->with('isisjkirims', $isisjkirims)
@@ -135,6 +137,7 @@ class SJKirimController extends Controller
       ->first();
       
     	return view('pages.sjkirim.edit')
+      ->with('url', 'sjkirim')
       ->with('sjkirim', $sjkirim)
       ->with('isisjkirims', $isisjkirims)
       ->with('TglMin', $TglMin)
@@ -183,7 +186,9 @@ class SJKirimController extends Controller
       
       $isisjkirims = IsiSJKirim::select([
         'isisjkirim.*',
-        'transaksi.*',
+        'transaksi.Barang',
+        'transaksi.JS',
+        'transaksi.QSisaKir',
         'project.Project',
       ])
       ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
@@ -194,6 +199,7 @@ class SJKirimController extends Controller
       ->get();
       
     	return view('pages.sjkirim.qtertanda')
+      ->with('url', 'sjkirim')
       ->with('sjkirim', $sjkirim)
       ->with('isisjkirims', $isisjkirims)
       ->with('Tgl', $Tgl)

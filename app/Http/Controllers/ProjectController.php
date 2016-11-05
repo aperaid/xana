@@ -16,6 +16,7 @@ class ProjectController extends Controller
 		$project = Project::all();
 
     	return view('pages.project.indexs')
+      ->with('url', 'project')
       ->with('project', $project)
       ->with('top_menu_sel', 'menu_project')
       ->with('page_title', 'Project')
@@ -28,6 +29,7 @@ class ProjectController extends Controller
       ->first();
       
     	return view('pages.project.create')
+      ->with('url', 'project')
       ->with('project', $project)
       ->with('top_menu_sel', 'menu_project')
       ->with('page_title', 'Project')
@@ -52,6 +54,7 @@ class ProjectController extends Controller
       ->first();
 
     	return view('pages.project.show')
+      ->with('url', 'project')
       ->with('project', $project)
       ->with('top_menu_sel', 'menu_project')
       ->with('page_title', 'Project')
@@ -63,6 +66,7 @@ class ProjectController extends Controller
     	$project = Project::find($id);
 
     	return view('pages.project.edit')
+      ->with('url', 'project')
       ->with('project', $project)
       ->with('top_menu_sel', 'menu_project')
       ->with('page_title', 'Project')

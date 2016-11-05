@@ -24,14 +24,16 @@ class TransaksiController extends Controller
       ->orderBy('periode.id', 'asc');
       
       $transaksis = Periode::select([
+        'invoice.id AS invoiceid',
         'invoice.Invoice',
+        'periode.id AS periodeid',
         'periode.*',
         'isisjkirim.SJKir',
         'project.Project',
         'customer.Customer',
         'maxid',
       ])
-      ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'periode.IsiSJKir')
+      ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
       ->leftJoin('pocustomer', 'periode.Reference', '=', 'pocustomer.Reference')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
@@ -48,6 +50,7 @@ class TransaksiController extends Controller
       ->get();
       
       $transaksij = Periode::select([
+        'invoice.id',
         'invoice.Invoice',
         'pocustomer.Reference',
         'project.Project',
@@ -70,13 +73,13 @@ class TransaksiController extends Controller
         'periode.Reference',
         'periode.Claim',
         'periode.Periode',
-        DB::raw('MAX(periode.id) AS periodeclaim')
+        DB::raw('MAX(periode.Periode) AS periodeclaim')
       ])
       ->whereRaw('periode.Deletes = "Claim"');
       
       $T2 = Periode::select([
         'periode.Reference',
-        DB::raw('MAX(periode.id) AS periodeextend')
+        DB::raw('MAX(periode.Periode) AS periodeextend')
       ])
       ->whereRaw('periode.Deletes = "Sewa" OR periode.Deletes = "Extend"');
       
@@ -84,6 +87,7 @@ class TransaksiController extends Controller
         'periodeclaim',
         'periodeextend',
         'transaksiclaim.*',
+        'invoice.id AS invoiceid',
         'invoice.Invoice',
         'periode.Reference',
         'transaksi.Barang',
@@ -108,11 +112,13 @@ class TransaksiController extends Controller
       ->leftJoin(DB::raw(sprintf( '(%s) AS T2', $T2->toSql() )), function($join){
         $join->on('T2.Reference', '=', 'periode.Reference');
       })
+      ->where('invoice.JSC', 'Claim')
       ->groupBy('transaksiclaim.Periode')
       ->orderBy('transaksiclaim.id', 'asc')
       ->get();
       
       return view('pages.transaksi.indexs')
+      ->with('url', 'transaksi')
       ->with('transaksiss', $transaksis)
       ->with('transaksijs', $transaksij)
       ->with('transaksics', $transaksic)

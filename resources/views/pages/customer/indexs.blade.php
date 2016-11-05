@@ -44,7 +44,6 @@
 <script>
 	$(document).ready(function () {
 		var table = $("#datatables").DataTable({
-      "paging": false,
       "processing": true,
       "scrollY": "100%",
       "columnDefs":[

@@ -27,6 +27,7 @@ class ReferenceController extends Controller
             ->get();
 
     	return view('pages.reference.indexs')
+      ->with('url', 'reference')
       ->with('reference', $reference)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
@@ -39,6 +40,7 @@ class ReferenceController extends Controller
       ->first();
       
     	return view('pages.reference.create')
+      ->with('url', 'reference')
       ->with('reference', $reference)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
@@ -117,7 +119,11 @@ class ReferenceController extends Controller
       ->groupBy('sjkirim.SJKir')
       ->get();
       
-      $sjkembali = IsiSJKembali::leftJoin('sjkembali', 'isisjkembali.SJKem', '=', 'sjkembali.SJKem')
+      $sjkembali = IsiSJKembali::select([
+        'sjkembali.*',
+        DB::raw('SUM(isisjkembali.QTerima) AS SumQTerima')
+      ])
+      ->leftJoin('sjkembali', 'isisjkembali.SJKem', '=', 'sjkembali.SJKem')
       ->where('sjkembali.Reference', $detail -> Reference)
       ->groupBy('sjkembali.SJKem')
       ->get();
@@ -132,6 +138,7 @@ class ReferenceController extends Controller
       ->orderBy('periode.id', 'asc');
       
       $sewa = Periode::select([
+        'invoice.id AS invoiceid',
         'invoice.Invoice',
         'periode.*',
         'maxid'
@@ -155,6 +162,7 @@ class ReferenceController extends Controller
       
       $jual = Periode::select([
         'pocustomer.Reference',
+        'invoice.id',
         'invoice.Invoice',
         'project.Project'
       ])
@@ -191,6 +199,7 @@ class ReferenceController extends Controller
         'transaksiclaim.*',
         'periodeclaim',
         'periodeextend',
+        'invoice.id AS invoiceid',
         'invoice.Invoice',
         'periode.Reference',
         'transaksi.Barang',
@@ -205,8 +214,7 @@ class ReferenceController extends Controller
       ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
       ->leftJoin('invoice', function($join){
         $join->on('invoice.Reference', '=', 'transaksi.Reference')
-        ->on('invoice.Periode', '=', 'transaksiclaim.Periode')
-        ->on('invoice.JSC', '=', 'transaksi.JS');
+        ->on('invoice.Periode', '=', 'transaksiclaim.Periode');
       })
       ->leftJoin(DB::raw(sprintf( '(%s) AS T1', $transaksiclaim->toSql() )), function($join){
         $join->on('T1.Reference', '=', 'periode.Reference')
@@ -217,11 +225,13 @@ class ReferenceController extends Controller
         $join->on('T2.Reference', '=', 'periode.Reference');
       })
       ->where('pocustomer.Reference', $detail -> Reference)
+      ->where('invoice.JSC', 'Claim')
       ->groupBy('transaksiclaim.Periode')
       ->orderBy('transaksiclaim.id', 'asc')
       ->get();
       
     	return view('pages.reference.show')
+      ->with('url', 'reference')
       ->with('detail', $detail)
       ->with('purchases', $purchase)
       ->with('sjkircheck', $sjkircheck)
@@ -243,6 +253,7 @@ class ReferenceController extends Controller
     	$reference = Reference::find($id);
 
     	return view('pages.reference.edit')
+      ->with('url', 'reference')
       ->with('reference', $reference)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Reference')

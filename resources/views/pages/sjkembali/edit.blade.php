@@ -33,7 +33,7 @@
               <td>{!! Form::text('Barang', $isisjkembali->Barang, ['class' => 'form-control', 'autocomplete' => 'off', 'readonly']) !!}</td>
               <td>{!! Form::text('Warehouse', $isisjkembali->Warehouse, ['class' => 'form-control', 'autocomplete' => 'off']) !!}</td>
               <td>{!! Form::text('QSisaKem', $isisjkembali->QSisaKem, ['class' => 'form-control', 'readonly']) !!}</td>
-              <td>{!! Form::text('QTertanda', $isisjkembali->SumQTertanda, ['class' => 'form-control', 'autocomplete' => 'off', 'onkeyup' => 'this.value = minmax(this.value, 0, $isisjkembali->QSisaKem)', 'required']) !!}</td>
+              <td>{!! Form::text('QTertanda', $isisjkembali->QTertanda2, ['class' => 'form-control', 'autocomplete' => 'off', 'onkeyup' => 'this.value = minmax(this.value, 0, $isisjkembali->QSisaKem)', 'required']) !!}</td>
 						</tr>
 						@endforeach
 					</tbody>

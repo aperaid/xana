@@ -17,7 +17,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index');
+Route::get('home', 'HomeController@index');
 
 Route::resource('customer', 'CustomerController');
 
@@ -35,11 +35,17 @@ Route::get('sjkirim/qtertanda', 'SJKirimController@getQTertanda');
 
 Route::resource('sjkirim', 'SJKirimController');
 
+Route::get('sjkembali/qterima', 'SJKembaliController@getQTerima');
+
 Route::resource('sjkembali', 'SJKembaliController');
 
 Route::resource('claim', 'ClaimController');
 
 Route::get('invoice/showsewa', 'InvoiceController@getInvoiceSewa');
+
+Route::get('invoice/showjual', 'InvoiceController@getInvoiceJual');
+
+Route::get('invoice/showclaim', 'InvoiceController@getInvoiceClaim');
 
 Route::resource('invoice', 'InvoiceController');
 

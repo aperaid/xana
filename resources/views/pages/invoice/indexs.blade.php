@@ -17,6 +17,7 @@
           <table id="datatabless" class="table table-hover table-bordered">
             <thead>
               <tr>
+                <th>id</th>
                 <th>Reference</th>
                 <th>No. Invoice</th>
                 <th>Project</th>
@@ -28,6 +29,7 @@
             <tbody>
               @foreach($invoicess as $invoices)
               <tr>
+                <td>{{$invoices->id}}</td>
                 <td>{{$invoices->Reference}}</td>
                 <td>{{$invoices->Invoice}}</td>
                 <td>{{$invoices->Project}}</td>
@@ -43,6 +45,7 @@
           <table id="datatablesj" class="table table-hover table-bordered">
             <thead>
               <tr>
+                <th>id</th>
                 <th>Reference</th>
                 <th>No. Invoice</th>
                 <th>Project</th>
@@ -53,6 +56,7 @@
             <tbody>
               @foreach($invoicejs as $invoicej)
               <tr>
+                <td>{{$invoicej->id}}</td>
                 <td>{{$invoicej->Reference}}</td>
                 <td>{{$invoicej->Invoice}}</td>
                 <td>{{$invoicej->Project}}</td>
@@ -67,6 +71,7 @@
           <table id="datatablesc" class="table table-hover table-bordered">
             <thead>
               <tr>
+                <th>id</th>
                 <th>Reference</th>
                 <th>No. Invoice</th>
                 <th>Project</th>
@@ -77,6 +82,7 @@
             <tbody>
               @foreach($invoicecs as $invoicec)
               <tr>
+                <td>{{$invoicec->id}}</td>
                 <td>{{$invoicec->Reference}}</td>
                 <td>{{$invoicec->Invoice}}</td>
                 <td>{{$invoicec->Project}}</td>
@@ -102,12 +108,15 @@ $(document).ready(function () {
 
 	// Invoice Sewa
 	var table = $("#datatabless").DataTable({
-		"paging": false,
 		"processing": true,
-		"order": [5, "desc"],
+		"order": [2, "desc"],
 		"columnDefs":[
 			{
 				"targets": [0],
+				"visible": false
+			},
+      {
+				"targets": [1],
 				"visible": false
 			}
 		],
@@ -115,18 +124,21 @@ $(document).ready(function () {
 		
 	$('#datatabless tbody').on('click', 'tr', function () {
 		var data = table.row( this ).data();
-		window.open("invoice/showsewa?Reference="+ data[0] + "&Invoice=" + data[1] +"&JS=Sewa&Periode=" + data[3],"_self");
+		window.open("invoice/showsewa?id=" + data[0],"_self");
 	} );
 
 
 	// Invoice Jual
 	var table2 = $("#datatablesj").DataTable({
-		"paging": false,
 		"processing": true,
-		"order": [4, "desc"],
+		"order": [2, "desc"],
 		"columnDefs":[
 			{
 				"targets": [0],
+				"visible": false
+			},
+      {
+				"targets": [1],
 				"visible": false
 			}
 		],
@@ -134,25 +146,28 @@ $(document).ready(function () {
 		
 	$('#datatablesj tbody').on('click', 'tr', function () {
 		var data2 = table2.row( this ).data();
-		window.open("viewinvoicejual.php?Reference="+ data2[0] + "&JS=Jual&Invoice=" + data2[1],"_self");
+		window.open("invoice/showjual?id="+ data2[0],"_self");
 	} );
 
 	//Invoice Claim
 	var table3 = $("#datatablesc").DataTable({
-		"paging": false,
 		"processing": true,
-    "order": [4, "desc"],
+    "order": [2, "desc"],
 		"columnDefs":[
 			{
 				"targets": [0],
 				"visible": false
 			},
+      {
+				"targets": [1],
+				"visible": false
+			}
 		],
 	});
 		
 	$('#datatablesc tbody').on('click', 'tr', function () {
 		var data3 = table3.row( this ).data();
-		window.open("viewinvoiceclaim.php?Reference="+ data3[0] + "&JS=Claim&Invoice=" + data3[1] + "&Periode=" + data3[5],"_self");
+		window.open("invoice/showclaim?id="+ data3[0],"_self");
 	} );
 });
 </script>

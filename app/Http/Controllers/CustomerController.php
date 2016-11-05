@@ -16,6 +16,7 @@ class CustomerController extends Controller
   		$customer = Customer::all();
 
     	return view('pages.customer.indexs')
+      ->with('url', 'customer')
   		->with('customers', $customer)
       ->with('top_menu_sel', 'menu_customer')
   		->with('page_title', 'Customer')
@@ -28,6 +29,7 @@ class CustomerController extends Controller
       ->first();
       
     	return view('pages.customer.create')
+      ->with('url', 'customer')
       ->with('customer', $customer)
       ->with('top_menu_sel', 'menu_customer')
       ->with('page_title', 'Customer')
@@ -56,6 +58,7 @@ class CustomerController extends Controller
     	$customer = Customer::find($id);
 
     	return view('pages.customer.show')
+      ->with('url', 'customer')
       ->with('customer', $customer)
       ->with('top_menu_sel', 'menu_customer')
       ->with('page_title', 'Customer')
@@ -67,6 +70,7 @@ class CustomerController extends Controller
     	$customer = Customer::find($id);
 
     	return view('pages.customer.edit')
+      ->with('url', 'customer')
       ->with('customer', $customer)
       ->with('top_menu_sel', 'menu_customer')
       ->with('page_title', 'Customer')

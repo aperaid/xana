@@ -170,20 +170,20 @@
 					<!-- PO TAB -->
 					<div class="tab-pane" id="po_tab">
 						<div class="box-body">
-							<table id="tb_po" class="table table-condensed">
+							<table id="datatablespo" class="table table-hover table-bordered">
 								<thead>
 									<tr>
+                    <th>id</th>
 										<th>PO Code</th>
 										<th>Tgl</th>
-										<th width="10%">View</th>
 									</tr>
 								</thead>
 								<tbody>
 									@foreach( $pos as $po )
 									<tr>
+                    <td>{{ $po -> id }}</td>
 										<td>{{ $po -> POCode }}</td>
 										<td>{{ $po -> Tgl }}</td>
-										<td><a href="{{route('po.show', $po -> POCode)}}"><button type="button" class="btn btn-primary btn-block btn-sm">View</button></a></td>
 									</tr>
 									@endforeach
 								</tbody>
@@ -194,36 +194,40 @@
 					<!-- SJKIRIM TAB -->
 					<div class="tab-pane" id="sjkirim_tab">
 						<div class="box-body">
-							<table class="table table-condensed">
-								<tr>
-									<th>SJKir</th>
-									<th>Tanggal</th>
-									<th>Progress</th>
-									<th>Status</th>
-									<th>View</th>
-								</tr>
-								@foreach( $sjkirims as $sjkirim )
-								<tr>
-									<td>{{ $sjkirim -> SJKir }}</td>
-									<td>{{ $sjkirim -> Tgl }}</td>
-									@if( $sjkirim -> QTertanda != 0 )
-										<td>
-											<div class="progress progress-xs">
-												<div class="progress-bar progress-bar-success" style="width: 100%"></div>
-											</div>
-										</td>                    
-										<td><span class="badge bg-green">Selesai Dikirim</span></td>
-									@else
-										<td>
-											<div class="progress progress-xs">
-											  <div class="progress-bar progress-bar-yellow" style="width: 50%"></div>
-											</div>
-										</td>                    
-										<td><span class="badge bg-yellow">Dalam Pengiriman</span></td>
-									@endif
-									<td><a href="{{route('sjkirim.show', $sjkirim -> SJKir)}}"><button class="btn btn-primary btn-block btn-sm">View</button></a></td>
-								</tr>
-								@endforeach
+							<table id="datatablessjkir" class="table table-hover table-bordered">
+                <thead>
+                  <tr>
+                    <th>id</th>
+                    <th>SJKir</th>
+                    <th>Tanggal</th>
+                    <th>Progress</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach( $sjkirims as $sjkirim )
+                  <tr>
+                    <td>{{ $sjkirim -> id }}</td>
+                    <td>{{ $sjkirim -> SJKir }}</td>
+                    <td>{{ $sjkirim -> Tgl }}</td>
+                    @if( $sjkirim -> QTertanda != 0 )
+                      <td>
+                        <div class="progress progress-xs">
+                          <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                        </div>
+                      </td>                    
+                      <td><span class="badge bg-green">Selesai Dikirim</span></td>
+                    @else
+                      <td>
+                        <div class="progress progress-xs">
+                          <div class="progress-bar progress-bar-yellow" style="width: 50%"></div>
+                        </div>
+                      </td>                    
+                      <td><span class="badge bg-yellow">Dalam Pengiriman</span></td>
+                    @endif
+                  </tr>
+                  @endforeach
+                </tbody>
 							</table>
 						</div>
 					</div>
@@ -231,22 +235,23 @@
 					<!-- SJKEMBALI TAB-->
 					<div class="tab-pane" id="sjkembali_tab">
 						<div class="box-body">
-							<table class="table table-condensed">
+							<table id="datatablessjkem" class="table table-hover table-bordered">
 								<thead>
 									<tr>
+                    <th>id</th>
 										<th>SJKem</th>
 										<th>Tanggal</th>
 										<th>Progress</th>
 										<th>Status</th>
-										<th>View</th>
 									</tr>
 								</thead>
 								
 								@foreach( $sjkembalis as $sjkembali )
 								<tr>
+                  <td>{{ $sjkembali -> id }}</td>
 									<td>{{ $sjkembali -> SJKem }}</td>
 									<td>{{ $sjkembali -> Tgl }}</td>
-									@if( $sjkembali -> QTerima != 0 )
+									@if( $sjkembali -> SumQTerima != 0 )
 										<td>
 											<div class="progress progress-xs">
 												<div class="progress-bar progress-bar-success" style="width: 100%"></div>
@@ -261,7 +266,6 @@
 										</td>
 										<td><span class="badge bg-yellow">Dalam Pengambilan</span></td>
 									@endif
-									<td><a href="{{route('sjkembali.show', $sjkembali -> SJKem)}}"><button class="btn btn-primary btn-block btn-sm">View</button></a></td>
 								</tr>
 								@endforeach
 							</table>
@@ -270,25 +274,23 @@
 					
 					<!-- Sewa TAB -->
 					<div class="tab-pane" id="sewa_tab">
-						<table class="table table-bordered table-striped">
+						<table id="datatabless" class="table table-hover table-bordered">
 							<thead>
 								<tr>
+                  <th>id</th>
 									<th>Invoice</th>
 									<th>Periode</th>
 									<th>End</th>
-									<th width="10%">View</th>
 									<th width="10%">Extend</th>
 								</tr>
 							</thead>
 							<tbody>
 								@foreach( $sewas as $sewa )
 									<tr>
+                    <td>{{ $sewa -> invoiceid }}</td>
 										<td>{{ $sewa -> Invoice }}</td>
 										<td>{{ $sewa -> Periode }}</td>
 										<td>{{ $sewa -> E }}</td>
-										<td>
-											<a href="{{route('invoice.show', array($sewa -> Reference, $sewa->Invoice, 'Sewa', $sewa -> Periode))}}"><button class="btn btn-primary btn-block btn-sm">Invoice</button></a>
-										</td>
 										<td>
 											@if ( $sewa -> id == $sewa -> maxid )
 												<a href="{{route('invoice.show', array($sewa -> Reference, $sewa -> Periode))}}"><button class="btn btn-success btn-block btn-sm">Extend</button></a>
@@ -303,20 +305,18 @@
 
 					<!-- Jual TAB -->
 					<div class="tab-pane" id="jual_tab">
-						<table class="table table-bordered table-striped">
+						<table id="datatablesj" class="table table-hover table-bordered">
 							<thead>
 								<tr>
+                  <th>id</th>
 									<th>Invoice</th>
-									<th width="10%">View</th>
 								</tr>
 							</thead>
 							<tbody>
 								@foreach( $juals as $jual )
 									<tr>
+                    <td>{{ $jual -> id }}</td>
 										<td>{{ $jual -> Invoice }}</td>
-										<td>
-											<a href="{{route('invoice.show', array($jual -> Reference, $jual->Invoice, 'Jual'))}}"><button class="btn btn-primary btn-block btn-sm">Invoice</button></a>
-										</td>
 									</tr>
 								@endforeach
 							</tbody>
@@ -325,26 +325,25 @@
 
 					<!-- Claim TAB -->
 					<div class="tab-pane" id="claim_tab">
-						<table class="table table-bordered table-striped">
+						<table id="datatablesc" class="table table-hover table-bordered">
 							<thead>
 								<tr>
+                  <th>id</th>
 									<th>No. Invoice</th>
 									<th>Periode</th>
 									<th>Tanggal Claim</th>
 									<th>Project</th>
-									<th width="10%">View</th>
 									<th width="10%">Batal Claim</th>
 								</tr>
 							</thead>
 							<tbody>
 								@foreach( $claims as $claim )
 									<tr>
+                    <td>{{ $claim -> invoiceid }}</td>
 										<td>{{ $claim -> Invoice }}</td>
 										<td>{{ $claim -> Periode }}</td>
 										<td>{{ $claim -> Tgl }}</td>
 										<td>{{ $claim -> Project }}</td>
-										<td>
-										<button class="btn btn-primary btn-block">Invoice</button></td>
 										<td>
                       @if ( $claim -> periodeclaim == $claim -> periodeextend )
 												<button class="btn btn-danger btn-block btn-sm">Batal</button>
@@ -367,4 +366,127 @@
 <!-- row -->
 <div class="clearfix"></div>
 {!! Form::close() !!}
+@stop
+
+@section('script')
+<script>
+	$(document).ready(function () {
+		var table = $("#datatablespo").DataTable({
+      "processing": true,
+      "order": [1, "desc"],
+      "columnDefs":[
+				{
+					"targets" : 0,
+					"visible" : false,
+          "searchable": false
+				},
+      ],
+		});
+
+		$('#datatablespo tbody').on('click', 'tr', function () {
+			var data = table.row( this ).data();
+      window.open("../po/" + data[1], "_self");
+		});
+	});
+</script>
+<script>
+	$(document).ready(function () {
+		var table = $("#datatablessjkir").DataTable({
+      "processing": true,
+      "order": [1, "desc"],
+      "columnDefs":[
+				{
+					"targets" : 0,
+					"visible" : false,
+          "searchable": false
+				},
+      ],
+		});
+
+		$('#datatablessjkir tbody').on('click', 'tr', function () {
+			var data = table.row( this ).data();
+      window.open("../sjkirim/" + data[0], "_self");
+		});
+	});
+</script>
+<script>
+	$(document).ready(function () {
+		var table = $("#datatablessjkem").DataTable({
+      "processing": true,
+      "order": [1, "desc"],
+      "columnDefs":[
+				{
+					"targets" : 0,
+					"visible" : false,
+          "searchable": false
+				},
+      ],
+		});
+
+		$('#datatablessjkem tbody').on('click', 'tr', function () {
+			var data = table.row( this ).data();
+      window.open("../sjkembali/" + data[0], "_self");
+		});
+	});
+</script>
+<script>
+	$(document).ready(function () {
+		var table = $("#datatabless").DataTable({
+      "processing": true,
+      "order": [1, "desc"],
+      "columnDefs":[
+				{
+					"targets" : 0,
+					"visible" : false,
+          "searchable": false
+				},
+      ],
+		});
+
+		$('#datatabless tbody').on('click', 'tr', function () {
+			var data = table.row( this ).data();
+      window.open("../invoice/showsewa?id=" + data[0], "_self");
+		});
+	});
+</script>
+<script>
+	$(document).ready(function () {
+		var table = $("#datatablesj").DataTable({
+      "processing": true,
+      "order": [1, "desc"],
+      "columnDefs":[
+				{
+					"targets" : 0,
+					"visible" : false,
+          "searchable": false
+				},
+      ],
+		});
+
+		$('#datatablesj tbody').on('click', 'tr', function () {
+			var data = table.row( this ).data();
+      window.open("../invoice/showjual?id=" + data[0], "_self");
+		});
+	});
+</script>
+<script>
+	$(document).ready(function () {
+		var table = $("#datatablesc").DataTable({
+      "processing": true,
+      "order": [1, "desc"],
+      "columnDefs":[
+				{
+					"targets" : 0,
+					"visible" : false,
+          "searchable": false
+				},
+      ],
+		});
+
+		$('#datatablesc tbody').on('click', 'tr', function () {
+			var data = table.row( this ).data();
+      window.open("../invoice/showclaim?id=" + data[0], "_self");
+		});
+	});
+</script>
 @stop

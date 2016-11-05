@@ -46,7 +46,6 @@
 <script>
 	$(document).ready(function () {
 		var table = $("#datatables").DataTable({
-      "paging": false,
       "processing": true,
       "scrollY": "100%",
       "columnDefs":[
@@ -61,7 +60,7 @@
           "searchable": false
         }
       ],
-      "order": [[0, "desc"]]
+      "order": [[2, "desc"]]
 		});
 		
 		$('#datatables tbody').on('click', 'tr', function () {

@@ -27,24 +27,13 @@ class POController extends Controller
       
       $reference = Reference::where('pocustomer.id', $id)
       ->first();
-      
-      $purchase = Transaksi::orderby('id', 'desc')
-      ->first();
-      
-      $js = Transaksi::distinct()
-      ->select('transaksi.JS')
-      ->where('transaksi.POCode', DB::raw("(select MAX(id) from transaksi where transaksi.Reference = '00001/080816')"));
-      $invoice = Invoice::select([
-        DB::raw('MAX(id) AS maxid')
-      ]);
 
       return view('pages.po.create')
+      ->with('url', 'po')
       ->with('po', $po)
       ->with('transaksi', $transaksi)
       ->with('id', $id)
       ->with('reference', $reference)
-      ->with('purchase', $purchase)
-      ->with('invoice', $invoice)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'Item');
@@ -59,45 +48,78 @@ class POController extends Controller
         'POCode' => $request['POCode'],
         'Tgl' => $request['Tgl'],
         'Catatan' => $request['Catatan'],
-        'Transport' => $request['Transport'],
+        'Transport' => str_replace(".","",substr($request->Transport, 3)),
       ]);
 
+      $input = Input::all();
+      $transaksis = $input['transaksiid'];
+      foreach ($transaksis as $key => $transaksis)
+      {
+        $transaksis = new Transaksi;
+        $transaksis->id = $input['transaksiid'][$key];
+        $transaksis->Purchase = $input['Purchase'][$key];
+        $transaksis->JS = $input['JS'][$key];
+        $JSC[] = $input['JS'][$key];
+        $transaksis->Barang = $input['Barang'][$key];
+        $transaksis->Quantity = $input['Quantity'][$key];
+        $transaksis->QSisaKirInsert = $input['Quantity'][$key];
+        $transaksis->QSisaKir = $input['Quantity'][$key];
+        $transaksis->QSisaKem = $input['Quantity'][$key];
+        $transaksis->Amount = $input['Amount'][$key];
+        $transaksis->Reference = $input['Reference'];
+        $transaksis->POCode = $input['POCode'];
+        $transaksis->save();
+      }
       
-      $transaksi = Transaksi::Create([
-        'id' => $request['transaksiid'],
-        'Purchase' => $request['Purchase'],
-        'JS' => $request['JS'],
-        'Barang' => $request['Barang'],
-        'Quantity' => $request['Quantity'],
-        'QSisaKirInsert' => $request['Quantity'],
-        'QSisaKir' => $request['Quantity'],
-        'QSisaKem' => $request['Quantity'],
-        'Amount' => $request['Amount'],
-        'Reference' => $request['Reference'],
-        'POCode' => $request['POCode'],
-      ]);
-      
-      $test = $request['Reference'];
-      
-      $jss = Transaksi::from('transaksi')->distinct()
-      ->where('transaksi.POCode', DB::raw("(select MAX(id) from transaksi where transaksi.Reference = $test)"));
       $invoice = Invoice::select([
         DB::raw('MAX(id) AS maxid')
-      ]);
-      
-      foreach($jss as $js){
-      $invoice = Invoice::Create([
-        'id' => 1,
-        'Invoice' => 1,
-        'JSC' => $js->JS,
-        'Tgl' => $request['Tgl'],
-        'Reference' => $request['Reference'],
-        'Periode' => 1,
-        'PPN' => $request['PPN'],
-        'Discount' => $request['Discount'],
-        'Catatan' => $request['Catatan'],
-      ]);
+      ])
+      ->first();
+      $invoice2 = $invoice->maxid+1;
+
+      $JSC = array_unique($JSC);
+
+      $invoices = $JSC;
+      foreach ($invoices as $key => $invoices)
+      {
+        $invoices = new Invoice;
+        $invoices->id = $invoice2 + $key;
+        $invoices->Invoice = str_pad($invoice2 + $key, 5, "0", STR_PAD_LEFT);
+        $invoices->JSC = $JSC[$key];
+        $invoices->Tgl = $request['Tgl'];
+        $invoices->Reference = $request['Reference'];
+        $invoices->Periode = 1;
+        $invoices->PPN = $request['PPN'];
+        $invoices->Discount = str_replace(".","",substr($request->Discount, 3));
+        $invoices->Catatan = $request['Catatan'];
+        $invoices->save();
       }
+      
+      /*$x=0;
+      foreach($jss as $js){
+        $invoice[] = $maxid[$x];
+        $invoice[] = str_pad($maxid[$x] + $x, 5, "0", STR_PAD_LEFT);
+        $JSC = $js->JS;
+        $Tgl = $request['Tgl'];
+        $Reference = $request['Reference'];
+        $Periode = 1;
+        $PPN = $request['PPN'];
+        $Discount = $request['Discount'];
+        $Catatan = $request['Catatan'];
+        $x++;
+      }*/
+      
+      /*$invoice = Invoice::Create([
+        'id' => $maxid,
+        'Invoice' => $invoice,
+        'JSC' => $JSC,
+        'Tgl' => $Tgl,
+        'Reference' => $Reference,
+        'Periode' => $Periode,
+        'PPN' => $PPN,
+        'Discount' => $Discount,
+        'Catatan' => $Catatan,
+      ]);*/
       
     	return redirect()->route('reference.show', $id);
     }
@@ -124,6 +146,7 @@ class POController extends Controller
       }
       
       return view('pages.po.show')
+      ->with('url', 'po')
       ->with('po', $po)
       ->with('id', $id)
       ->with('transaksis', $transaksi)
@@ -161,6 +184,7 @@ class POController extends Controller
       }
 
     	return view('pages.po.edit')
+      ->with('url', 'po')
       ->with('po', $po)
       ->with('transaksis', $transaksi)
       ->with('last_purchase', $last_purchase)
