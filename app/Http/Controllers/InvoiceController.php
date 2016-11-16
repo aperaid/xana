@@ -15,8 +15,7 @@ use DB;
 
 class InvoiceController extends Controller
 {
-  public function getInvoiceSewa(){
-    $id = Input::get('id');
+  public function getInvoiceSewa($id){
     $parameter = Invoice::find($id);
     
     $invoice = Invoice::select([
@@ -98,7 +97,7 @@ class InvoiceController extends Controller
     ->orderBy('periode.id', 'asc')
     ->get();
     
-    return view('pages/invoice/showsewa')
+    return view('pages.invoice.showsewa')
     ->with('url', 'invoice')
     ->with('invoice', $invoice)
     ->with('periodes', $periodes)
@@ -115,8 +114,7 @@ class InvoiceController extends Controller
     ->with('page_description', 'View');
 	}
   
-  public function getInvoiceJual(){
-    $id = Input::get('id');
+  public function getInvoiceJual($id){
     $parameter = Invoice::find($id);
     
     $invoice = Invoice::select([
@@ -170,7 +168,7 @@ class InvoiceController extends Controller
       $toss = $transport; 
     }else $toss = 0;
     
-    return view('pages/invoice/showjual')
+    return view('pages.invoice.showjual')
     ->with('url', 'invoice')
     ->with('invoice', $invoice)
     ->with('transaksis', $transaksis)
@@ -183,8 +181,7 @@ class InvoiceController extends Controller
     ->with('page_description', 'View');
 	}
   
-  public function getInvoiceClaim(){
-    $id = Input::get('id');
+  public function getInvoiceClaim($id){
     $parameter = Invoice::find($id);
     
     $invoice = Invoice::select([
@@ -230,7 +227,7 @@ class InvoiceController extends Controller
       $x++;
     }
     
-    return view('pages/invoice/showclaim')
+    return view('pages.invoice.showclaim')
     ->with('url', 'invoice')
     ->with('invoice', $invoice)
     ->with('transaksis', $transaksis)
@@ -256,7 +253,8 @@ class InvoiceController extends Controller
       {
         $query->select('periode.Reference')
         ->from('periode')
-        ->whereRaw('invoice.Reference = periode.Reference AND periode.Deletes = "Sewa"');
+        ->whereRaw('invoice.Reference = periode.Reference')
+        ->where('periode.Deletes', 'Sewa');
       })
     ->groupBy('invoice.Reference', 'invoice.Periode')
     ->get();
@@ -274,7 +272,8 @@ class InvoiceController extends Controller
       {
         $query->select('periode.Reference')
         ->from('periode')
-        ->whereRaw('invoice.Reference = periode.Reference AND periode.Deletes = "Jual"');
+        ->whereRaw('invoice.Reference = periode.Reference')
+        ->where('periode.Deletes', 'Jual');
       })
     ->groupBy('invoice.Reference', 'invoice.Periode')
     ->get();
@@ -300,62 +299,4 @@ class InvoiceController extends Controller
     ->with('page_title', 'Invoice')
     ->with('page_description', 'Index');
     }
-/*
-    public function create()
-    {
-    	return view('pages.project.create')
-      ->with('page_title', 'Project')
-      ->with('page_description', 'Create');
-    }
-
-    public function store(Request $request)
-    {
-    	
-    	$inputs = $request->all();
-
-    	$project = Project::Create($inputs);
-
-    	return redirect()->route('project.index');
-    }
-
-    public function show($id)
-    {
-    	$project = Project::find($id);
-
-    	return view('pages.project.show')
-      ->with('project', $project)
-      ->with('page_title', 'Project')
-      ->with('page_description', 'View');
-    }
-
-    public function edit($id)
-    {
-    	$project = Project::find($id);
-
-    	return view('pages.project.edit')
-      ->with('project', $project)
-      ->with('page_title', 'Project')
-      ->with('page_description', 'Edit');
-    }
-
-    public function update(Request $request, $id)
-    {
-    	$project = Project::find($id);
-
-    	$project->PCode = $request->PCode;
-    	$project->Project = $request->Project;
-      $project->Alamat = $request->Alamat;
-    	$project->CCode = $request->CCode;
-    	$project->save();
-
-    	return redirect()->route('project.show', $id);
-    }
-
-    public function destroy($id)
-    {
-    	Project::destroy($id);
-      Session::flash('message', 'Delete is successful!');
-
-    	return redirect()->route('project.index');
-    }*/
 }

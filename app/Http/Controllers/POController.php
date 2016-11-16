@@ -64,7 +64,6 @@ class POController extends Controller
         $transaksis->Quantity = $input['Quantity'][$key];
         $transaksis->QSisaKirInsert = $input['Quantity'][$key];
         $transaksis->QSisaKir = $input['Quantity'][$key];
-        $transaksis->QSisaKem = $input['Quantity'][$key];
         $transaksis->Amount = $input['Amount'][$key];
         $transaksis->Reference = $input['Reference'];
         $transaksis->POCode = $input['POCode'];
@@ -91,42 +90,15 @@ class POController extends Controller
         $invoices->Periode = 1;
         $invoices->PPN = $request['PPN'];
         $invoices->Discount = str_replace(".","",substr($request->Discount, 3));
-        $invoices->Catatan = $request['Catatan'];
         $invoices->save();
       }
-      
-      /*$x=0;
-      foreach($jss as $js){
-        $invoice[] = $maxid[$x];
-        $invoice[] = str_pad($maxid[$x] + $x, 5, "0", STR_PAD_LEFT);
-        $JSC = $js->JS;
-        $Tgl = $request['Tgl'];
-        $Reference = $request['Reference'];
-        $Periode = 1;
-        $PPN = $request['PPN'];
-        $Discount = $request['Discount'];
-        $Catatan = $request['Catatan'];
-        $x++;
-      }*/
-      
-      /*$invoice = Invoice::Create([
-        'id' => $maxid,
-        'Invoice' => $invoice,
-        'JSC' => $JSC,
-        'Tgl' => $Tgl,
-        'Reference' => $Reference,
-        'Periode' => $Periode,
-        'PPN' => $PPN,
-        'Discount' => $Discount,
-        'Catatan' => $Catatan,
-      ]);*/
       
     	return redirect()->route('reference.show', $id);
     }
 
-    public function show($POCode)
+    public function show($id)
     {
-      $po = PO::find($POCode);
+      $po = PO::find($id);
       $transaksi = Transaksi::where('transaksi.POCode', $po -> POCode)
       ->get();
       
@@ -157,11 +129,12 @@ class POController extends Controller
       ->with('page_description', 'Show');
     }
 
-    public function edit($POCode)
+    public function edit($id)
     {
-    	$po = PO::find($POCode);
-      $transaksi = Transaksi::where('transaksi.POCode', $po -> POCode)
+    	$po = PO::find($id);
+      $transaksis = Transaksi::where('transaksi.POCode', $po -> POCode)
       ->get();
+      $transaksi = $transaksis->first();
       
       $poitem = Transaksi::where('transaksi.POCode', $po -> POCode)
       ->first();
@@ -186,46 +159,66 @@ class POController extends Controller
     	return view('pages.po.edit')
       ->with('url', 'po')
       ->with('po', $po)
-      ->with('transaksis', $transaksi)
+      ->with('transaksi', $transaksi)
+      ->with('transaksis', $transaksis)
       ->with('last_purchase', $last_purchase)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'Edit');
     }
 
-    public function update(Request $request, $POCode)
+    public function update(Request $request, $id)
     {
-    	$po = PO::find($POCode);
-      $transaksi = Transaksi::find($POCode);
+    	$po = PO::find($id);
+      $transaksi = Transaksi::where('transaksi.POCode', $po -> POCode);
 
-    	$po->id = $request->id;
+    	$po->id = $request->poid;
     	$po->POCode = $request->POCode;
       $po->Tgl = $request->Tgl;
     	$po->Catatan = $request->Catatan;
       $po->Transport = $request->Transport;
     	$po->save();
       
-      $transaksi->id = $request->id;
-    	$transaksi->Purchase = $request->Purchase;
-      $transaksi->JS = $request->JS;
-      $transaksi->Barang = $request->Barang;
-    	$transaksi->Quantity = $request->Quantity;
-      $transaksi->QSisaKirInsert = $request->QSisaKirInsert;
-      $transaksi->QSisaKir = $request->QSisaKir;
-    	$transaksi->QSisaKem = $request->QSisaKem;
-      $transaksi->Amount = $request->Amount;
-    	$transaksi->Reference = $request->Reference;
-      $transaksi->POCode = $request->POCode;
-    	$transaksi->save();
+      $ids = $transaksi->pluck('id');
+      Transaksi::whereIn('id', $ids)->delete();
+      
+      $input = Input::all();
+      $transaksis = $input['transaksiid'];
+      foreach ($transaksis as $key => $transaksis)
+      {
+        $transaksis = new Transaksi;
+        $transaksis->id = $input['transaksiid'][$key];
+        $transaksis->Purchase = $input['Purchase'][$key];
+        $transaksis->JS = $input['JS'][$key];
+        $JSC[] = $input['JS'][$key];
+        $transaksis->Barang = $input['Barang'][$key];
+        $transaksis->Quantity = $input['Quantity'][$key];
+        $transaksis->QSisaKirInsert = $input['Quantity'][$key];
+        $transaksis->QSisaKir = $input['Quantity'][$key];
+        $transaksis->QSisaKem = $input['Quantity'][$key];
+        $transaksis->Amount = $input['Amount'][$key];
+        $transaksis->Reference = $input['Reference'];
+        $transaksis->POCode = $input['POCode'];
+        $transaksis->save();
+      }
 
-    	return redirect()->route('po.show', $POCode);
+    	return redirect()->route('po.show', $id);
     }
 
-    public function destroy($POCode)
+    public function destroy($id)
     {
-    	PO::destroy($POCode);
+      $po = PO::find($id);
+      $transaksi = Transaksi::where('transaksi.POCode', $po->POCode);
+      $reference = Reference::where('pocustomer.Reference', $transaksi->first()->Reference)
+      ->first();
+      $ids = $transaksi->pluck('id');
+      
+      PO::destroy($id);
+      
+      Transaksi::whereIn('id', $ids)->delete();
+      
       Session::flash('message', 'Delete is successful!');
 
-    	return redirect()->route('reference.index');
+    	return redirect()->route('reference.show', $reference->id);
     }
 }

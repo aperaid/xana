@@ -5,8 +5,8 @@
 
 @section('content')
 {!! Form::model($adjust, [
-  'method' => 'patch',
-  'route' => ['adjustinventory.update', $adjust->id]
+  'method' => 'post',
+  'route' => ['inventory.updateadjustinventory', $adjust->id]
 ]) !!}
 <div class="row">
   <div class="col-md-12">
@@ -50,7 +50,7 @@
       </div>
       <!-- box body -->
       <div class="box-footer">
-      	<a href="{{route('adjustinventory.index')}}"><button type="button" class="btn btn-default pull-left">cancel</button></a>
+      	<a href="{{route('inventory.adjustinventory')}}"><button type="button" class="btn btn-default pull-left">cancel</button></a>
       	{!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
       </div>
       <!-- footer -->

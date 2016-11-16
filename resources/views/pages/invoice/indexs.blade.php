@@ -124,7 +124,7 @@ $(document).ready(function () {
 		
 	$('#datatabless tbody').on('click', 'tr', function () {
 		var data = table.row( this ).data();
-		window.open("invoice/showsewa?id=" + data[0],"_self");
+		window.open("invoice/showsewa/" + data[0],"_self");
 	} );
 
 
@@ -146,7 +146,7 @@ $(document).ready(function () {
 		
 	$('#datatablesj tbody').on('click', 'tr', function () {
 		var data2 = table2.row( this ).data();
-		window.open("invoice/showjual?id="+ data2[0],"_self");
+		window.open("invoice/showjual/"+ data2[0],"_self");
 	} );
 
 	//Invoice Claim
@@ -167,7 +167,7 @@ $(document).ready(function () {
 		
 	$('#datatablesc tbody').on('click', 'tr', function () {
 		var data3 = table3.row( this ).data();
-		window.open("invoice/showclaim?id="+ data3[0],"_self");
+		window.open("invoice/showclaim/"+ data3[0],"_self");
 	} );
 });
 </script>

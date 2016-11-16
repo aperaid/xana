@@ -13,7 +13,7 @@
   <div class="col-xs-12">
     <div class="box box-primary">
       <div class="box-body">
-        <a href="{{route('po.show', $po -> POCode )}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
+        <a href="{{route('po.show', $po -> id )}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
         <button type="submit" class="btn btn-success pull-right">Update</button>
       </div>
       <!-- /.box-body -->
@@ -34,6 +34,7 @@
       </div>
       <div class="box-body">
         {!! Form::hidden('poid', $po->id) !!}
+        {!! Form::hidden('Reference', $transaksi -> Reference) !!}
         <div class="form-group">
           {!! Form::label('Nomor PO', 'Nomor PO') !!}
           {!! Form::text('POCode', $po -> POCode, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Input PO Number', 'required')) !!}
@@ -100,22 +101,19 @@ $(function() {
 		var max_fields      = 10; //maximum input boxes allowed
 		
     var x = 0; //initial text box count
-		var y = <?php echo $last_purchase ?>;
+		var y = {{ $transaksi -> id }};
 		var z = y;
     
 		@foreach($transaksis as $transaksi)
-			if(x < max_fields){ //max input box allowed
-				x++; //text box count increment
-				z++;
-				$("#customFields").append('<tr><td><a class="remCF glyphicon glyphicon-remove"></a></td>{!! Form::hidden('transaksiid', $transaksi->id) !!}<input type="hidden" name="tx_editpo_Purchase[]" class="textbox" value="'+ z +'"><td>{!! Form::text('Barang', $transaksi->Barang, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::select('JS', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], $transaksi->JS, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Quantity', $transaksi->Quantity, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::number('Amount', $transaksi->Amount, ['id' => 'Amount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
-			}
+				$("#customFields").append('<tr><td><a class="remCF glyphicon glyphicon-remove"></a></td>{!! Form::hidden('transaksiid[]', $transaksi->id) !!}{!! Form::hidden('Purchase[]', $transaksi->Purchase) !!}<td>{!! Form::text('Barang[]', $transaksi->Barang, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], $transaksi->JS, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Quantity[]', $transaksi->Quantity, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::number('Amount[]', $transaksi->Amount, ['id' => 'Amount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
 		@endforeach
 		
 		$("#addCF").click(function(){
 			if(x < max_fields){ //max input box allowed
 				x++; //text box count increment
 				z++;
-				$("#customFields").append('<tr><td><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td>{!! Form::hidden('transaksiid', $transaksi->id+1) !!}<input type="hidden" name="Purchase" value="'+ z +'"><td>{!! Form::text('Barang', null, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::select('JS', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Quantity', null, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::number('Amount', null, ['id' => 'Amount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+        var id = x + y;
+				$("#customFields").append('<tr><td><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="transaksiid[]" value="'+ id +'"><input type="hidden" name="Purchase[]" value="'+ z +'"><td>{!! Form::text('Barang[]', null, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::number('Amount[]', null, ['id' => 'Amount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
 			}
 		});
 		

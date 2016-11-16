@@ -10,6 +10,7 @@ use App\Periode;
 use App\SJKirim;
 use App\IsiSJKirim;
 use App\Reference;
+use App\Transaksi;
 use Session;
 use DB;
 
@@ -44,23 +45,210 @@ class SJKirimController extends Controller
       ->with('page_title', 'Surat Jalan Kirim')
       ->with('page_description', 'Index');
     }
-/*
+
     public function create()
     {
-    	return view('pages.project.create')
-      ->with('page_title', 'Project')
+      $id = Input::get('id');
+      
+      $reference = Reference::where('pocustomer.id', $id)
+      ->first();
+      
+      $sjkirim = SJKirim::select([
+        DB::raw('MAX(sjkirim.id) AS maxid')
+      ])
+      ->first();
+      
+    	return view('pages.sjkirim.create')
+      ->with('url', 'sjkirim')
+      ->with('reference', $reference)
+      ->with('sjkirim', $sjkirim)
+      ->with('top_menu_sel', 'menu_sjkirim')
+      ->with('page_title', 'Surat Jalan Kirim')
       ->with('page_description', 'Create');
     }
-
+    
+    public function getCreate2(Request $request, $id)
+    { 
+      Session::put('SJKir', $request->SJKir);
+      Session::put('Tgl', $request->Tgl);
+      Session::put('Reference', $request->Reference);
+      
+      $SJKir = Session::get('SJKir');
+      $Tgl = Session::get('Tgl');
+      $Reference = Session::get('Reference');
+      
+      $referenceid = Reference::where('pocustomer.id', $id)
+      ->first();
+      
+      $transaksis = Transaksi::select([
+        'transaksi.*',
+        'project.Project',
+      ])
+      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+      ->where('transaksi.Reference', $Reference)
+      ->orderBy('transaksi.id', 'asc')
+      ->get();
+      
+      $isisjkirim = IsiSJKirim::select([
+        DB::raw('MAX(isisjkirim.id) AS maxid')
+      ])
+      ->first();
+      
+      $sjkirim = SJKirim::select([
+        DB::raw('MAX(sjkirim.id) AS maxid')
+      ])
+      ->first();
+      
+    	return view('pages.sjkirim.create2')
+      ->with('url', 'sjkirim')
+      ->with('referenceid', $referenceid)
+      ->with('transaksis', $transaksis)
+      ->with('isisjkirim', $isisjkirim)
+      ->with('sjkirim', $sjkirim)
+      ->with('top_menu_sel', 'menu_sjkirim')
+      ->with('page_title', 'Surat Jalan Kirim')
+      ->with('page_description', 'Choose');
+    }
+    
+    public function getCreate3(Request $request, $id)
+    {
+      $input = Input::only('checkbox');
+      $purchases = $input['checkbox'];
+      foreach ($purchases as $key => $purchases)
+      {
+        $Purchase[] = $input['checkbox'][$key];
+      }
+      
+      $SJKir = Session::get('SJKir');
+      $Tgl = Session::get('Tgl');
+      $Reference = Session::get('Reference');
+      
+      $referenceid = Reference::where('pocustomer.id', $id)
+      ->first();
+      
+      $transaksis = Transaksi::select([
+        'transaksi.*',
+        'project.Project',
+      ])
+      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+      ->where('transaksi.Reference', $Reference)
+      ->whereIn('transaksi.Purchase', $Purchase)
+      ->orderBy('transaksi.id', 'asc')
+      ->get();
+      
+      $sjkirim = SJKirim::select([
+        DB::raw('MAX(sjkirim.id) AS maxid')
+      ])
+      ->first();
+      
+      $isisjkirim = IsiSJKirim::select([
+        DB::raw('MAX(isisjkirim.id) AS maxid')
+      ])
+      ->first();
+      
+      $maxperiode = Periode::select([
+        DB::raw('MAX(periode.id) AS maxid')
+      ])
+      ->first();
+      
+      $maxisisjkir = IsiSJKirim::select([
+        DB::raw('MAX(isisjkirim.IsiSJKir) AS IsiSJKir')
+      ])
+      ->first();
+      
+      $ECont = Periode::where('Reference', $Reference)
+      ->whereRaw('(SELECT MAX(Periode) FROM periode WHERE Reference = ?)', $Reference)
+      ->first();
+      
+      $end = str_replace('/', '-', $Tgl);
+      $end2 = strtotime("-1 day +1 month", strtotime($end));
+      $end3 = date("d/m/Y", $end2);
+      
+      if(is_null($ECont)){
+        $tglE = $end3;
+        $periode = 1;
+      }else{
+        $tglE = $ECont->E;
+        $periode = $ECont->Periode;
+      }
+      
+    	return view('pages.sjkirim.create3')
+      ->with('url', 'sjkirim')
+      ->with('tglE', $tglE)
+      ->with('periode', $periode)
+      ->with('referenceid', $referenceid)
+      ->with('transaksis', $transaksis)
+      ->with('sjkirim', $sjkirim)
+      ->with('isisjkirim', $isisjkirim)
+      ->with('maxperiode', $maxperiode)
+      ->with('maxisisjkir', $maxisisjkir)
+      ->with('top_menu_sel', 'menu_sjkirim')
+      ->with('page_title', 'Surat Jalan Kirim')
+      ->with('page_description', 'Item');
+    }
+    
     public function store(Request $request)
     {
-    	
-    	$inputs = $request->all();
-
-    	$project = Project::Create($inputs);
-
-    	return redirect()->route('project.index');
-    }*/
+      $SJKir = Session::get('SJKir');
+      $Tgl = Session::get('Tgl');
+      $Reference = Session::get('Reference');
+      
+      $sjkirim = SJKirim::Create([
+        'id' => $request['sjkirimid'],
+        'SJKir' => $SJKir,
+        'Tgl' => $Tgl,
+        'Reference' => $Reference,
+        'NoPolisi' => $request['NoPolisi'],
+        'Sopir' => $request['Sopir'],
+        'Kenek' => $request['Kenek'],
+      ]);
+      
+      $input = Input::all();
+      $isisjkirims = $input['isisjkirimid'];
+      foreach ($isisjkirims as $key => $isisjkirim)
+      {
+        $isisjkirim = new IsiSJKirim;
+        $isisjkirim->id = $input['isisjkirimid'][$key];
+        $isisjkirim->IsiSJKir = $input['IsiSJKir'][$key];
+        $isisjkirim->Warehouse = $input['Warehouse'][$key];
+        $isisjkirim->QKirim = $input['QKirim'][$key];
+        $isisjkirim->Purchase = $input['Purchase'][$key];
+        $isisjkirim->SJKir = $SJKir;
+        $isisjkirim->save();
+      }
+      
+      $periodes = $input['isisjkirimid'];
+      foreach ($periodes as $key => $periodes)
+      {
+        $periodes = new Periode;
+        $periodes->id = $input['periodeid'][$key];
+        $periodes->Periode = $input['Periode'];
+        $periodes->S = $Tgl;
+        $periodes->E = $input['tglE'];
+        $periodes->Quantity = $input['QKirim'][$key];
+        $periodes->IsiSJKir = $input['IsiSJKir'][$key];
+        $periodes->Reference = $Reference;
+        $periodes->Purchase = $input['Purchase'][$key];
+        $periodes->Deletes = $input['JS'][$key];
+        $periodes->save();
+      }
+      
+      $transaksis = $input['id'];
+      foreach ($transaksis as $key => $transaksi)
+      {
+        $transaksi = Transaksi::find($transaksis[$key]);
+        $transaksi->QSisaKirInsert = $input['QSisaKirInsert'][$key]-$input['QKirim'][$key];
+        $transaksi->save();
+      }
+      
+      Session::forget('SJKir');
+      Session::forget('Tgl');
+      Session::forget('Reference');
+      
+    	return redirect()->route('sjkirim.index');
+    }
 
     public function show($id)
     {
@@ -145,24 +333,52 @@ class SJKirimController extends Controller
       ->with('page_title', 'Surat Jalan Kirim')
       ->with('page_description', 'Edit');
     }
-/*
+
     public function update(Request $request, $id)
     {
-    	$project = Project::find($id);
+    	$sjkirim = SJKirim::find($id);
+      $sjkirim->Tgl = $request['Tgl'];
+      $sjkirim->save();
 
-    	$project->PCode = $request->PCode;
-    	$project->Project = $request->Project;
-      $project->Alamat = $request->Alamat;
-    	$project->CCode = $request->CCode;
-    	$project->save();
-
-    	return redirect()->route('project.show', $id);
-    }*/
-    
-    public function getQTertanda()
-    { 
-      $id = Input::get('id');
+      $input = Input::all();
+      $transaksis = $input['id'];
+      foreach ($transaksis as $key => $transaksi)
+      {
+        $transaksi = Transaksi::find($transaksis[$key]);
+        $transaksi->QSisaKirInsert = $transaksi->QSisaKirInsert+$input['QKirim2'][$key]-$input['QKirim'][$key];
+        $transaksi->save();
+      }
       
+      $periode = Periode::select('periode.*')
+      ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir);
+      $periodeid = $periode->pluck('id');
+      
+      $periodes = $periodeid;
+      foreach ($periodes as $key => $periode)
+      {
+        $periode = Periode::find($periodes[$key]);
+        $periode->Quantity = $input['QKirim'][$key];
+        $periode->save();
+      }
+      
+      $isisjkirim = IsiSJKirim::where('isisjkirim.SJKir', $sjkirim->SJKir);
+      $isisjkirimid = $isisjkirim->pluck('id');
+      
+      $isisjkirims = $isisjkirimid;
+      foreach ($isisjkirims as $key => $isisjkirim)
+      {
+        $isisjkirim = IsiSJKirim::find($isisjkirims[$key]);
+        $isisjkirim->Warehouse = $input['Warehouse'][$key];
+        $isisjkirim->QKirim = $input['QKirim'][$key];
+        $isisjkirim->save();
+      }
+
+    	return redirect()->route('sjkirim.show', $id);
+    }
+    
+    public function getQTertanda($id)
+    { 
     	$sjkirim = SJKirim::find($id);
       
       $parameter = IsiSJKirim::select([
@@ -175,13 +391,21 @@ class SJKirimController extends Controller
       ->first();
       
       $Tgl = Periode::select([
-        'periode.*',
         'periode.S',
       ])
       ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
       ->where('periode.Reference', $parameter->Reference)
       ->where('periode.Periode', $parameter->Periode)
       ->where('isisjkirim.SJKir', $sjkirim->SJKir)
+      ->first();
+      
+      $periode = Periode::select([
+        'periode.id',
+        'periode.E',
+      ])
+      ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      ->where('periode.Reference', $parameter->Reference)
+      ->where('periode.Periode', $parameter->Periode)
       ->first();
       
       $isisjkirims = IsiSJKirim::select([
@@ -203,17 +427,106 @@ class SJKirimController extends Controller
       ->with('sjkirim', $sjkirim)
       ->with('isisjkirims', $isisjkirims)
       ->with('Tgl', $Tgl)
+      ->with('periode', $periode)
       ->with('top_menu_sel', 'menu_sjkirim')
       ->with('page_title', 'Surat Jalan Kirim')
       ->with('page_description', 'QTertanda');
     }
-  
-/*
+    
+    public function postQTertanda(Request $request, $id)
+    {
+    	$sjkirim = SJKirim::find($id);
+      
+      $transaksi = Transaksi::select('transaksi.*')
+      ->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir);
+      $transaksiid = $transaksi->pluck('id');
+      
+      $input = Input::all();
+      $transaksis = $transaksiid;
+      foreach ($transaksis as $key => $transaksi)
+      {
+        $transaksi = Transaksi::find($transaksis[$key]);
+        $transaksi->QSisaKir = $transaksi->QSisaKir+$input['QTertanda2'][$key]-$input['QTertanda'][$key];
+        $transaksi->QSisaKem = $transaksi->QSisaKem-$input['QTertanda2'][$key]+$input['QTertanda'][$key];
+        $transaksi->save();
+      }
+      Transaksi::where('JS', 'Jual')->update(['QSisaKem' => '0']);
+      
+      $isisjkirim = IsiSJKirim::where('isisjkirim.SJKir', $sjkirim->SJKir);
+      $isisjkirimid = $isisjkirim->pluck('id');
+      
+      $isisjkirims = $isisjkirimid;
+      foreach ($isisjkirims as $key => $isisjkirim)
+      {
+        $isisjkirim = IsiSJKirim::find($isisjkirims[$key]);
+        $isisjkirim->QTertanda = $input['QTertanda'][$key];
+        $isisjkirim->QSisaKemInsert = $input['QTertanda'][$key];
+        $isisjkirim->QSisaKem = $input['QTertanda'][$key];
+        $isisjkirim->save();
+      }
+      $isisjkirimjualid = IsiSJKirim::leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')->where('transaksi.JS', 'Jual')->pluck('isisjkirim.id');
+      IsiSJKirim::whereIn('id', $isisjkirimjualid)->update(['QSisaKemInsert' => '0', 'QSisaKem' => '0']);
+      
+      $periode = Periode::select('periode.*')
+      ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir)
+      ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Jual")');
+      $periodeid = $periode->pluck('id');
+      
+      $TglMax = str_replace('/', '-', $input['Tgl']);
+      $TglMax2 = strtotime("+1 month -1 day", strtotime($TglMax));
+      $TglMax3 = date("d/m/Y", $TglMax2);
+      
+      if($periode->first()->id == $input['periodeid']){
+        $TglMax4 = $TglMax3;
+      }else{
+        $TglMax4 = $input['E'];
+      }
+      
+      $periodes = $periodeid;
+      foreach ($periodes as $key => $periode)
+      {
+        $periode = Periode::find($periodes[$key]);
+        $periode->S = $input['Tgl'];
+        $periode->E = $TglMax4;
+        $periode->save();
+      }
+
+    	return redirect()->route('sjkirim.show', $id);
+    }
+
     public function destroy($id)
     {
-    	Project::destroy($id);
+      $sjkirim = SJKirim::find($id);
+      
+      $isisjkirim = IsiSJKirim::leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir);
+      
+      $transaksiid = $isisjkirim->pluck('transaksi.id');
+      $qkirim = $isisjkirim->pluck('isisjkirim.qkirim');
+      
+      $transaksis = $transaksiid;
+      foreach ($transaksis as $key => $transaksi)
+      {
+        $transaksi = Transaksi::find($transaksis[$key]);
+        $transaksi->QSisaKirInsert = $transaksi->QSisaKirInsert+$qkirim[$key];
+        $transaksi->save();
+      }
+      
+      $periode = Periode::select('periode.*')
+      ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir)
+      ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Jual")');
+      $periodeid = $periode->pluck('id');
+      Periode::whereIn('id', $periodeid)->delete();
+      
+      IsiSJKirim::where('SJKir', $sjkirim->SJKir)->delete();
+      
+    	SJKirim::destroy($id);
+      
       Session::flash('message', 'Delete is successful!');
 
-    	return redirect()->route('project.index');
-    }*/
+    	return redirect()->route('sjkirim.index');
+    }
 }

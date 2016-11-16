@@ -44,8 +44,7 @@
               </tr>
             </thead>
             <tbody>
-            <?php $x = 0 ?>
-              @foreach($transaksis as $transaksi)
+              @foreach($transaksis as $key => $transaksi)
               <tr>
                 {!! Form::hidden('Claim', $transaksi->Claim) !!}
                 <td>{{$transaksi->SJKir}}</td>
@@ -53,9 +52,8 @@
                 <td>{{$transaksi->Tgl}}</td>
                 <td>{{$transaksi->QClaim}}</td>
                 <td>Rp {{ number_format($transaksi->Amount, 2, ',', '.') }}</td>
-                <td>Rp {{ number_format($total2[$x], 2, ',', '.') }}</td>
+                <td>Rp {{ number_format($total2[$key], 2, ',', '.') }}</td>
               </tr>
-              <?php $x++ ?>
               @endforeach
             </tbody>
           </table>

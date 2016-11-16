@@ -66,8 +66,7 @@
               </tr>
             </thead>
             <tbody>
-              <?php $x = 0 ?>
-              @foreach($periodes as $periode)
+              @foreach($periodes as $key => $periode)
               <tr>
                 {!! Form::hidden('POCode', $periode->POCode) !!}
                 <td>{{$periode->SJKir}}</td>
@@ -75,14 +74,13 @@
                 <td>{{$periode->Barang}}</td>
                 <td>{{$periode->S}}</td>
                 <td>{{$periode->E}}</td>
-                <td>{{$SE[$x]}}</td>
-                <td>{{$Days2[$x]}}</td>
-                <td>{{$I[$x]}}</td>
+                <td>{{$SE[$key]}}</td>
+                <td>{{$Days2[$key]}}</td>
+                <td>{{$I[$key]}}</td>
                 <td>{{$periode->SumQuantity}}</td>
                 <td>Rp {{ number_format($periode->Amount, 2, ',', '.') }}</td>
-                <td>Rp {{ number_format($total2[$x], 2, ',', '.') }}</td>
+                <td>Rp {{ number_format($total2[$key], 2, ',', '.') }}</td>
               </tr>
-              <?php $x++ ?>
               @endforeach
             </tbody>
           </table>

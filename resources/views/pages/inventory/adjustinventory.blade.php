@@ -25,7 +25,7 @@
               <td>{{$adjust->Code}}</td>
               <td>{{$adjust->Barang}}</td>
               <td>{{$adjust->Type}}</td>
-              <td><a href="{{route('adjustinventory.edit', $adjust->id)}}"><button class="btn btn-primary">Edit</button></a></td>
+              <td><a href="{{route('inventory.editadjustinventory', $adjust->id)}}"><button class="btn btn-primary">Edit</button></a></td>
             </tr>
             @endforeach
           </tbody>

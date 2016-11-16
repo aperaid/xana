@@ -1,55 +1,42 @@
 @extends('layouts.xana.layout')
 @section('title')
-	Create Project
+	Create SJKembali
 @stop
 
 @section('content')
 {!! Form::open([
-  'route' => 'project.store'
+  'route' => ['sjkembali.create2', $reference->id]
 ]) !!}
 <div class="row">
-  <div class="col-md-12">
-    <div class="box box-info">
+  <div class="col-md-6 col-md-offset-3">
+    <div class="box box-primary">
       <div class="box-header with-border">
-        <h3 class="box-title">Project Detail</h3>
+        <h3 class="box-title">SJ Detail</h3>
       </div>
-      <!-- box-header -->
-      <div class="form-horizontal">
-        <div class="box-body">
-          {!! Form::hidden('id', $project->id+1) !!}
-          <div class="form-group">
-            {!! Form::label('Project Code', 'Project Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              {!! Form::text('PCode', null, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+      <div class="box-body">
+        <div class="form-group">
+          {!! Form::label('No. Surat Jalan', 'No. Surat Jalan') !!}
+          {!! Form::text('SJKem', str_pad($sjkembali->maxid+1, 3, "0", STR_PAD_LEFT).'/SI/'.date("mY"), array('class' => 'form-control', 'readonly')) !!}
+        </div>
+        <div class="form-group">
+          {!! Form::label('Return Date', 'Return Date') !!}
+          <div class="input-group">
+            <div class="input-group-addon">
+              <i class="fa fa-calendar"></i>
             </div>
-          </div>
-          <div class="form-group">
-            {!! Form::label('Project Name', 'Project Name', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('Project', null, array('class' => 'form-control', 'id' => 'Project', 'placeholder' => 'Project Name', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
-            </div>
-          </div>
-          <div class="form-group">
-            {!! Form::label('Project Address', 'Project Address', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('ProjAlamat', null, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
-            </div>
-          </div>
-          <div class="form-group">
-            {!! Form::label('Company Code', 'Company Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-4">
-              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'Company Code', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
-            </div>
+            {!! Form::text('Tgl', null, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'required')) !!}
           </div>
         </div>
-        <!-- box body -->
+        <div class="form-group">
+          {!! Form::label('Reference Code', 'Reference Code') !!}
+          {!! Form::text('Reference', $reference->Reference, array('class' => 'form-control', 'readonly')) !!}
+          <p class="help-block">Enter the beginning of the Reference Code, then pick from the dropdown</p>
+        </div>
       </div>
-      <!-- form-horizontal -->
       <div class="box-footer">
-        {!! Form::submit('Create',  array('class' => 'btn btn-info pull-right')) !!}
-        <a href="{{route('project.index')}}"><button type="button" class="btn btn-default pull-Left">Cancel</button></a>
+        <a href="{{route('reference.show', $reference->id)}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
+        {!! Form::submit('Next',  array('class' => 'btn btn-info pull-right')) !!}
       </div>
-      <!-- box footer -->
     </div>
     <!-- box -->
   </div>
@@ -61,22 +48,16 @@
 
 @section('script')
 <script>
-  function capital() {
-    var x = document.getElementById("PCode");
-    x.value = x.value.toUpperCase();
-    var x = document.getElementById("Project");
-    x.value = x.value.toUpperCase();
-    var x = document.getElementById("CCode");
-    x.value = x.value.toUpperCase();
-  }
-</script>
-<script>
-  $(function() {
-    var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompleteccode.php");?>;
-    $( "#tx_insertproject_CCode" ).autocomplete({
-      source: availableTags,
-      autoFocus: true
-    });
-  });
+var Min = '{{ $TglMin->S }}';
+var Max = '{{ $TglMax->E }}';
+$(function() {
+  $('#Tgl').datepicker({
+	  format: "dd/mm/yyyy",
+    startDate: Min,
+    endDate: Max,
+	  todayHighlight: true,
+	  autoclose: true,
+  }); 
+}); 
 </script>
 @stop

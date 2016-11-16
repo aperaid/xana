@@ -25,15 +25,16 @@
 					<tbody>
             @foreach($isisjkembalis as $isisjkembali)
             <tr>
-              {!! Form::hidden('Purchase', $isisjkembali->Purchase) !!}
-							{!! Form::hidden('IsiSJKem', $isisjkembali->IsiSJKem) !!}
-              {!! Form::hidden('IsiSJKir', $isisjkembali->IsiSJKir) !!}
-              {!! Form::hidden('QTerima', $isisjkembali->QTerima) !!}
-              <td>{!! Form::text('Tgl', $isisjkembali->Tgl, ['class' => 'form-control', 'readonly']) !!}</td>
-              <td>{!! Form::text('Barang', $isisjkembali->Barang, ['class' => 'form-control', 'autocomplete' => 'off', 'readonly']) !!}</td>
-              <td>{!! Form::text('Warehouse', $isisjkembali->Warehouse, ['class' => 'form-control', 'autocomplete' => 'off']) !!}</td>
-              <td>{!! Form::text('QSisaKem', $isisjkembali->QSisaKem, ['class' => 'form-control', 'readonly']) !!}</td>
-              <td>{!! Form::text('QTertanda', $isisjkembali->QTertanda2, ['class' => 'form-control', 'autocomplete' => 'off', 'onkeyup' => 'this.value = minmax(this.value, 0, $isisjkembali->QSisaKem)', 'required']) !!}</td>
+              {!! Form::hidden('id[]', $isisjkembali->id) !!}
+              {!! Form::hidden('Purchase[]', $isisjkembali->Purchase) !!}
+							{!! Form::hidden('IsiSJKem[]', $isisjkembali->IsiSJKem) !!}
+              {!! Form::hidden('IsiSJKir[]', $isisjkembali->IsiSJKir) !!}
+              {!! Form::hidden('QTerima[]', $isisjkembali->QTerima) !!}
+              <td>{!! Form::text('Tgl[]', $isisjkembali->Tgl, ['class' => 'form-control', 'readonly']) !!}</td>
+              <td>{!! Form::text('Barang[]', $isisjkembali->Barang, ['class' => 'form-control', 'autocomplete' => 'off', 'readonly']) !!}</td>
+              <td>{!! Form::text('Warehouse[]', $isisjkembali->Warehouse, ['class' => 'form-control', 'autocomplete' => 'off']) !!}</td>
+              <td>{!! Form::text('QSisaKem[]', $isisjkembali->QSisaKem, ['class' => 'form-control', 'readonly']) !!}</td>
+              <td><input name="QTertanda[]" type="number" class="form-control" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $isisjkembali->QSisaKem }})" value="{{ $isisjkembali->SumQTertanda }}" required></td>
 						</tr>
 						@endforeach
 					</tbody>

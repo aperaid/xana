@@ -5,8 +5,8 @@
 
 @section('content')
 {!! Form::model($sjkembali, [
-  'method' => 'patch',
-  'route' => ['sjkembali.update', $sjkembali->id]
+  'method' => 'post',
+  'route' => ['sjkembali.updateqterima', $sjkembali->id]
 ]) !!}
 <div class="row">
   <div class="col-xs-12">
@@ -23,22 +23,18 @@
             </tr>
 					</thead>
 					<tbody>
-          {{$x = 1}}
-					@foreach($isisjkembalis as $isisjkembali)
+					@foreach($isisjkembalis as $key => $isisjkembali)
             <tr>
-              {!! Form::hidden('id', $isisjkembali->id) !!}
-              {!! Form::hidden('QSisaKem2', $isisjkembali->QTertanda, ['id' => 'QSisaKem2'.$x]) !!}
-              {!! Form::hidden('IsiSJKir', $isisjkembali->IsiSJKir) !!}
-              {!! Form::hidden('Purchase', $isisjkembali->Purchase) !!}
-              {!! Form::hidden('QTerima2', $isisjkembali->QTerima2) !!}
-              <td>{!! Form::text('Tgl', $isisjkembali->Tgl, ['class' => 'form-control', 'readonly']) !!}</td>
-							<td>{!! Form::text('Barang', $isisjkembali->Barang, ['class' => 'form-control', 'readonly']) !!}</td>
-              <td>{!! Form::text('Warehouse', $isisjkembali->Warehouse, ['class' => 'form-control', 'readonly']) !!}</td>
-              <td>{!! Form::text('QTertanda', $isisjkembali->QTertanda2, ['class' => 'form-control', 'readonly']) !!}</td>
-              <td>{!! Form::text('QSisaKem', $isisjkembali->QSisaKem, ['id' => 'QSisaKem'.$x, 'readonly']) !!}</td>
-              <td>{!! Form::text('QTerima', $isisjkembali->QTerima2, array('id' => 'QTerima'.$x, 'class' => 'form-control', 'autocomplete' => 'off', 'onkeyup' => 'this.value = minmax(this.value, 0, $isisjkembali->QTertanda2)', 'onkeyup' => 'sisa()', 'required')) !!}</td>
+              {!! Form::hidden('id[]', $isisjkembali->id) !!}
+              {!! Form::hidden('IsiSJKir[]', $isisjkembali->IsiSJKir) !!}
+              {!! Form::hidden('Purchase[]', $isisjkembali->Purchase) !!}
+              {!! Form::hidden('QTerima2[]', $isisjkembali->SumQTerima) !!}
+              <td>{!! Form::text('Tgl[]', $isisjkembali->Tgl, ['class' => 'form-control', 'readonly']) !!}</td>
+							<td>{!! Form::text('Barang[]', $isisjkembali->Barang, ['class' => 'form-control', 'readonly']) !!}</td>
+              <td>{!! Form::text('Warehouse[]', $isisjkembali->Warehouse, ['class' => 'form-control', 'readonly']) !!}</td>
+              <td>{!! Form::text('QTertanda[]', $isisjkembali->SumQTertanda, ['class' => 'form-control', 'readonly']) !!}</td>
+              <td><input name="QTerima[]" type="number" class="form-control" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $isisjkembali->SumQTertanda }})" value="{{ $isisjkembali->SumQTerima }}" required></td>
             </tr>
-            {{$x++}}
           @endforeach
 					</tbody>
 				</table>
@@ -50,7 +46,7 @@
           <div class="input-group-addon">
             <i class="fa fa-calendar"></i>
           </div>
-          {!! Form::text('Tgl', $Tgl->E, ['id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'required']) !!}
+          {!! Form::text('Tgl2', $Tgl->E, ['id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'required']) !!}
 				</div>
 				<br>
 				<a href="{{route('sjkembali.show', $sjkembali->id)}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>

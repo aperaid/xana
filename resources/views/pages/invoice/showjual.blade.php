@@ -59,17 +59,15 @@
               </tr>
             </thead>
             <tbody>
-              <?php $x = 0 ?>
-              @foreach($transaksis as $transaksi)
+              @foreach($transaksis as $key => $transaksi)
               <tr>
                 {!! Form::hidden('POCode', $transaksi->POCode) !!}
                 <td>{{$transaksi->SJKir}}</td>
                 <td>{{$transaksi->Barang}}</td>
                 <td>{{$transaksi->QKirim}}</td>
                 <td>Rp {{ number_format($transaksi->Amount, 2, ',', '.') }}</td>
-                <td>Rp <?php echo number_format($total2[$x], 2,',','.') ?></td>
+                <td>Rp {{ number_format($total2[$key], 2,',','.') }}</td>
               </tr>
-              <?php $x++ ?>
               @endforeach
             </tbody>
           </table>

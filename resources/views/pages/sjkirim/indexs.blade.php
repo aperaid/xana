@@ -15,6 +15,7 @@
               <th>QTertanda</th>
               <th>SJ Code</th>
               <th>Tgl Kirim</th>
+              <th>Reference</th>
               <th>Customer</th>
               <th>Project</th>
             </tr>
@@ -26,6 +27,7 @@
               <td>{{$sjkirim->qttd}}</td>
               <td>{{$sjkirim->SJKir}}</td>
               <td>{{$sjkirim->Tgl}}</td>
+              <td>{{$sjkirim->Reference}}</td>
               <td>{{$sjkirim->Customer}}</td>
               <td>{{$sjkirim->Project}}</td>
             </tr>

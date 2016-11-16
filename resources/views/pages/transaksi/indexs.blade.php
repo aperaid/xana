@@ -23,7 +23,6 @@
                 <th>Periode</th>
                 <th>E</th>
                 <th>Project</th>
-                <th>View</th>
                 <th>Extend</th>
               </tr>
             </thead>
@@ -36,8 +35,7 @@
                 <td>{{$transaksis->Periode}}</td>
                 <td>{{$transaksis->E}}</td>
                 <td>{{$transaksis->Project}}</td>
-                <td><a href="{{url('invoice/showsewa?id=' . $transaksis->invoiceid)}}"><button type="button" class="btn btn-block btn-primary" >Invoice</button></a></td>
-                <td><a href="{{route('extend.create', 'Reference=' .$transaksis -> Reference . '&Periode=' .$transaksis -> Periode)}}"><button type="button" @if ( $transaksis->periodeid == $transaksis->maxid ) class="btn btn-block btn-primary pull-right" @else class="btn btn-block btn-default pull-right" disabled @endif >Extend</button></a></td>
+                <td><a href="{{route('extend.create', 'Reference=' .$transaksis -> Reference . '&Periode=' .$transaksis -> Periode)}}"><button type="button" @if ( $transaksis->periodeid == $transaksis->maxid ) class="btn btn-block btn-success pull-right" @else class="btn btn-block btn-default pull-right" disabled @endif >Extend</button></a></td>
               </tr>
               @endforeach
             </tbody>
@@ -75,7 +73,6 @@
               <th>Periode</th>
               <th>Tanggal Claim</th>
               <th>Project</th>
-              <th>View</th>
               <th>Batal Claim</th>
             </thead>
             <tbody>
@@ -87,7 +84,6 @@
                 <td>{{$transaksic->Periode}}</td>
                 <td>{{$transaksic->Tgl}}</td>
                 <td>{{$transaksic->Project}}</td>
-                <td><a href="{{url('invoice/showclaim?id=' . $transaksic->invoiceid)}}"><button type="button" class="btn btn-block btn-primary" >Invoice</button></a></td>
                 <td><a href="{{route('extend.create')}}"><button class="btn btn-block btn-danger btn-sm">Batal</button></a></td>
               </tr>
               @endforeach
@@ -120,6 +116,7 @@
 		
 		$('#datatabless tbody').on('click', 'tr', function () {
 			var data = table.row( this ).data();
+      window.open("invoice/showsewa/" + data[0], "_self");
 		});
 	});
 </script>
@@ -138,7 +135,7 @@
 		
 		$('#datatablesj tbody').on('click', 'tr', function () {
 			var data = table.row( this ).data();
-      window.open("invoice/showjual?id=" + data[0], "_self");
+      window.open("invoice/showjual/" + data[0], "_self");
 		});
 	});
 </script>
@@ -157,6 +154,7 @@
 		
 		$('#datatablesc tbody').on('click', 'tr', function () {
 			var data = table.row( this ).data();
+      window.open("invoice/showclaim/" + data[0], "_self");
 		});
 	});
 </script>

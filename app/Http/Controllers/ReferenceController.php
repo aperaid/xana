@@ -109,7 +109,8 @@ class ReferenceController extends Controller
         $pocheck = 1;
       }
       
-      $po = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
+      $po = PO::select('po.*')
+      ->leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
       ->where('transaksi.Reference', $detail -> Reference)
       ->groupBy('po.POCode')
       ->get();
@@ -187,13 +188,13 @@ class ReferenceController extends Controller
         'periode.Periode',
         DB::raw('MAX(periode.Periode) AS periodeclaim')
       ])
-      ->whereRaw('(periode.Deletes = "Claim")');
+      ->whereRaw('periode.Deletes', 'Claim');
       
       $transaksiextend = Periode::select([
         'periode.Reference',
         DB::raw('MAX(periode.Periode) AS periodeextend')
       ])
-      ->whereRaw('(periode.Deletes = "Extend" OR periode.Deletes = "Sewa")');
+      ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Extend")');
       
       $claim = TransaksiClaim::select([
         'transaksiclaim.*',

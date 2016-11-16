@@ -4,7 +4,7 @@
 @stop
 
 @section('content')
-{!! Form::open(['route' => 'registerinventory.store']) !!}
+{!! Form::open(['route' => 'inventory.storeRegisterinventory']) !!}
 <div class="row">
   <div class="col-md-12">
     <div class="box box-info">
