@@ -91,7 +91,7 @@
                                 </div>
                               </td>
                               <td><span class="badge bg-red">Belum Dikirim</span></td>
-                            @elseif (( $purchase -> QSisaKir < $purchase -> Quantity ) && $purchase -> QSisaKir ) != 0 ) <!-- setengah dikirim -->
+                            @elseif ( $purchase -> QSisaKir < $purchase -> Quantity  && $purchase -> QSisaKir  != 0 ) <!-- setengah dikirim -->
                               <td>
                                 <div class="progress progress-xs">
                                   <div class="progress-bar progress-bar-yellow" style="width:25%"></div>
@@ -105,7 +105,7 @@
                                 </div>
                               </td>
                               <td><span class="badge bg-blue">Pengiriman Selesai, dalam penyewaan</span></td>
-                            @elseif (( $purchase -> QSisaKem < $purchase -> Quantity) && $purchase -> QSisaKem != 0 ) <!-- setengah dikembalikan -->
+                            @elseif ( $purchase -> QSisaKem < $purchase -> Quantity && $purchase -> QSisaKem != 0 ) <!-- setengah dikembalikan -->
                               <td>
                                 <div class="progress progress-xs">
                                   <div class="progress-bar progress-bar-yellow" style="width:75%"></div>
@@ -156,9 +156,9 @@
 								<div class="col-md-12">
 									<a href="#" class="btn btn-default"><i class="fa fa-print"></i> Print</a>
 									<a href="{{route('reference.index')}}"><button type="button" class="btn btn-default pull-left" style="margin-right: 5px;">Back</button></a>
-									<a href="{{route('sjkirim.create', $detail->Reference)}}"><button id="SJKirim_button" type="button" style="margin-right: 5px;" @if ( $sjkircheck == 0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right"	@endif	>SJ Kirim</button></a>
-									<a href="{{route('sjkembali.create', $detail->Reference)}}"><button id="SJKembali_button" type="button" style="margin-right: 5px;"	@if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right"	@endif	>SJ Kembali</button></a>
-									<a href="{{route('claim.create', $detail->Reference)}}">	<button id="claim_button" type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif	>Claim</button></a>
+									<a href="{{route('sjkirim.create', 'id='.$detail->pocusid)}}"><button id="SJKirim_button" type="button" style="margin-right: 5px;" @if ( $sjkircheck == 0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right"	@endif	>SJ Kirim</button></a>
+									<a href="{{route('sjkembali.create', 'id='.$detail->pocusid)}}"><button id="SJKembali_button" type="button" style="margin-right: 5px;"	@if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right"	@endif	>SJ Kembali</button></a>
+									<a href="{{route('claim.create', $detail->pocusid)}}">	<button id="claim_button" type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif	>Claim</button></a>
 									<a href="{{route('reference.edit', $detail->pocusid)}}"><button id="edit_button" type="button" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right"	@endif >Edit</button></a>
 									<button id="delete_button" type="submit" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
 									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button id="insertPO_button" type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert PO</button></a>
@@ -385,7 +385,7 @@
 
 		$('#datatablespo tbody').on('click', 'tr', function () {
 			var data = table.row( this ).data();
-      window.open("../po/" + data[1], "_self");
+      window.open("../po/" + data[0], "_self");
 		});
 	});
 </script>
@@ -445,7 +445,7 @@
 
 		$('#datatabless tbody').on('click', 'tr', function () {
 			var data = table.row( this ).data();
-      window.open("../invoice/showsewa?id=" + data[0], "_self");
+      window.open("../invoice/showsewa/" + data[0], "_self");
 		});
 	});
 </script>
@@ -465,7 +465,7 @@
 
 		$('#datatablesj tbody').on('click', 'tr', function () {
 			var data = table.row( this ).data();
-      window.open("../invoice/showjual?id=" + data[0], "_self");
+      window.open("../invoice/showjual/" + data[0], "_self");
 		});
 	});
 </script>
@@ -485,7 +485,7 @@
 
 		$('#datatablesc tbody').on('click', 'tr', function () {
 			var data = table.row( this ).data();
-      window.open("../invoice/showclaim?id=" + data[0], "_self");
+      window.open("../invoice/showclaim/" + data[0], "_self");
 		});
 	});
 </script>

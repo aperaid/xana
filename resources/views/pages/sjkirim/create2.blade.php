@@ -5,6 +5,7 @@
 
 @section('content')
 {!! Form::open([
+  'route' => ['sjkirim.create3', $referenceid->id]
 ]) !!}
 <div class="row">
   <div class="col-xs-12">
@@ -13,6 +14,7 @@
         <table id="datatables" class="table table-bordered table-striped table-responsive">
           <thead>
           <tr>
+            <th>Choose</th>
             <th>J/S</th>
             <th>Barang</th>
             <th>Quantity Sisa Kirim</th>
