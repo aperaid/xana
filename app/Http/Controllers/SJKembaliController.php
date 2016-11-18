@@ -62,7 +62,7 @@ class SJKembaliController extends Controller
       $maxperiode = Periode::select([
         DB::raw('MAX(periode.Periode) AS maxperiode')
       ])
-      ->where('periode.Reference', '00002/131016')
+      ->where('periode.Reference', $reference->Reference)
       ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Extend")')
       ->first();
       

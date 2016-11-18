@@ -4,6 +4,10 @@
 @stop
 
 @section('content')
+{!! Form::model($invoice, [
+  'method' => 'post',
+  'route' => ['invoice.updateshowclaim', $invoice->id]
+]) !!}
 <div class="row">
   <div class="col-xs-12">
     <div class="box box-info">
@@ -68,7 +72,7 @@
           <div class="form-group">
             {!! Form::label('Discount', 'Discount', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              {!! Form::text('Discount', 'Rp '. number_format($invoice->Discount,0,',','.'), array('id' => 'Discount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 10.000', 'onkeyup' => 'tot()')) !!}
+              <input id="Discount" name="Discount" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Discount,0,',','.')}}" onKeyUp="tot()" >
             </div>
           </div>
           <!-- Catatan Input -->
@@ -103,4 +107,26 @@
   <!-- col -->
 </div>
 <!-- row -->
+{!! Form::close() !!}
+@stop
+
+@section('script')
+<script>
+function tot(){
+  var txtFirstNumberValue = document.getElementById('Total2').value;
+  var txtSecondNumberValue = document.getElementById('PPN').value;
+	var txtThirdNumberValue = document.getElementById('Discount').value;
+	var result = (parseFloat(txtFirstNumberValue) * parseFloat(txtSecondNumberValue)*0.1)+parseFloat(txtFirstNumberValue) - parseFloat(txtThirdNumberValue);
+	if (!isNaN(result)) {
+		document.getElementById('Total').value = result;
+    }
+}
+</script>
+<script>
+  $(document).ready(function(){
+		//Mask Price
+		$("#Discount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+    $("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	});
+</script>
 @stop

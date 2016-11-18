@@ -10,6 +10,7 @@ use App\Invoice;
 use App\Periode;
 use App\Transaksi;
 use App\TransaksiClaim;
+use App\PO;
 use Session;
 use DB;
 
@@ -114,6 +115,33 @@ class InvoiceController extends Controller
     ->with('page_description', 'View');
 	}
   
+  public function postInvoiceSewa(Request $request, $id)
+    {
+    	$invoice = Invoice::find($id);
+      
+      $po = PO::where('po.POCode', $invoice -> POCode);
+      $poid = $po->pluck('id');
+      
+      $input = Input::all();
+      $pos = $poid;
+      foreach ($pos as $key => $po)
+      {
+        $po = PO::find($pos[$key]);
+        $po->Transport = str_replace(".","",substr($request->Transport, 3));
+        $po->save();
+      }
+      
+      $invoice->id = $id;
+      $invoice->PPN = $request->PPN;
+    	$invoice->Discount = str_replace(".","",substr($request->Discount, 3));
+      $invoice->Catatan = $request->Catatan;
+    	$invoice->save();
+
+      Session::flash('message', 'Update is successful!');
+      
+    	return redirect()->route('invoice.showsewa', $id);
+    }
+  
   public function getInvoiceJual($id){
     $parameter = Invoice::find($id);
     
@@ -181,6 +209,33 @@ class InvoiceController extends Controller
     ->with('page_description', 'View');
 	}
   
+  public function postInvoiceJual(Request $request, $id)
+    {
+    	$invoice = Invoice::find($id);
+      
+      $po = PO::where('po.POCode', $invoice -> POCode);
+      $poid = $po->pluck('id');
+      
+      $input = Input::all();
+      $pos = $poid;
+      foreach ($pos as $key => $po)
+      {
+        $po = PO::find($pos[$key]);
+        $po->Transport = str_replace(".","",substr($request->Transport, 3));
+        $po->save();
+      }
+      
+      $invoice->id = $id;
+      $invoice->PPN = $request->PPN;
+    	$invoice->Discount = str_replace(".","",substr($request->Discount, 3));
+      $invoice->Catatan = $request->Catatan;
+    	$invoice->save();
+
+      Session::flash('message', 'Update is successful!');
+      
+    	return redirect()->route('invoice.showjual', $id);
+    }
+  
   public function getInvoiceClaim($id){
     $parameter = Invoice::find($id);
     
@@ -237,6 +292,23 @@ class InvoiceController extends Controller
     ->with('page_title', 'Invoice Claim')
     ->with('page_description', 'View');
 	}
+  
+  public function postInvoiceClaim(Request $request, $id)
+    {
+    	$invoice = Invoice::find($id);
+      
+      $input = Input::all();
+      
+      $invoice->id = $id;
+      $invoice->PPN = $request->PPN;
+    	$invoice->Discount = str_replace(".","",substr($request->Discount, 3));
+      $invoice->Catatan = $request->Catatan;
+    	$invoice->save();
+
+      Session::flash('message', 'Update is successful!');
+      
+    	return redirect()->route('invoice.showclaim', $id);
+    }
 
     public function index()
     {

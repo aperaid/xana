@@ -31,7 +31,7 @@
               <td>{{$reference->Tgl}}</td>
               <td>{{$reference->Company}}</td>
               <td>{{$reference->Project}}</td>
-              <td>{{$reference->Price}}</td>
+              <td>Rp {{ number_format( $reference -> Price, 2,',', '.' ) }}</td>
             </tr>
             @endforeach
           </tbody>

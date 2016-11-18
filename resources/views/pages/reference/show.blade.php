@@ -68,6 +68,7 @@
 									<table class="table table-striped">
 										<thead>
 											<tr>
+                        <th>POCode</th>
 												<th>J/S</th>
 												<th>Item Name</th>
 												<th>Quantity</th>
@@ -79,6 +80,7 @@
 										<tbody>
 											@foreach( $purchases as $purchase )
 											<tr>
+                        <td>{{ $purchase -> POCode }}</td>
 												<td>{{ $purchase -> JS }}</td>
 												<td>{{ $purchase -> Barang }}</td>
 												<td>{{ $purchase -> Quantity }}</td>

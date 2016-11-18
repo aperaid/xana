@@ -14,6 +14,7 @@ use App\SJKembali;
 use App\IsiSJKembali;
 use App\Periode;
 use App\TransaksiClaim;
+use App\Invoice;
 use Session;
 use DB;
 
@@ -21,9 +22,11 @@ class ReferenceController extends Controller
 {
     public function index()
     {
-    $reference = Reference::select('pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id')
+    $reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id'])
             ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
             ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+            ->leftJoin('transaksi', 'pocustomer.Reference', '=', 'transaksi.Reference')
+            ->groupBy('pocustomer.Reference')
             ->get();
 
     	return view('pages.reference.indexs')
@@ -158,6 +161,7 @@ class ReferenceController extends Controller
       })
       ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Extend")')
       ->where('periode.Reference', $detail -> Reference)
+      ->where('invoice.JSC', 'Sewa')
       ->groupBy('invoice.Reference','invoice.Periode')
       ->get();
       
@@ -179,6 +183,7 @@ class ReferenceController extends Controller
       })
       ->where('periode.Deletes', 'Jual')
       ->where('pocustomer.Reference', $detail -> Reference)
+      ->where('invoice.JSC', 'Jual')
       ->groupBy('periode.Reference','periode.Periode')
       ->get();
       
@@ -275,8 +280,24 @@ class ReferenceController extends Controller
 
     public function destroy($id)
     {
-    	Reference::destroy($id);
-      Session::flash('message', 'Delete is successful!');
+      $reference = Reference::find($id);
+      
+      $transaksi = Transaksi::where('transaksi.Reference', $reference->Reference);
+      $transaksiid = $transaksi->pluck('id');
+      $invoice = Invoice::where('Invoice.Reference', $reference->Reference);
+      $invoiceid = $invoice->pluck('id');
+      $po = PO::whereIn('po.POCode', $transaksi->pluck('POCode'));
+      $poid = $po->pluck('id');
+      
+      Invoice::whereIn('id', $invoiceid)->delete();
+      
+      Transaksi::whereIn('id', $transaksiid)->delete();
+      
+      PO::whereIn('id', $poid)->delete();
+      
+      Reference::destroy($id);
+
+      Session::flash('message', $invoiceid);
 
     	return redirect()->route('reference.index');
     }

@@ -37,7 +37,7 @@
         {!! Form::hidden('Reference', $transaksi -> Reference) !!}
         <div class="form-group">
           {!! Form::label('Nomor PO', 'Nomor PO') !!}
-          {!! Form::text('POCode', $po -> POCode, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Input PO Number', 'required')) !!}
+          {!! Form::text('POCode', $po -> POCode, array('class' => 'form-control', 'readonly')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Tanggal', 'Tanggal') !!}
@@ -45,7 +45,7 @@
         </div>
         <div class="form-group">
           {!! Form::label('Transport', 'Transport') !!}
-          {!! Form::text('Transport', $po -> Transport, array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Transport Fee', 'required')) !!}
+          {!! Form::text('Transport', 'Rp ' . number_format( $po -> Transport, 0,',', '.' ), array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Transport Fee', 'required')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Catatan', 'Catatan') !!}

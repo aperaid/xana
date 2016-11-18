@@ -53,6 +53,10 @@ class SJKirimController extends Controller
       $reference = Reference::where('pocustomer.id', $id)
       ->first();
       
+      $po = Transaksi::leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+      ->where('transaksi.Reference', $reference->Reference)
+      ->first();
+      
       $sjkirim = SJKirim::select([
         DB::raw('MAX(sjkirim.id) AS maxid')
       ])
@@ -61,6 +65,7 @@ class SJKirimController extends Controller
     	return view('pages.sjkirim.create')
       ->with('url', 'sjkirim')
       ->with('reference', $reference)
+      ->with('po', $po)
       ->with('sjkirim', $sjkirim)
       ->with('top_menu_sel', 'menu_sjkirim')
       ->with('page_title', 'Surat Jalan Kirim')
@@ -504,13 +509,17 @@ class SJKirimController extends Controller
       ->where('isisjkirim.SJKir', $sjkirim->SJKir);
       
       $transaksiid = $isisjkirim->pluck('transaksi.id');
-      $qkirim = $isisjkirim->pluck('isisjkirim.qkirim');
+      $qkirim = $isisjkirim->pluck('isisjkirim.QKirim');
+      $qtertanda = $isisjkirim->pluck('isisjkirim.QTertanda');
+      $qsisakeminsert = $isisjkirim->pluck('isisjkirim.QSisaKemInsert');
       
       $transaksis = $transaksiid;
       foreach ($transaksis as $key => $transaksi)
       {
         $transaksi = Transaksi::find($transaksis[$key]);
         $transaksi->QSisaKirInsert = $transaksi->QSisaKirInsert+$qkirim[$key];
+        $transaksi->QSisaKir = $transaksi->QSisaKir+$qtertanda[$key];
+        $transaksi->QSisaKem = $transaksi->QSisaKem-$qsisakeminsert[$key];
         $transaksi->save();
       }
       

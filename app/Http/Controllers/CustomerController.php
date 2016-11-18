@@ -83,15 +83,15 @@ class CustomerController extends Controller
 
     	$customer->CCode = $request->CCode;
     	$customer->Company = $request->Company;
-		$customer->NPWP = $request->NPWP;
+      $customer->NPWP = $request->NPWP;
     	$customer->CompAlamat = $request->CompAlamat;
-		$customer->CompKota = $request->CompKota;
+      $customer->CompKota = $request->CompKota;
     	$customer->CompZip = $request->CompZip;
-		$customer->CompPhone = $request->CompPhone;
+      $customer->CompPhone = $request->CompPhone;
     	$customer->Fax = $request->Fax;
-		$customer->CompEmail = $request->CompEmail;
+      $customer->CompEmail = $request->CompEmail;
     	$customer->Customer = $request->Customer;
-		$customer->CustPhone = $request->CustPhone;
+      $customer->CustPhone = $request->CustPhone;
     	$customer->CustEmail = $request->CustEmail;
     	$customer->save();
 

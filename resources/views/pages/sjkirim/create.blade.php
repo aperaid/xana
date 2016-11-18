@@ -48,7 +48,7 @@
 
 @section('script')
 <script>
-var Min = '{{ $reference->Tgl }}';
+var Min = '{{ $po->Tgl }}';
 $(function() {
   $('#Tgl').datepicker({
 	  format: "dd/mm/yyyy",

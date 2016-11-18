@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Periode;
+use App\Invoice;
 use App\TransaksiClaim;
+use App\Reference;
 use Session;
 use DB;
 
@@ -45,6 +47,7 @@ class TransaksiController extends Controller
         $join->on('T1.Reference', '=', 'periode.Reference')
         ->on('T1.IsiSJKir', '=', 'periode.IsiSJKir');
       })
+      ->where('invoice.JSC', 'Sewa')
       ->whereRaw('periode.Deletes = "Sewa" OR periode.Deletes = "Extend"')
       ->groupBy('invoice.Reference', 'invoice.Periode')
       ->get();
@@ -65,6 +68,7 @@ class TransaksiController extends Controller
         $join->on('invoice.Reference', '=', 'transaksi.Reference')
         ->on('invoice.Periode', '=', 'periode.Periode');
       })
+      ->where('invoice.JSC', 'Jual')
       ->where('periode.Deletes', 'Jual')
       ->groupBy('periode.Reference', 'periode.Periode')
       ->get();
@@ -126,112 +130,84 @@ class TransaksiController extends Controller
       ->with('page_title', 'Transaksi')
       ->with('page_description', 'Index');
     }
-/*
 
-$transaksi = Invoice::select([
-        'invoice.Reference',
-        'invoice.Invoice',
-        'invoice.Periode',
-        'invoice.Tgl',
-        'project.Project',
-        'customer.Company',
-      ])
-      ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
-      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-      ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-      ->where('invoice.JSC', 'Sewa')
-      ->whereExists(function($query)
-        {
-          $query->select('periode.Reference')
-          ->from('periode')
-          ->whereRaw('invoice.Reference = periode.Reference AND periode.Deletes = "Sewa"');
-        })
-      ->groupBy('invoice.Reference', 'invoice.Periode')
-      ->get();
-
-$transaksi = TransaksiClaim::select([
-        'transaksiclaim.*',
-        'invoice.Invoice',
-        'periode.Reference',
-        'transaksi.Barang',
-        'transaksi.QSisaKem',
-        'project.Project',
-        'customer.Customer',
-      ])
-      ->leftJoin('periode', 'transaksiclaim.Claim', '=', 'periode.Claim')
-      ->leftJoin('transaksi', 'transaksiclaim.Purchase', '=', 'transaksi.Purchase')
-      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
-      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-      ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-      ->leftJoin('invoice', function($join){
-        $join->on('invoice.Reference', '=', 'transaksi.Reference')
-        ->on('invoice.Periode', '=', 'transaksiclaim.Periode');
-      })
-      ->groupBy('transaksiclaim.Periode')
-      ->orderBy('transaksiclaim.id', 'asc')
-      ->get();
-    public function create()
+    public function getExtend($id)
     {
-      $project = Project::orderby('id', 'desc')
-      ->first();
+    	return view('pages.transaksi.extend')
+      ->with('id', $id);
+    }
+    
+    public function postExtend(Request $request, $id)
+    {
+      $invoice = Invoice::find($id);
+      $maxinvoice = Invoice::select([DB::raw('max(invoice.id) as maxinvoice')])->first();
       
-    	return view('pages.project.create')
-      ->with('project', $project)
-      ->with('top_menu_sel', 'menu_project')
-      ->with('page_title', 'Project')
-      ->with('page_description', 'Create');
+      $periodes = Periode::leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      ->where('periode.Reference', $invoice->Reference)
+      ->where('periode.Periode', $invoice->Periode)
+      ->whereNull('periode.SJKem')
+      ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Extend")');
+      $periodeid = $periodes->pluck('periode.id');
+      $quantity = $periodes->pluck('periode.Quantity');
+      $isisjkir = $periodes->pluck('periode.IsiSJKir');
+      $purchase = $periodes->pluck('periode.Purchase');
+      
+      $Tgl = $invoice->Tgl;
+      $Tgl2 = str_replace('/', '-', $Tgl);
+      $TglInvoice = strtotime("+1 month", strtotime($Tgl2));
+      $TglInvoice2 = date("d/m/Y", $TglInvoice);
+      $E = $periodes->first()->E;
+      $E2 = str_replace('/', '-', $E);
+      $SPeriode = strtotime("+1 day", strtotime($E2));
+      $SPeriode2 = date("d/m/Y", $SPeriode);
+      $EPeriode = strtotime("+1 month", strtotime($E2));
+      $EPeriode2 = date("d/m/Y", $EPeriode);
+      
+      Invoice::Create([
+        'id' => $maxinvoice->maxinvoice+1,
+        'Invoice' => str_pad($maxinvoice->maxinvoice + 1, 5, "0", STR_PAD_LEFT),
+        'JSC' => 'Sewa',
+        'Tgl' => $TglInvoice2,
+        'Reference' => $invoice->Reference,
+        'Periode' => $invoice->Periode+1,
+        'PPN' => $invoice->PPN,
+        'POCode' => $invoice->POCode,
+      ]);
+
+      $periode = $periodeid;
+      foreach ($periode as $key => $periode)
+      {
+        $periode = new Periode;
+        $periode->id = $periodeid[$key]+count($periodeid);
+        $periode->Periode = $periodes->first()->Periode+1;
+        $periode->S = $SPeriode2;
+        $periode->E = $EPeriode2;
+        $periode->Quantity = $quantity[$key];
+        $periode->IsiSJKir = $isisjkir[$key];
+        $periode->Reference = $periodes->first()->Reference;
+        $periode->Purchase = $purchase[$key];
+        $periode->Claim = '';
+        $periode->Deletes = 'Extend';
+        $periode->save();
+      }
+      
+      Session::flash('message', 'Extend is successful!');
+
+    	return redirect()->route('transaksi.index');
     }
-
-    public function store(Request $request)
+    
+    public function getClaim($id)
     {
-    	
-    	$inputs = $request->all();
-
-    	$project = Project::Create($inputs);
-
-    	return redirect()->route('project.index');
+      $reference = Reference::find($id);
+      
+    	return view('pages.po.create')
+      ->with('url', 'po')
+      ->with('po', $po)
+      ->with('transaksi', $transaksi)
+      ->with('id', $id)
+      ->with('reference', $reference)
+      ->with('top_menu_sel', 'menu_referensi')
+      ->with('page_title', 'Purchase Order')
+      ->with('page_description', 'Item');
     }
-
-    public function show($id)
-    {
-    	$project = Project::find($id);
-
-    	return view('pages.project.show')
-      ->with('project', $project)
-      ->with('top_menu_sel', 'menu_project')
-      ->with('page_title', 'Project')
-      ->with('page_description', 'View');
-    }
-
-    public function edit($id)
-    {
-    	$project = Project::find($id);
-
-    	return view('pages.project.edit')
-      ->with('project', $project)
-      ->with('top_menu_sel', 'menu_project')
-      ->with('page_title', 'Project')
-      ->with('page_description', 'Edit');
-    }
-
-    public function update(Request $request, $id)
-    {
-    	$project = Project::find($id);
-
-    	$project->PCode = $request->PCode;
-    	$project->Project = $request->Project;
-      $project->Alamat = $request->Alamat;
-    	$project->CCode = $request->CCode;
-    	$project->save();
-
-    	return redirect()->route('project.show', $id);
-    }
-
-    public function destroy($id)
-    {
-    	Project::destroy($id);
-      Session::flash('message', 'Delete is successful!');
-
-    	return redirect()->route('project.index');
-    }*/
 }

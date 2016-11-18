@@ -15,7 +15,7 @@
       <div class="box-body">
         <a href="{{route('reference.show', $id -> id )}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
         <a href="{{route('po.edit', $po -> id )}}"><button type="button" class="btn btn-primary pull-right" @if ($pocheck == 1) disabled @endif >Edit</button></a>
-        <button type="submit" class="btn btn-danger pull-right" style="margin-right: 5px;" @if($pocheck == 1) disabled @endif >Delete</button></a>
+        <button type="submit" class="btn btn-danger pull-right" style="margin-right: 5px;" @if($pocheck == 1) disabled @endif onclick="return confirm('Delete PO?')">Delete</button>
       </div>
       <!-- /.box-body -->
     </div>
@@ -44,7 +44,7 @@
         </div>
         <div class="form-group">
           {!! Form::label('Transport', 'Transport') !!}
-          {!! Form::text('Transport', $po -> Transport, array('class' => 'form-control', 'readonly')) !!}
+          {!! Form::text('Transport', 'Rp '. number_format( $po -> Transport, 2,',', '.' ), array('class' => 'form-control', 'readonly')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Catatan', 'Catatan') !!}

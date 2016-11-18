@@ -90,6 +90,7 @@ class POController extends Controller
         $invoices->Periode = 1;
         $invoices->PPN = $request['PPN'];
         $invoices->Discount = str_replace(".","",substr($request->Discount, 3));
+        $invoices->POCode = $request['POCode'];
         $invoices->save();
       }
       
@@ -176,7 +177,7 @@ class POController extends Controller
     	$po->POCode = $request->POCode;
       $po->Tgl = $request->Tgl;
     	$po->Catatan = $request->Catatan;
-      $po->Transport = $request->Transport;
+      $po->Transport = str_replace(".","",substr($request->Transport, 3));
     	$po->save();
       
       $ids = $transaksi->pluck('id');
@@ -201,6 +202,34 @@ class POController extends Controller
         $transaksis->POCode = $input['POCode'];
         $transaksis->save();
       }
+      
+      $PPN = Invoice::where('invoice.POCode', $po->POCode)->first();
+      $invoiceid = Invoice::where('invoice.POCode', $po->POCode)->pluck('id');
+      Invoice::whereIn('id', $invoiceid)->delete();
+      
+      $invoice = Invoice::select([
+        DB::raw('MAX(id) AS maxid')
+      ])
+      ->first();
+      $invoice2 = $invoice->maxid+1;
+
+      $JSC = array_unique($JSC);
+
+      $invoices = $JSC;
+      foreach ($invoices as $key => $invoices)
+      {
+        $invoices = new Invoice;
+        $invoices->id = $invoice2 + $key;
+        $invoices->Invoice = str_pad($invoice2 + $key, 5, "0", STR_PAD_LEFT);
+        $invoices->JSC = $JSC[$key];
+        $invoices->Tgl = $request['Tgl'];
+        $invoices->Reference = $request['Reference'];
+        $invoices->Periode = 1;
+        $invoices->PPN = $PPN->PPN;
+        $invoices->Discount = str_replace(".","",substr($request->Discount, 3));
+        $invoices->POCode = $request['POCode'];
+        $invoices->save();
+      }
 
     	return redirect()->route('po.show', $id);
     }
@@ -209,13 +238,17 @@ class POController extends Controller
     {
       $po = PO::find($id);
       $transaksi = Transaksi::where('transaksi.POCode', $po->POCode);
+      $transaksiid = $transaksi->pluck('id');
+      $invoice = Invoice::where('Invoice.POCode', $po->POCode);
+      $invoiceid = $invoice->pluck('id');
       $reference = Reference::where('pocustomer.Reference', $transaksi->first()->Reference)
       ->first();
-      $ids = $transaksi->pluck('id');
+      
+      Invoice::whereIn('id', $invoiceid)->delete();
+      
+      Transaksi::whereIn('id', $transaksiid)->delete();
       
       PO::destroy($id);
-      
-      Transaksi::whereIn('id', $ids)->delete();
       
       Session::flash('message', 'Delete is successful!');
 

@@ -35,7 +35,7 @@
                 <td>{{$transaksis->Periode}}</td>
                 <td>{{$transaksis->E}}</td>
                 <td>{{$transaksis->Project}}</td>
-                <td><a href="{{route('extend.create', 'Reference=' .$transaksis -> Reference . '&Periode=' .$transaksis -> Periode)}}"><button type="button" @if ( $transaksis->periodeid == $transaksis->maxid ) class="btn btn-block btn-success pull-right" @else class="btn btn-block btn-default pull-right" disabled @endif >Extend</button></a></td>
+                <td><a href="{{route('transaksi.extend', $transaksis->invoiceid)}}"><button type="button" @if ( $transaksis->periodeid == $transaksis->maxid ) class="btn btn-block btn-success pull-right" @else class="btn btn-block btn-default pull-right" disabled @endif >Extend</button></a></td>
               </tr>
               @endforeach
             </tbody>

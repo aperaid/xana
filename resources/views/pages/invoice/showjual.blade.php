@@ -4,6 +4,10 @@
 @stop
 
 @section('content')
+{!! Form::model($invoice, [
+  'method' => 'post',
+  'route' => ['invoice.updateshowjual', $invoice->id]
+]) !!}
 <div class="row">
   <div class="col-xs-12">
     <div class="box box-info">
@@ -33,7 +37,7 @@
             </div>
           </div>
           <div class="col-md-3">
-            <table class="table table-bordered">
+            <table class="table table-bordered table-striped table-responsive">
               <thead>
                 <tr>
                   <th>Nomor PO</th>
@@ -83,14 +87,14 @@
           <div class="form-group">
             {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              {!! Form::text('Transport', 'Rp '. number_format($transport,0,',','.'), array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 100,000', 'onkeyup' => 'tot()')) !!}
+              <input id="Transport" name="Transport" type="text" class="form-control" placeholder="Rp. 100,000" @if($invoice->Periode == 1) value="{{'Rp '. number_format($transport,0,',','.')}}" @endif onKeyUp="tot()" @if($invoice->Periode > 1) disabled @endif>
             </div>
           </div>
           <!-- Discount Input -->
           <div class="form-group">
             {!! Form::label('Discount', 'Discount', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              {!! Form::text('Discount', 'Rp '. number_format($invoice->Discount,0,',','.'), array('id' => 'Discount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 10.000', 'onkeyup' => 'tot()')) !!}
+              <input id="Discount" name="Discount" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Discount,0,',','.')}}" onKeyUp="tot()" >
             </div>
           </div>
           <!-- Catatan Input -->
@@ -127,4 +131,29 @@
   <!-- col -->
 </div>
 <!-- row -->
+{!! Form::close() !!}
+@stop
+
+@section('script')
+<script>
+function tot(){
+  var txtFirstNumberValue = document.getElementById('Total2').value;
+  var txtSecondNumberValue = document.getElementById('PPN').value;
+	var txtThirdNumberValue = document.getElementById('Transport').value;
+	var txtFourthNumberValue = document.getElementById('Discount').value;
+	var result = (parseFloat(txtFirstNumberValue) * parseFloat(txtSecondNumberValue)*0.1)+parseFloat(txtFirstNumberValue) + parseFloat(txtThirdNumberValue) - parseFloat(txtFourthNumberValue);
+	if (!isNaN(result)) {
+		document.getElementById('Total').value = result;
+    }
+}
+</script>
+<script>
+  $(document).ready(function(){
+		//Mask Transport
+		$("#Transport").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+		//Mask Price
+		$("#Discount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+    $("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	});
+</script>
 @stop

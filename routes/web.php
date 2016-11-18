@@ -27,9 +27,12 @@ Route::resource('reference', 'ReferenceController');
 
 Route::resource('po', 'POController');
 
-Route::resource('transaksi', 'TransaksiController');
+Route::get('transaksi/extend/{id}', ['as' => 'transaksi.extend', 'uses' => 'TransaksiController@getExtend']);
+Route::post('transaksi/updateExtend/{id}', ['as' => 'transaksi.updateExtend', 'uses' =>'TransaksiController@postExtend']);
+Route::get('transaksi/claimcreate/{id}', ['as' => 'transaksi.claimcreate', 'uses' => 'TransaksiController@getClaim']);
+Route::post('transaksi/updateClaimCreate/{id}', ['as' => 'transaksi.updateClaimCreate', 'uses' =>'TransaksiController@postClaim']);
 
-Route::resource('extend', 'ExtendController');
+Route::resource('transaksi', 'TransaksiController');
 
 Route::get('sjkirim/qtertanda/{id}', ['as' => 'sjkirim.qtertanda', 'uses' => 'SJKirimController@getQTertanda']);
 Route::post('sjkirim/updateqtertanda/{id}', ['as' => 'sjkirim.updateqtertanda', 'uses' =>'SJKirimController@postQTertanda']);
@@ -40,7 +43,6 @@ Route::post('sjkirim/create3/{id}', ['as' => 'sjkirim.create3', 'uses' => 'SJKir
 Route::resource('sjkirim', 'SJKirimController');
 
 Route::post('sjkembali/create2/{id}', ['as' => 'sjkembali.create2', 'uses' => 'SJKembaliController@getCreate2']);
-
 Route::post('sjkembali/create3/{id}', ['as' => 'sjkembali.create3', 'uses' => 'SJKembaliController@getCreate3']);
 
 Route::get('sjkembali/qterima/{id}', ['as' => 'sjkembali.qterima', 'uses' => 'SJKembaliController@getQTerima']);
@@ -51,8 +53,11 @@ Route::resource('sjkembali', 'SJKembaliController');
 Route::resource('claim', 'ClaimController');
 
 Route::get('invoice/showsewa/{id}', ['as' => 'invoice.showsewa', 'uses' => 'InvoiceController@getInvoiceSewa']);
+Route::post('invoice/updateshowsewa/{id}', ['as' => 'invoice.updateshowsewa', 'uses' => 'InvoiceController@postInvoiceSewa']);
 Route::get('invoice/showjual/{id}', ['as' => 'invoice.showjual', 'uses' => 'InvoiceController@getInvoiceJual']);
+Route::post('invoice/updateshowjual/{id}', ['as' => 'invoice.updateshowjual', 'uses' => 'InvoiceController@postInvoiceJual']);
 Route::get('invoice/showclaim/{id}', ['as' => 'invoice.showclaim', 'uses' => 'InvoiceController@getInvoiceClaim']);
+Route::post('invoice/updateshowclaim/{id}', ['as' => 'invoice.updateshowclaim', 'uses' => 'InvoiceController@postInvoiceClaim']);
 
 Route::resource('invoice', 'InvoiceController');
 
