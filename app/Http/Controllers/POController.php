@@ -81,16 +81,13 @@ class POController extends Controller
       $invoices = $JSC;
       foreach ($invoices as $key => $invoices)
       {
-        $invoices = new Invoice;
+        $invoices = Invoice::firstOrNew(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
         $invoices->id = $invoice2 + $key;
         $invoices->Invoice = str_pad($invoice2 + $key, 5, "0", STR_PAD_LEFT);
         $invoices->JSC = $JSC[$key];
         $invoices->Tgl = $request['Tgl'];
         $invoices->Reference = $request['Reference'];
         $invoices->Periode = 1;
-        $invoices->PPN = $request['PPN'];
-        $invoices->Discount = str_replace(".","",substr($request->Discount, 3));
-        $invoices->POCode = $request['POCode'];
         $invoices->save();
       }
       
@@ -203,9 +200,7 @@ class POController extends Controller
         $transaksis->save();
       }
       
-      $PPN = Invoice::where('invoice.POCode', $po->POCode)->first();
-      $invoiceid = Invoice::where('invoice.POCode', $po->POCode)->pluck('id');
-      Invoice::whereIn('id', $invoiceid)->delete();
+      Invoice::where('invoice.Reference', $input['Reference'])->where('invoice.Periode', 1)->delete();
       
       $invoice = Invoice::select([
         DB::raw('MAX(id) AS maxid')
@@ -224,10 +219,7 @@ class POController extends Controller
         $invoices->JSC = $JSC[$key];
         $invoices->Tgl = $request['Tgl'];
         $invoices->Reference = $request['Reference'];
-        $invoices->Periode = 1;
-        $invoices->PPN = $PPN->PPN;
-        $invoices->Discount = str_replace(".","",substr($request->Discount, 3));
-        $invoices->POCode = $request['POCode'];
+        $invoices->Periode = 1; 
         $invoices->save();
       }
 
@@ -239,7 +231,7 @@ class POController extends Controller
       $po = PO::find($id);
       $transaksi = Transaksi::where('transaksi.POCode', $po->POCode);
       $transaksiid = $transaksi->pluck('id');
-      $invoice = Invoice::where('Invoice.POCode', $po->POCode);
+      $invoice = Invoice::where('invoice.Reference', $transaksi->first()->Reference)->where('invoice.Periode', 1);
       $invoiceid = $invoice->pluck('id');
       $reference = Reference::where('pocustomer.Reference', $transaksi->first()->Reference)
       ->first();

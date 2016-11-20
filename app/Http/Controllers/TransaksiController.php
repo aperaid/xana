@@ -176,7 +176,6 @@ class TransaksiController extends Controller
         'Reference' => $invoice->Reference,
         'Periode' => $invoice->Periode+1,
         'PPN' => $invoice->PPN,
-        'POCode' => $invoice->POCode,
       ]);
 
       $periode = $periodeid;

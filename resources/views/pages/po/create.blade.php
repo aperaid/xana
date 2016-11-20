@@ -48,19 +48,8 @@
           {!! Form::text('Transport', null, array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 100.000', 'required')) !!}
         </div>
         <div class="form-group">
-          {!! Form::label('Discount', 'Discount') !!}
-          {!! Form::text('Discount', null, array('id' => 'Discount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 10.000', 'required')) !!}
-        </div>
-        <div class="form-group">
           {!! Form::label('Catatan', 'Catatan') !!}
           {!! Form::textarea('Catatan', null, array('id' => 'Catatan', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '5', 'required')) !!}
-        </div>
-        <div class="checkbox">
-          <label>
-            {!! Form::hidden('PPN', 0) !!}
-            {!! Form::checkbox('PPN', 1, null, array('class' => 'minimal')) !!}
-            PPN
-          </label>
         </div>
       </div>
       <!-- /.box-body -->
@@ -136,7 +125,6 @@ $(function() {
 		//Mask Transport
 		$("#Transport").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 		//Mask Price
-		$("#Discount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
     $("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 	});
 </script>

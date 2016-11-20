@@ -117,7 +117,9 @@ class InvoiceController extends Controller
     {
     	$invoice = Invoice::find($id);
       
-      $po = PO::where('po.POCode', $invoice -> POCode);
+      $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
+      
+      $po = PO::whereIn('po.POCode', $POCode);
       $poid = $po->pluck('id');
       
       $input = Input::all();
@@ -211,7 +213,9 @@ class InvoiceController extends Controller
     {
     	$invoice = Invoice::find($id);
       
-      $po = PO::where('po.POCode', $invoice -> POCode);
+      $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
+      
+      $po = PO::whereIn('po.POCode', $POCode);
       $poid = $po->pluck('id');
       
       $input = Input::all();
