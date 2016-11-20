@@ -445,7 +445,7 @@ class TransaksiController extends Controller
     	return redirect()->route('transaksi.index');
     }
     
-    public function getClaimDelete(Request $request)
+    public function getClaimDelete(Request $request, $id)
     {
       return view('pages.transaksi.claimdelete')
       ->with('id', $id);
@@ -454,58 +454,50 @@ class TransaksiController extends Controller
     public function postClaimDelete(Request $request, $id)
     {
       $invoice = Invoice::find($id);
-      $maxinvoice = Invoice::select([DB::raw('max(invoice.id) as maxinvoice')])->first();
       
-      $periodes = Periode::leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+      $periodes = Periode::select([
+        DB::raw('SUM(periode.Quantity) AS SumQuantity'),
+        'periode.*',
+      ])
       ->where('periode.Reference', $invoice->Reference)
       ->where('periode.Periode', $invoice->Periode)
-      ->whereNull('periode.SJKem')
-      ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Extend")');
+      ->where('periode.Deletes', 'Claim')
+      ->groupBy('periode.IsiSJKir');
       $periodeid = $periodes->pluck('periode.id');
       $quantity = $periodes->pluck('periode.Quantity');
-      $isisjkir = $periodes->pluck('periode.IsiSJKir');
+      $claim = $periodes->pluck('periode.Claim');
       $purchase = $periodes->pluck('periode.Purchase');
+      $isisjkir = $periodes->pluck('periode.IsiSJKir');
       
-      $Tgl = $invoice->Tgl;
-      $Tgl2 = str_replace('/', '-', $Tgl);
-      $TglInvoice = strtotime("+1 month", strtotime($Tgl2));
-      $TglInvoice2 = date("d/m/Y", $TglInvoice);
-      $E = $periodes->first()->E;
-      $E2 = str_replace('/', '-', $E);
-      $SPeriode = strtotime("+1 day", strtotime($E2));
-      $SPeriode2 = date("d/m/Y", $SPeriode);
-      $EPeriode = strtotime("+1 month", strtotime($E2));
-      $EPeriode2 = date("d/m/Y", $EPeriode);
-      
-      Invoice::Create([
-        'id' => $maxinvoice->maxinvoice+1,
-        'Invoice' => str_pad($maxinvoice->maxinvoice + 1, 5, "0", STR_PAD_LEFT),
-        'JSC' => 'Sewa',
-        'Tgl' => $TglInvoice2,
-        'Reference' => $invoice->Reference,
-        'Periode' => $invoice->Periode+1,
-        'PPN' => $invoice->PPN,
-        'POCode' => $invoice->POCode,
-      ]);
-
-      $periode = $periodeid;
-      foreach ($periode as $key => $periode)
+      $transaksis = $purchase;
+      foreach ($transaksis as $key => $transaksi)
       {
-        $periode = new Periode;
-        $periode->id = $periodeid[$key]+count($periodeid);
-        $periode->Periode = $periodes->first()->Periode+1;
-        $periode->S = $SPeriode2;
-        $periode->E = $EPeriode2;
-        $periode->Quantity = $quantity[$key];
-        $periode->IsiSJKir = $isisjkir[$key];
-        $periode->Reference = $periodes->first()->Reference;
-        $periode->Purchase = $purchase[$key];
-        $periode->Claim = '';
-        $periode->Deletes = 'Extend';
-        $periode->save();
+        $data = Transaksi::where('Reference', $invoice->Reference)->where('Purchase', $purchase[$key])->first();
+        $data->update(['QSisaKem' => $data->QSisaKem + $quantity[$key]]);
       }
       
-      Session::flash('message', 'Extend is successful!');
+      $isisjkirims = $purchase;
+      foreach ($isisjkirims as $key => $isisjkirim)
+      {
+        $data = IsiSJKirim::where('IsiSJKir', $isisjkir[$key])->where('Purchase', $purchase[$key])->first();
+        $data->update(['QSisaKemInsert' => $data->QSisaKemInsert + $quantity[$key]]);
+        $data->update(['QSisaKem' => $data->QSisaKem + $quantity[$key]]);
+      }
+      
+      $periodes = $purchase;
+      foreach ($periodes as $key => $periode)
+      {
+        $data = Periode::where('IsiSJKir', $isisjkir[$key])->where('Purchase', $purchase[$key])->where('Periode', $invoice->Periode)->whereRaw('(Deletes = "Sewa" OR Deletes = "Extend")')->first();
+        $data->update(['Quantity' => $data->Quantity + $quantity[$key]]);
+      }
+      
+      Periode::where('Reference', $invoice->Reference)->whereIn('Purchase', $purchase)->whereIn('IsiSJKir', $isisjkir)->whereIn('Claim', $claim)->where('Deletes', 'Claim')->delete();
+      
+      TransaksiClaim::whereIn('Claim', $claim)->delete();
+      
+      Invoice::destroy($id);
+      
+      Session::flash('message', 'Delete claim is successful!');
 
     	return redirect()->route('transaksi.index');
     }
