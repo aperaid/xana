@@ -102,9 +102,6 @@ class SJKembaliController extends Controller
       $Tgl = Session::get('Tgl');
       $Reference = Session::get('Reference');
       
-      $referenceid = Reference::where('pocustomer.id', $id)
-      ->first();
-      
       $maxperiodeid = Periode::select([
         DB::raw('MAX(periode.id) AS maxid')
       ])
@@ -148,7 +145,7 @@ class SJKembaliController extends Controller
       
     	return view('pages.sjkembali.create2')
       ->with('url', 'sjkembali')
-      ->with('referenceid', $referenceid)
+      ->with('id', $id)
       ->with('isisjkembalis', $isisjkembalis)
       ->with('check', $check)
       ->with('checks', $checks)
@@ -199,9 +196,6 @@ class SJKembaliController extends Controller
       ->groupBy('periode.IsiSJKir')
       ->orderBy('periode.id', 'desc')
       ->pluck('periode.maxid');
-
-      $referenceid = Reference::where('pocustomer.id', $id)
-      ->first();
       
       $isisjkirims = IsiSJKirim::select([
         'isisjkirim.*',
@@ -211,8 +205,6 @@ class SJKembaliController extends Controller
         'sjkirim.SJKir',
         'sjkirim.Tgl',
         'transaksi.Barang',
-        'transaksi.Purchase',
-        'transaksi.Reference',
       ])
       ->leftJoin('periode', 'isisjkirim.IsiSJKir', '=', 'periode.IsiSJKir')
       ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
@@ -226,7 +218,7 @@ class SJKembaliController extends Controller
       
     	return view('pages.sjkembali.create3')
       ->with('url', 'sjkembali')
-      ->with('referenceid', $referenceid)
+      ->with('id', $id)
       ->with('isisjkirims', $isisjkirims)
       ->with('sjkembali', $sjkembali)
       ->with('isisjkembali', $isisjkembali)

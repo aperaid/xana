@@ -160,7 +160,7 @@
 									<a href="{{route('reference.index')}}"><button type="button" class="btn btn-default pull-left" style="margin-right: 5px;">Back</button></a>
 									<a href="{{route('sjkirim.create', 'id='.$detail->pocusid)}}"><button id="SJKirim_button" type="button" style="margin-right: 5px;" @if ( $sjkircheck == 0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right"	@endif	>SJ Kirim</button></a>
 									<a href="{{route('sjkembali.create', 'id='.$detail->pocusid)}}"><button id="SJKembali_button" type="button" style="margin-right: 5px;"	@if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right"	@endif	>SJ Kembali</button></a>
-									<a href="{{route('claim.create', $detail->pocusid)}}">	<button id="claim_button" type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif	>Claim</button></a>
+									<a href="{{route('transaksi.claimcreate', $detail->pocusid)}}">	<button id="claim_button" type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif	>Claim</button></a>
 									<a href="{{route('reference.edit', $detail->pocusid)}}"><button id="edit_button" type="button" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right"	@endif >Edit</button></a>
 									<button id="delete_button" type="submit" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
 									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button id="insertPO_button" type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert PO</button></a>
@@ -294,10 +294,10 @@
 										<td>{{ $sewa -> Periode }}</td>
 										<td>{{ $sewa -> E }}</td>
 										<td>
-											@if ( $sewa -> id == $sewa -> maxid )
-												<a href="{{route('invoice.show', array($sewa -> Reference, $sewa -> Periode))}}"><button class="btn btn-success btn-block btn-sm">Extend</button></a>
+											@if ($sewa->id == $sewa->maxid && $sewa->SumQKirim == $sewa->SumQTertanda)
+                        <a href="{{route('transaksi.extend', $sewa->invoiceid)}}"><button type="button"  class="btn btn-block btn-success">Extend</button>
 											@else
-												<button class="btn btn-default btn-block btn-sm" disabled>Extend</button>
+												<button type="button" class="btn btn-block btn-default" disabled>Extend</button>
 											@endif
 										</td>
 								@endforeach

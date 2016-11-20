@@ -1,11 +1,11 @@
 @extends('layouts.xana.layout')
 @section('title')
-	Create SJKembali
+	Create Claim
 @stop
 
 @section('content')
 {!! Form::open([
-  'route' => ['sjkembali.create3', $id]
+  'route' => ['transaksi.claimcreate3', $id]
 ]) !!}
 <div class="row">
   <div class="col-xs-12">
@@ -15,29 +15,29 @@
           <thead>
           <tr>
             <th>Pilih</th>
-            <th>Extend Date</th>
+            <th>J/S</th>
             <th>Barang</th>
-            <th>Quantity Sisa Kembali</th>
+            <th>Quantity Ditempat</th>
             <th>SJ Kirim Code</th>
           </tr>
           </thead>
           <tbody>
-            @foreach($isisjkembalis as $isisjkembali)
+            @foreach($isisjkirims as $isisjkirim)
               <tr>
-                <td>      
+                <td>
                 @if($check < $checks)
-                {!! Form::checkbox('checkbox[]', $isisjkembali->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
+                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
                 @elseif($check > $checke)
-                {!! Form::checkbox('checkbox[]', $isisjkembali->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
-                @elseif($isisjkembali->SumQSisaKemInsert == 0)
-                {!! Form::checkbox('checkbox[]', $isisjkembali->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
+                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
+                @elseif($isisjkirim->SumQSisaKem == 0)
+                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
                 @else
-                {!! Form::checkbox('checkbox[]', $isisjkembali->Purchase, null, ['class' => 'minimal']) !!}
+                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal']) !!}
                 @endif</td>
-                <td>{{$isisjkembali->S}}</td>
-                <td>{{$isisjkembali->Barang}}</td>
-                <td>{{$isisjkembali->SumQSisaKemInsert}}</td>
-                <td>{{$isisjkembali->SJKir}}</td>
+                <td>{{$isisjkirim->Purchase}}</td>
+                <td>{{$isisjkirim->Barang}}</td>
+                <td>{{$isisjkirim->SumQSisaKem}}</td>
+                <td>{{$isisjkirim->SJKir}}</td>
               </tr>
             @endforeach
             <p>{!! Form::checkbox('SelectAll', null, null, ['id' => 'SelectAll', 'class' => 'minimal']) !!}{!! Form::label('Check All', 'Check All') !!}
@@ -46,7 +46,7 @@
       </div>
       <div class="box-footer">
         {!! Form::submit('Choose',  array('class' => 'btn btn-info pull-right', 'disabled')) !!}
-        <a href="{{route('sjkembali.create', 'id='.$id)}}"><button type="button" class="btn btn-default">Cancel</button></a>
+        <a href="{{route('transaksi.claimcreate', $id)}}"><button type="button" class="btn btn-default">Cancel</button></a>
       </div>
     </div>
     <!-- box -->

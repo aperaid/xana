@@ -35,7 +35,13 @@
                 <td>{{$transaksis->Periode}}</td>
                 <td>{{$transaksis->E}}</td>
                 <td>{{$transaksis->Project}}</td>
-                <td><a href="{{route('transaksi.extend', $transaksis->invoiceid)}}"><button type="button" @if ( $transaksis->periodeid == $transaksis->maxid ) class="btn btn-block btn-success pull-right" @else class="btn btn-block btn-default pull-right" disabled @endif >Extend</button></a></td>
+                <td>
+                  @if ($transaksis->periodeid == $transaksis->maxid && $transaksis->SumQKirim == $transaksis->SumQTertanda)
+                    <a href="{{route('transaksi.extend', $transaksis->invoiceid)}}"><button type="button"  class="btn btn-block btn-success">Extend</button>
+                  @else
+                    <button type="button" class="btn btn-block btn-default" disabled>Extend</button>
+                  @endif
+                </td>
               </tr>
               @endforeach
             </tbody>
@@ -84,7 +90,7 @@
                 <td>{{$transaksic->Periode}}</td>
                 <td>{{$transaksic->Tgl}}</td>
                 <td>{{$transaksic->Project}}</td>
-                <td><a href="{{route('extend.create')}}"><button class="btn btn-block btn-danger btn-sm">Batal</button></a></td>
+                <td><a href="{{route('transaksi.claimdelete', $transaksic->invoiceid)}}"><button class="btn btn-block btn-danger btn-sm">Batal</button></a></td>
               </tr>
               @endforeach
             </tbody>

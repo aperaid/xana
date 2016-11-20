@@ -28,9 +28,13 @@ Route::resource('reference', 'ReferenceController');
 Route::resource('po', 'POController');
 
 Route::get('transaksi/extend/{id}', ['as' => 'transaksi.extend', 'uses' => 'TransaksiController@getExtend']);
-Route::post('transaksi/updateExtend/{id}', ['as' => 'transaksi.updateExtend', 'uses' =>'TransaksiController@postExtend']);
+Route::post('transaksi/updateextend/{id}', ['as' => 'transaksi.updateextend', 'uses' =>'TransaksiController@postExtend']);
 Route::get('transaksi/claimcreate/{id}', ['as' => 'transaksi.claimcreate', 'uses' => 'TransaksiController@getClaim']);
-Route::post('transaksi/updateClaimCreate/{id}', ['as' => 'transaksi.updateClaimCreate', 'uses' =>'TransaksiController@postClaim']);
+Route::post('transaksi/claimcreate2/{id}', ['as' => 'transaksi.claimcreate2', 'uses' => 'TransaksiController@getClaim2']);
+Route::post('transaksi/claimcreate3/{id}', ['as' => 'transaksi.claimcreate3', 'uses' => 'TransaksiController@getClaim3']);
+Route::post('transaksi/updateclaimcreate', ['as' => 'transaksi.updateclaimcreate', 'uses' =>'TransaksiController@postClaim']);
+Route::get('transaksi/claimdelete/{id}', ['as' => 'transaksi.claimdelete', 'uses' => 'TransaksiController@getClaimDelete']);
+Route::post('transaksi/updateclaimdelete/{id}', ['as' => 'transaksi.updateclaimdelete', 'uses' => 'TransaksiController@postClaimDelete']);
 
 Route::resource('transaksi', 'TransaksiController');
 
@@ -49,8 +53,6 @@ Route::get('sjkembali/qterima/{id}', ['as' => 'sjkembali.qterima', 'uses' => 'SJ
 Route::post('sjkembali/updateqterima/{id}', ['as' => 'sjkembali.updateqterima', 'uses' =>'SJKembaliController@postQTerima']);
 
 Route::resource('sjkembali', 'SJKembaliController');
-
-Route::resource('claim', 'ClaimController');
 
 Route::get('invoice/showsewa/{id}', ['as' => 'invoice.showsewa', 'uses' => 'InvoiceController@getInvoiceSewa']);
 Route::post('invoice/updateshowsewa/{id}', ['as' => 'invoice.updateshowsewa', 'uses' => 'InvoiceController@postInvoiceSewa']);

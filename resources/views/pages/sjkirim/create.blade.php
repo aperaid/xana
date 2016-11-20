@@ -34,7 +34,7 @@
         </div>
       </div>
       <div class="box-footer">
-        <a href="{{route('reference.show', $reference->id)}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a> 
+        <a href="{{route('reference.show', $reference->id)}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
         {!! Form::submit('Next',  array('class' => 'btn btn-primary pull-right')) !!}
       </div>
     </div>

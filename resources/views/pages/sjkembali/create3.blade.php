@@ -1,6 +1,6 @@
 @extends('layouts.xana.layout')
 @section('title')
-	Create SJKirim
+	Create SJKembali
 @stop
 
 @section('content')
@@ -14,7 +14,7 @@
         <table id="datatables" class="table table-bordered table-striped table-responsive">
           <thead>
             <tr>
-              <th>Tgl Extend</th>
+              <th>Extend Date</th>
 					    <th>Barang</th>
 					    <th>Warehouse</th>
 					    <th>Q Sisa Kembali</th>
@@ -42,7 +42,7 @@
       </div>
       <div class="box-footer">
         {!! Form::submit('Insert',  array('class' => 'btn btn-success pull-right')) !!}
-        <a href="{{route('sjkembali.create', 'id='.$referenceid->id)}}"><button type="button" class="btn btn-default">Cancel</button></a>
+        <a href="{{route('sjkembali.create', 'id='.$id)}}"><button type="button" class="btn btn-default">Cancel</button></a>
       </div>
     </div>
     <!-- box -->

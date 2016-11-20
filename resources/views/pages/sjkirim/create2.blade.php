@@ -31,7 +31,7 @@
                 <td>{{$transaksi->JS}}</td>
                 <td>{{$transaksi->Barang}}</td>
                 <td>{{$transaksi->QSisaKirInsert}}</td>
-                </tr>
+              </tr>
             @endforeach
             <p>{!! Form::checkbox('SelectAll', null, null, ['id' => 'SelectAll', 'class' => 'minimal']) !!}{!! Form::label('Check All', 'Check All') !!}
           </tbody>

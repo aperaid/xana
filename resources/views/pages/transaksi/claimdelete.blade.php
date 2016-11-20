@@ -1,5 +1,5 @@
 {!! Form::open([
-  'route' => ['transaksi.updateextend', $id]
+  'route' => ['transaksi.updateclaimdelete', $id]
 ]) !!}
 {!! Form::close() !!}
 

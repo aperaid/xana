@@ -145,6 +145,8 @@ class ReferenceController extends Controller
         'invoice.id AS invoiceid',
         'invoice.Invoice',
         'periode.*',
+        DB::raw('SUM(isisjkirim.QKirim) AS SumQKirim'),
+        DB::raw('SUM(isisjkirim.QTertanda) AS SumQTertanda'),
         'maxid'
       ])
       ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
@@ -297,7 +299,7 @@ class ReferenceController extends Controller
       
       Reference::destroy($id);
 
-      Session::flash('message', $invoiceid);
+      Session::flash('message', 'Delete is successful!');
 
     	return redirect()->route('reference.index');
     }

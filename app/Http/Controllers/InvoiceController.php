@@ -60,8 +60,7 @@ class InvoiceController extends Controller
     $transport = $periodes->first()->Transport;
     
     $total = 0;
-    $x=0;
-    foreach($periodes as $periode2){
+    foreach($periodes as $key => $periode2){
       $start = $periode2->S;
       $end = $periode2->E;
 
@@ -70,18 +69,17 @@ class InvoiceController extends Controller
       $start3[] = strtotime($start2);
       $end3[] = strtotime($end2);
 
-      $SE[] = round((($end3[$x] - $start3[$x]) / 86400),1)+1;
+      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
 
       $Days = str_replace('/', ',', $start);
       $M = substr($Days, 3, -5);
       $Y = substr($Days, 6);
       $Days2[] = cal_days_in_month(CAL_GREGORIAN, $M, $Y);
       
-      $I[] = round(((($end3[$x] - $start3[$x]) / 86400)+1)/$Days2[$x], 4);
+      $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-      $total2[] = ((($end3[$x] - $start3[$x]) / 86400)+1)/$Days2[$x]*$periode2->SumQuantity*$periode2->Amount; 
-      $total += $total2[$x];
-      $x++;
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode2->SumQuantity*$periode2->Amount; 
+      $total += $total2[$key];
     }
     if ($invoice->Periode == 1){
       $toss = $transport; 
