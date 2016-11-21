@@ -76,4 +76,13 @@ $(function() {
     x.value = x.value.toUpperCase();
   }
 </script>
+<script>
+  $(function() {
+    var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletepcode.php");?>;
+    $( "#PCode" ).autocomplete({
+      source: availableTags,
+      autoFocus: true
+    });
+  });
+</script>
 @stop

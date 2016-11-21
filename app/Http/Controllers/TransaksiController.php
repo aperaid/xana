@@ -152,10 +152,11 @@ class TransaksiController extends Controller
       ->where('periode.Periode', $invoice->Periode)
       ->whereNull('periode.SJKem')
       ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Extend")');
-      $periodeid = $periodes->pluck('periode.id');
       $quantity = $periodes->pluck('periode.Quantity');
       $isisjkir = $periodes->pluck('periode.IsiSJKir');
       $purchase = $periodes->pluck('periode.Purchase');
+      
+      $periodeid = Periode::select([DB::raw('max(periode.id) as maxid')])->first();
       
       $Tgl = $invoice->Tgl;
       $Tgl2 = str_replace('/', '-', $Tgl);
@@ -178,11 +179,11 @@ class TransaksiController extends Controller
         'PPN' => $invoice->PPN,
       ]);
 
-      $periode = $periodeid;
+      $periode = $purchase;
       foreach ($periode as $key => $periode)
       {
         $periode = new Periode;
-        $periode->id = $periodeid[$key]+count($periodeid);
+        $periode->id = $periodeid->maxid + $key + 1;
         $periode->Periode = $periodes->first()->Periode+1;
         $periode->S = $SPeriode2;
         $periode->E = $EPeriode2;

@@ -67,6 +67,7 @@
 {!! Form::close() !!}
 @stop
 
+@section('script')
 <script>
   function capital() {
     var x = document.getElementById("Project");
@@ -76,23 +77,12 @@
   }
 </script>
 <script>
-  $(document).ready(function() {
-    src = "{{ route('searchajax') }}";
-      $("#CCode").autocomplete({
-        source: function(request, response) {
-          $.ajax({
-            url: src,
-            dataType: "json",
-            data: {
-              term : request.term
-            },
-            success: function(data) {
-              response(data);
-               
-            }
-          });
-        },
-        min_length: 3,
+  $(function() {
+    var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompleteccode.php");?>;
+    $( "#CCode" ).autocomplete({
+      source: availableTags,
+      autoFocus: true
     });
   });
 </script>
+@stop

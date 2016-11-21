@@ -100,7 +100,7 @@
           <div class="form-group">
             {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              <input id="Transport" name="Transport" type="text" class="form-control" placeholder="Rp. 100,000" @if($invoice->Periode == 1) value="{{'Rp '. number_format($transport,0,',','.')}}" @endif onKeyUp="tot()" @if($invoice->Periode > 1) disabled @endif>
+              <input id="Transport" name="Transport" type="text" class="form-control" @if($invoice->Periode == 1) value="{{'Rp '. number_format($transport,0,',','.')}}" @endif onKeyUp="tot()" disabled >
             </div>
           </div>
           <!-- Discount Input -->

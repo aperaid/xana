@@ -365,12 +365,27 @@ class SJKembaliController extends Controller
         $qtrimacheck = 1;
       }
       
+      $periodecheck = IsiSJKembali::select('isisjkembali.Periode')
+      ->where('isisjkembali.SJKem', $sjkembali->SJKem)
+      ->first();
+      $periodemax = Periode::select([
+        DB::raw('max(periode.Periode) as maxper')
+      ])
+      ->where('periode.Reference', $sjkembali->Reference)
+      ->first();
+      if($periodecheck->Periode >= $periodemax->maxper){
+        $periodecheck = 0;
+      }else{
+        $periodecheck = 1;
+      }
+      
     	return view('pages.sjkembali.show')
       ->with('url', 'sjkembali')
       ->with('sjkembali', $sjkembali)
       ->with('isisjkembali', $isisjkembali)
       ->with('isisjkembalis', $isisjkembalis)
       ->with('qtrimacheck', $qtrimacheck)
+      ->with('periodecheck', $periodecheck)
       ->with('top_menu_sel', 'menu_sjkembali')
       ->with('page_title', 'Surat Jalan Kembali')
       ->with('page_description', 'View');
@@ -534,6 +549,7 @@ class SJKembaliController extends Controller
       ])
       ->whereIn('periode.IsiSJKir', $IsiSJKir)
       ->where('periode.Deletes', 'Kembali')
+      ->where('periode.SJKem', $sjkembali->SJKem)
       ->first();
       
     	return view('pages.sjkembali.qterima')
@@ -573,7 +589,7 @@ class SJKembaliController extends Controller
       $isisjkembalis = $isisjkir;
       foreach ($isisjkembalis as $key => $isisjkembali)
       {
-        $data = IsiSJKembali::where('IsiSJKir', $isisjkir[$key])->first();
+        $data = IsiSJKembali::where('IsiSJKir', $isisjkir[$key])->where('SJKem', $sjkembali->SJKem)->first();
         $data->update(['QTerima' => 0]);
       }
       

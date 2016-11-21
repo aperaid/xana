@@ -43,7 +43,6 @@ class InvoiceController extends Controller
       'periode.SJKem',
       'periode.Deletes',
       'periode.Periode',
-      'po.Transport',
     ])
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
@@ -57,7 +56,12 @@ class InvoiceController extends Controller
     ->orderBy('periode.id', 'asc')
     ->get();
     
-    $transport = $periodes->first()->Transport;
+    $pocodes = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
+    ->where('transaksi.Reference', $parameter->Reference)
+    ->groupBy('po.POCode')
+    ->get();
+    
+    $transport = $pocodes->pluck('Transport')->sum();
     
     $total = 0;
     foreach($periodes as $key => $periode2){
@@ -85,7 +89,7 @@ class InvoiceController extends Controller
       $toss = $transport; 
     }else $toss = 0;
     
-    $pocodes = Periode::distinct()
+    /*$pocodes = Periode::distinct()
     ->select('transaksi.POCode')
     ->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
     ->where('transaksi.Reference', $parameter->Reference)
@@ -94,7 +98,7 @@ class InvoiceController extends Controller
     ->where('periode.Quantity', '!=', 0)
     ->groupBy('periode.Purchase', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
-    ->get();
+    ->get();*/
     
     return view('pages.invoice.showsewa')
     ->with('url', 'invoice')
