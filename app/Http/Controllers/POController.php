@@ -70,25 +70,52 @@ class POController extends Controller
         $transaksis->save();
       }
       
-      $invoice = Invoice::select([
-        DB::raw('MAX(id) AS maxid')
-      ])
+      /*$invoiceold = Invoice::where('Reference', $input['Reference'])
       ->first();
-      $invoice2 = $invoice->maxid+1;
+      if(is_null($invoiceold)){
+        $invoice = $invoicenew->maxid+1;
+      }else{
+      if(count($JSC==2)){
+        if(is_null($invoiceold)){
+          $invoice = $invoicenew->maxid+1;
+        }if($invoiceold == $JSC[0]){
+          $invoice[] = [$invoiceold->id, $invoiceold->id+1];
+        }else{
+          $invoice = $invoiceold->id+1;
+        }
+        
+        }
+      }*/
 
       $JSC = array_unique($JSC);
 
       $invoices = $JSC;
       foreach ($invoices as $key => $invoices)
       {
-        $invoices = Invoice::firstOrNew(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
-        $invoices->id = $invoice2 + $key;
-        $invoices->Invoice = str_pad($invoice2 + $key, 5, "0", STR_PAD_LEFT);
+        $invoice = Invoice::select([
+          DB::raw('MAX(id) AS maxid')
+        ])
+        ->first();
+        
+        $invoices = new Invoice;//Invoice::updateOrCreate(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
+        $invoices->id = $invoice->maxid + 1;
+        $invoices->Invoice = str_pad($invoice->maxid + 1, 5, "0", STR_PAD_LEFT);
         $invoices->JSC = $JSC[$key];
         $invoices->Tgl = $request['Tgl'];
         $invoices->Reference = $request['Reference'];
         $invoices->Periode = 1;
         $invoices->save();
+        
+        $duplicateRecords = Invoice::select([
+          DB::raw('MAX(id) AS maxid')
+        ])
+        ->selectRaw('count(`Reference`) as `occurences`')
+        ->where('Reference', $input['Reference'])
+        ->groupBy('JSC', 'Periode')
+        ->having('occurences', '>', 1)
+        ->pluck('maxid');
+        
+        Invoice::whereIn('id', $duplicateRecords)->delete();
       }
       
     	return redirect()->route('reference.show', $id);
@@ -231,18 +258,25 @@ class POController extends Controller
       $po = PO::find($id);
       $transaksi = Transaksi::where('transaksi.POCode', $po->POCode);
       $transaksiid = $transaksi->pluck('id');
-      $invoice = Invoice::where('invoice.Reference', $transaksi->first()->Reference)->where('invoice.Periode', 1);
-      $invoiceid = $invoice->pluck('id');
       $reference = Reference::where('pocustomer.Reference', $transaksi->first()->Reference)
       ->first();
       
-      Invoice::whereIn('id', $invoiceid)->delete();
-      
       Transaksi::whereIn('id', $transaksiid)->delete();
+      
+      $invoice = Invoice::select('id')
+      ->from('invoice as inv')
+      ->whereNotExists(function($query)
+        {
+          $query->from('transaksi as tran')
+          ->whereRaw('inv.Reference = tran.Reference AND inv.JSC = tran.JS');
+        })
+      ->pluck('id');
+      
+      Invoice::whereIn('id', $invoice)->delete();
       
       PO::destroy($id);
       
-      Session::flash('message', 'Delete is successful!');
+      Session::flash('message', 'POCode '. $po->POCode .' deleted!');
 
     	return redirect()->route('reference.show', $reference->id);
     }

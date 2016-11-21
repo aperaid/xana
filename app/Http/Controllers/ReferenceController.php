@@ -112,6 +112,10 @@ class ReferenceController extends Controller
         $pocheck = 1;
       }
       
+      $periodecheck = Periode::selectRaw('MAX(Periode) as maxper')
+      ->where('periode.Reference', $detail -> Reference)
+      ->first();
+      
       $po = PO::select('po.*')
       ->leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
       ->where('transaksi.Reference', $detail -> Reference)
@@ -245,6 +249,7 @@ class ReferenceController extends Controller
       ->with('sjkircheck', $sjkircheck)
       ->with('sjkemcheck', $sjkemcheck)
       ->with('pocheck', $pocheck)
+      ->with('periodecheck', $periodecheck)
       ->with('pos', $po)
       ->with('sjkirims', $sjkirim)
       ->with('sjkembalis', $sjkembali)

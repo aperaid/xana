@@ -163,7 +163,7 @@
 									<a href="{{route('transaksi.claimcreate', $detail->pocusid)}}">	<button id="claim_button" type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif	>Claim</button></a>
 									<a href="{{route('reference.edit', $detail->pocusid)}}"><button id="edit_button" type="button" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right"	@endif >Edit</button></a>
 									<button id="delete_button" type="submit" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
-									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button id="insertPO_button" type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert PO</button></a>
+									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button id="insertPO_button" type="button" style="margin-right: 5px;" @if ( $periodecheck->maxper > 1 ) class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right" @endif>Insert PO</button></a>
 								</div>
 							</div>
 						</div>
