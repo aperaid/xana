@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Inventory;
+use App\History;
 use Session;
 use DB;
+use Auth;
 
 class InventoryController extends Controller
 {
@@ -56,6 +58,11 @@ class InventoryController extends Controller
     $adjust->Type = $request->Type;
     $adjust->Warehouse = $request->Warehouse;
     $adjust->save();
+    
+    $history = new History;
+    $history->User = Auth::user()->name;
+    $history->History = 'Adjust inventory on Inventory code '.$request['Code'];
+    $history->save();
 
     return redirect()->route('inventory.adjustinventory');
   }
@@ -81,6 +88,11 @@ class InventoryController extends Controller
 
     $register = Inventory::Create($inputs);
 
+    $history = new History;
+    $history->User = Auth::user()->name;
+    $history->History = 'Register inventory on Inventory code '.$request['Code'];
+    $history->save();
+    
     return redirect()->route('inventory.viewinventory');
   }
 }

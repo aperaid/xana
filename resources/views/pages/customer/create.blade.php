@@ -20,34 +20,34 @@
           <div class="form-group">
             {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
             </div>
           </div>
           <div class="form-group">
             {!! Form::label('Company Name', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
-              {!! Form::text('Company', null, array('class' => 'form-control', 'id' => 'Company', 'placeholder' => 'PT. COMPANY', 'onKeyUp' => 'capital()', 'required')) !!}
+              {!! Form::text('Company', null, array('class' => 'form-control', 'id' => 'Company', 'placeholder' => 'PT. COMPANY', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
             </div>
             {!! Form::label('NPWP', 'NPWP', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-legal"></i></span>
-                {!! Form::number('NPWP', null, array('class' => 'form-control', 'placeholder' => '12.456.789.0-012.123')) !!}
+                {!! Form::number('NPWP', null, array('class' => 'form-control', 'placeholder' => '12.456.789.0-012.123', 'autocomplete' => 'off')) !!}
               </div>
             </div>
           </div>
           <div class="form-group">
             {!! Form::label('Company Address', 'Company Address', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('CompAlamat', null, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota')) !!}
+              {!! Form::text('CompAlamat', null, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off')) !!}
             </div>
             {!! Form::label('City', 'City', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-2">
-              {!! Form::text('CompKota', null, array('class' => 'form-control', 'placeholder' => 'Jakarta')) !!}
+              {!! Form::text('CompKota', null, array('class' => 'form-control', 'placeholder' => 'Jakarta', 'autocomplete' => 'off')) !!}
             </div>
             {!! Form::label('Zip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-2">
-              {!! Form::number('CompZip', null, array('class' => 'form-control', 'placeholder' => '10203')) !!}
+              {!! Form::number('CompZip', null, array('class' => 'form-control', 'placeholder' => '10203', 'autocomplete' => 'off')) !!}
             </div>
           </div>
           <div class="form-group">
@@ -57,7 +57,7 @@
                 <div class="input-group-addon">
                   <i class="fa fa-phone"></i>
                 </div>
-                {!! Form::text('CompPhone', null, array('class' => 'form-control', 'placeholder' => '021-123456')) !!}
+                {!! Form::text('CompPhone', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
               </div>
             </div>
             {!! Form::label('Fax', 'Fax', ['class' => "col-md-1 control-label"]) !!}
@@ -66,14 +66,14 @@
                 <div class="input-group-addon">
                   <i class="fa fa-fax"></i>
                 </div>
-                {!! Form::text('Fax', null, array('class' => 'form-control', 'placeholder' => '021-123456')) !!}
+                {!! Form::text('Fax', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
               </div>
             </div>
             {!! Form::label('Email', 'Email', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
-                {!! Form::text('CompEmail', null, array('class' => 'form-control', 'placeholder' => 'company@email.co.id')) !!}
+                {!! Form::text('CompEmail', null, array('class' => 'form-control', 'placeholder' => 'company@email.co.id', 'autocomplete' => 'off')) !!}
               </div>
             </div>
           </div>
@@ -85,7 +85,7 @@
                 <div class="input-group-addon">
                   <i class="fa fa-user"></i>
                 </div>
-                {!! Form::text('Customer', null, array('class' => 'form-control', 'placeholder' => 'CP Name')) !!}
+                {!! Form::text('Customer', null, array('class' => 'form-control', 'placeholder' => 'CP Name', 'autocomplete' => 'off')) !!}
               </div>
             </div>
           </div>
@@ -96,14 +96,14 @@
                 <div class="input-group-addon">
                   <i class="fa fa-phone"></i>
                 </div>
-                {!! Form::text('CustPhone', null, array('class' => 'form-control', 'placeholder' => '021-123456')) !!}
+                {!! Form::text('CustPhone', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
               </div>
             </div>
             {!! Form::label('Email CP', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
-                {!! Form::text('CustEmail', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id')) !!}
+                {!! Form::text('CustEmail', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id', 'autocomplete' => 'off')) !!}
               </div>
             </div>
           </div>

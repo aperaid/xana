@@ -12,8 +12,10 @@ use App\TransaksiClaim;
 use App\Reference;
 use App\IsiSJKirim;
 use App\Transaksi;
+use App\History;
 use Session;
 use DB;
+use Auth;
 
 class TransaksiController extends Controller
 {
@@ -195,6 +197,11 @@ class TransaksiController extends Controller
         $periode->Deletes = 'Extend';
         $periode->save();
       }
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Extend Transaksi Sewa on Invoice '.str_pad($maxinvoice->maxinvoice + 1, 5, "0", STR_PAD_LEFT);
+      $history->save();
       
       Session::flash('message', 'Extend is successful!');
 
@@ -438,6 +445,11 @@ class TransaksiController extends Controller
         //$claim->PPN = $input['PPN'];
         $claim->save();
       }
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Create Transaksi Claim on claim '.str_pad($request['invoiceid'], 5, "0", STR_PAD_LEFT);
+      $history->save();
 
       Session::forget('Tgl');
       Session::forget('Reference');
@@ -496,6 +508,11 @@ class TransaksiController extends Controller
       TransaksiClaim::whereIn('Claim', $claim)->delete();
       
       Invoice::destroy($id);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Delete Transaksi Claim on claim '.$invoice->Invoice;
+      $history->save();
       
       Session::flash('message', 'Delete claim is successful!');
 

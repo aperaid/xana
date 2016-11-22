@@ -70,6 +70,7 @@
               </tr>
             </thead>
             <tbody>
+              {!! Form::hidden('Invoice', $invoice->Invoice) !!}
               @foreach($periodes as $key => $periode)
               <tr>
                 {!! Form::hidden('POCode', $periode->POCode) !!}

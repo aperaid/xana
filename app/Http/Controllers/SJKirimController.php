@@ -11,8 +11,10 @@ use App\SJKirim;
 use App\IsiSJKirim;
 use App\Reference;
 use App\Transaksi;
+use App\History;
 use Session;
 use DB;
+use Auth;
 
 class SJKirimController extends Controller
 {
@@ -248,6 +250,11 @@ class SJKirimController extends Controller
         $transaksi->save();
       }
       
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Create SJKirim on SJKir '.$SJKir;
+      $history->save();
+      
       Session::forget('SJKir');
       Session::forget('Tgl');
       Session::forget('Reference');
@@ -378,6 +385,11 @@ class SJKirimController extends Controller
         $isisjkirim->QKirim = $input['QKirim'][$key];
         $isisjkirim->save();
       }
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Update SJKirim on SJKir '.$sjkirim->SJKir;
+      $history->save();
 
     	return redirect()->route('sjkirim.show', $id);
     }
@@ -501,7 +513,7 @@ class SJKirimController extends Controller
     	return redirect()->route('sjkirim.show', $id);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
       $sjkirim = SJKirim::find($id);
       
@@ -533,6 +545,11 @@ class SJKirimController extends Controller
       IsiSJKirim::where('SJKir', $sjkirim->SJKir)->delete();
       
     	SJKirim::destroy($id);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Delete SJKirim on SJKir '.$sjkirim->SJKir;
+      $history->save();
       
       Session::flash('message', 'Delete is successful!');
 

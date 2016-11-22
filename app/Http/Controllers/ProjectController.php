@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Project;
+use App\History;
 use Session;
 use DB;
+use Auth;
 
 class ProjectController extends Controller
 {
@@ -42,6 +44,11 @@ class ProjectController extends Controller
     	$inputs = $request->all();
 
     	$project = Project::Create($inputs);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Create Project on PCode '.$request['PCode'];
+      $history->save();
 
     	return redirect()->route('project.index');
     }
@@ -85,12 +92,23 @@ class ProjectController extends Controller
     	$project->CCode = $request->CCode;
     	$project->save();
 
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Update Project on PCode '.$request['PCode'];
+      $history->save();
+      
     	return redirect()->route('project.show', $id);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
     	Project::destroy($id);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Delete Project on PCode '.$request['PCode'];
+      $history->save();
+      
       Session::flash('message', 'Delete is successful!');
 
     	return redirect()->route('project.index');

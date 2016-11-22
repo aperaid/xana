@@ -52,11 +52,11 @@
         </div>
         <input name="hd_inputpocustomerbarang_Reference" type="hidden" id="hd_inputpocustomerbarang_Reference" value="">
       </div>
-      <!-- /.box-body -->
+      <!-- box-body -->
     </div>
-    <!-- /.box -->
+    <!-- box -->
   </div>
-  <!-- /.col -->
+  <!-- col -->
   <!-- POITEM BOX -->
   <div class="col-md-9">
     <div class="box box-primary">
@@ -85,13 +85,12 @@
           </tbody>
         </table>
       </div>
-      <!-- /.box-body -->
     </div>
-    <!-- /.box -->
+    <!-- box -->
   </div>
-    <!-- /.col -->
+    <!-- col -->
 </div>
-<!-- /.row -->
+<!-- row -->
 
 {!! Form::close() !!}
 @stop

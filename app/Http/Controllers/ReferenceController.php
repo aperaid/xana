@@ -15,8 +15,10 @@ use App\IsiSJKembali;
 use App\Periode;
 use App\TransaksiClaim;
 use App\Invoice;
+use App\History;
 use Session;
 use DB;
+use Auth;
 
 class ReferenceController extends Controller
 {
@@ -56,6 +58,11 @@ class ReferenceController extends Controller
     	$inputs = $request->all();
 
     	$reference = Reference::Create($inputs);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Create Reference on Reference '.$request['Reference'];
+      $history->save();
 
     	return redirect()->route('reference.index');
     }
@@ -281,11 +288,16 @@ class ReferenceController extends Controller
     	$reference->Tgl = $request->Tgl;
       $reference->PCode = $request->PCode;
     	$reference->save();
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Update Reference on Reference '.$request['Reference'];
+      $history->save();
 
     	return redirect()->route('reference.show', $id);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
       $reference = Reference::find($id);
       
@@ -303,6 +315,11 @@ class ReferenceController extends Controller
       PO::whereIn('id', $poid)->delete();
       
       Reference::destroy($id);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Delete Reference on Reference '.$reference->Reference;
+      $history->save();
 
       Session::flash('message', 'Delete is successful!');
 

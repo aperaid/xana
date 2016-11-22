@@ -12,8 +12,10 @@ use App\Periode;
 use App\Reference;
 use App\IsiSJKirim;
 use App\Transaksi;
+use App\History;
 use Session;
-Use DB;
+use DB;
+use Auth;
 
 class SJKembaliController extends Controller
 {
@@ -312,6 +314,11 @@ class SJKembaliController extends Controller
         IsiSJKembali::where('Purchase', $input['Purchase'][$key])
         ->update(['Warehouse' => $input['Warehouse'][$key]]);
       }
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Create SJKembali on SJKem '.$SJKem;
+      $history->save();
 
       Session::forget('SJKem');
       Session::forget('Tgl');
@@ -503,6 +510,11 @@ class SJKembaliController extends Controller
       SJKembali::where('sjkembali.id', $id)
       ->update(['sjkembali.Tgl' => $input['Tgl2']]);
 
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Update SJKembali on SJKem '.$sjkembali->SJKem;
+      $history->save();
+      
     	return redirect()->route('sjkembali.show', $id);
     }
   
@@ -612,7 +624,7 @@ class SJKembaliController extends Controller
     	return redirect()->route('sjkembali.show', $id);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
       $sjkembali = SJKembali::find($id);
       
@@ -653,6 +665,11 @@ class SJKembaliController extends Controller
       IsiSJKembali::where('SJKem', $sjkembali->SJKem)->delete();
       
     	SJKembali::destroy($id);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Delete SJKembali on SJKem '.$sjkembali->SJKem;
+      $history->save();
       
       Session::flash('message', 'Delete is successful!');
 

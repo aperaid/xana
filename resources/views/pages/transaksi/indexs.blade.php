@@ -90,7 +90,7 @@
                 <td>{{$transaksic->Periode}}</td>
                 <td>{{$transaksic->Tgl}}</td>
                 <td>{{$transaksic->Project}}</td>
-                <td><a href="{{route('transaksi.claimdelete', $transaksic->invoiceid)}}"><button class="btn btn-block btn-danger btn-sm">Batal</button></a></td>
+                <td><a href="{{route('transaksi.claimdelete', $transaksic->invoiceid)}}"><button class="btn btn-block btn-danger btn-sm" onclick="return confirm('Delete Claim?')">Batal</button></a></td>
               </tr>
               @endforeach
             </tbody>

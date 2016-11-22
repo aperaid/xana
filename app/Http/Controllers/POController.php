@@ -10,8 +10,10 @@ use App\PO;
 use App\Transaksi;
 use App\Reference;
 use App\Invoice;
+use App\History;
 use Session;
 use DB;
+use Auth;
 
 class POController extends Controller
 {
@@ -88,7 +90,13 @@ class POController extends Controller
       }*/
 
       $JSC = array_unique($JSC);
-
+      
+      if(Auth::user()->access == 'POPPN'){
+        $PPN = 1;
+      }else{
+        $PPN = 0;
+      }
+        
       $invoices = $JSC;
       foreach ($invoices as $key => $invoices)
       {
@@ -104,6 +112,7 @@ class POController extends Controller
         $invoices->Tgl = $request['Tgl'];
         $invoices->Reference = $request['Reference'];
         $invoices->Periode = 1;
+        $invoices->PPN = $PPN;
         $invoices->save();
         
         $duplicateRecords = Invoice::select([
@@ -117,6 +126,11 @@ class POController extends Controller
         
         Invoice::whereIn('id', $duplicateRecords)->delete();
       }
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Create PO on POCode '.$request['POCode'];
+      $history->save();
       
     	return redirect()->route('reference.show', $id);
     }
@@ -220,7 +234,6 @@ class POController extends Controller
         $transaksis->Quantity = $input['Quantity'][$key];
         $transaksis->QSisaKirInsert = $input['Quantity'][$key];
         $transaksis->QSisaKir = $input['Quantity'][$key];
-        $transaksis->QSisaKem = $input['Quantity'][$key];
         $transaksis->Amount = $input['Amount'][$key];
         $transaksis->Reference = $input['Reference'];
         $transaksis->POCode = $input['POCode'];
@@ -249,11 +262,16 @@ class POController extends Controller
         $invoices->Periode = 1; 
         $invoices->save();
       }
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Update PO on POCode '.$request['POCode'];
+      $history->save();
 
     	return redirect()->route('po.show', $id);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
       $po = PO::find($id);
       $transaksi = Transaksi::where('transaksi.POCode', $po->POCode);
@@ -270,11 +288,17 @@ class POController extends Controller
           $query->from('transaksi as tran')
           ->whereRaw('inv.Reference = tran.Reference AND inv.JSC = tran.JS');
         })
+      ->whereRaw('(inv.JSC = "Sewa" OR inv.JSC = "Jual")')
       ->pluck('id');
       
       Invoice::whereIn('id', $invoice)->delete();
       
       PO::destroy($id);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Delete PO on POCode '.$request['POCode'];
+      $history->save();
       
       Session::flash('message', 'POCode '. $po->POCode .' deleted!');
 

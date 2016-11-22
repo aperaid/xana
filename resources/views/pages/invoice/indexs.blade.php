@@ -24,6 +24,7 @@
                 <th>Periode</th>
                 <th>Company</th>
                 <th>Tgl Invoice</th>
+                <th width="10%">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -36,6 +37,13 @@
                 <td>{{$invoices->Periode}}</td>
                 <td>{{$invoices->Company}}</td>
                 <td>{{$invoices->Tgl}}</td>
+                <td>
+                  @if($invoices->Lunas==0)
+                    <a href="{{route('invoice.lunas', $invoices->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
+                  @else
+                    <a href="{{route('invoice.lunas', $invoices->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
+                  @endif
+                </td>
               </tr>
               @endforeach
             </tbody>

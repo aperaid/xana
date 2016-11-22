@@ -31,7 +31,7 @@
               {!! Form::hidden('IsiSJKir[]', $isisjkirim->IsiSJKir) !!}
               <td>{!! Form::text('Barang[]', $isisjkirim->Barang, array('class' => 'form-control', 'readonly')) !!}</td>
               <td>{!! Form::text('QSisaKem[]', $isisjkirim->SumQSisaKem, array('class' => 'form-control', 'readonly')) !!}</td>
-              <td><input name="QClaim[]" type="number" class="form-control" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $isisjkirim->SumQSisaKem }})" value="{{ $isisjkirim->SumQSisaKem }}" required></td>
+              <td><input name="QClaim[]" type="number" class="form-control" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $isisjkirim->SumQSisaKem }})" value="0" required></td>
               <td>{!! Form::text('Amount[]', null, array('id' => 'Amount', 'class' => 'form-control', 'autocomplete' => 'off', 'required')) !!}</td>
             </tr>
             @endforeach

@@ -11,8 +11,10 @@ use App\Periode;
 use App\Transaksi;
 use App\TransaksiClaim;
 use App\PO;
+use App\History;
 use Session;
 use DB;
+use Auth;
 
 class InvoiceController extends Controller
 {
@@ -140,6 +142,11 @@ class InvoiceController extends Controller
     	$invoice->Discount = str_replace(".","",substr($request->Discount, 3));
       $invoice->Catatan = $request->Catatan;
     	$invoice->save();
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Update invoice on Invoice '.$request['Invoice'];
+      $history->save();
 
       Session::flash('message', 'Update is successful!');
       
@@ -237,6 +244,11 @@ class InvoiceController extends Controller
       $invoice->Catatan = $request->Catatan;
     	$invoice->save();
 
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Update invoice on Invoice '.$request['Invoice'];
+      $history->save();
+      
       Session::flash('message', 'Update is successful!');
       
     	return redirect()->route('invoice.showjual', $id);
@@ -311,6 +323,11 @@ class InvoiceController extends Controller
       $invoice->Catatan = $request->Catatan;
     	$invoice->save();
 
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Update invoice on Invoice '.$request['Invoice'];
+      $history->save();
+      
       Session::flash('message', 'Update is successful!');
       
     	return redirect()->route('invoice.showclaim', $id);
@@ -376,5 +393,27 @@ class InvoiceController extends Controller
     ->with('top_menu_sel', 'menu_invoice')
     ->with('page_title', 'Invoice')
     ->with('page_description', 'Index');
+    }
+    
+    public function getLunas($id)
+    {
+    	return view('pages.invoice.lunas')
+      ->with('id', $id);
+    }
+    
+    public function postLunas(Request $request, $id)
+    {
+      $invoice = Invoice::find($id);
+      
+      if($invoice->Lunas == 0){
+        $lunas = 1;
+      }else{
+        $lunas = 0;
+      }
+      
+      Invoice::where('invoice.id', $id)
+      ->update(['Invoice.Lunas' => $lunas]);
+      
+      return redirect()->route('invoice.index');
     }
 }

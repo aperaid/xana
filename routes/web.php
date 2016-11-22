@@ -19,57 +19,59 @@ Auth::routes();
 
 Route::get('home', 'HomeController@index');
 
-Route::resource('customer', 'CustomerController');
+Route::group(['middleware' => 'auth'], function () {
 
-Route::resource('project', 'ProjectController');
+  Route::resource('customer', 'CustomerController');
 
-Route::resource('reference', 'ReferenceController');
+  Route::resource('project', 'ProjectController');
 
-Route::resource('po', 'POController');
+  Route::resource('reference', 'ReferenceController');
 
-Route::get('transaksi/extend/{id}', ['as' => 'transaksi.extend', 'uses' => 'TransaksiController@getExtend']);
-Route::post('transaksi/updateextend/{id}', ['as' => 'transaksi.updateextend', 'uses' =>'TransaksiController@postExtend']);
-Route::get('transaksi/claimcreate/{id}', ['as' => 'transaksi.claimcreate', 'uses' => 'TransaksiController@getClaim']);
-Route::post('transaksi/claimcreate2/{id}', ['as' => 'transaksi.claimcreate2', 'uses' => 'TransaksiController@getClaim2']);
-Route::post('transaksi/claimcreate3/{id}', ['as' => 'transaksi.claimcreate3', 'uses' => 'TransaksiController@getClaim3']);
-Route::post('transaksi/updateclaimcreate', ['as' => 'transaksi.updateclaimcreate', 'uses' =>'TransaksiController@postClaim']);
-Route::get('transaksi/claimdelete/{id}', ['as' => 'transaksi.claimdelete', 'uses' => 'TransaksiController@getClaimDelete']);
-Route::post('transaksi/updateclaimdelete/{id}', ['as' => 'transaksi.updateclaimdelete', 'uses' => 'TransaksiController@postClaimDelete']);
+  Route::resource('po', 'POController');
 
-Route::resource('transaksi', 'TransaksiController');
+  Route::get('transaksi/extend/{id}', ['as' => 'transaksi.extend', 'uses' => 'TransaksiController@getExtend']);
+  Route::post('transaksi/updateextend/{id}', ['as' => 'transaksi.updateextend', 'uses' =>'TransaksiController@postExtend']);
+  Route::get('transaksi/claimcreate/{id}', ['as' => 'transaksi.claimcreate', 'uses' => 'TransaksiController@getClaim']);
+  Route::post('transaksi/claimcreate2/{id}', ['as' => 'transaksi.claimcreate2', 'uses' => 'TransaksiController@getClaim2']);
+  Route::post('transaksi/claimcreate3/{id}', ['as' => 'transaksi.claimcreate3', 'uses' => 'TransaksiController@getClaim3']);
+  Route::post('transaksi/updateclaimcreate', ['as' => 'transaksi.updateclaimcreate', 'uses' =>'TransaksiController@postClaim']);
+  Route::get('transaksi/claimdelete/{id}', ['as' => 'transaksi.claimdelete', 'uses' => 'TransaksiController@getClaimDelete']);
+  Route::post('transaksi/updateclaimdelete/{id}', ['as' => 'transaksi.updateclaimdelete', 'uses' => 'TransaksiController@postClaimDelete']);
 
-Route::get('sjkirim/qtertanda/{id}', ['as' => 'sjkirim.qtertanda', 'uses' => 'SJKirimController@getQTertanda']);
-Route::post('sjkirim/updateqtertanda/{id}', ['as' => 'sjkirim.updateqtertanda', 'uses' =>'SJKirimController@postQTertanda']);
+  Route::resource('transaksi', 'TransaksiController');
 
-Route::post('sjkirim/create2/{id}', ['as' => 'sjkirim.create2', 'uses' => 'SJKirimController@getCreate2']);
-Route::post('sjkirim/create3/{id}', ['as' => 'sjkirim.create3', 'uses' => 'SJKirimController@getCreate3']);
+  Route::get('sjkirim/qtertanda/{id}', ['as' => 'sjkirim.qtertanda', 'uses' => 'SJKirimController@getQTertanda']);
+  Route::post('sjkirim/updateqtertanda/{id}', ['as' => 'sjkirim.updateqtertanda', 'uses' =>'SJKirimController@postQTertanda']);
 
-Route::resource('sjkirim', 'SJKirimController');
+  Route::post('sjkirim/create2/{id}', ['as' => 'sjkirim.create2', 'uses' => 'SJKirimController@getCreate2']);
+  Route::post('sjkirim/create3/{id}', ['as' => 'sjkirim.create3', 'uses' => 'SJKirimController@getCreate3']);
 
-Route::post('sjkembali/create2/{id}', ['as' => 'sjkembali.create2', 'uses' => 'SJKembaliController@getCreate2']);
-Route::post('sjkembali/create3/{id}', ['as' => 'sjkembali.create3', 'uses' => 'SJKembaliController@getCreate3']);
+  Route::resource('sjkirim', 'SJKirimController');
 
-Route::get('sjkembali/qterima/{id}', ['as' => 'sjkembali.qterima', 'uses' => 'SJKembaliController@getQTerima']);
-Route::post('sjkembali/updateqterima/{id}', ['as' => 'sjkembali.updateqterima', 'uses' =>'SJKembaliController@postQTerima']);
+  Route::post('sjkembali/create2/{id}', ['as' => 'sjkembali.create2', 'uses' => 'SJKembaliController@getCreate2']);
+  Route::post('sjkembali/create3/{id}', ['as' => 'sjkembali.create3', 'uses' => 'SJKembaliController@getCreate3']);
 
-Route::resource('sjkembali', 'SJKembaliController');
+  Route::get('sjkembali/qterima/{id}', ['as' => 'sjkembali.qterima', 'uses' => 'SJKembaliController@getQTerima']);
+  Route::post('sjkembali/updateqterima/{id}', ['as' => 'sjkembali.updateqterima', 'uses' =>'SJKembaliController@postQTerima']);
 
-Route::get('invoice/showsewa/{id}', ['as' => 'invoice.showsewa', 'uses' => 'InvoiceController@getInvoiceSewa']);
-Route::post('invoice/updateshowsewa/{id}', ['as' => 'invoice.updateshowsewa', 'uses' => 'InvoiceController@postInvoiceSewa']);
-Route::get('invoice/showjual/{id}', ['as' => 'invoice.showjual', 'uses' => 'InvoiceController@getInvoiceJual']);
-Route::post('invoice/updateshowjual/{id}', ['as' => 'invoice.updateshowjual', 'uses' => 'InvoiceController@postInvoiceJual']);
-Route::get('invoice/showclaim/{id}', ['as' => 'invoice.showclaim', 'uses' => 'InvoiceController@getInvoiceClaim']);
-Route::post('invoice/updateshowclaim/{id}', ['as' => 'invoice.updateshowclaim', 'uses' => 'InvoiceController@postInvoiceClaim']);
+  Route::resource('sjkembali', 'SJKembaliController');
 
-Route::resource('invoice', 'InvoiceController');
+  Route::get('invoice/showsewa/{id}', ['as' => 'invoice.showsewa', 'uses' => 'InvoiceController@getInvoiceSewa']);
+  Route::post('invoice/updateshowsewa/{id}', ['as' => 'invoice.updateshowsewa', 'uses' => 'InvoiceController@postInvoiceSewa']);
+  Route::get('invoice/showjual/{id}', ['as' => 'invoice.showjual', 'uses' => 'InvoiceController@getInvoiceJual']);
+  Route::post('invoice/updateshowjual/{id}', ['as' => 'invoice.updateshowjual', 'uses' => 'InvoiceController@postInvoiceJual']);
+  Route::get('invoice/showclaim/{id}', ['as' => 'invoice.showclaim', 'uses' => 'InvoiceController@getInvoiceClaim']);
+  Route::post('invoice/updateshowclaim/{id}', ['as' => 'invoice.updateshowclaim', 'uses' => 'InvoiceController@postInvoiceClaim']);
+  Route::get('invoice/lunas/{id}', ['as' => 'invoice.lunas', 'uses' => 'InvoiceController@getLunas']);
+  Route::post('invoice/updatelunas/{id}', ['as' => 'invoice.updatelunas', 'uses' => 'InvoiceController@postLunas']);
 
-Route::get('inventory/viewinventory', ['as' => 'inventory.viewinventory', 'uses' => 'InventoryController@getView']);
-Route::get('inventory/adjustinventory', ['as' => 'inventory.adjustinventory', 'uses' => 'InventoryController@getAdjustment']);
-Route::get('inventory/editadjustinventory/{id}', ['as' => 'inventory.editadjustinventory', 'uses' => 'InventoryController@getEditAdjustment']);
-Route::post('inventory/updateadjustinventory/{id}', ['as' => 'inventory.updateadjustinventory', 'uses' => 'InventoryController@postEditAdjustment']);
-Route::get('inventory/registerinventory', ['as' => 'inventory.registerinventory', 'uses' => 'InventoryController@getRegister']);
-Route::post('inventory/storeRegisterinventory', ['as' => 'inventory.storeRegisterinventory', 'uses' => 'InventoryController@postRegister']);
+  Route::resource('invoice', 'InvoiceController');
 
-Route::get('searchajax',array('as'=>'searchajax','uses'=>'AutoCompleteController@autoComplete'));
+  Route::get('inventory/viewinventory', ['as' => 'inventory.viewinventory', 'uses' => 'InventoryController@getView']);
+  Route::get('inventory/adjustinventory', ['as' => 'inventory.adjustinventory', 'uses' => 'InventoryController@getAdjustment']);
+  Route::get('inventory/editadjustinventory/{id}', ['as' => 'inventory.editadjustinventory', 'uses' => 'InventoryController@getEditAdjustment']);
+  Route::post('inventory/updateadjustinventory/{id}', ['as' => 'inventory.updateadjustinventory', 'uses' => 'InventoryController@postEditAdjustment']);
+  Route::get('inventory/registerinventory', ['as' => 'inventory.registerinventory', 'uses' => 'InventoryController@getRegister']);
+  Route::post('inventory/storeRegisterinventory', ['as' => 'inventory.storeRegisterinventory', 'uses' => 'InventoryController@postRegister']);
 
-Route::get('autocomplete', 'SearchController@autocomplete');
+});

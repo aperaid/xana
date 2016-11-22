@@ -63,6 +63,7 @@
               </tr>
             </thead>
             <tbody>
+              {!! Form::hidden('Invoice', $invoice->Invoice) !!}
               @foreach($transaksis as $key => $transaksi)
               <tr>
                 {!! Form::hidden('POCode', $transaksi->POCode) !!}

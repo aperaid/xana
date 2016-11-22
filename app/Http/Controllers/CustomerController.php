@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Customer;
+use App\History;
 use Session;
 use DB;
+use Auth;
 
 class CustomerController extends Controller
 {
@@ -49,6 +51,11 @@ class CustomerController extends Controller
     	//return $inputs;
 
     	$customer = Customer::Create($inputs);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Create customer on CCode number '.$request['CCode'];
+      $history->save();
 
     	return redirect()->route('customer.index');
     }
@@ -94,13 +101,24 @@ class CustomerController extends Controller
       $customer->CustPhone = $request->CustPhone;
     	$customer->CustEmail = $request->CustEmail;
     	$customer->save();
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Update customer on CCode number '.$request['CCode'];
+      $history->save();
 
     	return redirect()->route('customer.show', $id);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
     	Customer::destroy($id);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Delete customer on CCode number '.$request['CCode'];
+      $history->save();
+      
       Session::flash('message', 'Delete is successful!');
 
     	return redirect()->route('customer.index');
