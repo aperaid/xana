@@ -15,10 +15,10 @@
 			</div>
       <!-- box header -->
       <div class="box-body">
-        {!! Form::hidden('id', $reference->id+1) !!}
+        {!! Form::hidden('id', $reference->maxid+1) !!}
         <div class="form-group">
           {!! Form::label('Reference', 'Reference') !!}
-          {!! Form::text('Reference', str_pad($reference->id+1, 5, "0", STR_PAD_LEFT).'/'.date("dmy"), array('class' => 'form-control', 'readonly')) !!}
+          {!! Form::text('Reference', str_pad($reference->maxid+1, 5, "0", STR_PAD_LEFT).'/'.date("dmy"), array('class' => 'form-control', 'readonly')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Date', 'Date') !!}

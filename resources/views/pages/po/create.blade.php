@@ -33,7 +33,7 @@
 			</div>
       <div class="box-body">
         {!! Form::hidden('id', $id) !!}
-        {!! Form::hidden('poid', $po->id+1) !!}
+        {!! Form::hidden('poid', $po->maxid+1) !!}
         {!! Form::hidden('Reference', $reference -> Reference) !!}
         <div class="form-group">
           {!! Form::label('Nomor PO', 'Nomor PO') !!}

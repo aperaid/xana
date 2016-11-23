@@ -41,7 +41,9 @@ class ReferenceController extends Controller
 
     public function create()
     {
-      $reference = Reference::orderby('id', 'desc')
+	  $reference = Reference::select([
+        DB::raw('MAX(pocustomer.id) AS maxid')
+      ])
       ->first();
       
     	return view('pages.reference.create')

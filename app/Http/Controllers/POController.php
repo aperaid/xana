@@ -19,13 +19,15 @@ class POController extends Controller
 {
     public function create()
     {
-      $po = PO::orderby('id', 'desc')
-      ->first();
-      
       $transaksi = Transaksi::orderby('id', 'desc')
       ->first();
       
       $id = Input::get('id');
+	  
+	  $po = PO::select([
+        DB::raw('MAX(po.id) AS maxid')
+      ])
+      ->first();
       
       $reference = Reference::where('pocustomer.id', $id)
       ->first();
