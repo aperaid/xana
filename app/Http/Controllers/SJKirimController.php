@@ -13,6 +13,7 @@ use App\Reference;
 use App\Transaksi;
 use App\History;
 use App\Invoice;
+use App\Inventory;
 use Session;
 use DB;
 use Auth;
@@ -140,9 +141,11 @@ class SJKirimController extends Controller
       
       $transaksis = Transaksi::select([
         'transaksi.*',
+        'inventory.Warehouse',
         'project.Project',
       ])
       ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->where('transaksi.Reference', $Reference)
       ->whereIn('transaksi.Purchase', $Purchase)
@@ -260,6 +263,14 @@ class SJKirimController extends Controller
       ->where('invoice.JSC', $JS)->first();
       $data->update(['Times' => $data->Times + 1]);
       
+      $inventories = $input['ICode'];
+      foreach ($inventories as $key => $inventory)
+      {
+        $data = Inventory::where('Code', $input['ICode'][$key])
+        ->first();
+        $data->update(['Jumlah' => $data->Jumlah - $input['QKirim'][$key]]);
+      }
+      
       $history = new History;
       $history->User = Auth::user()->name;
       $history->History = 'Create SJKirim on SJKir '.$SJKir;
@@ -362,7 +373,17 @@ class SJKirimController extends Controller
     	$sjkirim = SJKirim::find($id);
       $sjkirim->Tgl = $request['Tgl'];
       $sjkirim->save();
-
+      
+      $quantity = $transaksi->pluck('Quantity');
+      $inventories = $input['Barang'];
+      foreach ($inventories as $key => $inventory)
+      {
+        $data = Inventory::where('Barang', $input['Barang'][$key])
+        ->where('Type', $input['Type'][$key])
+        ->first();
+        $data->update(['Jumlah' => $data->Jumlah + $quantity[$key] - $input['Quantity'][$key]]);
+      }
+      
       $input = Input::all();
       $transaksis = $input['id'];
       foreach ($transaksis as $key => $transaksi)
@@ -536,6 +557,18 @@ class SJKirimController extends Controller
       $qtertanda = $isisjkirim->pluck('isisjkirim.QTertanda');
       $qsisakeminsert = $isisjkirim->pluck('isisjkirim.QSisaKemInsert');
       $JS = $isisjkirim->first()->JS;
+      $quantity = $transaksi->pluck('Quantity');
+      $barang = $transaksi->pluck('Barang');
+      $type = $transaksi->pluck('Type');
+      
+      $inventories = $barang;
+      foreach ($inventories as $key => $inventory)
+      {
+        $data = Inventory::where('Barang', $barang[$key])
+        ->where('Type', $type[$key])
+        ->first();
+        $data->update(['Jumlah' => $data->Jumlah + $quantity[$key]]);
+      }
       
       $data = Invoice::where('invoice.Reference', $sjkirim->Reference)
       ->where('invoice.Periode', 1)

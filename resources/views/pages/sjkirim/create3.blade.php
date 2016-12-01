@@ -33,9 +33,10 @@
               {!! Form::hidden('periodeid[]', $maxperiode->maxid+$key+1) !!}
               {!! Form::hidden('Reference[]', $transaksi->Reference) !!}
               {!! Form::hidden('Purchase[]', $transaksi->Purchase) !!}
+              {!! Form::hidden('ICode[]', $transaksi->ICode) !!}
               <td>{!! Form::text('JS[]', $transaksi->JS, array('class' => 'form-control', 'readonly')) !!}</td>
               <td>{!! Form::text('Barang[]', $transaksi->Barang, array('class' => 'form-control', 'readonly')) !!}</td>
-              <td>{!! Form::text('Warehouse[]', $transaksi->Warehouse, array('class' => 'form-control', 'autocomplete' => 'off')) !!}</td>
+              <td>{!! Form::text('Warehouse[]', $transaksi->Warehouse, array('class' => 'form-control', 'readonly')) !!}</td>
               <td>{!! Form::text('QSisaKirInsert[]', $transaksi->QSisaKirInsert, array('class' => 'form-control', 'readonly')) !!}</td>
               <td><input name="QKirim[]" type="number" class="form-control" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $transaksi->QSisaKirInsert }})" value="{{ $transaksi->QSisaKirInsert }}" required></td>
             </tr>

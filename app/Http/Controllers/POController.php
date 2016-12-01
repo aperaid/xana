@@ -12,7 +12,6 @@ use App\Reference;
 use App\Invoice;
 use App\History;
 use App\Penawaran;
-use App\Inventory;
 use Session;
 use DB;
 use Auth;
@@ -119,7 +118,6 @@ class POController extends Controller
       $transaksis = new Transaksi;
       $transaksis->id = $input['transaksiid'][$key];
       $transaksis->Purchase = $input['Purchase'][$key];
-      $transaksis->Type = $input['Type'][$key];
       $transaksis->JS = $input['JS'][$key];
       $JSC[] = $input['JS'][$key];
       $transaksis->Barang = $input['Barang'][$key];
@@ -129,6 +127,7 @@ class POController extends Controller
       $transaksis->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
       $transaksis->Reference = $input['Reference'];
       $transaksis->POCode = $input['POCode'];
+      $transaksis->ICode = $input['ICode'][$key];
       $transaksis->save();
     }
     
@@ -185,15 +184,6 @@ class POController extends Controller
       ->pluck('maxid');
       
       Invoice::whereIn('id', $duplicateRecords)->delete();
-    }
-    
-    $inventories = $input['Barang'];
-    foreach ($inventories as $key => $inventory)
-    {
-      $data = Inventory::where('Barang', $input['Barang'][$key])
-      ->where('Type', $input['Type'][$key])
-      ->first();
-      $data->update(['Jumlah' => $data->Jumlah - $input['Quantity'][$key]]);
     }
     
     $history = new History;
@@ -285,17 +275,7 @@ class POController extends Controller
     $po->Tgl = $request->Tgl;
     $po->Catatan = $request->Catatan;
     $po->save();
-    
-    $quantity = $transaksi->pluck('Quantity');
-    $inventories = $input['Barang'];
-    foreach ($inventories as $key => $inventory)
-    {
-      $data = Inventory::where('Barang', $input['Barang'][$key])
-      ->where('Type', $input['Type'][$key])
-      ->first();
-      $data->update(['Jumlah' => $data->Jumlah + $quantity[$key] - $input['Quantity'][$key]]);
-    }
-    
+
     $ids = $transaksi->pluck('id');
     Transaksi::whereIn('id', $ids)->delete();
     
@@ -306,7 +286,6 @@ class POController extends Controller
       $transaksis = new Transaksi;
       $transaksis->id = $input['transaksiid'][$key];
       $transaksis->Purchase = $input['Purchase'][$key];
-      $transaksis->Type = $input['Type'][$key];
       $transaksis->JS = $input['JS'][$key];
       $JSC[] = $input['JS'][$key];
       $transaksis->Barang = $input['Barang'][$key];
@@ -316,6 +295,7 @@ class POController extends Controller
       $transaksis->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
       $transaksis->Reference = $input['Reference'];
       $transaksis->POCode = $input['POCode'];
+      $transaksis->ICode = $input['ICode'][$key];
       $transaksis->save();
     }
     
@@ -355,20 +335,8 @@ class POController extends Controller
     $po = PO::find($id);
     $transaksi = Transaksi::where('transaksi.POCode', $po->POCode);
     $transaksiid = $transaksi->pluck('id');
-    $quantity = $transaksi->pluck('Quantity');
-    $barang = $transaksi->pluck('Barang');
-    $type = $transaksi->pluck('Type');
     $reference = Reference::where('pocustomer.Reference', $transaksi->first()->Reference)
     ->first();
-    
-    $inventories = $barang;
-    foreach ($inventories as $key => $inventory)
-    {
-      $data = Inventory::where('Barang', $barang[$key])
-      ->where('Type', $type[$key])
-      ->first();
-      $data->update(['Jumlah' => $data->Jumlah + $quantity[$key]]);
-    }
     
     Transaksi::whereIn('id', $transaksiid)->delete();
     

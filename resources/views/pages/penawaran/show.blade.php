@@ -64,8 +64,8 @@
         <table class="table table-bordered table-striped table-responsive">
           <thead>
             <tr>
+              <th>ICode</th>
               <th>Barang</th>
-              <th>Type</th>
               <th>J/S</th>
               <th>Quantity</th>
               <th>Price/Unit</th>
@@ -74,8 +74,8 @@
           <tbody>
             @foreach($penawarans as $penawaran)
             <tr>
+              <td>{{ $penawaran -> ICode }}</td>
               <td>{{ $penawaran -> Barang }}</td>
-              <td>{{ $penawaran -> Type }}</td>
               <td>{{ $penawaran -> JS }}</td>
               <td>{{ $penawaran -> Quantity }}</td>
               <td>{{ 'Rp '. number_format( $penawaran -> Amount, 2,',', '.' ) }}</td>

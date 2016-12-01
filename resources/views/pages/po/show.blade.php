@@ -67,8 +67,8 @@
         <table class="table table-bordered table-striped table-responsive">
           <thead>
             <tr>
+              <th>ICode</th>
               <th>Barang</th>
-              <th>Type</th>
               <th>J/S</th>
               <th>Quantity</th>
               <th>Price/Unit</th>
@@ -77,8 +77,8 @@
           <tbody>
             @foreach($transaksis as $transaksi)
             <tr>
+              <td>{{ $transaksi -> ICode }}</td>
               <td>{{ $transaksi -> Barang }}</td>
-              <td>{{ $transaksi -> Type }}</td>
               <td>{{ $transaksi -> JS }}</td>
               <td>{{ $transaksi -> Quantity }}</td>
               <td>{{ 'Rp '. number_format( $transaksi -> Amount, 2,',', '.' ) }}</td>

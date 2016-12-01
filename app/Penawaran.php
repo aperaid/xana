@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Penawaran extends Model
 {
 	protected $table = 'penawaran';
-	protected $fillable =  ['id', 'Penawaran', 'Tgl', 'Barang', 'Type', 'JS', 'Quantity', 'Amount', 'PCode'];
+	protected $fillable =  ['id', 'Penawaran', 'Tgl', 'Barang', 'JS', 'Quantity', 'Amount', 'PCode', 'ICode'];
 	public $timestamps = false;
 }

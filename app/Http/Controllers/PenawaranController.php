@@ -65,11 +65,11 @@ class PenawaranController extends Controller
       $penawaran->Penawaran = $input['Penawaran'];
       $penawaran->Tgl = $input['Tgl'];
       $penawaran->Barang = $input['Barang'][$key];
-      $penawaran->Type = $input['Type'][$key];
       $penawaran->JS = $input['JS'][$key];
       $penawaran->Quantity = $input['Quantity'][$key];
       $penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
       $penawaran->PCode = $input['PCode'];
+      $penawaran->ICode = $input['ICode'][$key];
       $penawaran->save();
     }
     
@@ -126,10 +126,10 @@ class PenawaranController extends Controller
         'Tgl' => $input['Tgl'],
         'PCode' => $input['PCode'],
         'Barang' => $input['Barang'][$key],
-        'Type' => $input['Type'][$key],
         'JS' => $input['JS'][$key],
         'Quantity' => $input['Quantity'][$key],
         'Amount' => str_replace(".","",substr($input['Amount'][$key], 3)),
+        'ICode' => $input['ICode'][$key],
       ]);
     }
     
