@@ -40,17 +40,17 @@
         </div>
         <div class="form-group">
           {!! Form::label('Tanggal', 'Tanggal') !!}
-          {!! Form::text('Tgl', $po -> Tgl, array('class' => 'form-control', 'readonly')) !!}
-        </div>
-        <div class="form-group">
-          {!! Form::label('Transport', 'Transport') !!}
-          {!! Form::text('Transport', 'Rp '. number_format( $po -> Transport, 2,',', '.' ), array('class' => 'form-control', 'readonly')) !!}
+          <div class="input-group">
+            <div class="input-group-addon">
+              <i class="fa fa-calendar"></i>
+            </div>
+            {!! Form::text('Tgl', $po -> Tgl, array('class' => 'form-control', 'readonly')) !!}
+          </div>
         </div>
         <div class="form-group">
           {!! Form::label('Catatan', 'Catatan') !!}
           {!! Form::textarea('Catatan', $po -> Catatan, array('class' => 'form-control', 'readonly')) !!}
         </div>
-        <input name="hd_inputpocustomerbarang_Reference" type="hidden" id="hd_inputpocustomerbarang_Reference" value="">
       </div>
       <!-- box-body -->
     </div>
@@ -68,18 +68,20 @@
           <thead>
             <tr>
               <th>Barang</th>
+              <th>Type</th>
               <th>J/S</th>
               <th>Quantity</th>
-              <th>Price</th>
+              <th>Price/Unit</th>
             </tr>
           </thead>
           <tbody>
             @foreach($transaksis as $transaksi)
             <tr>
               <td>{{ $transaksi -> Barang }}</td>
+              <td>{{ $transaksi -> Type }}</td>
               <td>{{ $transaksi -> JS }}</td>
               <td>{{ $transaksi -> Quantity }}</td>
-              <td>{{ $transaksi -> Amount }}</td>
+              <td>{{ 'Rp '. number_format( $transaksi -> Amount, 2,',', '.' ) }}</td>
             </tr>
             @endforeach
           </tbody>

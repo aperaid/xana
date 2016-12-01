@@ -16,7 +16,7 @@
       <!-- box-header -->
       <div class="form-horizontal">
         <div class="box-body">
-          {!! Form::hidden('id', $project->id+1) !!}
+          {!! Form::hidden('id', $project->maxid+1) !!}
           <div class="form-group">
             {!! Form::label('Project Code', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">

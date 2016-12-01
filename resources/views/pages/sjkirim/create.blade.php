@@ -28,6 +28,14 @@
           </div>
         </div>
         <div class="form-group">
+          {!! Form::label('J/S', 'J/S') !!}
+          {{ Form::select('JS', [
+            'Jual' => 'Jual',
+            'Sewa' => 'Sewa'
+            ], null, ['class' => 'form-control'])
+          }}
+        </div>
+        <div class="form-group">
           {!! Form::label('Reference Code', 'Reference Code') !!}
           {!! Form::text('Reference', $reference->Reference, array('class' => 'form-control', 'readonly')) !!}
           <p class="help-block">Enter the beginning of the Reference Code, then pick from the dropdown</p>

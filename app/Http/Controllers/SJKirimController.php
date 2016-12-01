@@ -12,6 +12,7 @@ use App\IsiSJKirim;
 use App\Reference;
 use App\Transaksi;
 use App\History;
+use App\Invoice;
 use Session;
 use DB;
 use Auth;
@@ -78,10 +79,12 @@ class SJKirimController extends Controller
     { 
       Session::put('SJKir', $request->SJKir);
       Session::put('Tgl', $request->Tgl);
+      Session::put('JS', $request->JS);
       Session::put('Reference', $request->Reference);
       
       $SJKir = Session::get('SJKir');
       $Tgl = Session::get('Tgl');
+      $JS = Session::get('JS');
       $Reference = Session::get('Reference');
       
       $referenceid = Reference::where('pocustomer.id', $id)
@@ -94,6 +97,7 @@ class SJKirimController extends Controller
       ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->where('transaksi.Reference', $Reference)
+      ->where('transaksi.JS', $JS)
       ->orderBy('transaksi.id', 'asc')
       ->get();
       
@@ -200,6 +204,7 @@ class SJKirimController extends Controller
     {
       $SJKir = Session::get('SJKir');
       $Tgl = Session::get('Tgl');
+      $JS = Session::get('JS');
       $Reference = Session::get('Reference');
       
       $sjkirim = SJKirim::Create([
@@ -250,6 +255,11 @@ class SJKirimController extends Controller
         $transaksi->save();
       }
       
+      $data = Invoice::where('invoice.Reference', $Reference)
+      ->where('invoice.Periode', 1)
+      ->where('invoice.JSC', $JS)->first();
+      $data->update(['Times' => $data->Times + 1]);
+      
       $history = new History;
       $history->User = Auth::user()->name;
       $history->History = 'Create SJKirim on SJKir '.$SJKir;
@@ -257,6 +267,7 @@ class SJKirimController extends Controller
       
       Session::forget('SJKir');
       Session::forget('Tgl');
+      Session::forget('JS');
       Session::forget('Reference');
       
     	return redirect()->route('sjkirim.index');
@@ -524,6 +535,12 @@ class SJKirimController extends Controller
       $qkirim = $isisjkirim->pluck('isisjkirim.QKirim');
       $qtertanda = $isisjkirim->pluck('isisjkirim.QTertanda');
       $qsisakeminsert = $isisjkirim->pluck('isisjkirim.QSisaKemInsert');
+      $JS = $isisjkirim->first()->JS;
+      
+      $data = Invoice::where('invoice.Reference', $sjkirim->Reference)
+      ->where('invoice.Periode', 1)
+      ->where('invoice.JSC', $JS)->first();
+      $data->update(['Times' => $data->Times - 1]);
       
       $transaksis = $transaksiid;
       foreach ($transaksis as $key => $transaksi)

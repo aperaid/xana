@@ -30,6 +30,15 @@
           </div>
         </div>
         <div class="form-group">
+          {!! Form::label('Transport', 'Transport') !!}
+          {!! Form::text('Transport', null, array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 100.000', 'required')) !!}
+        </div>
+        <div class="form-group">
+          {!! Form::hidden('PPNT', 0) !!}
+          {!! Form::checkbox('PPNT', 1, null, ['class' => 'minimal']) !!}
+          {!! Form::label('Transport included in PPN', 'Transport included in PPN') !!}
+        </div>
+        <div class="form-group">
           {!! Form::label('Project Code', 'Project Code') !!}
           {!! Form::text('PCode', null, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
           <p class="help-block">Enter the beginning of the Project Code, then pick from the dropdown</p>
@@ -76,5 +85,11 @@
       autoFocus: true
     });
   });
+</script>
+<script>
+  $(document).ready(function(){
+		//Mask Transport
+		$("#Transport").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	});
 </script>
 @stop

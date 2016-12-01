@@ -6,7 +6,7 @@
     <li class="header">MENU</li>
     <!-- Penjualan -->
     <li @if ($top_menu_sel=="menu_home") class="active" @endif ><a href="{{url('home')}}"><i class="fa fa-home"></i> <span>Home</span></a></li>
-    <li class="treeview @if ($top_menu_sel=="menu_penawaran" || $top_menu_sel=="menu_customer" || $top_menu_sel=="menu_project" || $top_menu_sel=="menu_referensi" || $top_menu_sel=="menu_transaksi" ||  $top_menu_sel=="menu_sjkirim" || $top_menu_sel=="menu_sjkembali" || $top_menu_sel=="menu_invoice") active @endif ">
+    <li class="treeview @if ($top_menu_sel=="menu_customer" || $top_menu_sel=="menu_project" || $top_menu_sel=="menu_penawaran" || $top_menu_sel=="menu_referensi" || $top_menu_sel=="menu_transaksi" ||  $top_menu_sel=="menu_sjkirim" || $top_menu_sel=="menu_sjkembali" || $top_menu_sel=="menu_invoice") active @endif ">
       <a href="#">
         <i class="fa fa-cart-arrow-down"></i>
         <span>Penjualan</span>
@@ -15,7 +15,7 @@
       <ul class="treeview-menu">
         <li @if ($top_menu_sel=="menu_customer") class="active" @endif ><a href="{{route('customer.index')}}"><i class="fa fa-users"></i> <span>Customer</span></a></li>
         <li @if ($top_menu_sel=="menu_project") class="active" @endif ><a href="{{route('project.index')}}"><i class="fa fa-building-o"></i> <span>Project</span></a></li>
-        <li @if ($top_menu_sel=="menu_penawaran") class="active" @endif><a href="{{route('customer.index')}}"><i class="fa fa-envelope-o"></i> <span>Penawaran</span></a></li>
+        <li @if ($top_menu_sel=="menu_penawaran") class="active" @endif><a href="{{route('penawaran.index')}}"><i class="fa fa-envelope-o"></i> <span>Penawaran</span></a></li>
         <li @if ($top_menu_sel=="menu_referensi") class="active" @endif ><a href="{{route('reference.index')}}"><i class="fa fa-file-text-o"></i> <span>Referensi</span></a></li>
         <li @if ($top_menu_sel=="menu_transaksi") class="active" @endif ><a href="{{route('transaksi.index')}}"><i class="fa fa-money"></i> <span>Transaksi</span></a></li>
         <li @if ($top_menu_sel=="menu_sjkirim") class="active" @endif ><a href="{{route('sjkirim.index')}}"><i class="fa fa-automobile"></i> <span>SJ Kirim</span></a></li>

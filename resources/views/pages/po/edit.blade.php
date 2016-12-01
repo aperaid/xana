@@ -41,11 +41,12 @@
         </div>
         <div class="form-group">
           {!! Form::label('Tanggal', 'Tanggal') !!}
-          {!! Form::text('Tgl', $po -> Tgl, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Date', 'required')) !!}
-        </div>
-        <div class="form-group">
-          {!! Form::label('Transport', 'Transport') !!}
-          {!! Form::text('Transport', 'Rp ' . number_format( $po -> Transport, 0,',', '.' ), array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Transport Fee', 'required')) !!}
+          <div class="input-group">
+            <div class="input-group-addon">
+              <i class="fa fa-calendar"></i>
+            </div>
+            {!! Form::text('Tgl', $po -> Tgl, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Date', 'required')) !!}
+          </div>
         </div>
         <div class="form-group">
           {!! Form::label('Catatan', 'Catatan') !!}
@@ -68,9 +69,11 @@
           <thead>
             <th><a id="addCF" class=" glyphicon glyphicon-plus"></a></th>
             <th>Barang</th>
+            <th>Type</th>
             <th>J/S</th>
-            <th>Quantity</th>
-            <th>Price</th>
+            <th width="10%">Stock</th>
+            <th width="10%">Quantity</th>
+            <th>Price/Unit</th>
           </thead>
         </table>
       </div>
@@ -105,15 +108,103 @@ $(function() {
 		var z = y;
     
 		@foreach($transaksis as $transaksi)
-				$("#customFields").append('<tr><td><a class="remCF glyphicon glyphicon-remove"></a></td>{!! Form::hidden('transaksiid[]', $transaksi->id) !!}{!! Form::hidden('Purchase[]', $transaksi->Purchase) !!}<td>{!! Form::text('Barang[]', $transaksi->Barang, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], $transaksi->JS, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Quantity[]', $transaksi->Quantity, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::number('Amount[]', $transaksi->Amount, ['id' => 'Amount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+      $("#customFields").append('<tr><td><a class="remCF glyphicon glyphicon-remove"></a></td>{!! Form::hidden('transaksiid[]', $transaksi->id) !!}{!! Form::hidden('Purchase[]', $transaksi->Purchase) !!}<td>{!! Form::text('Barang[]', $transaksi->Barang, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::select('Type[]', ['Baru' => 'Baru', 'Lama' => 'Lama'], $transaksi->Type, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], $transaksi->JS, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Stock[]', null, ['class' => 'form-control Stock', 'readonly']) !!}</td><td>{!! Form::number('Quantity[]', $transaksi->Quantity, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', 'Rp '. number_format( $transaksi -> Amount, 0,',', '.' ), ['id' => 'Amount', 'class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
 		@endforeach
+    
+    $(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+      
+    var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletebarang.php");?>;
+    $( ".Barang" ).autocomplete({
+      source: availableTags,
+      autoFocus: true
+    });
+    
+    $('.Barang').keyup(function(){
+      this.value = this.value.toUpperCase();
+    });
+    
+    $(document).on('click autocompletechange', '.Barang, .Type', function(){
+      var this2 = this;
+      $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+      .done(function(data){
+        result = $.parseJSON(data);
+        $(this2).closest('tr').find(".Amount").val('Rp '+result.Price.toLocaleString().replace(',', '.'));
+        $(this2).closest('tr').find(".Stock").val(result.Jumlah);
+      })
+      .fail(function(data){
+        if( data.status === 500 ) {
+          console.log("Barang tak ditemukan");
+        }
+      });
+    });
+    
+    $(document).on('keydown', '.Barang, .Type', function(e){
+      var this2 = this;
+      if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
+        $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+        .done(function(data){
+          result = $.parseJSON(data);
+          $(this2).closest('tr').find(".Amount").val('Rp '+result.Price.toLocaleString().replace(',', '.'));
+          $(this2).closest('tr').find(".Stock").val(result.Jumlah);
+        })
+        .fail(function(data){
+          if( data.status === 500 ) {
+            console.log("Barang tak ditemukan");
+          }
+        });
+      }
+    });
 		
 		$("#addCF").click(function(){
 			if(x < max_fields){ //max input box allowed
 				x++; //text box count increment
 				z++;
         var id = x + y + 1;
-				$("#customFields").append('<tr><td><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="transaksiid[]" value="'+ id +'"><input type="hidden" name="Purchase[]" value="'+ z +'"><td>{!! Form::text('Barang[]', null, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::number('Amount[]', null, ['id' => 'Amount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+				$("#customFields").append('<tr><td><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="transaksiid[]" value="'+ id +'"><input type="hidden" name="Purchase[]" value="'+ z +'"><td>{!! Form::text('Barang[]', null, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::select('Type[]', ['Baru' => 'Baru', 'Lama' => 'Lama'], null, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Stock[]', null, ['class' => 'form-control Stock', 'readonly']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', null, ['class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+        
+        $(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+      
+        var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletebarang.php");?>;
+        $( ".Barang" ).autocomplete({
+          source: availableTags,
+          autoFocus: true
+        });
+        
+        $('.Barang').keyup(function(){
+          this.value = this.value.toUpperCase();
+        });
+        
+        $(document).on('click autocompletechange', '.Barang, .Type', function(){
+          var this2 = this;
+          $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+          .done(function(data){
+            result = $.parseJSON(data);
+            $(this2).closest('tr').find(".Amount").val('Rp '+result.Price.toLocaleString().replace(',', '.'));
+            $(this2).closest('tr').find(".Stock").val(result.Jumlah);
+          })
+          .fail(function(data){
+            if( data.status === 500 ) {
+              console.log("Barang tak ditemukan");
+            }
+          });
+        });
+        
+        $(document).on('keydown', '.Barang, .Type', function(e){
+          var this2 = this;
+          if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
+            $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+            .done(function(data){
+              result = $.parseJSON(data);
+              $(this2).closest('tr').find(".Amount").val('Rp '+result.Price.toLocaleString().replace(',', '.'));
+              $(this2).closest('tr').find(".Stock").val(result.Jumlah);
+            })
+            .fail(function(data){
+              if( data.status === 500 ) {
+                console.log("Barang tak ditemukan");
+              }
+            });
+          }
+        });
 			}
 		});
 		
@@ -125,8 +216,6 @@ $(function() {
 </script>
 <script>
   $(document).ready(function(){
-		//Mask Transport
-		$("#Transport").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 		//Mask Price
     $("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 	});

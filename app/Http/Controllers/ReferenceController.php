@@ -41,7 +41,7 @@ class ReferenceController extends Controller
 
     public function create()
     {
-	  $reference = Reference::select([
+      $reference = Reference::select([
         DB::raw('MAX(pocustomer.id) AS maxid')
       ])
       ->first();
@@ -56,11 +56,17 @@ class ReferenceController extends Controller
 
     public function store(Request $request)
     {
-    	
     	$inputs = $request->all();
 
-    	$reference = Reference::Create($inputs);
-      
+      $Reference = Reference::Create([
+        'id' => $request['id'],
+        'Reference' => $request['Reference'],
+        'Tgl' => $request['Tgl'],
+        'PCode' => $request['PCode'],
+        'Transport' => str_replace(".","",substr($request->Transport, 3)),
+        'PPNT' => $request['PPNT'],
+      ]);
+
       $history = new History;
       $history->User = Auth::user()->name;
       $history->History = 'Create Reference on Reference '.$request['Reference'];
@@ -289,6 +295,8 @@ class ReferenceController extends Controller
     	$reference->Reference = $request->Reference;
     	$reference->Tgl = $request->Tgl;
       $reference->PCode = $request->PCode;
+      $reference->Transport = str_replace(".","",substr($request->Transport, 3));
+      $reference->PPNT = $request->PPNT;
     	$reference->save();
       
       $history = new History;

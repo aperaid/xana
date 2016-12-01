@@ -91,17 +91,27 @@
           </table>
           <!-- PPN checkbox -->
           <div class="form-group">
-            <label class="col-sm-2 control-label">Pajak 10%</label>
+          {!! Form::label('Pajak', 'Pajak 10%', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
               {!! Form::hidden('PPN', 0) !!}
-              {!! Form::checkbox('PPN', 1, $invoice->PPN, array('id' => 'PPN', 'class' => 'minimal')) !!}
+              {!! Form::checkbox('PPN', 1, $invoice->PPN, ['id' => 'PPN', 'class' => 'minimal']) !!}
             </div>
           </div>
           <!-- Transport Input -->
           <div class="form-group">
             {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              <input id="Transport" name="Transport" type="text" class="form-control" @if($invoice->Periode == 1) value="{{'Rp '. number_format($transport,0,',','.')}}" @endif onKeyUp="tot()" disabled >
+              <input name="Transport" type="text" class="form-control" value="{{'Rp '. number_format($invoice->Transport,0,',','.')}}" disabled >
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Transport Status', 'Transport Status', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-6">
+              @if($invoice->PPNT == 1)
+                {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+              @else
+                {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+              @endif
             </div>
           </div>
           <!-- Discount Input -->
@@ -122,7 +132,11 @@
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['id' => 'Total', 'class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+$toss-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+              @if($invoice->PPNT == 1)
+                {!! Form::text('Total', 'Rp. ' . number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+              @else
+                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+              @endif
             </div>
               {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}
           </div>
@@ -163,8 +177,6 @@ function tot(){
 </script>
 <script>
   $(document).ready(function(){
-		//Mask Transport
-		$("#Transport").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 		//Mask Price
 		$("#Discount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
     $("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});

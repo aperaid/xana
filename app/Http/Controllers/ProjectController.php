@@ -27,7 +27,9 @@ class ProjectController extends Controller
 
     public function create()
     {
-      $project = Project::orderby('id', 'desc')
+      $project = Project::select([
+        DB::raw('MAX(project.id) AS maxid')
+      ])
       ->first();
       
     	return view('pages.project.create')

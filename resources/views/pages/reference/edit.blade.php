@@ -31,6 +31,15 @@
           </div>
         </div>
         <div class="form-group">
+          {!! Form::label('Transport', 'Transport') !!}
+          {!! Form::text('Transport', 'Rp ' . number_format( $reference -> Transport, 0,',', '.' ), array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Transport Fee', 'required')) !!}
+        </div>
+        <div class="form-group">
+          {!! Form::hidden('PPNT', 0) !!}
+          {!! Form::checkbox('PPNT', 1, $reference->PPNT, ['class' => 'minimal']) !!}
+          {!! Form::label('Transport included in PPN', 'Transport included in PPN') !!}
+        </div>
+        <div class="form-group">
           {!! Form::label('Project Code', 'Project Code') !!}
           {!! Form::text('PCode', $reference->PCode, ['class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required']) !!}
           <p class="help-block">Enter the beginning of the Project Code, then pick from the dropdown</p>
@@ -84,5 +93,11 @@ $(function() {
       autoFocus: true
     });
   });
+</script>
+<script>
+  $(document).ready(function(){
+		//Mask Transport
+		$("#Transport").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	});
 </script>
 @stop

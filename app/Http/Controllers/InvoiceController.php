@@ -23,6 +23,8 @@ class InvoiceController extends Controller
     
     $invoice = Invoice::select([
       'invoice.*',
+      'pocustomer.Transport',
+      'pocustomer.PPNT',
       'project.Project',
       'customer.Company',
     ])
@@ -60,11 +62,10 @@ class InvoiceController extends Controller
     
     $pocodes = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
     ->where('transaksi.Reference', $parameter->Reference)
+    ->where('transaksi.JS', 'Sewa')
     ->groupBy('po.POCode')
     ->get();
-    
-    $transport = $pocodes->pluck('Transport')->sum();
-    
+
     $total = 0;
     foreach($periodes as $key => $periode2){
       $start = $periode2->S;
@@ -88,7 +89,7 @@ class InvoiceController extends Controller
       $total += $total2[$key];
     }
     if ($invoice->Periode == 1){
-      $toss = $transport; 
+      $toss = $invoice->Transport; 
     }else $toss = 0;
     
     /*$pocodes = Periode::distinct()
@@ -106,7 +107,6 @@ class InvoiceController extends Controller
     ->with('url', 'invoice')
     ->with('invoice', $invoice)
     ->with('periodes', $periodes)
-    ->with('transport', $transport)
     ->with('pocodes', $pocodes)
     ->with('SE', $SE)
     ->with('Days2', $Days2)
@@ -124,18 +124,6 @@ class InvoiceController extends Controller
     	$invoice = Invoice::find($id);
       
       $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
-      
-      $po = PO::whereIn('po.POCode', $POCode);
-      $poid = $po->pluck('id');
-      
-      $input = Input::all();
-      $pos = $poid;
-      foreach ($pos as $key => $po)
-      {
-        $po = PO::find($pos[$key]);
-        $po->Transport = str_replace(".","",substr($request->Transport, 3));
-        $po->save();
-      }
       
       $invoice->id = $id;
       $invoice->PPN = $request->PPN;
@@ -158,6 +146,8 @@ class InvoiceController extends Controller
     
     $invoice = Invoice::select([
       'invoice.*',
+      'pocustomer.Transport',
+      'pocustomer.PPNT',
       'project.Project',
       'customer.Company',
     ])
@@ -176,7 +166,6 @@ class InvoiceController extends Controller
       'transaksi.Barang',
       'transaksi.Amount',
       'transaksi.POCode',
-      'po.Transport',
     ])
     ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
     ->rightJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
@@ -184,16 +173,11 @@ class InvoiceController extends Controller
     ->where('transaksi.Reference', $parameter->Reference)
     ->where('transaksi.JS', 'Jual')
     ->get();
-
-    $transport = $transaksis->first()->Transport;
     
-    $pocodes = transaksi::distinct()
-    ->select('transaksi.POCode')
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
-    ->rightJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
-    ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+    $pocodes = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
     ->where('transaksi.Reference', $parameter->Reference)
     ->where('transaksi.JS', 'Jual')
+    ->groupBy('po.POCode')
     ->get();
     
     $total = 0;
@@ -203,15 +187,11 @@ class InvoiceController extends Controller
       $total += $total2[$x];
       $x++;
     }
-    if ($invoice->Periode == 1){
-      $toss = $transport; 
-    }else $toss = 0;
     
     return view('pages.invoice.showjual')
     ->with('url', 'invoice')
     ->with('invoice', $invoice)
     ->with('transaksis', $transaksis)
-    ->with('transport', $transport)
     ->with('pocodes', $pocodes)
     ->with('total', $total)
     ->with('total2', $total2)
@@ -225,18 +205,6 @@ class InvoiceController extends Controller
     	$invoice = Invoice::find($id);
       
       $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
-      
-      $po = PO::whereIn('po.POCode', $POCode);
-      $poid = $po->pluck('id');
-      
-      $input = Input::all();
-      $pos = $poid;
-      foreach ($pos as $key => $po)
-      {
-        $po = PO::find($pos[$key]);
-        $po->Transport = str_replace(".","",substr($request->Transport, 3));
-        $po->save();
-      }
       
       $invoice->id = $id;
       $invoice->PPN = $request->PPN;

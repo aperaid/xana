@@ -28,8 +28,9 @@
 							<div class="row">
 								<div class="col-md-12">
 									<h2 class="page-header">
+                    <small class="pull-right">Date: {{ $detail -> Tgl }}</small><br>
 										<i class="fa fa-globe"></i> PT. BDN | {{ $detail -> Reference }}
-										<small class="pull-right">Date: {{ $detail -> Tgl }}</small>
+                    <small class="pull-right">Transport: {{ 'Rp '. number_format( $detail -> Transport, 2,',', '.' ) }}</small>
 									</h2>
 								</div>
 							</div>
@@ -72,7 +73,7 @@
 												<th>J/S</th>
 												<th>Item Name</th>
 												<th>Quantity</th>
-												<th>Price</th>
+												<th>Price/Unit</th>
 												<th>Progress</th>
 												<th>Status</th>
 											</tr>
@@ -158,12 +159,13 @@
 								<div class="col-md-12">
 									<a href="#" class="btn btn-default"><i class="fa fa-print"></i> Print</a>
 									<a href="{{route('reference.index')}}"><button type="button" class="btn btn-default pull-left" style="margin-right: 5px;">Back</button></a>
-									<a href="{{route('sjkirim.create', 'id='.$detail->pocusid)}}"><button id="SJKirim_button" type="button" style="margin-right: 5px;" @if ( $sjkircheck == 0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right"	@endif	>SJ Kirim</button></a>
-									<a href="{{route('sjkembali.create', 'id='.$detail->pocusid)}}"><button id="SJKembali_button" type="button" style="margin-right: 5px;"	@if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right"	@endif	>SJ Kembali</button></a>
-									<a href="{{route('transaksi.claimcreate', $detail->pocusid)}}">	<button id="claim_button" type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif	>Claim</button></a>
-									<a href="{{route('reference.edit', $detail->pocusid)}}"><button id="edit_button" type="button" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right"	@endif >Edit</button></a>
-									<button id="delete_button" type="submit" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
-									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button id="insertPO_button" type="button" style="margin-right: 5px;" @if ( $periodecheck->maxper > 1 ) class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right" @endif>Insert PO</button></a>
+									<a href="{{route('sjkirim.create', 'id='.$detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $sjkircheck == 0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right"	@endif	>SJ Kirim</button></a>
+									<a href="{{route('sjkembali.create', 'id='.$detail->pocusid)}}"><button type="button" style="margin-right: 5px;"	@if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right"	@endif	>SJ Kembali</button></a>
+									<a href="{{route('transaksi.claimcreate', $detail->pocusid)}}">	<button type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif	>Claim</button></a>
+									<a href="{{route('reference.edit', $detail->pocusid)}}"><button type="button" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right"	@endif >Edit</button></a>
+									<button type="submit" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
+									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $periodecheck->maxper > 1 ) class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right" @endif>Insert PO</button></a>
+                  <a href="{{route('po.create2', $detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $periodecheck->maxper > 1 ) class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right" @endif>Insert Penawaran PO</button></a>
 								</div>
 							</div>
 						</div>

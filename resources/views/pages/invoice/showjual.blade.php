@@ -88,7 +88,17 @@
           <div class="form-group">
             {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              <input id="Transport" name="Transport" type="text" class="form-control" placeholder="Rp. 100,000" @if($invoice->Periode == 1) value="{{'Rp '. number_format($transport,0,',','.')}}" @endif onKeyUp="tot()" @if($invoice->Periode > 1) disabled @endif>
+              <input name="Transport" type="text" class="form-control" value="{{'Rp '. number_format($invoice->Transport,0,',','.')}}" disabled >
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Transport Status', 'Transport Status', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-6">
+              @if($invoice->PPNT == 1)
+                {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+              @else
+                {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+              @endif
             </div>
           </div>
           <!-- Discount Input -->
@@ -109,7 +119,11 @@
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+$transport-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+              @if($invoice->PPNT == 1)
+                {!! Form::text('Total', 'Rp. ' . number_format((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1)+($total+($invoice->Transport*$invoice->Times))-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+              @else
+                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+($invoice->Transport*$invoice->Times)-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+              @endif
             </div>
             {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}
           </div>

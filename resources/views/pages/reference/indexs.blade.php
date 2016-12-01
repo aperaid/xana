@@ -20,7 +20,7 @@
               <th>Date</th>
               <th>Company</th>
               <th>Project</th>
-              <th>Price</th>
+              <th>Total Price</th>
             </tr>
           </thead>
           <tbody>

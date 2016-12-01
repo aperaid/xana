@@ -24,9 +24,14 @@ Route::group(['middleware' => 'auth'], function () {
   Route::resource('customer', 'CustomerController');
 
   Route::resource('project', 'ProjectController');
+  
+  Route::resource('penawaran', 'PenawaranController');
 
   Route::resource('reference', 'ReferenceController');
 
+  Route::get('po/create2/{id}', ['as' => 'po.create2', 'uses' => 'POController@getCreate2']);
+  Route::post('po/create3/{id}', ['as' => 'po.create3', 'uses' => 'POController@getCreate3']);
+  
   Route::resource('po', 'POController');
 
   Route::get('transaksi/extend/{id}', ['as' => 'transaksi.extend', 'uses' => 'TransaksiController@getExtend']);
@@ -74,4 +79,5 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('inventory/registerinventory', ['as' => 'inventory.registerinventory', 'uses' => 'InventoryController@getRegister']);
   Route::post('inventory/storeRegisterinventory', ['as' => 'inventory.storeRegisterinventory', 'uses' => 'InventoryController@postRegister']);
 
+  Route::post('barang/', ['as' => 'barang/', 'uses' => 'BarangController@postQuantityAmount']);
 });

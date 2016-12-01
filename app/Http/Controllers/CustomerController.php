@@ -27,7 +27,9 @@ class CustomerController extends Controller
 
     public function create()
     {
-      $customer = Customer::orderby('id', 'desc')
+      $customer = Customer::select([
+        DB::raw('MAX(customer.id) AS maxid')
+      ])
       ->first();
       
     	return view('pages.customer.create')
