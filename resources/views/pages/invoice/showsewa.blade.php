@@ -145,7 +145,7 @@
             <!-- Back Button -->
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>
             <!-- Print Button -->
-            <a href="#"><button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print</button></a>
+            <a href="{{route('invoice.BA', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Berita Acara</a>
             <!-- Submit Button -->
             {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
           </div>

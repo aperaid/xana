@@ -374,14 +374,17 @@ class SJKirimController extends Controller
       $sjkirim->Tgl = $request['Tgl'];
       $sjkirim->save();
       
-      $quantity = $transaksi->pluck('Quantity');
-      $inventories = $input['Barang'];
+      $isisjkirim = IsiSJKirim::where('isisjkirim.SJKir', $sjkirim -> SJKir);
+      $purchase = $isisjkirim->pluck('Purchase');
+      $transaksi = Transaksi::whereIn('transaksi.Purchase', $purchase);
+      $qkirim = $isisjkirim->pluck('QKirim');
+      $icode = $transaksi->pluck('ICode');
+      $inventories = $request['Barang'];
       foreach ($inventories as $key => $inventory)
       {
-        $data = Inventory::where('Barang', $input['Barang'][$key])
-        ->where('Type', $input['Type'][$key])
+        $data = Inventory::where('Code', $icode[$key])
         ->first();
-        $data->update(['Jumlah' => $data->Jumlah + $quantity[$key] - $input['Quantity'][$key]]);
+        $data->update(['Jumlah' => $data->Jumlah + $qkirim[$key] - $request['QKirim'][$key]]);
       }
       
       $input = Input::all();
@@ -556,18 +559,15 @@ class SJKirimController extends Controller
       $qkirim = $isisjkirim->pluck('isisjkirim.QKirim');
       $qtertanda = $isisjkirim->pluck('isisjkirim.QTertanda');
       $qsisakeminsert = $isisjkirim->pluck('isisjkirim.QSisaKemInsert');
+      $icode = $isisjkirim->pluck('ICode');
       $JS = $isisjkirim->first()->JS;
-      $quantity = $transaksi->pluck('Quantity');
-      $barang = $transaksi->pluck('Barang');
-      $type = $transaksi->pluck('Type');
       
-      $inventories = $barang;
+      $inventories = $icode;
       foreach ($inventories as $key => $inventory)
       {
-        $data = Inventory::where('Barang', $barang[$key])
-        ->where('Type', $type[$key])
+        $data = Inventory::where('Code', $icode[$key])
         ->first();
-        $data->update(['Jumlah' => $data->Jumlah + $quantity[$key]]);
+        $data->update(['Jumlah' => $data->Jumlah + $qkirim[$key]]);
       }
       
       $data = Invoice::where('invoice.Reference', $sjkirim->Reference)

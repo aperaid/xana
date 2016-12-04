@@ -54,7 +54,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>{!! Form::text('NoPolisi', null, array('class' => 'form-control', 'autocomplete' => 'off', 'required')) !!}</td>
+            <td>{!! Form::text('NoPolisi', null, array('id' => 'NoPolisi', 'class' => 'form-control', 'autocomplete' => 'off', 'onkeyup' => 'capital()', 'required')) !!}</td>
             <td>{!! Form::text('Sopir', null, array('class' => 'form-control', 'autocomplete' => 'off', 'required')) !!}</td>
             <td>{!! Form::text('Kenek', null, array('class' => 'form-control', 'autocomplete' => 'off', 'required')) !!}</td>
           </tr>
@@ -83,5 +83,11 @@ function minmax(value, min, max)
     return parseInt(max); 
   else return value;
 }
+</script>
+<script>
+  function capital() {
+    var x = document.getElementById("NoPolisi");
+    x.value = x.value.toUpperCase();
+  }
 </script>
 @stop

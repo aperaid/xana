@@ -232,32 +232,37 @@ class POController extends Controller
     $po = PO::find($id);
     $transaksis = Transaksi::where('transaksi.POCode', $po -> POCode)
     ->get();
-    $transaksi = $transaksis->first();
+    $maxtransaksi = Transaksi::select([
+      'transaksi.Reference',
+      DB::raw('MAX(transaksi.id) AS maxid')
+    ])
+    ->where('transaksi.POCode', $po -> POCode)
+    ->first();
     
     $poitem = Transaksi::where('transaksi.POCode', $po -> POCode)
     ->first();
-    $purchase = Transaksi::select([
-      DB::raw('MAX(id) AS maxid')
+    $maxpurchase = Transaksi::select([
+      DB::raw('MAX(Purchase) AS maxpurchase')
     ])
     ->first();
-    $purchase2 = Transaksi::select([
-      DB::raw('MIN(id) AS minid')
+    $minpurchase = Transaksi::select([
+      DB::raw('MIN(Purchase) AS minpurchase')
     ])
     ->groupBy('POCode')
     ->orderBy('id', 'asc')
     ->first();
-    if ($poitem['Id']==$purchase2['minid'])
+    if ($poitem['Id']==$minpurchase['minpurchase'])
     {
-      $last_purchase = $purchase2['minid']-1;
+      $last_purchase = $minpurchase['minpurchase']-1;
     } else
     {
-      $last_purchase = $purchase['maxid'];
+      $last_purchase = $maxpurchase['maxpurchase'];
     }
 
     return view('pages.po.edit')
     ->with('url', 'po')
     ->with('po', $po)
-    ->with('transaksi', $transaksi)
+    ->with('maxtransaksi', $maxtransaksi)
     ->with('transaksis', $transaksis)
     ->with('last_purchase', $last_purchase)
     ->with('top_menu_sel', 'menu_referensi')

@@ -120,28 +120,121 @@ class InvoiceController extends Controller
 	}
   
   public function postInvoiceSewa(Request $request, $id)
-    {
-    	$invoice = Invoice::find($id);
-      
-      $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
-      
-      $invoice->id = $id;
-      $invoice->PPN = $request->PPN;
-    	$invoice->Discount = str_replace(".","",substr($request->Discount, 3));
-      $invoice->Catatan = $request->Catatan;
-    	$invoice->save();
-      
-      $history = new History;
-      $history->User = Auth::user()->name;
-      $history->History = 'Update invoice on Invoice '.$request['Invoice'];
-      $history->save();
+  {
+    $invoice = Invoice::find($id);
+    
+    $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
+    
+    $invoice->id = $id;
+    $invoice->PPN = $request->PPN;
+    $invoice->Discount = str_replace(".","",substr($request->Discount, 3));
+    $invoice->Catatan = $request->Catatan;
+    $invoice->save();
+    
+    $history = new History;
+    $history->User = Auth::user()->name;
+    $history->History = 'Update invoice on Invoice '.$request['Invoice'];
+    $history->save();
 
-      Session::flash('message', 'Update is successful!');
-      
-    	return redirect()->route('invoice.showsewa', $id);
-    }
+    Session::flash('message', 'Update is successful!');
+    
+    return redirect()->route('invoice.showsewa', $id);
+  }
   
-  public function getInvoiceJual($id){
+  public function getBA($id)
+  {
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    $invoice = Invoice::find($id);
+    
+    $invoice = Invoice::select([
+      'invoice.*',
+      'project.*',
+      'customer.*',
+    ])
+    ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoice.Invoice', $invoice->Invoice)
+    ->first();
+    
+    $periodes = Periode::select([
+      'transaksi.Barang',
+      'periode.S',
+      'periode.E',
+      DB::raw('SUM(periode.Quantity) AS SumQuantity'),
+      'po.POCode'
+    ])
+    ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+    ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Sewa')
+    ->where('periode.Periode', $invoice->Periode)
+    ->where('periode.Quantity', '!=' , 0)
+    ->groupBy('periode.Purchase', 'periode.S', 'periode.Deletes')
+    ->orderBy('periode.id', 'asc')
+    ->get();
+    
+    foreach($periodes as $key => $periode2){
+      $start = $periode2->S;
+      $end = $periode2->E;
+
+      $start2 = str_replace('/', '-', $start);
+      $end2 = str_replace('/', '-', $end);
+      $start3[] = strtotime($start2);
+      $end3[] = strtotime($end2);
+
+      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
+      $pocode[] = $periode2->POCode;
+    }
+    $Quantity = $periodes->sum('SumQuantity');
+    $PEO = implode("/", array_unique($pocode));
+    
+    $document = $phpWord->loadTemplate(public_path('/template/BA.docx'));
+    
+    $document->setValue('Company', ''.$invoice->Company.'');
+    $document->setValue('CompPhone', ''.$invoice->CompPhone.'');
+    $document->setValue('PCode', ''.$invoice->PCode.'');
+    $document->setValue('Project', ''.$invoice->Project.'');
+    $document->setValue('Invoice', ''.$invoice->Invoice.'');
+    $document->setValue('S', ''.$start.'');
+    $document->setValue('E', ''.$end.'');
+    $document->setValue('Quantity', ''.$Quantity.'');
+    $document->setValue('PEO', ''.$PEO.'');
+
+    foreach ($periodes as $key => $periodes)
+    {
+      $key2 = $key+1;
+      $document->setValue('Key'.$key, ''.$key2.'');
+      $document->setValue('Barang'.$key, ''.$periodes->Barang.'');
+      $document->setValue('S'.$key, ''.$periodes->S.'');
+      $document->setValue('E'.$key, ''.$periodes->E.'');
+      $document->setValue('SE'.$key, ''.$SE[$key].'');
+      $document->setValue('Quantity'.$key, ''.$periodes->SumQuantity.'');
+      $document->setValue('Sat'.$key, 'PCS');
+    }
+    
+    for($x=0;$x<20;$x++){
+      $document->setValue('Key'.$x, '');
+      $document->setValue('Barang'.$x, '');
+      $document->setValue('S'.$x, '');
+      $document->setValue('E'.$x, '');
+      $document->setValue('SE'.$x, '');
+      $document->setValue('Quantity'.$x, '');
+      $document->setValue('Sat'.$x, '');
+    }
+    
+    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+    $path = sprintf("C:\Users\%s\Desktop\BA_", $user);
+    
+    $document->saveAs($path.$invoice->Invoice.'.docx');
+    
+    Session::flash('message', 'Downloaded to Desktop file name BA_'.$invoice->Invoice.'.docx');
+    return redirect()->route('invoice.showsewa', $id);
+  }
+  
+  public function getInvoiceJual($id)
+  {
     $parameter = Invoice::find($id);
     
     $invoice = Invoice::select([

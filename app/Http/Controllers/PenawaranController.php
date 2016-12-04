@@ -85,6 +85,7 @@ class PenawaranController extends Controller
   {
     $penawaran = Penawaran::find($id);
     $penawarans = Penawaran::where('penawaran.Penawaran', $penawaran -> Penawaran)
+    ->orderBy('id', 'asc')
     ->get();
 
     return view('pages.penawaran.show')
@@ -101,13 +102,18 @@ class PenawaranController extends Controller
     $penawaran = Penawaran::find($id);
     $penawarans = Penawaran::where('penawaran.Penawaran', $penawaran -> Penawaran)
     ->get();
-    $penawaran = $penawarans->first();
+    $maxpenawaran = Penawaran::select([
+      'penawaran.*',
+      DB::raw('MAX(penawaran.id) AS maxid')
+    ])
+    ->where('penawaran.Penawaran', $penawaran -> Penawaran)
+    ->first();
 
     return view('pages.penawaran.edit')
     ->with('url', 'penawaran')
     ->with('id', $id)
     ->with('penawarans', $penawarans)
-    ->with('penawaran', $penawaran)
+    ->with('maxpenawaran', $maxpenawaran)
     ->with('top_menu_sel', 'menu_penawaran')
     ->with('page_title', 'Penawaran')
     ->with('page_description', 'Edit');
@@ -117,20 +123,23 @@ class PenawaranController extends Controller
   {
     $penawaran = Penawaran::find($id);
 
+    Penawaran::where('Penawaran', $penawaran->Penawaran)->delete();
+    
     $input = Input::all();
-    $isisjkembali2s = $input['penawaranid'];
-    foreach ($isisjkembali2s as $key => $isisjkembali)
+    $penawarans = $input['penawaranid'];
+    foreach ($penawarans as $key => $penawaran)
     {
-      Penawaran::where('id', $input['penawaranid'][$key])
-      ->update([
-        'Tgl' => $input['Tgl'],
-        'PCode' => $input['PCode'],
-        'Barang' => $input['Barang'][$key],
-        'JS' => $input['JS'][$key],
-        'Quantity' => $input['Quantity'][$key],
-        'Amount' => str_replace(".","",substr($input['Amount'][$key], 3)),
-        'ICode' => $input['ICode'][$key],
-      ]);
+      $penawaran = new Penawaran;
+      $penawaran->id = $input['penawaranid'][$key];
+      $penawaran->Penawaran = $input['Penawaran'];
+      $penawaran->Tgl = $input['Tgl'];
+      $penawaran->Barang = $input['Barang'][$key];
+      $penawaran->JS = $input['JS'][$key];
+      $penawaran->Quantity = $input['Quantity'][$key];
+      $penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
+      $penawaran->PCode = $input['PCode'];
+      $penawaran->ICode = $input['ICode'][$key];
+      $penawaran->save();
     }
     
     $history = new History;

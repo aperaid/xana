@@ -58,6 +58,7 @@ Route::group(['middleware' => 'auth'], function () {
 
   Route::get('sjkembali/qterima/{id}', ['as' => 'sjkembali.qterima', 'uses' => 'SJKembaliController@getQTerima']);
   Route::post('sjkembali/updateqterima/{id}', ['as' => 'sjkembali.updateqterima', 'uses' =>'SJKembaliController@postQTerima']);
+  Route::get('sjkembali/SPB/{id}', ['as' => 'sjkembali.SPB', 'uses' => 'SJKembaliController@getSPB']);
 
   Route::resource('sjkembali', 'SJKembaliController');
 
@@ -69,6 +70,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::post('invoice/updateshowclaim/{id}', ['as' => 'invoice.updateshowclaim', 'uses' => 'InvoiceController@postInvoiceClaim']);
   Route::get('invoice/lunas/{id}', ['as' => 'invoice.lunas', 'uses' => 'InvoiceController@getLunas']);
   Route::post('invoice/updatelunas/{id}', ['as' => 'invoice.updatelunas', 'uses' => 'InvoiceController@postLunas']);
+  Route::get('invoice/BA/{id}', ['as' => 'invoice.BA', 'uses' => 'InvoiceController@getBA']);
 
   Route::resource('invoice', 'InvoiceController');
 

@@ -33,7 +33,7 @@
       <div class="box-body">
         <div class="form-group">
           {!! Form::label('Penawaran Code', 'Penawaran Code') !!}
-          {!! Form::text('Penawaran', $penawaran -> Penawaran, array('class' => 'form-control', 'readonly')) !!}
+          {!! Form::text('Penawaran', $maxpenawaran -> Penawaran, array('class' => 'form-control', 'readonly')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Tanggal', 'Tanggal') !!}
@@ -41,12 +41,12 @@
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
             </div>
-            {!! Form::text('Tgl', $penawaran->Tgl, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '31/12/2000', 'required')) !!}
+            {!! Form::text('Tgl', $maxpenawaran->Tgl, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '31/12/2000', 'required')) !!}
           </div>
         </div>
         <div class="form-group">
           {!! Form::label('Project Code', 'Project Code') !!}
-          {!! Form::text('PCode', $penawaran -> PCode, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+          {!! Form::text('PCode', $maxpenawaran -> PCode, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
           <p class="help-block">Enter the beginning of the Project Code, then pick from the dropdown</p>
         </div>
       </div>
@@ -100,8 +100,7 @@ $(function() {
 		var max_fields      = 10; //maximum input boxes allowed
 		
     var x = 0; //initial text box count
-		var y = {{ $penawaran -> id }};
-		var z = y;
+		var y = {{ $maxpenawaran -> maxid }};
     
 		@foreach($penawarans as $penawaran)
       $("#customFields").append('<tr><td align="center"><a class="remCF glyphicon glyphicon-remove"></a></td>{!! Form::hidden('penawaranid[]', $penawaran->id) !!}{!! Form::hidden('Purchase[]', $penawaran->Purchase) !!}<td>{!! Form::text('Barang[]', $penawaran->Barang, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', $penawaran->ICode, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['Baru' => 'Baru', 'Lama' => 'Lama'], $penawaran->Type, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], $penawaran->JS, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Stock[]', null, ['class' => 'form-control Stock', 'readonly']) !!}</td><td>{!! Form::number('Quantity[]', $penawaran->Quantity, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', 'Rp '. number_format( $penawaran -> Amount, 0,',', '.' ), ['id' => 'Amount', 'class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
@@ -165,9 +164,8 @@ $(function() {
 		$("#addCF").click(function(){
 			if(x < max_fields){ //max input box allowed
 				x++; //text box count increment
-				z++;
-        var id = x + y + 1;
-				$("#customFields").append('<tr><td align="center"><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="penawaranid[]" value="'+ id +'"><input type="hidden" name="Purchase[]" value="'+ z +'"><td>{!! Form::text('Barang[]', null, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', null, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['Baru' => 'Baru', 'Lama' => 'Lama'], null, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Stock[]', null, ['class' => 'form-control Stock', 'readonly']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', null, ['class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+				y++;
+				$("#customFields").append('<tr><td align="center"><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="penawaranid[]" value="'+ y +'"><input type="hidden" name="Purchase[]" value="'+ y +'"><td>{!! Form::text('Barang[]', null, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', null, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['Baru' => 'Baru', 'Lama' => 'Lama'], null, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Stock[]', null, ['class' => 'form-control Stock', 'readonly']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', null, ['class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
         
         $(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
       
@@ -229,6 +227,7 @@ $(function() {
 		$("#customFields").on('click','.remCF',function(){
 			$(this).parent().parent().remove();
 			x--;
+      y--;
 		});	
 	});
 </script>

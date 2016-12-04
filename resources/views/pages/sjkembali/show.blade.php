@@ -75,7 +75,6 @@
         
     <div class="box-footer">
       <a href="{{route('sjkembali.index')}}"><button type="button" class="btn btn-default">Back</button></a>
-      <a href="#"><button type="button" class="btn btn-default">Print</button></a>
       <a href="{{route('sjkembali.qterima', $sjkembali->id)}}"><button type="button" @if($periodecheck == 0) style="margin-right: 5px" class="btn btn-success pull-right" @else style="margin-right: 5px" class="btn btn-default pull-right" disabled @endif >Quantity Terima</button></a>
       <a href="{{route('sjkembali.edit', $sjkembali->id)}}"><button type="button" @if($qtrimacheck == 0) style="margin-right: 5px" class="btn btn-primary pull-right" @else style="margin-right: 5px" class="btn btn-default pull-right" disabled @endif >Edit Pengembalian</button></a>
       <button type="submit" class="btn btn-danger pull-right" style="margin-right: 5px;" @if($qtrimacheck == 1) disabled @endif onclick="return confirm('Delete SJ Kembali?')">Delete</button>

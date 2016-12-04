@@ -13,6 +13,7 @@ use App\Reference;
 use App\IsiSJKirim;
 use App\Transaksi;
 use App\History;
+use App\Inventory;
 use Session;
 use DB;
 use Auth;
@@ -284,7 +285,7 @@ class SJKembaliController extends Controller
       $storeprocs = $input['id'];
       foreach ($storeprocs as $key => $storeproc)
       {
-        DB::select('CALL insert_sjkembali(?,?,?,?)',array($input['QTertanda'][$key], $input['Purchase'][$key], $input['Periode'][$key], $SJKem));
+        DB::select('CALL insert_sjkembali(?,?,?,?)',array($input['QTertanda'][$key], $input['Purchase'][$key], $input['Periode'], $SJKem));
       }
       
       //DB::select('CALL insert_sjkembali2');
@@ -584,6 +585,16 @@ class SJKembaliController extends Controller
       $qterima = $isisjkembali->pluck('QTerima');
       
       $input = Input::all();
+      
+      $inventories = $input['Barang'];
+      foreach ($inventories as $key => $inventory)
+      {
+        $data = Inventory::where('Barang', $input['Barang'][$key])
+        ->where('Type', 'Lama')
+        ->first();
+        $data->update(['Jumlah' => $data->Jumlah - $input['QTerima2'][$key] + $input['QTerima'][$key]]);
+      }
+      
       $transaksis = $input['Purchase'];
       foreach ($transaksis as $key => $transaksi)
       {
@@ -624,6 +635,63 @@ class SJKembaliController extends Controller
     	return redirect()->route('sjkembali.show', $id);
     }
 
+    public function getSPB($id)
+    { 
+      $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    	$reference = Reference::find($id);
+      
+      $maxperiode = Periode::select([
+        DB::raw('max(periode.Periode) as maxperiode'),
+      ])
+      ->where('periode.Reference', $reference->Reference)
+      ->first();
+      
+      $transaksis = Transaksi::where('transaksi.Reference', $reference->Reference)
+      ->where('transaksi.JS', 'Sewa')
+      ->orderBy('transaksi.id', 'asc')
+      ->get();
+      
+      $transaksi = Reference::leftJoin('invoice', 'pocustomer.Reference', '=', 'invoice.Reference')
+      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+      ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+      ->where('pocustomer.id', $id)
+      ->where('invoice.Periode', $maxperiode->maxperiode)
+      ->first();
+      
+      $document = $phpWord->loadTemplate(public_path('/template/SPB.docx'));
+      
+      $document->setValue('Company', ''.$transaksi->Company.'');
+      $document->setValue('Project', ''.$transaksi->Project.'');
+      $document->setValue('ProjAlamat', ''.$transaksi->ProjAlamat.'');
+      $document->setValue('Customer', ''.$transaksi->Customer.'');
+      $document->setValue('CustPhone', ''.$transaksi->CustPhone.'');
+      $document->setValue('Invoice', ''.$transaksi->Invoice.'');
+      $document->setValue('Tanggal', ''.date("d/m/Y").'');
+      $document->setValue('JS', 'Sewa');
+
+      foreach ($transaksis as $key => $transaksis)
+      {
+        $key2 = $key+1;
+        $document->setValue('Key'.$key, ''.$key2.'');
+        $document->setValue('Barang'.$key, ''.$transaksis->Barang.'');
+        $document->setValue('Quantity'.$key, ''.$transaksis->Quantity.' PCS');
+      }
+      
+      for($x=0;$x<20;$x++){
+        $document->setValue('Key'.$x, '');
+        $document->setValue('Barang'.$x, '');
+        $document->setValue('Quantity'.$x, '');
+      }
+      
+      $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+      $path = sprintf("C:\Users\%s\Desktop\SPB_", $user);
+      
+      $document->saveAs($path.$transaksi->Invoice.'.docx');
+      
+      Session::flash('message', 'Downloaded to Desktop file name SPB_'.$transaksi->Invoice.'.docx');
+    	return redirect()->route('reference.show', $id);
+    }
+    
     public function destroy(Request $request, $id)
     {
       $sjkembali = SJKembali::find($id);
@@ -631,11 +699,23 @@ class SJKembaliController extends Controller
       $periode = Periode::where('periode.SJKem', $sjkembali->SJKem);
       $quantity = $periode->pluck('Quantity');
       $isisjkembali = IsiSJKembali::where('isisjkembali.SJKem', $sjkembali->SJKem);
+      $purchase = $isisjkembali->pluck('Purchase');
       $isisjkir = $isisjkembali->pluck('IsiSJKir');
       $qterima = $isisjkembali->pluck('QTerima');
       $qtertanda = $isisjkembali->pluck('QTertanda');
       $sumqtertanda = $isisjkembali->select([DB::raw('sum(isisjkembali.QTertanda) AS SumQTertanda'), 'isisjkembali.Purchase'])->groupBy('isisjkembali.Purchase')->get();
       $maxperiode = $isisjkembali->select([DB::raw('max(isisjkembali.Periode) as maxperiode')])->first();
+      $barang = Transaksi::whereIn('transaksi.Purchase', $purchase)
+      ->pluck('transaksi.Barang');
+      
+      $inventories = $barang;
+      foreach ($inventories as $key => $inventory)
+      {
+        $data = Inventory::where('Barang', $barang[$key])
+        ->where('Type', 'Lama')
+        ->first();
+        $data->update(['Jumlah' => $data->Jumlah - $qterima[$key]]);
+      }
       
       $transaksis = $sumqtertanda->pluck('Purchase');
       foreach ($transaksis as $key => $transaksi)
