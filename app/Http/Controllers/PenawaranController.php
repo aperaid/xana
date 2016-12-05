@@ -20,6 +20,7 @@ class PenawaranController extends Controller
     $penawarans = Penawaran::select('penawaran.*', 'project.PCode')
     ->leftJoin('project', 'penawaran.PCode', '=', 'project.PCode')
     ->groupBy('penawaran.Penawaran')
+    ->orderBy('id', 'asc')
     ->get();
 
     return view('pages.penawaran.indexs')
@@ -101,6 +102,7 @@ class PenawaranController extends Controller
   {
     $penawaran = Penawaran::find($id);
     $penawarans = Penawaran::where('penawaran.Penawaran', $penawaran -> Penawaran)
+    ->orderBy('id', 'asc')
     ->get();
     $maxpenawaran = Penawaran::select([
       'penawaran.*',

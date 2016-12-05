@@ -59,6 +59,7 @@
                 <th>Project</th>
                 <th>Company</th>
                 <th>Tgl Invoice</th>
+                <th width="10%">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -70,6 +71,13 @@
                 <td>{{$invoicej->Project}}</td>
                 <td>{{$invoicej->Company}}</td>
                 <td>{{$invoicej->Tgl}}</td>
+                <td>
+                  @if($invoicej->Lunas==0)
+                    <a href="{{route('invoice.lunas', $invoicej->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
+                  @else
+                    <a href="{{route('invoice.lunas', $invoicej->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
+                  @endif
+                </td>
               </tr>
               @endforeach
             </tbody>
@@ -85,6 +93,7 @@
                 <th>Project</th>
                 <th>Company</th>
                 <th>Tgl Invoice</th>
+                <th width="10%">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -96,6 +105,13 @@
                 <td>{{$invoicec->Project}}</td>
                 <td>{{$invoicec->Company}}</td>
                 <td>{{$invoicec->Tgl}}</td>
+                <td>
+                  @if($invoicec->Lunas==0)
+                    <a href="{{route('invoice.lunas', $invoicec->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
+                  @else
+                    <a href="{{route('invoice.lunas', $invoicec->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
+                  @endif
+                </td>
               </tr>
               @endforeach
             </tbody>

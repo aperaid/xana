@@ -37,7 +37,7 @@
         {!! Form::hidden('Reference', $reference -> Reference) !!}
         <div class="form-group">
           {!! Form::label('Nomor PO', 'Nomor PO') !!}
-          {!! Form::text('POCode', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Input PO Number', 'required')) !!}
+          {!! Form::text('POCode', null, array('id' => 'POCode', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input PO Number', 'required')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Tanggal', 'Tanggal') !!}
@@ -243,5 +243,11 @@ $(function() {
 		//Mask Price
     $("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 	});
+</script>
+<script>
+  function capital() {
+    var x = document.getElementById("POCode");
+    x.value = x.value.toUpperCase();
+  }
 </script>
 @stop

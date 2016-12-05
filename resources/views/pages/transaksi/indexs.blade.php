@@ -37,7 +37,7 @@
                 <td>{{$transaksis->Project}}</td>
                 <td>
                   @if ($transaksis->periodeid == $transaksis->maxid && $transaksis->SumQKirim == $transaksis->SumQTertanda)
-                    <a href="{{route('transaksi.extend', $transaksis->invoiceid)}}"><button type="button"  class="btn btn-block btn-success">Extend</button>
+                    <a href="{{route('transaksi.extend', $transaksis->invoiceid)}}"><button type="button"  class="btn btn-block btn-success" onclick="return confirm('Barang yang sudah di extend tidak dapat di kembalikan. Lanjutkan?')">Extend</button>
                   @else
                     <button type="button" class="btn btn-block btn-default" disabled>Extend</button>
                   @endif

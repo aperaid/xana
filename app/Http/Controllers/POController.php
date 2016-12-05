@@ -78,6 +78,7 @@ class POController extends Controller
     }
     
     $penawarans = Penawaran::where('penawaran.Penawaran', $penawaran)
+    ->orderBy('id', 'asc')
     ->get();
     
     $po = PO::select([
