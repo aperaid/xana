@@ -128,14 +128,17 @@ class TransaksiController extends Controller
       ->orderBy('transaksiclaim.id', 'asc')
       ->get();
       
-      return view('pages.transaksi.indexs')
-      ->with('url', 'transaksi')
-      ->with('transaksiss', $transaksis)
-      ->with('transaksijs', $transaksij)
-      ->with('transaksics', $transaksic)
-      ->with('top_menu_sel', 'menu_transaksi')
-      ->with('page_title', 'Transaksi')
-      ->with('page_description', 'Index');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.transaksi.indexs')
+        ->with('url', 'transaksi')
+        ->with('transaksiss', $transaksis)
+        ->with('transaksijs', $transaksij)
+        ->with('transaksics', $transaksic)
+        ->with('top_menu_sel', 'menu_transaksi')
+        ->with('page_title', 'Transaksi')
+        ->with('page_description', 'Index');
+      }else
+        return redirect()->back();
     }
 
     public function getExtend($id)
@@ -231,14 +234,17 @@ class TransaksiController extends Controller
       ->orderBy('periode.id', 'desc')
       ->first();
       
-    	return view('pages.transaksi.claimcreate')
-      ->with('url', 'transaksi')
-      ->with('reference', $reference)
-      ->with('TglMin', $TglMin)
-      ->with('TglMax', $TglMax)
-      ->with('top_menu_sel', 'menu_transaksi')
-      ->with('page_title', 'Transaksi Claim')
-      ->with('page_description', 'Create');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.transaksi.claimcreate')
+        ->with('url', 'transaksi')
+        ->with('reference', $reference)
+        ->with('TglMin', $TglMin)
+        ->with('TglMax', $TglMax)
+        ->with('top_menu_sel', 'menu_transaksi')
+        ->with('page_title', 'Transaksi Claim')
+        ->with('page_description', 'Create');
+      }else
+        return redirect()->back();
     }
     
     public function getClaim2(Request $request, $id)
@@ -288,16 +294,19 @@ class TransaksiController extends Controller
         $checke = strtotime($converte);
       }
       
-    	return view('pages.transaksi.claimcreate2')
-      ->with('url', 'transaksi')
-      ->with('id', $id)
-      ->with('isisjkirims', $isisjkirims)
-      ->with('check', $check)
-      ->with('checks', $checks)
-      ->with('checke', $checke)
-      ->with('top_menu_sel', 'menu_transaksi')
-      ->with('page_title', 'Transaksi Claim')
-      ->with('page_description', 'Choose');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.transaksi.claimcreate2')
+        ->with('url', 'transaksi')
+        ->with('id', $id)
+        ->with('isisjkirims', $isisjkirims)
+        ->with('check', $check)
+        ->with('checks', $checks)
+        ->with('checke', $checke)
+        ->with('top_menu_sel', 'menu_transaksi')
+        ->with('page_title', 'Transaksi Claim')
+        ->with('page_description', 'Choose');
+      }else
+        return redirect()->back();
     }
     
     public function getClaim3(Request $request, $id)
@@ -339,9 +348,11 @@ class TransaksiController extends Controller
         'periode.E',
         'transaksi.Barang',
         'transaksi.POCode',
+        'inventory.Price',
       ])
       ->leftJoin('periode', 'isisjkirim.IsiSJKir', '=', 'periode.IsiSJKir')
       ->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
+      ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
       ->where('transaksi.Reference', $Reference)
       ->whereIn('isisjkirim.Purchase', $Purchase)
       ->whereIn('periode.id', $maxperiodeid)
@@ -350,15 +361,18 @@ class TransaksiController extends Controller
       ->orderBy('periode.id', 'asc')
       ->get();
       
-    	return view('pages.transaksi.claimcreate3')
-      ->with('url', 'transaksi')
-      ->with('id', $id)
-      ->with('invoice', $invoice)
-      ->with('claim', $claim)
-      ->with('isisjkirims', $isisjkirims)
-      ->with('top_menu_sel', 'menu_transaksi')
-      ->with('page_title', 'Transaksi Claim')
-      ->with('page_description', 'Item');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.transaksi.claimcreate3')
+        ->with('url', 'transaksi')
+        ->with('id', $id)
+        ->with('invoice', $invoice)
+        ->with('claim', $claim)
+        ->with('isisjkirims', $isisjkirims)
+        ->with('top_menu_sel', 'menu_transaksi')
+        ->with('page_title', 'Transaksi Claim')
+        ->with('page_description', 'Item');
+      }else
+        return redirect()->back();
     }
     
     public function postClaim(Request $request)
@@ -429,6 +443,8 @@ class TransaksiController extends Controller
       {
         DB::select('CALL insert_claim(?,?,?,?)',array($input['QClaim'][$key], $input['Purchase'][$key], $input['Periode'], $input['claim'][$key]));
       }
+      
+      DB::select('CALL insert_claim2');
       
       $claims = $input['id'];
       foreach ($claims as $key => $claim)

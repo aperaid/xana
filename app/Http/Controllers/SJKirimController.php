@@ -42,12 +42,15 @@ class SJKirimController extends Controller
       ->orderBy('sjkirim.id', 'asc')
       ->get();
 
-    	return view('pages.sjkirim.indexs')
-      ->with('url', 'sjkirim')
-      ->with('sjkirims', $sjkirim)
-      ->with('top_menu_sel', 'menu_sjkirim')
-      ->with('page_title', 'Surat Jalan Kirim')
-      ->with('page_description', 'Index');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkirim.indexs')
+        ->with('url', 'sjkirim')
+        ->with('sjkirims', $sjkirim)
+        ->with('top_menu_sel', 'menu_sjkirim')
+        ->with('page_title', 'Surat Jalan Kirim')
+        ->with('page_description', 'Index');
+      }else
+        return redirect()->back();
     }
 
     public function create()
@@ -66,14 +69,17 @@ class SJKirimController extends Controller
       ])
       ->first();
       
-    	return view('pages.sjkirim.create')
-      ->with('url', 'sjkirim')
-      ->with('reference', $reference)
-      ->with('po', $po)
-      ->with('sjkirim', $sjkirim)
-      ->with('top_menu_sel', 'menu_sjkirim')
-      ->with('page_title', 'Surat Jalan Kirim')
-      ->with('page_description', 'Create');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkirim.create')
+        ->with('url', 'sjkirim')
+        ->with('reference', $reference)
+        ->with('po', $po)
+        ->with('sjkirim', $sjkirim)
+        ->with('top_menu_sel', 'menu_sjkirim')
+        ->with('page_title', 'Surat Jalan Kirim')
+        ->with('page_description', 'Create');
+      }else
+        return redirect()->back();
     }
     
     public function getCreate2(Request $request, $id)
@@ -112,15 +118,18 @@ class SJKirimController extends Controller
       ])
       ->first();
       
-    	return view('pages.sjkirim.create2')
-      ->with('url', 'sjkirim')
-      ->with('referenceid', $referenceid)
-      ->with('transaksis', $transaksis)
-      ->with('isisjkirim', $isisjkirim)
-      ->with('sjkirim', $sjkirim)
-      ->with('top_menu_sel', 'menu_sjkirim')
-      ->with('page_title', 'Surat Jalan Kirim')
-      ->with('page_description', 'Choose');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkirim.create2')
+        ->with('url', 'sjkirim')
+        ->with('referenceid', $referenceid)
+        ->with('transaksis', $transaksis)
+        ->with('isisjkirim', $isisjkirim)
+        ->with('sjkirim', $sjkirim)
+        ->with('top_menu_sel', 'menu_sjkirim')
+        ->with('page_title', 'Surat Jalan Kirim')
+        ->with('page_description', 'Choose');
+      }else
+        return redirect()->back();
     }
     
     public function getCreate3(Request $request, $id)
@@ -141,11 +150,9 @@ class SJKirimController extends Controller
       
       $transaksis = Transaksi::select([
         'transaksi.*',
-        'inventory.Warehouse',
         'project.Project',
       ])
       ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
-      ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->where('transaksi.Reference', $Reference)
       ->whereIn('transaksi.Purchase', $Purchase)
@@ -188,19 +195,22 @@ class SJKirimController extends Controller
         $periode = $ECont->Periode;
       }
       
-    	return view('pages.sjkirim.create3')
-      ->with('url', 'sjkirim')
-      ->with('tglE', $tglE)
-      ->with('periode', $periode)
-      ->with('referenceid', $referenceid)
-      ->with('transaksis', $transaksis)
-      ->with('sjkirim', $sjkirim)
-      ->with('isisjkirim', $isisjkirim)
-      ->with('maxperiode', $maxperiode)
-      ->with('maxisisjkir', $maxisisjkir)
-      ->with('top_menu_sel', 'menu_sjkirim')
-      ->with('page_title', 'Surat Jalan Kirim')
-      ->with('page_description', 'Item');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkirim.create3')
+        ->with('url', 'sjkirim')
+        ->with('tglE', $tglE)
+        ->with('periode', $periode)
+        ->with('referenceid', $referenceid)
+        ->with('transaksis', $transaksis)
+        ->with('sjkirim', $sjkirim)
+        ->with('isisjkirim', $isisjkirim)
+        ->with('maxperiode', $maxperiode)
+        ->with('maxisisjkir', $maxisisjkir)
+        ->with('top_menu_sel', 'menu_sjkirim')
+        ->with('page_title', 'Surat Jalan Kirim')
+        ->with('page_description', 'Item');
+      }else
+        return redirect()->back();
     }
     
     public function store(Request $request)
@@ -227,7 +237,6 @@ class SJKirimController extends Controller
         $isisjkirim = new IsiSJKirim;
         $isisjkirim->id = $input['isisjkirimid'][$key];
         $isisjkirim->IsiSJKir = $input['IsiSJKir'][$key];
-        $isisjkirim->Warehouse = $input['Warehouse'][$key];
         $isisjkirim->QKirim = $input['QKirim'][$key];
         $isisjkirim->Purchase = $input['Purchase'][$key];
         $isisjkirim->SJKir = $SJKir;
@@ -267,6 +276,7 @@ class SJKirimController extends Controller
       foreach ($inventories as $key => $inventory)
       {
         $data = Inventory::where('Code', $input['ICode'][$key])
+        ->where('Warehouse', $input['Warehouse'][$key])
         ->first();
         $data->update(['Jumlah' => $data->Jumlah - $input['QKirim'][$key]]);
       }
@@ -321,16 +331,19 @@ class SJKirimController extends Controller
         $qttdcheck = 0;
       }
       
-    	return view('pages.sjkirim.show')
-      ->with('url', 'sjkirim')
-      ->with('sjkirim', $sjkirim)
-      ->with('isisjkirim', $isisjkirim)
-      ->with('isisjkirims', $isisjkirims)
-      ->with('jumlah', $jumlah)
-      ->with('qttdcheck', $qttdcheck)
-      ->with('top_menu_sel', 'menu_sjkirim')
-      ->with('page_title', 'Surat Jalan Kirim')
-      ->with('page_description', 'View');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkirim.show')
+        ->with('url', 'sjkirim')
+        ->with('sjkirim', $sjkirim)
+        ->with('isisjkirim', $isisjkirim)
+        ->with('isisjkirims', $isisjkirims)
+        ->with('jumlah', $jumlah)
+        ->with('qttdcheck', $qttdcheck)
+        ->with('top_menu_sel', 'menu_sjkirim')
+        ->with('page_title', 'Surat Jalan Kirim')
+        ->with('page_description', 'View');
+      }else
+        return redirect()->back();
     }
 
     public function edit($id)
@@ -358,14 +371,17 @@ class SJKirimController extends Controller
       ->where('sjkirim.SJKir', $sjkirim->SJKir)
       ->first();
       
-    	return view('pages.sjkirim.edit')
-      ->with('url', 'sjkirim')
-      ->with('sjkirim', $sjkirim)
-      ->with('isisjkirims', $isisjkirims)
-      ->with('TglMin', $TglMin)
-      ->with('top_menu_sel', 'menu_sjkirim')
-      ->with('page_title', 'Surat Jalan Kirim')
-      ->with('page_description', 'Edit');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkirim.edit')
+        ->with('url', 'sjkirim')
+        ->with('sjkirim', $sjkirim)
+        ->with('isisjkirims', $isisjkirims)
+        ->with('TglMin', $TglMin)
+        ->with('top_menu_sel', 'menu_sjkirim')
+        ->with('page_title', 'Surat Jalan Kirim')
+        ->with('page_description', 'Edit');
+      }else
+        return redirect()->back();
     }
 
     public function update(Request $request, $id)
@@ -383,6 +399,7 @@ class SJKirimController extends Controller
       foreach ($inventories as $key => $inventory)
       {
         $data = Inventory::where('Code', $icode[$key])
+        ->where('Warehouse', $request['Warehouse'][$key])
         ->first();
         $data->update(['Jumlah' => $data->Jumlah + $qkirim[$key] - $request['QKirim'][$key]]);
       }
@@ -416,7 +433,6 @@ class SJKirimController extends Controller
       foreach ($isisjkirims as $key => $isisjkirim)
       {
         $isisjkirim = IsiSJKirim::find($isisjkirims[$key]);
-        $isisjkirim->Warehouse = $input['Warehouse'][$key];
         $isisjkirim->QKirim = $input['QKirim'][$key];
         $isisjkirim->save();
       }
@@ -474,15 +490,18 @@ class SJKirimController extends Controller
       ->orderBy('isisjkirim.id', 'asc')
       ->get();
       
-    	return view('pages.sjkirim.qtertanda')
-      ->with('url', 'sjkirim')
-      ->with('sjkirim', $sjkirim)
-      ->with('isisjkirims', $isisjkirims)
-      ->with('Tgl', $Tgl)
-      ->with('periode', $periode)
-      ->with('top_menu_sel', 'menu_sjkirim')
-      ->with('page_title', 'Surat Jalan Kirim')
-      ->with('page_description', 'QTertanda');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkirim.qtertanda')
+        ->with('url', 'sjkirim')
+        ->with('sjkirim', $sjkirim)
+        ->with('isisjkirims', $isisjkirims)
+        ->with('Tgl', $Tgl)
+        ->with('periode', $periode)
+        ->with('top_menu_sel', 'menu_sjkirim')
+        ->with('page_title', 'Surat Jalan Kirim')
+        ->with('page_description', 'QTertanda');
+      }else
+        return redirect()->back();
     }
     
     public function postQTertanda(Request $request, $id)
@@ -556,6 +575,7 @@ class SJKirimController extends Controller
       ->where('isisjkirim.SJKir', $sjkirim->SJKir);
       
       $transaksiid = $isisjkirim->pluck('transaksi.id');
+      $warehouse = $isisjkirim->pluck('transaksi.warehouse');
       $qkirim = $isisjkirim->pluck('isisjkirim.QKirim');
       $qtertanda = $isisjkirim->pluck('isisjkirim.QTertanda');
       $qsisakeminsert = $isisjkirim->pluck('isisjkirim.QSisaKemInsert');
@@ -566,6 +586,7 @@ class SJKirimController extends Controller
       foreach ($inventories as $key => $inventory)
       {
         $data = Inventory::where('Code', $icode[$key])
+        ->where('Warehouse', $warehouse[$key])
         ->first();
         $data->update(['Jumlah' => $data->Jumlah + $qkirim[$key]]);
       }

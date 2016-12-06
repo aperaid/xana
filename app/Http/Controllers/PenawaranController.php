@@ -23,12 +23,15 @@ class PenawaranController extends Controller
     ->orderBy('id', 'asc')
     ->get();
 
-    return view('pages.penawaran.indexs')
-    ->with('url', 'penawaran')
-    ->with('penawarans', $penawarans)
-    ->with('top_menu_sel', 'menu_penawaran')
-    ->with('page_title', 'Penawaran')
-    ->with('page_description', 'Index');
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+      return view('pages.penawaran.indexs')
+      ->with('url', 'penawaran')
+      ->with('penawarans', $penawarans)
+      ->with('top_menu_sel', 'menu_penawaran')
+      ->with('page_title', 'Penawaran')
+      ->with('page_description', 'Index');
+    }else
+      return redirect()->back();
   }
   
   public function create()
@@ -45,14 +48,21 @@ class PenawaranController extends Controller
     }
     
     $inventory = Inventory::all();
+    $warehouse = Inventory::groupBy('Warehouse')
+    ->orderBy('id', 'asc')
+    ->pluck('Warehouse', 'Warehouse');
 
-    return view('pages.penawaran.create')
-    ->with('url', 'penawaran')
-    ->with('maxid', $maxid)
-    ->with('inventory', $inventory)
-    ->with('top_menu_sel', 'menu_penawaran')
-    ->with('page_title', 'Penawaran')
-    ->with('page_description', 'Create');
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+      return view('pages.penawaran.create')
+      ->with('url', 'penawaran')
+      ->with('maxid', $maxid)
+      ->with('inventory', $inventory)
+      ->with(compact('warehouse'))
+      ->with('top_menu_sel', 'menu_penawaran')
+      ->with('page_title', 'Penawaran')
+      ->with('page_description', 'Create');
+    }else
+      return redirect()->back();
   }
 
   public function store(Request $request)
@@ -66,6 +76,7 @@ class PenawaranController extends Controller
       $penawaran->Penawaran = $input['Penawaran'];
       $penawaran->Tgl = $input['Tgl'];
       $penawaran->Barang = $input['Barang'][$key];
+      $penawaran->Warehouse = $input['Warehouse'][$key];
       $penawaran->JS = $input['JS'][$key];
       $penawaran->Quantity = $input['Quantity'][$key];
       $penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
@@ -89,13 +100,16 @@ class PenawaranController extends Controller
     ->orderBy('id', 'asc')
     ->get();
 
-    return view('pages.penawaran.show')
-    ->with('url', 'penawaran')
-    ->with('penawarans', $penawarans)
-    ->with('penawaran', $penawaran)
-    ->with('top_menu_sel', 'menu_penawaran')
-    ->with('page_title', 'Penawaran')
-    ->with('page_description', 'Show');
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+      return view('pages.penawaran.show')
+      ->with('url', 'penawaran')
+      ->with('penawarans', $penawarans)
+      ->with('penawaran', $penawaran)
+      ->with('top_menu_sel', 'menu_penawaran')
+      ->with('page_title', 'Penawaran')
+      ->with('page_description', 'Show');
+    }else
+      return redirect()->back();
   }
 
   public function edit($id)
@@ -111,14 +125,22 @@ class PenawaranController extends Controller
     ->where('penawaran.Penawaran', $penawaran -> Penawaran)
     ->first();
 
-    return view('pages.penawaran.edit')
-    ->with('url', 'penawaran')
-    ->with('id', $id)
-    ->with('penawarans', $penawarans)
-    ->with('maxpenawaran', $maxpenawaran)
-    ->with('top_menu_sel', 'menu_penawaran')
-    ->with('page_title', 'Penawaran')
-    ->with('page_description', 'Edit');
+    $warehouse = Inventory::groupBy('Warehouse')
+    ->orderBy('id', 'asc')
+    ->pluck('Warehouse', 'Warehouse');
+
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+      return view('pages.penawaran.edit')
+      ->with('url', 'penawaran')
+      ->with('id', $id)
+      ->with('penawarans', $penawarans)
+      ->with('maxpenawaran', $maxpenawaran)
+      ->with(compact('warehouse'))
+      ->with('top_menu_sel', 'menu_penawaran')
+      ->with('page_title', 'Penawaran')
+      ->with('page_description', 'Edit');
+    }else
+      return redirect()->back();
   }
 
   public function update(Request $request, $id)
@@ -136,6 +158,7 @@ class PenawaranController extends Controller
       $penawaran->Penawaran = $input['Penawaran'];
       $penawaran->Tgl = $input['Tgl'];
       $penawaran->Barang = $input['Barang'][$key];
+      $penawaran->Warehouse = $input['Warehouse'][$key];
       $penawaran->JS = $input['JS'][$key];
       $penawaran->Quantity = $input['Quantity'][$key];
       $penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));

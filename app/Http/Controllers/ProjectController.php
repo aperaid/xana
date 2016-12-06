@@ -17,12 +17,16 @@ class ProjectController extends Controller
     {
 		$project = Project::all();
 
+    if(Auth::check()&&Auth::user()->access()=='Admin'){
     	return view('pages.project.indexs')
       ->with('url', 'project')
       ->with('project', $project)
       ->with('top_menu_sel', 'menu_project')
       ->with('page_title', 'Project')
       ->with('page_description', 'Index');
+    }else
+      return redirect()->back();
+    
     }
 
     public function create()
@@ -31,13 +35,15 @@ class ProjectController extends Controller
         DB::raw('MAX(project.id) AS maxid')
       ])
       ->first();
-      
-    	return view('pages.project.create')
-      ->with('url', 'project')
-      ->with('project', $project)
-      ->with('top_menu_sel', 'menu_project')
-      ->with('page_title', 'Project')
-      ->with('page_description', 'Create');
+      if(Auth::check()&&Auth::user()->access()=='Admin'){
+        return view('pages.project.create')
+        ->with('url', 'project')
+        ->with('project', $project)
+        ->with('top_menu_sel', 'menu_project')
+        ->with('page_title', 'Project')
+        ->with('page_description', 'Create');
+      }else
+        return redirect()->back();
     }
 
     public function store(Request $request)
@@ -62,24 +68,30 @@ class ProjectController extends Controller
       ->where('project.id', $id)
       ->first();
 
-    	return view('pages.project.show')
-      ->with('url', 'project')
-      ->with('project', $project)
-      ->with('top_menu_sel', 'menu_project')
-      ->with('page_title', 'Project')
-      ->with('page_description', 'View');
+      if(Auth::check()&&Auth::user()->access()=='Admin'){
+        return view('pages.project.show')
+        ->with('url', 'project')
+        ->with('project', $project)
+        ->with('top_menu_sel', 'menu_project')
+        ->with('page_title', 'Project')
+        ->with('page_description', 'View');
+      }else
+        return redirect()->back();
     }
 
     public function edit($id)
     {
     	$project = Project::find($id);
 
-    	return view('pages.project.edit')
-      ->with('url', 'project')
-      ->with('project', $project)
-      ->with('top_menu_sel', 'menu_project')
-      ->with('page_title', 'Project')
-      ->with('page_description', 'Edit');
+      if(Auth::check()&&Auth::user()->access()=='Admin'){
+        return view('pages.project.edit')
+        ->with('url', 'project')
+        ->with('project', $project)
+        ->with('top_menu_sel', 'menu_project')
+        ->with('page_title', 'Project')
+        ->with('page_description', 'Edit');
+      }else
+        return redirect()->back();
     }
 
     public function update(Request $request, $id)

@@ -14,6 +14,7 @@ use App\IsiSJKirim;
 use App\Transaksi;
 use App\History;
 use App\Inventory;
+use App\Invoice;
 use Session;
 use DB;
 use Auth;
@@ -42,12 +43,15 @@ class SJKembaliController extends Controller
       ->orderBy('sjkembali.id', 'asc')
       ->get();
 
-    	return view('pages.sjkembali.indexs')
-      ->with('url', 'sjkembali')
-      ->with('sjkembalis', $sjkembali)
-      ->with('top_menu_sel', 'menu_sjkembali')
-      ->with('page_title', 'Surat Jalan Kembali')
-      ->with('page_description', 'Index');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkembali.indexs')
+        ->with('url', 'sjkembali')
+        ->with('sjkembalis', $sjkembali)
+        ->with('top_menu_sel', 'menu_sjkembali')
+        ->with('page_title', 'Surat Jalan Kembali')
+        ->with('page_description', 'Index');
+      }else
+        return redirect()->back();
     }
 
     public function create()
@@ -83,16 +87,19 @@ class SJKembaliController extends Controller
       ->orderBy('periode.id', 'desc')
       ->first();
       
-    	return view('pages.sjkembali.create')
-      ->with('url', 'sjkembali')
-      ->with('maxperiode', $maxperiode)
-      ->with('reference', $reference)
-      ->with('sjkembali', $sjkembali)
-      ->with('TglMin', $TglMin)
-      ->with('TglMax', $TglMax)
-      ->with('top_menu_sel', 'menu_sjkembali')
-      ->with('page_title', 'Surat Jalan Kembali')
-      ->with('page_description', 'Create');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkembali.create')
+        ->with('url', 'sjkembali')
+        ->with('maxperiode', $maxperiode)
+        ->with('reference', $reference)
+        ->with('sjkembali', $sjkembali)
+        ->with('TglMin', $TglMin)
+        ->with('TglMax', $TglMax)
+        ->with('top_menu_sel', 'menu_sjkembali')
+        ->with('page_title', 'Surat Jalan Kembali')
+        ->with('page_description', 'Create');
+      }else
+        return redirect()->back();
     }
 
     public function getCreate2(Request $request, $id)
@@ -146,16 +153,19 @@ class SJKembaliController extends Controller
       $checks = strtotime($converts);
       $checke = strtotime($converte);
       
-    	return view('pages.sjkembali.create2')
-      ->with('url', 'sjkembali')
-      ->with('id', $id)
-      ->with('isisjkembalis', $isisjkembalis)
-      ->with('check', $check)
-      ->with('checks', $checks)
-      ->with('checke', $checke)
-      ->with('top_menu_sel', 'menu_sjkembali')
-      ->with('page_title', 'Surat Jalan Kembali')
-      ->with('page_description', 'Choose');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkembali.create2')
+        ->with('url', 'sjkembali')
+        ->with('id', $id)
+        ->with('isisjkembalis', $isisjkembalis)
+        ->with('check', $check)
+        ->with('checks', $checks)
+        ->with('checke', $checke)
+        ->with('top_menu_sel', 'menu_sjkembali')
+        ->with('page_title', 'Surat Jalan Kembali')
+        ->with('page_description', 'Choose');
+      }else
+        return redirect()->back();
     }
     
     public function getCreate3(Request $request, $id)
@@ -208,6 +218,7 @@ class SJKembaliController extends Controller
         'sjkirim.SJKir',
         'sjkirim.Tgl',
         'transaksi.Barang',
+        'transaksi.Warehouse',
       ])
       ->leftJoin('periode', 'isisjkirim.IsiSJKir', '=', 'periode.IsiSJKir')
       ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
@@ -219,17 +230,26 @@ class SJKembaliController extends Controller
       ->orderBy('periode.id', 'asc')
       ->get();
       
-    	return view('pages.sjkembali.create3')
-      ->with('url', 'sjkembali')
-      ->with('id', $id)
-      ->with('isisjkirims', $isisjkirims)
-      ->with('sjkembali', $sjkembali)
-      ->with('isisjkembali', $isisjkembali)
-      ->with('maxperiode', $maxperiode)
-      ->with('maxisisjkem', $maxisisjkem)
-      ->with('top_menu_sel', 'menu_sjkembali')
-      ->with('page_title', 'Surat Jalan Kembali')
-      ->with('page_description', 'Item');
+      $inventory = Inventory::all();
+      $warehouse = Inventory::groupBy('Warehouse')
+      ->orderBy('id', 'asc')
+      ->pluck('Warehouse', 'Warehouse');
+      
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkembali.create3')
+        ->with('url', 'sjkembali')
+        ->with('id', $id)
+        ->with('isisjkirims', $isisjkirims)
+        ->with('sjkembali', $sjkembali)
+        ->with('isisjkembali', $isisjkembali)
+        ->with('maxperiode', $maxperiode)
+        ->with('maxisisjkem', $maxisisjkem)
+        ->with(compact('warehouse'))
+        ->with('top_menu_sel', 'menu_sjkembali')
+        ->with('page_title', 'Surat Jalan Kembali')
+        ->with('page_description', 'Item');
+      }else
+        return redirect()->back();
     }
     
     public function store(Request $request)
@@ -282,13 +302,16 @@ class SJKembaliController extends Controller
         $periode->save();
       }
       
+      $data = Invoice::where('invoice.Reference', $Reference)
+      ->where('invoice.Periode', $input['Periode'])
+      ->where('invoice.JSC', 'Sewa')->first();
+      $data->update(['TimesKembali' => $data->TimesKembali + 1]);
+      
       $storeprocs = $input['id'];
       foreach ($storeprocs as $key => $storeproc)
       {
         DB::select('CALL insert_sjkembali(?,?,?,?)',array($input['QTertanda'][$key], $input['Purchase'][$key], $input['Periode'], $SJKem));
       }
-      
-      //DB::select('CALL insert_sjkembali2');
       
       $periode2s = Periode::where('periode.SJKem', $SJKem)
       ->orderBy('periode.id', 'asc')
@@ -315,6 +338,18 @@ class SJKembaliController extends Controller
         IsiSJKembali::where('Purchase', $input['Purchase'][$key])
         ->update(['Warehouse' => $input['Warehouse'][$key]]);
       }
+      
+      //DB::select('CALL insert_sjkembali2');
+      $delpurchase = IsiSJKembali::whereNull('Warehouse')
+      ->pluck('Purchase');
+      
+      IsiSJKembali::whereIn('Purchase', $delpurchase)
+      ->where('SJKem', $SJKem)
+      ->delete();
+      
+      Periode::whereIn('Purchase', $delpurchase)
+      ->where('SJKem', $SJKem)
+      ->delete();
       
       $history = new History;
       $history->User = Auth::user()->name;
@@ -387,16 +422,19 @@ class SJKembaliController extends Controller
         $periodecheck = 1;
       }
       
-    	return view('pages.sjkembali.show')
-      ->with('url', 'sjkembali')
-      ->with('sjkembali', $sjkembali)
-      ->with('isisjkembali', $isisjkembali)
-      ->with('isisjkembalis', $isisjkembalis)
-      ->with('qtrimacheck', $qtrimacheck)
-      ->with('periodecheck', $periodecheck)
-      ->with('top_menu_sel', 'menu_sjkembali')
-      ->with('page_title', 'Surat Jalan Kembali')
-      ->with('page_description', 'View');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkembali.show')
+        ->with('url', 'sjkembali')
+        ->with('sjkembali', $sjkembali)
+        ->with('isisjkembali', $isisjkembali)
+        ->with('isisjkembalis', $isisjkembalis)
+        ->with('qtrimacheck', $qtrimacheck)
+        ->with('periodecheck', $periodecheck)
+        ->with('top_menu_sel', 'menu_sjkembali')
+        ->with('page_title', 'Surat Jalan Kembali')
+        ->with('page_description', 'View');
+      }else
+        return redirect()->back();
     }
 
     public function edit($id)
@@ -435,16 +473,25 @@ class SJKembaliController extends Controller
       ->groupBy('isisjkembali.Purchase')
       ->orderBy('isisjkembali.id', 'asc')
       ->get();
+      
+      $inventory = Inventory::all();
+      $warehouse = Inventory::groupBy('Warehouse')
+      ->orderBy('id', 'asc')
+      ->pluck('Warehouse', 'Warehouse');
 
-    	return view('pages.sjkembali.edit')
-      ->with('url', 'sjkembali')
-      ->with('sjkembali', $sjkembali)
-      ->with('TglMin', $TglMin)
-      ->with('TglMax', $TglMax)
-      ->with('isisjkembalis', $isisjkembalis)
-      ->with('top_menu_sel', 'menu_sjkembali')
-      ->with('page_title', 'Surat Jalan Kembali')
-      ->with('page_description', 'Edit');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkembali.edit')
+        ->with('url', 'sjkembali')
+        ->with('sjkembali', $sjkembali)
+        ->with('TglMin', $TglMin)
+        ->with('TglMax', $TglMax)
+        ->with('isisjkembalis', $isisjkembalis)
+        ->with(compact('warehouse'))
+        ->with('top_menu_sel', 'menu_sjkembali')
+        ->with('page_title', 'Surat Jalan Kembali')
+        ->with('page_description', 'Edit');
+      }else
+        return redirect()->back();
     }
 
     public function update(Request $request, $id)
@@ -565,15 +612,18 @@ class SJKembaliController extends Controller
       ->where('periode.SJKem', $sjkembali->SJKem)
       ->first();
       
-    	return view('pages.sjkembali.qterima')
-      ->with('url', 'sjkembali')
-      ->with('sjkembali', $sjkembali)
-      ->with('isisjkembalis', $isisjkembalis)
-      ->with('QTerima2', $QTerima2)
-      ->with('Tgl', $Tgl)
-      ->with('top_menu_sel', 'menu_sjkirim')
-      ->with('page_title', 'Surat Jalan Kembali')
-      ->with('page_description', 'QTerima');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.sjkembali.qterima')
+        ->with('url', 'sjkembali')
+        ->with('sjkembali', $sjkembali)
+        ->with('isisjkembalis', $isisjkembalis)
+        ->with('QTerima2', $QTerima2)
+        ->with('Tgl', $Tgl)
+        ->with('top_menu_sel', 'menu_sjkirim')
+        ->with('page_title', 'Surat Jalan Kembali')
+        ->with('page_description', 'QTerima');
+      }else
+        return redirect()->back();
     }
     
     public function postQTerima(Request $request, $id)
@@ -591,6 +641,7 @@ class SJKembaliController extends Controller
       {
         $data = Inventory::where('Barang', $input['Barang'][$key])
         ->where('Type', 'Lama')
+        ->where('Warehouse', $input['Warehouse'][$key])
         ->first();
         $data->update(['Jumlah' => $data->Jumlah - $input['QTerima2'][$key] + $input['QTerima'][$key]]);
       }
@@ -703,7 +754,6 @@ class SJKembaliController extends Controller
       $isisjkir = $isisjkembali->pluck('IsiSJKir');
       $qterima = $isisjkembali->pluck('QTerima');
       $qtertanda = $isisjkembali->pluck('QTertanda');
-      $sumqtertanda = $isisjkembali->select([DB::raw('sum(isisjkembali.QTertanda) AS SumQTertanda'), 'isisjkembali.Purchase'])->groupBy('isisjkembali.Purchase')->get();
       $maxperiode = $isisjkembali->select([DB::raw('max(isisjkembali.Periode) as maxperiode')])->first();
       $barang = Transaksi::whereIn('transaksi.Purchase', $purchase)
       ->pluck('transaksi.Barang');
@@ -717,11 +767,16 @@ class SJKembaliController extends Controller
         $data->update(['Jumlah' => $data->Jumlah - $qterima[$key]]);
       }
       
-      $transaksis = $sumqtertanda->pluck('Purchase');
+      $data = Invoice::where('invoice.Reference', $sjkembali->Reference)
+      ->where('invoice.Periode', $maxperiode->maxperiode)
+      ->where('invoice.JSC', 'Sewa')->first();
+      $data->update(['TimesKembali' => $data->TimesKembali - 1]);
+      
+      $transaksis = $purchase;
       foreach ($transaksis as $key => $transaksi)
       {
-        $data = Transaksi::where('Purchase', $sumqtertanda->pluck('Purchase')[$key])->first();
-        $data->update(['QSisaKem' => $data->QSisaKem + $sumqtertanda->pluck('SumQTertanda')[$key]]);
+        $data = Transaksi::where('Purchase', $purchase[$key])->first();
+        $data->update(['QSisaKem' => $data->QSisaKem + $qterima[$key]]);
       }
       
       $isisjkirims = $isisjkir;

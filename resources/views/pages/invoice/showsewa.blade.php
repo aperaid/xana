@@ -65,7 +65,7 @@
                 <th>Periode</th>
                 <th>I</th>
                 <th>Quantity</th>
-                <th>Price</th>
+                <th>Price/Unit</th>
                 <th>Total</th>
               </tr>
             </thead>
@@ -101,16 +101,26 @@
           <div class="form-group">
             {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              <input name="Transport" type="text" class="form-control" value="{{'Rp '. number_format($invoice->Transport,0,',','.')}}" disabled >
+              @if($invoice->Times > 0 || $invoice->TimesKembali > 0)
+                {!! Form::text('Transport', 'Rp '. number_format($invoice->Transport,0,',','.'), ['class' => 'form-control', 'readonly']) !!}
+              @else
+                {!! Form::text('Transport', '', ['class' => 'form-control', 'readonly']) !!}
+              @endif
             </div>
           </div>
           <div class="form-group">
             {!! Form::label('Transport Status', 'Transport Status', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              @if($invoice->PPNT == 1)
+              @if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
+                {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+              @elseif($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
+                {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TIDAK TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+              @elseif($invoice->Times > 0 && $invoice->PPNT == 1)
                 {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
-              @else
+              @elseif($invoice->Times > 0 && $invoice->PPNT == 0)
                 {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+              @else
+                {!! Form::text('Times', '', ['class' => 'form-control', 'readonly']) !!}
               @endif
             </div>
           </div>
@@ -132,10 +142,16 @@
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['id' => 'Total', 'class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              @if($invoice->PPNT == 1)
+              @if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
+                {!! Form::text('Total', 'Rp. ' . number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+              @elseif($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
+                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+              @elseif($invoice->Times > 0 && $invoice->PPNT == 1)
                 {!! Form::text('Total', 'Rp. ' . number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
-              @else
+              @elseif($invoice->Times > 0 && $invoice->PPNT == 0)
                 {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+              @else
+                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+$toss-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
               @endif
             </div>
               {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}

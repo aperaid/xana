@@ -17,6 +17,7 @@ class BarangController extends Controller
       $json = Inventory::select('inventory.Code', 'inventory.Jumlah', 'inventory.Price')
       ->where('inventory.Barang', $request->namabarang)
       ->where('inventory.Type', $request->tipebarang)
+      ->where('inventory.Warehouse', $request->warehouse)
       ->first();
       
       return $json->toJson();

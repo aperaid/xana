@@ -12,6 +12,7 @@ use App\Reference;
 use App\Invoice;
 use App\History;
 use App\Penawaran;
+use App\Inventory;
 use Session;
 use DB;
 use Auth;
@@ -40,16 +41,24 @@ class POController extends Controller
     
     $reference = Reference::where('pocustomer.id', $id)
     ->first();
+    
+    $warehouse = Inventory::groupBy('Warehouse')
+    ->orderBy('id', 'asc')
+    ->pluck('Warehouse', 'Warehouse');
 
-    return view('pages.po.create')
-    ->with('url', 'po')
-    ->with('po', $po)
-    ->with('maxid', $maxid)
-    ->with('id', $id)
-    ->with('reference', $reference)
-    ->with('top_menu_sel', 'menu_referensi')
-    ->with('page_title', 'Purchase Order')
-    ->with('page_description', 'Item');
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+      return view('pages.po.create')
+      ->with('url', 'po')
+      ->with('po', $po)
+      ->with('maxid', $maxid)
+      ->with('id', $id)
+      ->with('reference', $reference)
+      ->with(compact('warehouse'))
+      ->with('top_menu_sel', 'menu_referensi')
+      ->with('page_title', 'Purchase Order')
+      ->with('page_description', 'Item');
+    }else
+        return redirect()->back();
   }
   
   public function getCreate2($id)
@@ -88,17 +97,25 @@ class POController extends Controller
     
     $reference = Reference::where('pocustomer.id', $id)
     ->first();
+    
+    $warehouse = Inventory::groupBy('Warehouse')
+    ->orderBy('id', 'asc')
+    ->pluck('Warehouse', 'Warehouse');
 
-    return view('pages.po.create3')
-    ->with('url', 'po')
-    ->with('maxid', $maxid)
-    ->with('id', $id)
-    ->with('penawarans', $penawarans)
-    ->with('po', $po)
-    ->with('reference', $reference)
-    ->with('top_menu_sel', 'menu_referensi')
-    ->with('page_title', 'Purchase Order')
-    ->with('page_description', 'Item');
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+      return view('pages.po.create3')
+      ->with('url', 'po')
+      ->with('maxid', $maxid)
+      ->with('id', $id)
+      ->with('penawarans', $penawarans)
+      ->with('po', $po)
+      ->with('reference', $reference)
+      ->with(compact('warehouse'))
+      ->with('top_menu_sel', 'menu_referensi')
+      ->with('page_title', 'Purchase Order')
+      ->with('page_description', 'Item');
+    }else
+      return redirect()->back();
   }
 
   public function store(Request $request)
@@ -122,6 +139,7 @@ class POController extends Controller
       $transaksis->JS = $input['JS'][$key];
       $JSC[] = $input['JS'][$key];
       $transaksis->Barang = $input['Barang'][$key];
+      $transaksis->Warehouse = $input['Warehouse'][$key];
       $transaksis->Quantity = $input['Quantity'][$key];
       $transaksis->QSisaKirInsert = $input['Quantity'][$key];
       $transaksis->QSisaKir = $input['Quantity'][$key];
@@ -216,16 +234,19 @@ class POController extends Controller
       $pocheck = 0;
     }
     
-    return view('pages.po.show')
-    ->with('url', 'po')
-    ->with('po', $po)
-    ->with('id', $id)
-    ->with('transaksis', $transaksi)
-    ->with('pocheck', $pocheck)
-    ->with('poexist', $poexist)
-    ->with('top_menu_sel', 'menu_referensi')
-    ->with('page_title', 'Purchase Order')
-    ->with('page_description', 'Show');
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+      return view('pages.po.show')
+      ->with('url', 'po')
+      ->with('po', $po)
+      ->with('id', $id)
+      ->with('transaksis', $transaksi)
+      ->with('pocheck', $pocheck)
+      ->with('poexist', $poexist)
+      ->with('top_menu_sel', 'menu_referensi')
+      ->with('page_title', 'Purchase Order')
+      ->with('page_description', 'Show');
+    }else
+      return redirect()->back();
   }
 
   public function edit($id)
@@ -259,16 +280,24 @@ class POController extends Controller
     {
       $last_purchase = $maxpurchase['maxpurchase'];
     }
+    
+    $warehouse = Inventory::groupBy('Warehouse')
+    ->orderBy('id', 'asc')
+    ->pluck('Warehouse', 'Warehouse');
 
-    return view('pages.po.edit')
-    ->with('url', 'po')
-    ->with('po', $po)
-    ->with('maxtransaksi', $maxtransaksi)
-    ->with('transaksis', $transaksis)
-    ->with('last_purchase', $last_purchase)
-    ->with('top_menu_sel', 'menu_referensi')
-    ->with('page_title', 'Purchase Order')
-    ->with('page_description', 'Edit');
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+      return view('pages.po.edit')
+      ->with('url', 'po')
+      ->with('po', $po)
+      ->with('maxtransaksi', $maxtransaksi)
+      ->with('transaksis', $transaksis)
+      ->with('last_purchase', $last_purchase)
+      ->with(compact('warehouse'))
+      ->with('top_menu_sel', 'menu_referensi')
+      ->with('page_title', 'Purchase Order')
+      ->with('page_description', 'Edit');
+    }else
+      return redirect()->back();
   }
 
   public function update(Request $request, $id)
@@ -295,6 +324,7 @@ class POController extends Controller
       $transaksis->JS = $input['JS'][$key];
       $JSC[] = $input['JS'][$key];
       $transaksis->Barang = $input['Barang'][$key];
+      $transaksis->Warehouse = $input['Warehouse'][$key];
       $transaksis->Quantity = $input['Quantity'][$key];
       $transaksis->QSisaKirInsert = $input['Quantity'][$key];
       $transaksis->QSisaKir = $input['Quantity'][$key];

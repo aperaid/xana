@@ -36,7 +36,7 @@
 							<td>{!! Form::text('Barang[]', $isisjkirim->Barang, ['class' => 'form-control', 'readonly']) !!}</td>
               <td>{!! Form::text('Warehouse[]', $isisjkirim->Warehouse, ['class' => 'form-control', 'readonly']) !!}</td>
               <td>{!! Form::text('QKirim[]', $isisjkirim->QKirim, ['class' => 'form-control', 'readonly']) !!}</td>
-              <td><input name="QTertanda[]" type="number" class="form-control" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $isisjkirim->QKirim }})" value="{{ $isisjkirim->QTertanda }}" required></td>
+              <td><input name="QTertanda[]" type="number" class="form-control" placeholder="1000" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $isisjkirim->QKirim }})" value="{{ $isisjkirim->QTertanda }}" required></td>
             </tr>
           @endforeach
 					</tbody>

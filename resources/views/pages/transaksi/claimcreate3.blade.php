@@ -32,7 +32,7 @@
               <td>{!! Form::text('Barang[]', $isisjkirim->Barang, array('class' => 'form-control', 'readonly')) !!}</td>
               <td>{!! Form::text('QSisaKem[]', $isisjkirim->SumQSisaKem, array('class' => 'form-control', 'readonly')) !!}</td>
               <td><input name="QClaim[]" type="number" class="form-control" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $isisjkirim->SumQSisaKem }})" value="0" required></td>
-              <td>{!! Form::text('Amount[]', null, array('id' => 'Amount', 'class' => 'form-control', 'autocomplete' => 'off', 'required')) !!}</td>
+              <td>{!! Form::text('Amount[]', 'Rp ' . number_format( $isisjkirim -> Price, 0,',', '.' ), array('class' => 'form-control Amount', 'autocomplete' => 'off', 'required')) !!}</td>
             </tr>
             @endforeach
           </tbody>
@@ -75,7 +75,7 @@ function minmax(value, min, max)
 <script>
   $(document).ready(function(){
 		//Mask Price
-		$("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+		$(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 	});
 </script>
 @stop

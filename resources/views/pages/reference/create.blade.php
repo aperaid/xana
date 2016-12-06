@@ -34,9 +34,12 @@
           {!! Form::text('Transport', null, array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 100.000', 'required')) !!}
         </div>
         <div class="form-group">
+        @if(Auth::user()->access == 'Admin')
           {!! Form::hidden('PPNT', 0) !!}
           {!! Form::checkbox('PPNT', 1, null, ['class' => 'minimal']) !!}
           {!! Form::label('Transport included in PPN', 'Transport included in PPN') !!}
+        @else
+        @endif
         </div>
         <div class="form-group">
           {!! Form::label('Project Code', 'Project Code') !!}

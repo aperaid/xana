@@ -16,7 +16,7 @@
       <div class="box-body">
         <div class="form-group">
           {!! Form::label('Penawaran Code', 'Penawaran Code') !!}
-          {!! Form::text('Penawaran', null, array('id' => 'Penawaran', 'class' => 'form-control', 'required')) !!}
+          {!! Form::text('Penawaran', null, array('id' => 'Penawaran', 'class' => 'form-control', 'onKeyUp' => 'capital()', 'required')) !!}
         </div>
         <div class="box-footer">
           <a href="{{route('reference.show', $id )}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
@@ -41,5 +41,11 @@
       autoFocus: true
     });
   });
+</script>
+<script>
+  function capital() {
+    var x = document.getElementById("Penawaran");
+    x.value = x.value.toUpperCase();
+  }
 </script>
 @stop

@@ -69,6 +69,7 @@
             <tr>
               <th>ICode</th>
               <th>Barang</th>
+              <th>Warehouse</th>
               <th>J/S</th>
               <th>Quantity</th>
               <th>Price/Unit</th>
@@ -79,6 +80,7 @@
             <tr>
               <td>{{ $transaksi -> ICode }}</td>
               <td>{{ $transaksi -> Barang }}</td>
+              <td>{{ $transaksi -> Warehouse }}</td>
               <td>{{ $transaksi -> JS }}</td>
               <td>{{ $transaksi -> Quantity }}</td>
               <td>{{ 'Rp '. number_format( $transaksi -> Amount, 2,',', '.' ) }}</td>

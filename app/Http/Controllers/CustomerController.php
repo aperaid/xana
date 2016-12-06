@@ -16,13 +16,16 @@ class CustomerController extends Controller
     public function index()
     {
   		$customer = Customer::all();
-
-    	return view('pages.customer.indexs')
-      ->with('url', 'customer')
-  		->with('customers', $customer)
-      ->with('top_menu_sel', 'menu_customer')
-  		->with('page_title', 'Customer')
-  		->with('page_description', 'Index');
+      
+      if(Auth::check()&&Auth::user()->access()=='Admin'){
+        return view('pages.customer.indexs')
+        ->with('url', 'customer')
+        ->with('customers', $customer)
+        ->with('top_menu_sel', 'menu_customer')
+        ->with('page_title', 'Customer')
+        ->with('page_description', 'Index');
+      }else
+        return redirect()->back();
     }
 
     public function create()
@@ -32,12 +35,15 @@ class CustomerController extends Controller
       ])
       ->first();
       
-    	return view('pages.customer.create')
-      ->with('url', 'customer')
-      ->with('customer', $customer)
-      ->with('top_menu_sel', 'menu_customer')
-      ->with('page_title', 'Customer')
-      ->with('page_description', 'Create');
+      if(Auth::check()&&Auth::user()->access()=='Admin'){
+        return view('pages.customer.create')
+        ->with('url', 'customer')
+        ->with('customer', $customer)
+        ->with('top_menu_sel', 'menu_customer')
+        ->with('page_title', 'Customer')
+        ->with('page_description', 'Create');
+      }else
+        return redirect()->back();
     }
 
     public function store(Request $request)
@@ -66,24 +72,30 @@ class CustomerController extends Controller
     {
     	$customer = Customer::find($id);
 
-    	return view('pages.customer.show')
-      ->with('url', 'customer')
-      ->with('customer', $customer)
-      ->with('top_menu_sel', 'menu_customer')
-      ->with('page_title', 'Customer')
-      ->with('page_description', 'View');
+      if(Auth::check()&&Auth::user()->access()=='Admin'){
+        return view('pages.customer.show')
+        ->with('url', 'customer')
+        ->with('customer', $customer)
+        ->with('top_menu_sel', 'menu_customer')
+        ->with('page_title', 'Customer')
+        ->with('page_description', 'View');
+      }else
+        return redirect()->back();
     }
 
     public function edit($id)
     {
     	$customer = Customer::find($id);
 
-    	return view('pages.customer.edit')
-      ->with('url', 'customer')
-      ->with('customer', $customer)
-      ->with('top_menu_sel', 'menu_customer')
-      ->with('page_title', 'Customer')
-      ->with('page_description', 'Edit');
+      if(Auth::check()&&Auth::user()->access()=='Admin'){
+        return view('pages.customer.edit')
+        ->with('url', 'customer')
+        ->with('customer', $customer)
+        ->with('top_menu_sel', 'menu_customer')
+        ->with('page_title', 'Customer')
+        ->with('page_description', 'Edit');
+      }else
+        return redirect()->back();
     }
 
     public function update(Request $request, $id)

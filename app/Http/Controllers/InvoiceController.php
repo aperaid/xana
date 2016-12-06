@@ -103,20 +103,23 @@ class InvoiceController extends Controller
     ->orderBy('periode.id', 'asc')
     ->get();*/
     
-    return view('pages.invoice.showsewa')
-    ->with('url', 'invoice')
-    ->with('invoice', $invoice)
-    ->with('periodes', $periodes)
-    ->with('pocodes', $pocodes)
-    ->with('SE', $SE)
-    ->with('Days2', $Days2)
-    ->with('I', $I)
-    ->with('toss', $toss)
-    ->with('total', $total)
-    ->with('total2', $total2)
-    ->with('top_menu_sel', 'menu_invoice')
-    ->with('page_title', 'Invoice Sewa')
-    ->with('page_description', 'View');
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+      return view('pages.invoice.showsewa')
+      ->with('url', 'invoice')
+      ->with('invoice', $invoice)
+      ->with('periodes', $periodes)
+      ->with('pocodes', $pocodes)
+      ->with('SE', $SE)
+      ->with('Days2', $Days2)
+      ->with('I', $I)
+      ->with('toss', $toss)
+      ->with('total', $total)
+      ->with('total2', $total2)
+      ->with('top_menu_sel', 'menu_invoice')
+      ->with('page_title', 'Invoice Sewa')
+      ->with('page_description', 'View');
+    }else
+      return redirect()->back();
 	}
   
   public function postInvoiceSewa(Request $request, $id)
@@ -175,6 +178,8 @@ class InvoiceController extends Controller
     ->orderBy('periode.id', 'asc')
     ->get();
     
+    $firststart = $periodes->pluck('S');
+    
     foreach($periodes as $key => $periode2){
       $start = $periode2->S;
       $end = $periode2->E;
@@ -197,7 +202,7 @@ class InvoiceController extends Controller
     $document->setValue('PCode', ''.$invoice->PCode.'');
     $document->setValue('Project', ''.$invoice->Project.'');
     $document->setValue('Invoice', ''.$invoice->Invoice.'');
-    $document->setValue('S', ''.$start.'');
+    $document->setValue('S', ''.$firststart[0].'');
     $document->setValue('E', ''.$end.'');
     $document->setValue('Quantity', ''.$Quantity.'');
     $document->setValue('PEO', ''.$PEO.'');
@@ -281,16 +286,19 @@ class InvoiceController extends Controller
       $x++;
     }
     
-    return view('pages.invoice.showjual')
-    ->with('url', 'invoice')
-    ->with('invoice', $invoice)
-    ->with('transaksis', $transaksis)
-    ->with('pocodes', $pocodes)
-    ->with('total', $total)
-    ->with('total2', $total2)
-    ->with('top_menu_sel', 'menu_invoice')
-    ->with('page_title', 'Invoice Jual')
-    ->with('page_description', 'View');
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+      return view('pages.invoice.showjual')
+      ->with('url', 'invoice')
+      ->with('invoice', $invoice)
+      ->with('transaksis', $transaksis)
+      ->with('pocodes', $pocodes)
+      ->with('total', $total)
+      ->with('total2', $total2)
+      ->with('top_menu_sel', 'menu_invoice')
+      ->with('page_title', 'Invoice Jual')
+      ->with('page_description', 'View');
+    }else
+      return redirect()->back();
 	}
   
   public function postInvoiceJual(Request $request, $id)
@@ -361,15 +369,18 @@ class InvoiceController extends Controller
       $x++;
     }
     
-    return view('pages.invoice.showclaim')
-    ->with('url', 'invoice')
-    ->with('invoice', $invoice)
-    ->with('transaksis', $transaksis)
-    ->with('total', $total)
-    ->with('total2', $total2)
-    ->with('top_menu_sel', 'menu_invoice')
-    ->with('page_title', 'Invoice Claim')
-    ->with('page_description', 'View');
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+      return view('pages.invoice.showclaim')
+      ->with('url', 'invoice')
+      ->with('invoice', $invoice)
+      ->with('transaksis', $transaksis)
+      ->with('total', $total)
+      ->with('total2', $total2)
+      ->with('top_menu_sel', 'menu_invoice')
+      ->with('page_title', 'Invoice Claim')
+      ->with('page_description', 'View');
+    }else
+      return redirect()->back();
 	}
   
   public function postInvoiceClaim(Request $request, $id)
@@ -446,14 +457,17 @@ class InvoiceController extends Controller
     ->groupBy('invoice.Periode')
     ->get();
 
-    return view('pages.invoice.indexs')
-    ->with('url', 'invoice')
-    ->with('invoicess', $invoices)
-    ->with('invoicejs', $invoicej)
-    ->with('invoicecs', $invoicec)
-    ->with('top_menu_sel', 'menu_invoice')
-    ->with('page_title', 'Invoice')
-    ->with('page_description', 'Index');
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+      return view('pages.invoice.indexs')
+      ->with('url', 'invoice')
+      ->with('invoicess', $invoices)
+      ->with('invoicejs', $invoicej)
+      ->with('invoicecs', $invoicec)
+      ->with('top_menu_sel', 'menu_invoice')
+      ->with('page_title', 'Invoice')
+      ->with('page_description', 'Index');
+    }else
+      return redirect()->back();
     }
     
     public function getLunas($id)

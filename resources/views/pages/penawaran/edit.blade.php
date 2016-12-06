@@ -65,12 +65,13 @@
           <thead>
             <th width="1%"><a id="addCF" class=" glyphicon glyphicon-plus"></a></th>
             <th>Barang</th>
-            <th>ICode</th>
+            <th width="9%">ICode</th>
+            <th>Warehouse</th>
             <th>Type</th>
             <th>J/S</th>
-            <th width="10%">Stock</th>
-            <th width="10%">Quantity</th>
-            <th>Price/Unit</th>
+            <th width="7%">Stock</th>
+            <th width="7%">Quantity</th>
+            <th width="15%">Price/Unit</th>
           </thead>
         </table>
       </div>
@@ -103,7 +104,7 @@ $(function() {
 		var y = {{ $maxpenawaran -> maxid }};
     
 		@foreach($penawarans as $penawaran)
-      $("#customFields").append('<tr><td align="center"><a class="remCF glyphicon glyphicon-remove"></a></td><td>{!! Form::text('penawaranid[]', $penawaran->id) !!}</td>{!! Form::hidden('Purchase[]', $penawaran->Purchase) !!}<td>{!! Form::text('Barang[]', $penawaran->Barang, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', $penawaran->ICode, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['Baru' => 'Baru', 'Lama' => 'Lama'], $penawaran->Type, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], $penawaran->JS, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Stock[]', null, ['class' => 'form-control Stock', 'readonly']) !!}</td><td>{!! Form::number('Quantity[]', $penawaran->Quantity, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', 'Rp '. number_format( $penawaran -> Amount, 0,',', '.' ), ['id' => 'Amount', 'class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+      $("#customFields").append('<tr><td align="center"><a class="remCF glyphicon glyphicon-remove"></a></td>{!! Form::hidden('penawaranid[]', $penawaran->id) !!}{!! Form::hidden('Purchase[]', $penawaran->Purchase) !!}<td>{!! Form::text('Barang[]', $penawaran->Barang, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', $penawaran->ICode, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Warehouse[]', $warehouse, $penawaran->Warehouse, ['class' => 'form-control Warehouse']) !!}</td><td>{!! Form::select('Type[]', ['Baru' => 'Baru', 'Lama' => 'Lama'], $penawaran->Type, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], $penawaran->JS, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Stock[]', null, ['class' => 'form-control Stock', 'readonly']) !!}</td><td>{!! Form::number('Quantity[]', $penawaran->Quantity, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', 'Rp '. number_format( $penawaran -> Amount, 0,',', '.' ), ['id' => 'Amount', 'class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
 		@endforeach
     
     $(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
@@ -118,9 +119,9 @@ $(function() {
       this.value = this.value.toUpperCase();
     });
     
-    $(document).on('click autocompletechange', '.Barang, .Type, .Quantity', function(){
+    $(document).on('click autocompletechange', '.Barang, .Type, .Quantity, .Warehouse', function(){
       var this2 = this;
-      $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+      $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val(), warehouse: $(this).closest('tr').find(".Warehouse").val()}, function(data){})
       .done(function(data){
         result = $.parseJSON(data);
         $(this2).closest('tr').find(".Amount").val('Rp '+result.Price.toLocaleString().replace(',', '.'));
@@ -134,10 +135,10 @@ $(function() {
       });
     });
     
-    $(document).on('keyup', '.Barang, .Type, .Quantity', function(e){
+    $(document).on('keyup', '.Barang, .Type, .Quantity, .Warehouse', function(e){
       var this2 = this;
       if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
-        $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+        $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val(), warehouse: $(this).closest('tr').find(".Warehouse").val() }, function(data){})
         .done(function(data){
           result = $.parseJSON(data);
           $(this2).closest('tr').find(".Amount").val('Rp '+result.Price.toLocaleString().replace(',', '.'));
@@ -165,7 +166,7 @@ $(function() {
 			if(x < max_fields){ //max input box allowed
 				x++; //text box count increment
 				y++;
-				$("#customFields").append('<tr><td align="center"><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><td><input type="text" name="penawaranid[]" value="'+ y +'"></td><input type="hidden" name="Purchase[]" value="'+ y +'"><td>{!! Form::text('Barang[]', null, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', null, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['Baru' => 'Baru', 'Lama' => 'Lama'], null, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Stock[]', null, ['class' => 'form-control Stock', 'readonly']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', null, ['class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+				$("#customFields").append('<tr><td align="center"><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="penawaranid[]" value="'+ y +'"><input type="hidden" name="Purchase[]" value="'+ y +'"><td>{!! Form::text('Barang[]', null, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', null, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Warehouse[]', $warehouse, null, ['class' => 'form-control Warehouse']) !!}</td><td>{!! Form::select('Type[]', ['Baru' => 'Baru', 'Lama' => 'Lama'], null, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control']) !!}</td><td>{!! Form::number('Stock[]', null, ['class' => 'form-control Stock', 'readonly']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', null, ['class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
         
         $(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
       
@@ -179,9 +180,9 @@ $(function() {
           this.value = this.value.toUpperCase();
         });
         
-        $(document).on('click autocompletechange', '.Barang, .Type, .Quantity', function(){
+        $(document).on('click autocompletechange', '.Barang, .Type, .Quantity, .Warehouse', function(){
           var this2 = this;
-          $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+          $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val(), warehouse: $(this).closest('tr').find(".Warehouse").val() }, function(data){})
           .done(function(data){
             result = $.parseJSON(data);
             $(this2).closest('tr').find(".Amount").val('Rp '+result.Price.toLocaleString().replace(',', '.'));
@@ -195,10 +196,10 @@ $(function() {
           });
         });
         
-        $(document).on('keyup', '.Barang, .Type, .Quantity', function(e){
+        $(document).on('keyup', '.Barang, .Type, .Quantity, .Warehouse', function(e){
           var this2 = this;
           if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
-            $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+            $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val(), warehouse: $(this).closest('tr').find(".Warehouse").val() }, function(data){})
             .done(function(data){
               result = $.parseJSON(data);
               $(this2).closest('tr').find(".Amount").val('Rp '+result.Price.toLocaleString().replace(',', '.'));

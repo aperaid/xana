@@ -58,7 +58,7 @@
                 <th align="center">SJ Kirim</th>
                 <th align="center">Item</th>
                 <th>Quantity Kirim</th>
-                <th>Price</th>
+                <th>Price/Unit</th>
                 <th>Total</th>
               </tr>
             </thead>
@@ -130,8 +130,6 @@
           <div class="box-footer">
             <!-- Back Button -->
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>
-            <!-- Print Button -->
-            <a href="#"><button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print</button></a>
             <!-- Submit Button -->
             {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
           </div>

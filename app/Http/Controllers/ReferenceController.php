@@ -46,25 +46,36 @@ class ReferenceController extends Controller
       ])
       ->first();
       
-    	return view('pages.reference.create')
-      ->with('url', 'reference')
-      ->with('reference', $reference)
-      ->with('top_menu_sel', 'menu_referensi')
-      ->with('page_title', 'Purchase Order')
-      ->with('page_description', 'Create');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.reference.create')
+        ->with('url', 'reference')
+        ->with('reference', $reference)
+        ->with('top_menu_sel', 'menu_referensi')
+        ->with('page_title', 'Purchase Order')
+        ->with('page_description', 'Create');
+      }else
+        return redirect()->back();
     }
 
     public function store(Request $request)
     {
     	$inputs = $request->all();
 
+      if(Auth::user()->access == 'POPPN'){
+        $PPNT = 1;
+      }elseif(Auth::user()->access == 'PONONPPN'){
+        $PPNT = 0;
+      }elseif(Auth::user()->access == 'Admin'){
+        $PPNT = $request['PPNT'];
+      }
+      
       $Reference = Reference::Create([
         'id' => $request['id'],
         'Reference' => $request['Reference'],
         'Tgl' => $request['Tgl'],
         'PCode' => $request['PCode'],
         'Transport' => str_replace(".","",substr($request->Transport, 3)),
-        'PPNT' => $request['PPNT'],
+        'PPNT' => $PPNT,
       ]);
 
       $history = new History;
@@ -257,35 +268,41 @@ class ReferenceController extends Controller
       ->orderBy('transaksiclaim.id', 'asc')
       ->get();
       
-    	return view('pages.reference.show')
-      ->with('url', 'reference')
-      ->with('detail', $detail)
-      ->with('purchases', $purchase)
-      ->with('sjkircheck', $sjkircheck)
-      ->with('sjkemcheck', $sjkemcheck)
-      ->with('pocheck', $pocheck)
-      ->with('periodecheck', $periodecheck)
-      ->with('pos', $po)
-      ->with('sjkirims', $sjkirim)
-      ->with('sjkembalis', $sjkembali)
-      ->with('sewas', $sewa)
-      ->with('juals', $jual)
-      ->with('claims', $claim)
-      ->with('top_menu_sel', 'menu_referensi')
-      ->with('page_title', 'Purchase Order')
-      ->with('page_description', 'View');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.reference.show')
+        ->with('url', 'reference')
+        ->with('detail', $detail)
+        ->with('purchases', $purchase)
+        ->with('sjkircheck', $sjkircheck)
+        ->with('sjkemcheck', $sjkemcheck)
+        ->with('pocheck', $pocheck)
+        ->with('periodecheck', $periodecheck)
+        ->with('pos', $po)
+        ->with('sjkirims', $sjkirim)
+        ->with('sjkembalis', $sjkembali)
+        ->with('sewas', $sewa)
+        ->with('juals', $jual)
+        ->with('claims', $claim)
+        ->with('top_menu_sel', 'menu_referensi')
+        ->with('page_title', 'Purchase Order')
+        ->with('page_description', 'View');
+      }else
+        return redirect()->back();
     }
 
     public function edit($id)
     {
     	$reference = Reference::find($id);
 
-    	return view('pages.reference.edit')
-      ->with('url', 'reference')
-      ->with('reference', $reference)
-      ->with('top_menu_sel', 'menu_referensi')
-      ->with('page_title', 'Reference')
-      ->with('page_description', 'Edit');
+      if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+        return view('pages.reference.edit')
+        ->with('url', 'reference')
+        ->with('reference', $reference)
+        ->with('top_menu_sel', 'menu_referensi')
+        ->with('page_title', 'Reference')
+        ->with('page_description', 'Edit');
+      }else
+        return redirect()->back();
     }
 
     public function update(Request $request, $id)

@@ -31,8 +31,8 @@
               {!! Form::hidden('QKirim2[]', $isisjkirim->QKirim) !!}
               <td>{!! Form::text('JS[]', $isisjkirim->JS, array('class' => 'form-control', 'readonly')) !!}</td>
               <td>{!! Form::text('Barang[]', $isisjkirim->Barang, array('class' => 'form-control', 'readonly')) !!}</td>
-              <td>{!! Form::text('Warehouse[]', $isisjkirim->Warehouse, array('class' => 'form-control', 'autocomplete' => 'off')) !!}</td>
-              <td>{!! Form::number('QKirim[]', $isisjkirim->QKirim, array('class' => 'form-control', 'autocomplete' => 'off', 'onkeyup' => 'this.value = minmax(this.value, 0, $isisjkirim->Quantity)', 'required')) !!}</td>
+              <td>{!! Form::text('Warehouse[]', $isisjkirim->Warehouse, array('class' => 'form-control', 'readonly')) !!}</td>
+              <td>{!! Form::number('QKirim[]', $isisjkirim->QKirim, array('class' => 'form-control', 'placeholder' => '1000', 'autocomplete' => 'off', 'onkeyup' => 'this.value = minmax(this.value, 0, $isisjkirim->Quantity)', 'required')) !!}</td>
               <td>{!! Form::text('QTertanda[]', $isisjkirim->QTertanda, array('class' => 'form-control', 'readonly')) !!}</td>
             </tr>
             @endforeach
