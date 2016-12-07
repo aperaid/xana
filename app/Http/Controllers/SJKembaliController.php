@@ -639,11 +639,19 @@ class SJKembaliController extends Controller
       $inventories = $input['Barang'];
       foreach ($inventories as $key => $inventory)
       {
+        if($input['Warehouse'][$key] == 'Kumbang'){
+          $warehouse = 'Kumbang';
+        }elseif($input['Warehouse'][$key] == 'BulakSereh'){
+          $warehouse = 'BulakSereh';
+        }elseif($input['Warehouse'][$key] == 'Legok'){
+          $warehouse = 'Legok';
+        }elseif($input['Warehouse'][$key] == 'CitraGarden'){
+          $warehouse = 'CitraGarden';
+        }
         $data = Inventory::where('Barang', $input['Barang'][$key])
         ->where('Type', 'Lama')
-        ->where('Warehouse', $input['Warehouse'][$key])
         ->first();
-        $data->update(['Jumlah' => $data->Jumlah - $input['QTerima2'][$key] + $input['QTerima'][$key]]);
+        $data->update([$warehouse => $data->$warehouse - $input['QTerima2'][$key] + $input['QTerima'][$key]]);
       }
       
       $transaksis = $input['Purchase'];
@@ -761,10 +769,19 @@ class SJKembaliController extends Controller
       $inventories = $barang;
       foreach ($inventories as $key => $inventory)
       {
-        $data = Inventory::where('Barang', $barang[$key])
+        if($input['Warehouse'][$key] == 'Kumbang'){
+          $warehouse = 'Kumbang';
+        }elseif($input['Warehouse'][$key] == 'BulakSereh'){
+          $warehouse = 'BulakSereh';
+        }elseif($input['Warehouse'][$key] == 'Legok'){
+          $warehouse = 'Legok';
+        }elseif($input['Warehouse'][$key] == 'CitraGarden'){
+          $warehouse = 'CitraGarden';
+        }
+        $data = Inventory::where('Barang', $input['Barang'][$key])
         ->where('Type', 'Lama')
         ->first();
-        $data->update(['Jumlah' => $data->Jumlah - $qterima[$key]]);
+        $data->update([$warehouse => $data->$warehouse - $qterima[$key]]);
       }
       
       $data = Invoice::where('invoice.Reference', $sjkembali->Reference)

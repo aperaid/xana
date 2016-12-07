@@ -88,7 +88,7 @@
           <div class="form-group">
             {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              <input name="Transport" type="text" class="form-control" value="{{'Rp '. number_format($invoice->Transport,0,',','.')}}" disabled >
+              {!! Form::text('Transport', 'Rp '. number_format($invoice->Transport,0,',','.'), ['class' => 'form-control', 'readonly']) !!}
             </div>
           </div>
           <div class="form-group">

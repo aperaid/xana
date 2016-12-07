@@ -84,7 +84,13 @@
                             <label for="access" class="col-md-4 control-label">Access</label>
 
                             <div class="col-md-6">
-                                <input id="access" type="text" class="form-control" name="access" value="{{ old('access') }}" required autofocus>
+                                <select name="access" id="access" class="form-control" autofocus>
+                                  <option value="Admin">Admin</option>
+                                  <option value="POPPN">PO PPN</option>
+                                  <option value="PONONPPN">PO NON PPN</option>
+                                  <option value="INVPPN">Invoice PPN</option>
+                                  <option value="INVNONPPN">Invoice NON PPN</option>
+                                </select>
 
                                 @if ($errors->has('access'))
                                     <span class="help-block">
@@ -108,3 +114,15 @@
     </div>
 </div>
 @endsection
+
+<SCRIPT language="JavaScript">
+/*
+var password;
+var pass1="aperaxanamedit";
+password=prompt('Please enter your password to view this page!',' ');
+if (password==pass1)
+  alert('Password Correct! Click OK to enter!');
+else
+  window.location="{{ url('/') }}";
+*/
+</SCRIPT>

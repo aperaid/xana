@@ -275,10 +275,18 @@ class SJKirimController extends Controller
       $inventories = $input['ICode'];
       foreach ($inventories as $key => $inventory)
       {
+        if($input['Warehouse'][$key] == 'Kumbang'){
+          $warehouse = 'Kumbang';
+        }elseif($input['Warehouse'][$key] == 'BulakSereh'){
+          $warehouse = 'BulakSereh';
+        }elseif($input['Warehouse'][$key] == 'Legok'){
+          $warehouse = 'Legok';
+        }elseif($input['Warehouse'][$key] == 'CitraGarden'){
+          $warehouse = 'CitraGarden';
+        }
         $data = Inventory::where('Code', $input['ICode'][$key])
-        ->where('Warehouse', $input['Warehouse'][$key])
         ->first();
-        $data->update(['Jumlah' => $data->Jumlah - $input['QKirim'][$key]]);
+        $data->update([$warehouse => $data->$warehouse - $input['QKirim'][$key]]);
       }
       
       $history = new History;
@@ -398,10 +406,18 @@ class SJKirimController extends Controller
       $inventories = $request['Barang'];
       foreach ($inventories as $key => $inventory)
       {
-        $data = Inventory::where('Code', $icode[$key])
-        ->where('Warehouse', $request['Warehouse'][$key])
+        if($input['Warehouse'][$key] == 'Kumbang'){
+          $warehouse = 'Kumbang';
+        }elseif($input['Warehouse'][$key] == 'BulakSereh'){
+          $warehouse = 'BulakSereh';
+        }elseif($input['Warehouse'][$key] == 'Legok'){
+          $warehouse = 'Legok';
+        }elseif($input['Warehouse'][$key] == 'CitraGarden'){
+          $warehouse = 'CitraGarden';
+        }
+        $data = Inventory::where('Code', $input['ICode'][$key])
         ->first();
-        $data->update(['Jumlah' => $data->Jumlah + $qkirim[$key] - $request['QKirim'][$key]]);
+        $data->update([$warehouse => $data->$warehouse + $qkirim[$key] - $request['QKirim'][$key]]);
       }
       
       $input = Input::all();
@@ -585,10 +601,18 @@ class SJKirimController extends Controller
       $inventories = $icode;
       foreach ($inventories as $key => $inventory)
       {
-        $data = Inventory::where('Code', $icode[$key])
-        ->where('Warehouse', $warehouse[$key])
+        if($input['Warehouse'][$key] == 'Kumbang'){
+          $warehouse = 'Kumbang';
+        }elseif($input['Warehouse'][$key] == 'BulakSereh'){
+          $warehouse = 'BulakSereh';
+        }elseif($input['Warehouse'][$key] == 'Legok'){
+          $warehouse = 'Legok';
+        }elseif($input['Warehouse'][$key] == 'CitraGarden'){
+          $warehouse = 'CitraGarden';
+        }
+        $data = Inventory::where('Code', $input['ICode'][$key])
         ->first();
-        $data->update(['Jumlah' => $data->Jumlah + $qkirim[$key]]);
+        $data->update([$warehouse => $data->$warehouse + $qkirim[$key]]);
       }
       
       $data = Invoice::where('invoice.Reference', $sjkirim->Reference)

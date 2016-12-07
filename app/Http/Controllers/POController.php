@@ -42,9 +42,12 @@ class POController extends Controller
     $reference = Reference::where('pocustomer.id', $id)
     ->first();
     
-    $warehouse = Inventory::groupBy('Warehouse')
-    ->orderBy('id', 'asc')
-    ->pluck('Warehouse', 'Warehouse');
+    $ppn = Invoice::where('Reference', $reference->Reference)
+    ->first();
+    if($ppn)
+      $ppn = 1;
+    else
+      $ppn = 0;
 
     if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
       return view('pages.po.create')
@@ -53,7 +56,7 @@ class POController extends Controller
       ->with('maxid', $maxid)
       ->with('id', $id)
       ->with('reference', $reference)
-      ->with(compact('warehouse'))
+      ->with('ppn', $ppn)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'Item');
@@ -98,9 +101,12 @@ class POController extends Controller
     $reference = Reference::where('pocustomer.id', $id)
     ->first();
     
-    $warehouse = Inventory::groupBy('Warehouse')
-    ->orderBy('id', 'asc')
-    ->pluck('Warehouse', 'Warehouse');
+    $ppn = Invoice::where('Reference', $reference->Reference)
+    ->first();
+    if($ppn)
+      $ppn = 1;
+    else
+      $ppn = 0;
 
     if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
       return view('pages.po.create3')
@@ -110,7 +116,7 @@ class POController extends Controller
       ->with('penawarans', $penawarans)
       ->with('po', $po)
       ->with('reference', $reference)
-      ->with(compact('warehouse'))
+      ->with('ppn', $ppn)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'Item');
@@ -166,14 +172,23 @@ class POController extends Controller
       
       }
     }*/
-
-    $JSC = array_unique($JSC);
     
+    $invppn = Invoice::where('Reference', $input['Reference'])
+    ->first();
+    if($invppn)
+      $ppn = $invppn->PPN;
+    else
+      $ppn = $input['PPN'];
+
     if(Auth::user()->access == 'POPPN'){
       $PPN = 1;
-    }else{
+    }elseif(Auth::user()->access == 'PONONPPN'){
       $PPN = 0;
+    }elseif(Auth::user()->access == 'Admin'){
+      $PPN = $ppn;
     }
+    
+    $JSC = array_unique($JSC);
       
     $invoices = $JSC;
     foreach ($invoices as $key => $invoices)
@@ -280,10 +295,6 @@ class POController extends Controller
     {
       $last_purchase = $maxpurchase['maxpurchase'];
     }
-    
-    $warehouse = Inventory::groupBy('Warehouse')
-    ->orderBy('id', 'asc')
-    ->pluck('Warehouse', 'Warehouse');
 
     if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
       return view('pages.po.edit')
@@ -292,7 +303,6 @@ class POController extends Controller
       ->with('maxtransaksi', $maxtransaksi)
       ->with('transaksis', $transaksis)
       ->with('last_purchase', $last_purchase)
-      ->with(compact('warehouse'))
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'Edit');

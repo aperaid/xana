@@ -46,18 +46,19 @@ class PenawaranController extends Controller
     }else{
       $maxid = $penawaran -> maxid;
     }
-    
-    $inventory = Inventory::all();
-    $warehouse = Inventory::groupBy('Warehouse')
-    ->orderBy('id', 'asc')
-    ->pluck('Warehouse', 'Warehouse');
 
+    $inventory = Inventory::all();
+    
+    /*$warehouse = Inventory::groupBy('Warehouse')
+    ->orderBy('id', 'asc')
+    ->pluck('Warehouse', 'Warehouse');*/
+    
     if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
       return view('pages.penawaran.create')
       ->with('url', 'penawaran')
       ->with('maxid', $maxid)
       ->with('inventory', $inventory)
-      ->with(compact('warehouse'))
+      //->with(compact('warehouse'))
       ->with('top_menu_sel', 'menu_penawaran')
       ->with('page_title', 'Penawaran')
       ->with('page_description', 'Create');
@@ -125,17 +126,12 @@ class PenawaranController extends Controller
     ->where('penawaran.Penawaran', $penawaran -> Penawaran)
     ->first();
 
-    $warehouse = Inventory::groupBy('Warehouse')
-    ->orderBy('id', 'asc')
-    ->pluck('Warehouse', 'Warehouse');
-
     if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
       return view('pages.penawaran.edit')
       ->with('url', 'penawaran')
       ->with('id', $id)
       ->with('penawarans', $penawarans)
       ->with('maxpenawaran', $maxpenawaran)
-      ->with(compact('warehouse'))
       ->with('top_menu_sel', 'menu_penawaran')
       ->with('page_title', 'Penawaran')
       ->with('page_description', 'Edit');
