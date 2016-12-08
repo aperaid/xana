@@ -348,7 +348,7 @@ class TransaksiController extends Controller
         'periode.E',
         'transaksi.Barang',
         'transaksi.POCode',
-        'inventory.Price',
+        'inventory.JualPrice',
       ])
       ->leftJoin('periode', 'isisjkirim.IsiSJKir', '=', 'periode.IsiSJKir')
       ->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')

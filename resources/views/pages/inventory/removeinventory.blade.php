@@ -14,16 +14,16 @@
               <th>Id</th>
               <th>Code</th>
               <th>Barang</th>
-              <th>Type</th>
+              <th>Hapus</th>
             </tr>
           </thead>
           <tbody>
-            @foreach($adjusts as $adjust)
+            @foreach($removes as $remove)
             <tr>
-              <td>{{$adjust->id}}</td>
-              <td>{{$adjust->Code}}</td>
-              <td>{{$adjust->Barang}}</td>
-              <td>{{$adjust->Type}}</td>
+              <td>{{$remove->id}}</td>
+              <td width="10%">{{substr($remove->Code, 0, -1)}}</td>
+              <td>{{$remove->Barang}}</td>
+              <td width="10%"><a href="{{route('inventory.getremoveinventory', $remove->id)}}"><button class="btn btn-block btn-danger btn-sm" onclick="return confirm('Delete Inventory?')">Delete</button></a></td>
             </tr>
             @endforeach
           </tbody>
@@ -52,11 +52,6 @@
         },
       ],
       "order": [[0, "asc"]]
-		});
-		
-		$('#datatables tbody').on('click', 'tr', function () {
-			var data = table.row( this ).data();
-			window.open("editadjustinventory/"+ data[0],"_self");
 		});
 	});
 </script>

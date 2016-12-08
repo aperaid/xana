@@ -16,32 +16,42 @@
           {!! Form::hidden('id', $register->id+1) !!}
           <div class="form-group">
             {!! Form::label('Code', 'Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-3">
+            <div class="col-sm-2">
               {!! Form::text('Code', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'MF190', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
             </div>
             {!! Form::label('Barang', 'Barang', ['class' => "col-sm-1 control-label"]) !!}
-            <div class="col-sm-3">
-              {!! Form::text('Barang', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Main Frame 190', 'required')) !!}
+            <div class="col-sm-5">
+              {!! Form::text('Barang', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Main Frame 190',  'onKeyUp' => 'capital()', 'required')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Price', 'Price', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-2">
-              {!! Form::text('Price', null, array('id' => 'Price', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 100.000', 'required')) !!}
+            {!! Form::label('Jual Price', 'Jual Price', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              {!! Form::text('JualPrice', null, array('id' => 'JualPrice', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 1.000.000', 'required')) !!}
             </div>
-            {!! Form::label('Jumlah', 'Jumlah', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-2">
-              {!! Form::number('Jumlah', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
+            {!! Form::label('Sewa Price', 'Sewa Price', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              {!! Form::text('Price', null, array('id' => 'Price', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 10.000', 'required')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Type', 'Type', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-2">
-              {!! Form::text('Type', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Baru', 'required')) !!}
-            </div>
-            {!! Form::label('Warehouse', 'Warehouse', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('Kumbang', 'Kumbang', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
-              {!! Form::text('Warehouse', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Gudang 1', 'required')) !!}
+              {!! Form::number('Kumbang', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
+            </div>
+            {!! Form::label('Bulak Sereh', 'Bulak Sereh', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              {!! Form::number('BulakSereh', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Legok', 'Legok', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              {!! Form::number('Legok', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
+            </div>
+            {!! Form::label('Citra Garden', 'Citra Garden', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              {!! Form::number('CitraGarden', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
             </div>
           </div>
         </div>
@@ -65,12 +75,15 @@
   function capital() {
     var x = document.getElementById("Code");
     x.value = x.value.toUpperCase();
+    var x = document.getElementById("Barang");
+    x.value = x.value.toUpperCase();
   }
 </script>
 <script>
   $(document).ready(function(){
 		//Mask Price
 		$("#Price").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+    $("#JualPrice").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 	});
 </script>
 @stop

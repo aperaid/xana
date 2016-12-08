@@ -18,32 +18,46 @@
          <div class="form-horizontal">
           <div class="form-group">
             {!! Form::label('Code', 'Code', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-3">
+            <div class="col-sm-2">
               {!! Form::text('Code', $adjust->Code, array('class' => 'form-control', 'readonly')) !!}
             </div>
             {!! Form::label('Barang', 'Barang', ['class' => "col-sm-1 control-label"]) !!}
-            <div class="col-sm-3">
+            <div class="col-sm-5">
               {!! Form::text('Barang', $adjust->Barang, array('class' => 'form-control', 'readonly')) !!}
-            </div>
-          </div>
-          <div class="form-group">
-            {!! Form::label('Price', 'Price', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-2">
-              {!! Form::text('Price', 'Rp ' . number_format($adjust->Price, 0,',', '.' ), array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 100.000', 'required')) !!}
-            </div>
-            {!! Form::label('Jumlah', 'Jumlah', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-2">
-              {!! Form::number('Jumlah', $adjust->Jumlah, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
             </div>
           </div>
           <div class="form-group">
             {!! Form::label('Type', 'Type', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-2">
-              {!! Form::text('Type', $adjust->Type, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Baru', 'required')) !!}
+              {!! Form::text('Type', $adjust->Type, ['class' => 'form-control', 'readonly']) !!}
             </div>
-            {!! Form::label('Warehouse', 'Warehouse', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('Jual', 'Jual', ['class' => "col-sm-1 control-label"]) !!}
+            <div class="col-sm-2">
+              {!! Form::text('JualPrice', 'Rp ' . number_format($adjust->JualPrice, 0,',', '.' ), array('id' => 'JualPrice', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 1.000.000', 'required')) !!}
+            </div>
+            {!! Form::label('Sewa', 'Sewa', ['class' => "col-sm-1 control-label"]) !!}
+            <div class="col-sm-2">
+              {!! Form::text('Price', 'Rp ' . number_format($adjust->Price, 0,',', '.' ), array('id' => 'Price', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 10.000', 'required')) !!}
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Kumbang', 'Kumbang', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
-              {!! Form::text('Warehouse', $adjust->Warehouse, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Gudang 1', 'required')) !!}
+              {!! Form::number('Kumbang', $adjust->Kumbang, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
+            </div>
+            {!! Form::label('Bulak Sereh', 'Bulak Sereh', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              {!! Form::number('BulakSereh', $adjust->BulakSereh, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Legok', 'Legok', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              {!! Form::number('Legok', $adjust->Legok, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
+            </div>
+            {!! Form::label('Citra Garden', 'Citra Garden', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              {!! Form::number('CitraGarden', $adjust->CitraGarden, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
             </div>
           </div>
         </div>
@@ -68,6 +82,7 @@
   $(document).ready(function(){
 		//Mask Price
 		$("#Price").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+    $("#JualPrice").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 	});
 </script>
 @stop

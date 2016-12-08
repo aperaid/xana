@@ -78,8 +78,12 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('inventory/adjustinventory', ['as' => 'inventory.adjustinventory', 'uses' => 'InventoryController@getAdjustment']);
   Route::get('inventory/editadjustinventory/{id}', ['as' => 'inventory.editadjustinventory', 'uses' => 'InventoryController@getEditAdjustment']);
   Route::post('inventory/updateadjustinventory/{id}', ['as' => 'inventory.updateadjustinventory', 'uses' => 'InventoryController@postEditAdjustment']);
+  Route::get('inventory/transferinventory', ['as' => 'inventory.transferinventory', 'uses' => 'InventoryController@getTransfer']);
   Route::get('inventory/registerinventory', ['as' => 'inventory.registerinventory', 'uses' => 'InventoryController@getRegister']);
   Route::post('inventory/storeRegisterinventory', ['as' => 'inventory.storeRegisterinventory', 'uses' => 'InventoryController@postRegister']);
+  Route::get('inventory/removeinventory', ['as' => 'inventory.removeinventory', 'uses' => 'InventoryController@remove']);
+  Route::get('inventory/getremoveinventory/{id}', ['as' => 'inventory.getremoveinventory', 'uses' => 'InventoryController@getRemove']);
+  Route::post('inventory/postremoveinventory/{id}', ['as' => 'inventory.postremoveinventory', 'uses' => 'InventoryController@postRemove']);
 
   Route::post('barang/', ['as' => 'barang/', 'uses' => 'BarangController@postQuantityAmount']);
 });

@@ -1,8 +1,12 @@
 @extends('layouts.xana.layout')
 @section('title')
-	Home
+	Create Inventory
 @stop
 
 @section('content')
+
+@stop
+
+@section('script')
 
 @stop

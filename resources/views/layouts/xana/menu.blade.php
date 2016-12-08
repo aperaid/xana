@@ -37,7 +37,7 @@
         <li <?php if (0){ ?> class="active" <?php } ?>><a href="{{route('customer.index')}}"><i class="fa fa-list-alt"></i> <span>Invoice</span></a></li>
       </ul>
     </li>
-    <li class="treeview @if ($top_menu_sel=="menu_view" ||  $top_menu_sel=="menu_adjustment" || $top_menu_sel=="menu_transfer" || $top_menu_sel=="menu_register" || $top_menu_sel=="menu_registerwarehouse") active @endif ">
+    <li class="treeview @if ($top_menu_sel=="menu_view" ||  $top_menu_sel=="menu_adjustment" || $top_menu_sel=="menu_transfer" || $top_menu_sel=="menu_register" || $top_menu_sel=="menu_remove") active @endif ">
       <a href="#">
         <i class="fa fa-archive"></i>
         <span>Inventori</span>
@@ -46,9 +46,10 @@
       <ul class="treeview-menu">
         <li @if ($top_menu_sel=="menu_view") class="active" @endif ><a href="{{route('inventory.viewinventory')}}"><i class="fa fa-folder-open-o"></i> <span>Lihat Stok</span></a></li>
         <li @if ($top_menu_sel=="menu_adjustment") class="active" @endif ><a href="{{route('inventory.adjustinventory')}}"><i class="fa fa-database"></i> <span>Penyesuaian Stok</span></a></li>
-        <li @if ($top_menu_sel=="menu_transfer") class="active" @endif ><a href="{{route('customer.index')}}"><i class="fa fa-exchange"></i> <span>Transfer Antar Gudang</span></a></li>
+        <li @if ($top_menu_sel=="menu_transfer") class="active" @endif ><a href="{{route('inventory.transferinventory')}}"><i class="fa fa-exchange"></i> <span>Transfer Antar Gudang</span></a></li>
         <li @if ($top_menu_sel=="menu_register") class="active" @endif ><a href="{{route('inventory.registerinventory')}}"><i class="fa fa-cubes"></i> <span>Daftar Barang</span></a></li>
-        <li @if ($top_menu_sel=="menu_registerwarehouse") class="active" @endif ><a href="{{route('customer.index')}}"><i class="fa fa-industry"></i> <span>Daftar Gudang</span></a></li>
+        <li @if ($top_menu_sel=="menu_remove") class="active" @endif ><a href="{{route('inventory.removeinventory')}}"><i class="fa fa-trash"></i> <span>Hapus Barang</span></a></li>
+        <!--<li @if ($top_menu_sel=="menu_registerwarehouse") class="active" @endif ><a href="{{route('customer.index')}}"><i class="fa fa-industry"></i> <span>Daftar Gudang</span></a></li>-->
       </ul>
     </li>
     <li class="treeview <?php if (0) { ?> active <?php } ?>">

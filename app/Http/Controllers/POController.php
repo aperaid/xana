@@ -89,8 +89,9 @@ class POController extends Controller
       $maxid = $transaksi -> maxid;
     }
     
-    $penawarans = Penawaran::where('penawaran.Penawaran', $penawaran)
-    ->orderBy('id', 'asc')
+    $penawarans = Penawaran::leftJoin('inventory', 'penawaran.ICode', '=', 'inventory.Code')
+    ->where('penawaran.Penawaran', $penawaran)
+    ->orderBy('penawaran.id', 'asc')
     ->get();
     
     $po = PO::select([
@@ -267,7 +268,9 @@ class POController extends Controller
   public function edit($id)
   {
     $po = PO::find($id);
-    $transaksis = Transaksi::where('transaksi.POCode', $po -> POCode)
+    $transaksis = Transaksi::select('transaksi.*', 'inventory.Type')
+    ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
+    ->where('transaksi.POCode', $po -> POCode)
     ->get();
     $maxtransaksi = Transaksi::select([
       'transaksi.Reference',

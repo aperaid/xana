@@ -53,10 +53,12 @@ class InventoryController extends Controller
   {
     $adjust = Inventory::find($id);
 
+    $adjust->JualPrice = str_replace(".","",substr($request->JualPrice, 3));
     $adjust->Price = str_replace(".","",substr($request->Price, 3));
-    $adjust->Jumlah = $request->Jumlah;
-    $adjust->Type = $request->Type;
-    $adjust->Warehouse = $request->Warehouse;
+    $adjust->Kumbang = $request->Kumbang;
+    $adjust->BulakSereh = $request->BulakSereh;
+    $adjust->Legok = $request->Legok;
+    $adjust->CitraGarden = $request->CitraGarden;
     $adjust->save();
     
     $history = new History;
@@ -65,6 +67,19 @@ class InventoryController extends Controller
     $history->save();
 
     return redirect()->route('inventory.adjustinventory');
+  }
+  
+  public function getTransfer()
+  {
+    $transfer = Inventory::orderby('id', 'desc')
+    ->first();
+    
+    return view('pages.inventory.transferinventory')
+    ->with('url', 'transferinventory')
+    ->with('transfer', $transfer)
+    ->with('top_menu_sel', 'menu_transfer')
+    ->with('page_title', 'Transfer Inventory')
+    ->with('page_description', 'Index');
   }
   
   public function getRegister()
@@ -82,11 +97,40 @@ class InventoryController extends Controller
 
   public function postRegister(Request $request)
   {
-
-    $inputs = $request->all();
+    $maxinventory = Inventory::select([
+      'inventory.*',
+      DB::raw('MAX(inventory.id) AS maxid')
+    ])
+    ->first();
+    
+    $input = $request->all();
+    $type = array("Baru", "Lama");
+    $code = array($input['Code']."B", $input['Code']."L");
+    $kumbang = array($input['Kumbang'], 0);
+    $bulaksereh = array($input['BulakSereh'], 0);
+    $legok = array($input['Legok'], 0);
+    $citragarden = array($input['CitraGarden'], 0);
+    
+    $inventories = $type;
+    foreach ($inventories as $key => $inventory)
+    {
+      $inventory = new Inventory;
+      $inventory->id = $maxinventory->maxid+$key+1;
+      $inventory->Code = $code[$key];
+      $inventory->Barang = $input['Barang'];
+      $inventory->JualPrice = str_replace(".","",substr($request->JualPrice, 3));
+      $inventory->Price = str_replace(".","",substr($request->Price, 3));
+      $inventory->Type = $type[$key];
+      $inventory->Kumbang = $kumbang;
+      $inventory->BulakSereh = $bulaksereh;
+      $inventory->Legok = $legok;
+      $inventory->CitraGarden = $citragarden;
+      $inventory->save();
+    }
+    
+    /*$inputs['JualPrice'] = str_replace(".","",substr($request->JualPrice, 3));
     $inputs['Price'] = str_replace(".","",substr($request->Price, 3));
-
-    $register = Inventory::Create($inputs);
+    $register = Inventory::Create($inputs);*/
 
     $history = new History;
     $history->User = Auth::user()->name;
@@ -94,5 +138,33 @@ class InventoryController extends Controller
     $history->save();
     
     return redirect()->route('inventory.viewinventory');
+  }
+  
+  public function remove()
+  {
+    $removes = Inventory::groupBy('Barang')
+    ->get();
+
+    return view('pages.inventory.removeinventory')
+    ->with('url', 'removeinventory')
+    ->with('removes', $removes)
+    ->with('top_menu_sel', 'menu_remove')
+    ->with('page_title', 'Remove Inventory')
+    ->with('page_description', 'Index');
+  }
+  
+  public function getRemove($id)
+    {
+      return view('pages.inventory.getremoveinventory')
+      ->with('id', $id);
+    }
+  
+  public function postRemove($id)
+  {
+    $inventory = Inventory::find($id);
+    
+    Inventory::where('Barang', $inventory->Barang)->delete();
+    
+    return redirect()->route('inventory.removeinventory');
   }
 }

@@ -497,6 +497,7 @@ class SJKirimController extends Controller
         'transaksi.Barang',
         'transaksi.JS',
         'transaksi.QSisaKir',
+        'transaksi.Warehouse',
         'project.Project',
       ])
       ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')

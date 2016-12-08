@@ -230,11 +230,6 @@ class SJKembaliController extends Controller
       ->orderBy('periode.id', 'asc')
       ->get();
       
-      $inventory = Inventory::all();
-      $warehouse = Inventory::groupBy('Warehouse')
-      ->orderBy('id', 'asc')
-      ->pluck('Warehouse', 'Warehouse');
-      
       if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
         return view('pages.sjkembali.create3')
         ->with('url', 'sjkembali')
@@ -244,7 +239,6 @@ class SJKembaliController extends Controller
         ->with('isisjkembali', $isisjkembali)
         ->with('maxperiode', $maxperiode)
         ->with('maxisisjkem', $maxisisjkem)
-        ->with(compact('warehouse'))
         ->with('top_menu_sel', 'menu_sjkembali')
         ->with('page_title', 'Surat Jalan Kembali')
         ->with('page_description', 'Item');
@@ -265,7 +259,7 @@ class SJKembaliController extends Controller
         'Reference' => $Reference,
       ]);
       
-      $maxperiodeid = Periode::select([
+      $maxid = Periode::select([
         DB::raw('MAX(periode.id) AS maxid')
       ])
       ->where('periode.Reference', $Reference)
@@ -274,22 +268,25 @@ class SJKembaliController extends Controller
       ->orderBy('periode.id', 'desc')
       ->pluck('periode.maxid');
       
-      $periodes = Periode::whereIn('periode.id', $maxperiodeid)
+      $periodes = Periode::whereIn('periode.id', $maxid)
       ->where('periode.Reference', $Reference)
       ->orderBy('periode.id', 'asc')
       ->get();
-      $id = $periodes->pluck('id');
       $start = $periodes->pluck('S');
       $quantity = $periodes->pluck('Quantity');
       $isisjkir = $periodes->pluck('IsiSJKir');
       $purchase = $periodes->pluck('Purchase');
       
+      $periodeid = Periode::select([
+        DB::raw('MAX(periode.id) AS maxid')
+      ])
+      ->first();
+      
       $input = Input::all();
-      $periodes = $id;
       foreach ($periodes as $key => $periode)
       {
         $periode = new Periode;
-        $periode->id = $id[$key]+count($periodes);
+        $periode->id = $periodeid->maxid+$key+1;
         $periode->Periode = $input['Periode'];
         $periode->S = $start[$key];
         $periode->E = $Tgl;
@@ -313,22 +310,41 @@ class SJKembaliController extends Controller
         DB::select('CALL insert_sjkembali(?,?,?,?)',array($input['QTertanda'][$key], $input['Purchase'][$key], $input['Periode'], $SJKem));
       }
       
+      DB::select('CALL insert_sjkembali2');
+      /*$delpurchase = IsiSJKembali::whereNull('Warehouse')
+      ->pluck('Purchase');
+      
+      IsiSJKembali::whereIn('Purchase', $delpurchase)
+      ->where('SJKem', $SJKem)
+      ->delete();
+      
+      Periode::whereIn('Purchase', $delpurchase)
+      ->where('SJKem', $SJKem)
+      ->delete();*/
+      
+      $isisjkembaliid = IsiSJKembali::select([
+        DB::raw('MAX(isisjkembali.id) AS maxid')
+      ])
+      ->first();
+      
       $periode2s = Periode::where('periode.SJKem', $SJKem)
       ->orderBy('periode.id', 'asc')
       ->get();
       $qtertanda = $periode2s->pluck('Quantity');
+      $isisjkir2 = $periode2s->pluck('IsiSJKir');
+      $purchase2 = $periode2s->pluck('Purchase');
       
-      $isisjkembalis = $id;
+      $isisjkembalis = $purchase2;
       foreach ($isisjkembalis as $key => $isisjkembali)
       {
         $isisjkembali = new IsiSJKembali;
-        $isisjkembali->id = $input['isisjkembaliid']+$key;
-        $isisjkembali->IsiSJKem = $input['IsiSJKem']+$key;
+        $isisjkembali->id = $isisjkembaliid->maxid+$key+1;
+        $isisjkembali->IsiSJKem = $isisjkembaliid->maxid+$key+1;
         $isisjkembali->QTertanda = $qtertanda[$key];
-        $isisjkembali->Purchase = $purchase[$key];
+        $isisjkembali->Purchase = $purchase2[$key];
         $isisjkembali->SJKem = $SJKem;
         $isisjkembali->Periode = $input['Periode'];
-        $isisjkembali->IsiSJKir = $isisjkir[$key];
+        $isisjkembali->IsiSJKir = $isisjkir2[$key];
         $isisjkembali->save();
       }
       
@@ -339,26 +355,14 @@ class SJKembaliController extends Controller
         ->update(['Warehouse' => $input['Warehouse'][$key]]);
       }
       
-      //DB::select('CALL insert_sjkembali2');
-      $delpurchase = IsiSJKembali::whereNull('Warehouse')
-      ->pluck('Purchase');
-      
-      IsiSJKembali::whereIn('Purchase', $delpurchase)
-      ->where('SJKem', $SJKem)
-      ->delete();
-      
-      Periode::whereIn('Purchase', $delpurchase)
-      ->where('SJKem', $SJKem)
-      ->delete();
-      
       $history = new History;
       $history->User = Auth::user()->name;
       $history->History = 'Create SJKembali on SJKem '.$SJKem;
       $history->save();
 
-      Session::forget('SJKem');
-      Session::forget('Tgl');
-      Session::forget('Reference');
+      //Session::forget('SJKem');
+      //Session::forget('Tgl');
+      //Session::forget('Reference');
       
     	return redirect()->route('sjkembali.index');
     }
@@ -473,11 +477,6 @@ class SJKembaliController extends Controller
       ->groupBy('isisjkembali.Purchase')
       ->orderBy('isisjkembali.id', 'asc')
       ->get();
-      
-      $inventory = Inventory::all();
-      $warehouse = Inventory::groupBy('Warehouse')
-      ->orderBy('id', 'asc')
-      ->pluck('Warehouse', 'Warehouse');
 
       if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
         return view('pages.sjkembali.edit')
@@ -486,7 +485,6 @@ class SJKembaliController extends Controller
         ->with('TglMin', $TglMin)
         ->with('TglMax', $TglMax)
         ->with('isisjkembalis', $isisjkembalis)
-        ->with(compact('warehouse'))
         ->with('top_menu_sel', 'menu_sjkembali')
         ->with('page_title', 'Surat Jalan Kembali')
         ->with('page_description', 'Edit');
@@ -758,6 +756,7 @@ class SJKembaliController extends Controller
       $periode = Periode::where('periode.SJKem', $sjkembali->SJKem);
       $quantity = $periode->pluck('Quantity');
       $isisjkembali = IsiSJKembali::where('isisjkembali.SJKem', $sjkembali->SJKem);
+      $warehouse = $isisjkembali->pluck('Warehouse');
       $purchase = $isisjkembali->pluck('Purchase');
       $isisjkir = $isisjkembali->pluck('IsiSJKir');
       $qterima = $isisjkembali->pluck('QTerima');
@@ -769,16 +768,16 @@ class SJKembaliController extends Controller
       $inventories = $barang;
       foreach ($inventories as $key => $inventory)
       {
-        if($input['Warehouse'][$key] == 'Kumbang'){
+        if($warehouse[$key] == 'Kumbang'){
           $warehouse = 'Kumbang';
-        }elseif($input['Warehouse'][$key] == 'BulakSereh'){
+        }elseif($warehouse[$key] == 'BulakSereh'){
           $warehouse = 'BulakSereh';
-        }elseif($input['Warehouse'][$key] == 'Legok'){
+        }elseif($warehouse[$key] == 'Legok'){
           $warehouse = 'Legok';
-        }elseif($input['Warehouse'][$key] == 'CitraGarden'){
+        }elseif($warehouse[$key] == 'CitraGarden'){
           $warehouse = 'CitraGarden';
         }
-        $data = Inventory::where('Barang', $input['Barang'][$key])
+        $data = Inventory::where('Barang', $barang[$key])
         ->where('Type', 'Lama')
         ->first();
         $data->update([$warehouse => $data->$warehouse - $qterima[$key]]);

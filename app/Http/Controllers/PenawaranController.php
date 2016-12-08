@@ -116,8 +116,10 @@ class PenawaranController extends Controller
   public function edit($id)
   {
     $penawaran = Penawaran::find($id);
-    $penawarans = Penawaran::where('penawaran.Penawaran', $penawaran -> Penawaran)
-    ->orderBy('id', 'asc')
+    $penawarans = Penawaran::select('penawaran.*', 'inventory.Type')
+    ->leftJoin('inventory', 'penawaran.ICode', '=', 'inventory.Code')
+    ->where('penawaran.Penawaran', $penawaran -> Penawaran)
+    ->orderBy('penawaran.id', 'asc')
     ->get();
     $maxpenawaran = Penawaran::select([
       'penawaran.*',
