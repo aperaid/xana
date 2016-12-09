@@ -89,7 +89,8 @@ class POController extends Controller
       $maxid = $transaksi -> maxid;
     }
     
-    $penawarans = Penawaran::leftJoin('inventory', 'penawaran.ICode', '=', 'inventory.Code')
+    $penawarans = Penawaran::select('penawaran.*', 'inventory.Type')
+    ->leftJoin('inventory', 'penawaran.ICode', '=', 'inventory.Code')
     ->where('penawaran.Penawaran', $penawaran)
     ->orderBy('penawaran.id', 'asc')
     ->get();
