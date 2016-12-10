@@ -24,6 +24,7 @@
                 <th>Periode</th>
                 <th>Company</th>
                 <th>Tgl Invoice</th>
+                <th>Reference</th>
                 <th width="10%">Status</th>
               </tr>
             </thead>
@@ -37,6 +38,7 @@
                 <td>{{$invoices->Periode}}</td>
                 <td>{{$invoices->Company}}</td>
                 <td>{{$invoices->Tgl}}</td>
+                <td>{{$invoices->Reference}}</td>
                 <td>
                   @if($invoices->Lunas==0)
                     <a href="{{route('invoice.lunas', $invoices->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
@@ -59,6 +61,7 @@
                 <th>Project</th>
                 <th>Company</th>
                 <th>Tgl Invoice</th>
+                <th>Reference</th>
                 <th width="10%">Status</th>
               </tr>
             </thead>
@@ -71,6 +74,7 @@
                 <td>{{$invoicej->Project}}</td>
                 <td>{{$invoicej->Company}}</td>
                 <td>{{$invoicej->Tgl}}</td>
+                <td>{{$invoicej->Reference}}</td>
                 <td>
                   @if($invoicej->Lunas==0)
                     <a href="{{route('invoice.lunas', $invoicej->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
@@ -93,6 +97,7 @@
                 <th>Project</th>
                 <th>Company</th>
                 <th>Tgl Invoice</th>
+                <th>Reference</th>
                 <th width="10%">Status</th>
               </tr>
             </thead>
@@ -105,6 +110,7 @@
                 <td>{{$invoicec->Project}}</td>
                 <td>{{$invoicec->Company}}</td>
                 <td>{{$invoicec->Tgl}}</td>
+                <td>{{$invoicec->Reference}}</td>
                 <td>
                   @if($invoicec->Lunas==0)
                     <a href="{{route('invoice.lunas', $invoicec->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>

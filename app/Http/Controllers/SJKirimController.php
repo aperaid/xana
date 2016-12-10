@@ -602,16 +602,16 @@ class SJKirimController extends Controller
       $inventories = $icode;
       foreach ($inventories as $key => $inventory)
       {
-        if($input['Warehouse'][$key] == 'Kumbang'){
+        if($warehouse[$key] == 'Kumbang'){
           $warehouse = 'Kumbang';
-        }elseif($input['Warehouse'][$key] == 'BulakSereh'){
+        }elseif($warehouse[$key] == 'BulakSereh'){
           $warehouse = 'BulakSereh';
-        }elseif($input['Warehouse'][$key] == 'Legok'){
+        }elseif($warehouse[$key] == 'Legok'){
           $warehouse = 'Legok';
-        }elseif($input['Warehouse'][$key] == 'CitraGarden'){
+        }elseif($warehouse[$key] == 'CitraGarden'){
           $warehouse = 'CitraGarden';
         }
-        $data = Inventory::where('Code', $input['ICode'][$key])
+        $data = Inventory::where('Code', $icode[$key])
         ->first();
         $data->update([$warehouse => $data->$warehouse + $qkirim[$key]]);
       }
