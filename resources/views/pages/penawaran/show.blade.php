@@ -66,7 +66,6 @@
             <tr>
               <th>ICode</th>
               <th>Barang</th>
-              <th>Warehouse</th>
               <th>J/S</th>
               <th>Quantity</th>
               <th>Price/Unit</th>
@@ -77,7 +76,6 @@
             <tr>
               <td>{{ $penawaran -> ICode }}</td>
               <td>{{ $penawaran -> Barang }}</td>
-              <td>{{ $penawaran -> Warehouse }}</td>
               <td>{{ $penawaran -> JS }}</td>
               <td>{{ $penawaran -> Quantity }}</td>
               <td>{{ 'Rp '. number_format( $penawaran -> Amount, 2,',', '.' ) }}</td>

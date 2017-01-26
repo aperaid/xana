@@ -36,17 +36,17 @@
             </div>
             {!! Form::label('City', 'City', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-2">
-              {!! Form::text('ProjKota', null, array('class' => 'form-control', 'placeholder' => 'Jakarta', 'autocomplete' => 'off', 'required')) !!}
+              {!! Form::text('ProjKota', null, array('class' => 'form-control', 'placeholder' => 'Jakarta', 'autocomplete' => 'off')) !!}
             </div>
             {!! Form::label('Zip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-2">
-              {!! Form::text('ProjZip', null, array('class' => 'form-control', 'placeholder' => '10203', 'autocomplete' => 'off', 'required')) !!}
+              {!! Form::number('ProjZip', null, array('class' => 'form-control', 'placeholder' => '10203', 'autocomplete' => 'off')) !!}
             </div>
           </div>
           <div class="form-group">
             {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5')) !!}
             </div>
           </div>
         </div>

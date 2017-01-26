@@ -43,13 +43,14 @@
         </div>
         <div class="form-group">
           {!! Form::label('Project Code', 'Project Code') !!}
-          {!! Form::text('PCode', null, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+          {!! Form::text('PCode', null, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'maxlength' => '5', 'style' => 'text-transform: uppercase', 'required')) !!}
           <p class="help-block">Enter the beginning of the Project Code, then pick from the dropdown</p>
         </div>
       </div>
       <!-- box body -->
       <div class="box-footer">
         {!! Form::submit('Create',  array('class' => 'btn btn-info pull-right')) !!}
+        {{ Form::button('Create Customer & Project', array('id' => 'customerproject', 'class' => 'btn btn-success pull-right', 'style' => 'margin-right: 5px')) }}
         <a href="{{route('reference.index')}}"><button type="button" class="btn btn-default pull-Left">Cancel</button></a>
       </div>
       <!-- box footer -->
@@ -60,6 +61,165 @@
 </div>
 <!-- row -->
 {!! Form::close() !!}
+
+<div class="modal fade" id="customerprojectmodal">
+  <div class="modal-dialog modal-lg">
+  <!-- form start -->
+  {!! Form::open(['id' => 'customerprojectform', 'name' => 'customerprojectform']) !!}
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Project Detail</h3>
+      </div>
+      <!-- box-header -->
+      <div class="form-horizontal">
+        <div class="box-body">
+          {!! Form::hidden('projectid', $project_id, ['id' => 'projectid']) !!}
+          <div class="form-group">
+            {!! Form::label('Project Code', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
+              {!! Form::text('PCode2', null, array('class' => 'form-control', 'id' => 'PCode2', 'placeholder' => 'PRO01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '5', 'required')) !!}
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Project Name', 'Project Name', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-6">
+              {!! Form::text('Project', null, array('class' => 'form-control', 'id' => 'Project', 'placeholder' => 'Project Name', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'required')) !!}
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Project Address', 'Project Address', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
+              {!! Form::text('ProjAlamat', null, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off')) !!}
+            </div>
+            {!! Form::label('City', 'City', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-2">
+              {!! Form::text('ProjKota', null, array('class' => 'form-control', 'placeholder' => 'Jakarta', 'autocomplete' => 'off')) !!}
+            </div>
+            {!! Form::label('Zip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-2">
+              {!! Form::number('ProjZip', null, array('class' => 'form-control', 'placeholder' => '10203', 'autocomplete' => 'off')) !!}
+            </div>
+          </div>
+        </div>
+        <!-- box body -->
+      </div>
+      <!-- form-horizontal -->
+      <!-- /.box-header -->
+      <div class="box-header with-border">
+        <h3 class="box-title">Customer Details</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="box-body">
+        <div class="form-horizontal">
+          {!! Form::hidden('customerid', $customer_id, ['id' => 'customerid']) !!}
+          <div class="form-group">
+            {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
+              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '5', 'required')) !!}
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Company Name', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-6">
+              {!! Form::text('Company', null, array('class' => 'form-control', 'id' => 'Company', 'placeholder' => 'PT. COMPANY', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'required')) !!}
+            </div>
+            {!! Form::label('NPWP', 'NPWP', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-legal"></i></span>
+                {!! Form::number('NPWP', null, array('class' => 'form-control', 'placeholder' => '12.456.789.0-012.123', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Company Address', 'Company Address', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
+              {!! Form::text('CompAlamat', null, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off')) !!}
+            </div>
+            {!! Form::label('City', 'City', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-2">
+              {!! Form::text('CompKota', null, array('class' => 'form-control', 'placeholder' => 'Jakarta', 'autocomplete' => 'off')) !!}
+            </div>
+            {!! Form::label('Zip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-2">
+              {!! Form::number('CompZip', null, array('class' => 'form-control', 'placeholder' => '10203', 'autocomplete' => 'off')) !!}
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Company Phone', 'Company Phone', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-2">
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-phone"></i>
+                </div>
+                {!! Form::text('CompPhone', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+            {!! Form::label('Fax', 'Fax', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-fax"></i>
+                </div>
+                {!! Form::text('Fax', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+            {!! Form::label('Email', 'Email', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                {!! Form::text('CompEmail', null, array('class' => 'form-control', 'placeholder' => 'company@email.co.id', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div class="form-group">
+            {!! Form::label('Contact Person', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-6">
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-user"></i>
+                </div>
+                {!! Form::text('Customer', null, array('class' => 'form-control', 'placeholder' => 'CP Name', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Phone CP', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-2">
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-phone"></i>
+                </div>
+                {!! Form::text('CustPhone', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+            {!! Form::label('Email CP', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                {!! Form::text('CustEmail', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="box-footer">
+        {{ Form::button('Close', array('class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal')) }}
+        {!! Form::submit('Create',  array('class' => 'btn btn-info pull-right')) !!}
+      </div>
+      <!-- /.box-footer -->
+      <div class="overlay loading" hidden>
+        <i class="fa fa-refresh fa-spin"></i>
+      </div>
+      <!-- /.box-loading -->
+    </div>
+    <!-- /.box -->
+  {!! Form::close() !!}
+  </div>
+</div>
 @stop
 
 @section('script')
@@ -75,10 +235,26 @@
   }); 
 </script>
 <script>
-  function capital() {
-    var x = document.getElementById("PCode");
-    x.value = x.value.toUpperCase();
-  }
+//When create customer is clicked
+$("#customerproject").click(function(){
+  //Toggle the modal
+  $('#customerprojectmodal').modal('toggle');
+});
+
+//When customer form is submitted
+$("#customerprojectform").submit(function(event){
+  $(".loading").show();
+  $.post( "customerproject",{ "_token": "{{ csrf_token() }}", projectid: $("#projectid").val(), PCode: $("#PCode2").val(), Project: $("#Project").val(), ProjAlamat: $("#ProjAlamat").val(), ProjZip: $("#ProjZip").val(), ProjKota: $("#ProjKota").val(), customerid: $("#customerid").val(), CCode: $("#CCode").val(), Company: $("#Company").val(), Customer: $("#Customer").val(), CompAlamat:$("#CompAlamat").val(), CompZip: $("#CompZip").val(), CompKota: $("#CompKota").val(), CompPhone: $("#CompPhone").val(), CompEmail: $("#CompEmail").val(), CustPhone: $("#CustPhone").val(), CustEmail: $("#CustEmail").val(), Fax: $("#Fax").val(), NPWP: $("#NPWP").val() }, function( data ) {})
+  .done(function(data){
+    location.reload();
+    $('#customerprojectmodal').modal('toggle');
+    $(".loading").hide();
+  })
+  .fail(function(data) {
+    alert("Failed");
+  });
+  event.preventDefault();
+});
 </script>
 <script>
   $(function() {

@@ -48,6 +48,15 @@
           </div>
         </div>
         <div class="form-group">
+          {!! Form::label('Discount(%)', 'Discount(%)') !!}
+          <div class="input-group">
+            <div class="input-group-addon">
+              <i class="fa fa-calendar"></i>
+            </div>
+            {!! Form::number('Discount', $po -> Discount, array('id' => 'Discount', 'class' => 'form-control', 'readonly')) !!}
+          </div>
+        </div>
+        <div class="form-group">
           {!! Form::label('Catatan', 'Catatan') !!}
           {!! Form::textarea('Catatan', $po -> Catatan, array('class' => 'form-control', 'readonly')) !!}
         </div>
@@ -69,7 +78,6 @@
             <tr>
               <th>ICode</th>
               <th>Barang</th>
-              <th>Warehouse</th>
               <th>J/S</th>
               <th>Quantity</th>
               <th>Price/Unit</th>
@@ -80,7 +88,6 @@
             <tr>
               <td>{{ $transaksi -> ICode }}</td>
               <td>{{ $transaksi -> Barang }}</td>
-              <td>{{ $transaksi -> Warehouse }}</td>
               <td>{{ $transaksi -> JS }}</td>
               <td>{{ $transaksi -> Quantity }}</td>
               <td>{{ 'Rp '. number_format( $transaksi -> Amount, 2,',', '.' ) }}</td>

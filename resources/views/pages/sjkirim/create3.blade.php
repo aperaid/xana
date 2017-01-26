@@ -17,6 +17,7 @@
               <th>J/S</th>
               <th>Barang</th>
               <th>Warehouse</th>
+              <th>Stock</th>
               <th>Q Sisa Kirim</th>
               <th>Q Kirim</th>
             </tr>
@@ -34,11 +35,13 @@
               {!! Form::hidden('Reference[]', $transaksi->Reference) !!}
               {!! Form::hidden('Purchase[]', $transaksi->Purchase) !!}
               {!! Form::hidden('ICode[]', $transaksi->ICode) !!}
+              <td hidden>{!! Form::text('Type[]', $transaksi->Type, array('class' => 'form-control Type')) !!}</td>
               <td>{!! Form::text('JS[]', $transaksi->JS, array('class' => 'form-control', 'readonly')) !!}</td>
-              <td>{!! Form::text('Barang[]', $transaksi->Barang, array('class' => 'form-control', 'readonly')) !!}</td>
-              <td>{!! Form::text('Warehouse[]', $transaksi->Warehouse, array('class' => 'form-control', 'readonly')) !!}</td>
+              <td>{!! Form::text('Barang[]', $transaksi->Barang, array('class' => 'form-control Barang', 'readonly')) !!}</td>
+              <td>{!! Form::select('Warehouse[]', ['Kumbang'=>'Kumbang', 'BulakSereh'=>'Bulak Sereh', 'Legok'=>'Legok', 'CitraGarden'=>'Citra Garden'], null, ['class' => 'form-control Warehouse']) !!}</td>
+              <td>{!! Form::number('Stock[]', $transaksi->Kumbang, ['class' => 'form-control Stock', 'readonly']) !!}</td>
               <td>{!! Form::text('QSisaKirInsert[]', $transaksi->QSisaKirInsert, array('class' => 'form-control', 'readonly')) !!}</td>
-              <td><input name="QKirim[]" type="number" class="form-control" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $transaksi->QSisaKirInsert }})" value="{{ $transaksi->QSisaKirInsert }}" required></td>
+              <td><input name="QKirim[]" type="number" class="form-control QKirim" placeholder="1000" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $transaksi->QSisaKirInsert }})" value="{{ $transaksi->QSisaKirInsert }}" required></td>
             </tr>
             @endforeach
           </tbody>
@@ -54,9 +57,9 @@
         </thead>
         <tbody>
           <tr>
-            <td>{!! Form::text('NoPolisi', null, array('id' => 'NoPolisi', 'class' => 'form-control', 'autocomplete' => 'off', 'onkeyup' => 'capital()', 'required')) !!}</td>
-            <td>{!! Form::text('Sopir', null, array('class' => 'form-control', 'autocomplete' => 'off', 'required')) !!}</td>
-            <td>{!! Form::text('Kenek', null, array('class' => 'form-control', 'autocomplete' => 'off', 'required')) !!}</td>
+            <td>{!! Form::text('NoPolisi', null, array('id' => 'NoPolisi', 'class' => 'form-control', 'autocomplete' => 'off', 'onkeyup' => 'capital()')) !!}</td>
+            <td>{!! Form::text('Sopir', null, array('class' => 'form-control', 'autocomplete' => 'off')) !!}</td>
+            <td>{!! Form::text('Kenek', null, array('class' => 'form-control', 'autocomplete' => 'off')) !!}</td>
           </tr>
         </tbody>
       </table>
@@ -89,5 +92,54 @@ function minmax(value, min, max)
     var x = document.getElementById("NoPolisi");
     x.value = x.value.toUpperCase();
   }
+</script>
+<script>
+  $(document).on('click autocompletechange mouseenter mouseleave', '.QKirim, .Warehouse', function(){
+    var this2 = this;
+    $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+    .done(function(data){
+      result = $.parseJSON(data);
+      if($(this2).closest('tr').find(".Warehouse").val() == 'Kumbang'){
+        var jumlah = result.Kumbang
+      }else if($(this2).closest('tr').find(".Warehouse").val() == 'BulakSereh'){
+        var jumlah = result.BulakSereh
+      }else if($(this2).closest('tr').find(".Warehouse").val() == 'Legok'){
+        var jumlah = result.Legok
+      }else if($(this2).closest('tr').find(".Warehouse").val() == 'CitraGarden'){
+        var jumlah = result.CitraGarden
+      }
+      $(this2).closest('tr').find(".Stock").val(jumlah);
+    })
+    .fail(function(data){
+      if( data.status === 500 ) {
+        console.log("Barang tak ditemukan");
+      }
+    });
+  });
+  
+  $(document).on('keyup', '.QKirim, .Warehouse', function(e){
+      var this2 = this;
+      if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
+        $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+        .done(function(data){
+          result = $.parseJSON(data);
+          if($(this2).closest('tr').find(".Warehouse").val() == 'Kumbang'){
+            var jumlah = result.Kumbang
+          }else if($(this2).closest('tr').find(".Warehouse").val() == 'BulakSereh'){
+            var jumlah = result.BulakSereh
+          }else if($(this2).closest('tr').find(".Warehouse").val() == 'Legok'){
+            var jumlah = result.Legok
+          }else if($(this2).closest('tr').find(".Warehouse").val() == 'CitraGarden'){
+            var jumlah = result.CitraGarden
+          }
+          $(this2).closest('tr').find(".Stock").val(jumlah);
+        })
+        .fail(function(data){
+          if( data.status === 500 ) {
+            console.log("Barang tak ditemukan");
+          }
+        });
+      }
+    });
 </script>
 @stop

@@ -23,20 +23,6 @@
                                 @endif
                             </div>
                         </div>
-						
-						<div class="form-group{{ $errors->has('username') ? ' has-error' : '' }}">
-						   <label class="col-md-4 control-label">Username</label>
-
-							<div class="col-md-6">
-							   <input type="text" class="form-control" name="username" value="{{ old('username') }}">
-
-							   @if ($errors->has('username'))
-								  <span class="help-block">
-									 <strong>{{ $errors->first('username') }}</strong>
-								  </span>
-							   @endif
-							</div>
-						</div>
 
                         <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
                             <label for="email" class="col-md-4 control-label">E-Mail Address</label>
@@ -118,7 +104,7 @@
 <SCRIPT language="JavaScript">
 /*
 var password;
-var pass1="aperaxanamedit";
+var pass1="aperaxana";
 password=prompt('Please enter your password to view this page!',' ');
 if (password==pass1)
   alert('Password Correct! Click OK to enter!');

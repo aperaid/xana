@@ -19,7 +19,7 @@
   </div>
 
   <div class="row invoice-info">
-    <div class="col-sm-4 invoice-col">
+    <div class="col-sm-3 invoice-col">
       Company
       <address>
         <strong>{{ $isisjkirim -> Company }}</strong><br>
@@ -29,7 +29,7 @@
         Email: {{ $isisjkirim -> CompEmail }}
       </address>
     </div>
-    <div class="col-sm-4 invoice-col">
+    <div class="col-sm-3 invoice-col">
       Project
       <address>
         <strong>{{ $isisjkirim -> Project }}</strong><br>
@@ -37,12 +37,20 @@
         {{ $isisjkirim -> ProjKota }},  {{ $isisjkirim -> ProjZip }}<br>
       </address>
     </div>
-    <div class="col-sm-4 invoice-col">
+    <div class="col-sm-3 invoice-col">
       Contact Person
       <address>
         <strong>{{ $isisjkirim -> Customer }}</strong><br>
         Phone: {{ $isisjkirim -> CustPhone }}<br>
         Email: {{ $isisjkirim -> CustEmail }}
+      </address>
+    </div>
+    <div class="col-sm-3 invoice-col">
+      No Polisi
+      <address>
+        <strong>{{ $isisjkirim -> NoPolisi }}</strong><br>
+        Sopir: {{ $isisjkirim -> Sopir }}<br>
+        Kenek: {{ $isisjkirim -> Kenek }}
       </address>
     </div>
   </div>

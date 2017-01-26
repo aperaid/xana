@@ -2,7 +2,7 @@
 
 error_reporting(E_ALL^E_NOTICE);
 
-$mysqli = new mysqli('localhost', 'root', '', 'scaffolding');
+$mysqli = new mysqli('localhost', 'root', '', 'xana');
 $text = $mysqli->real_escape_string($_GET['term']);
 
 $query = "SELECT PCode FROM project WHERE PCode LIKE '%$text%' ORDER BY PCode ASC";

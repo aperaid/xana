@@ -32,15 +32,15 @@
           <div class="form-group">
             {!! Form::label('Project Address', 'Project Address', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('ProjAlamat', $project->ProjAlamat, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
+              {!! Form::text('ProjAlamat', $project->ProjAlamat, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off', 'onKeyUp' => 'capital()')) !!}
             </div>
             {!! Form::label('City', 'City', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-2">
-              {!! Form::text('ProjKota', $project->ProjKota, array('class' => 'form-control', 'placeholder' => 'Jakarta', 'autocomplete' => 'off', 'required')) !!}
+              {!! Form::text('ProjKota', $project->ProjKota, array('class' => 'form-control', 'placeholder' => 'Jakarta', 'autocomplete' => 'off')) !!}
             </div>
             {!! Form::label('Zip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-2">
-              {!! Form::text('ProjZip', $project->ProjZip, array('class' => 'form-control', 'placeholder' => '10203', 'autocomplete' => 'off', 'required')) !!}
+              {!! Form::number('ProjZip', $project->ProjZip, array('class' => 'form-control', 'placeholder' => '10203', 'autocomplete' => 'off')) !!}
             </div>
           </div>
           <div class="form-group">

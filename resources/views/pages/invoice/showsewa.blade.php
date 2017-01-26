@@ -65,6 +65,7 @@
                 <th>Periode</th>
                 <th>I</th>
                 <th>Quantity</th>
+                <th>Discount(%)</th>
                 <th>Price/Unit</th>
                 <th>Total</th>
               </tr>
@@ -83,7 +84,8 @@
                 <td>{{$Days2[$key]}}</td>
                 <td>{{$I[$key]}}</td>
                 <td>{{$periode->SumQuantity}}</td>
-                <td>Rp {{ number_format($periode->Amount, 2, ',', '.') }}</td>
+                <td>{{$periode->Discount}}</td>
+                <td>Rp {{ number_format($periode->Amount-($periode->Amount*$periode->Discount/100), 2, ',', '.') }}</td>
                 <td>Rp {{ number_format($total2[$key], 2, ',', '.') }}</td>
               </tr>
               @endforeach

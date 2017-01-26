@@ -67,10 +67,8 @@
             <th width="1%"><a href="javascript:void(0);" id="addCF" class=" glyphicon glyphicon-plus"></a></th>
             <th>Barang</th>
             <th width="9%">ICode</th>
-            <th>Warehouse</th>
             <th>Type</th>
             <th>J/S</th>
-            <th width="7%">Stock</th>
             <th width="7%">Quantity</th>
             <th width="15%">Price/Unit</th>
           </thead>
@@ -109,7 +107,7 @@ $(function() {
 			if(x < max_fields){ //max input box allowed
 				x++; //text box count increment
 				y++;
-        $("#customFields").append('<tr><td align="center"><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="penawaranid[]" value="'+ y +'"><input type="hidden" name="Purchase[]" value="'+ y +'"><td>{!! Form::text('Barang[]', null, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', null, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Warehouse[]', ['Kumbang'=>'Kumbang', 'BulakSereh'=>'Bulak Sereh', 'Legok'=>'Legok', 'CitraGarden'=>'Citra Garden'], null, ['class' => 'form-control Warehouse']) !!}</td><td>{!! Form::select('Type[]', ['Baru' => 'Baru', 'Lama' => 'Lama'], null, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control JS']) !!}</td><td>{!! Form::number('Stock[]', null, ['class' => 'form-control Stock', 'readonly']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', null, ['class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+        $("#customFields").append('<tr><td align="center"><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="penawaranid[]" value="'+ y +'"><input type="hidden" name="Purchase[]" value="'+ y +'"><td>{!! Form::text('Barang[]', null, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', null, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['Baru' => 'Baru', 'Lama' => 'Lama'], null, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control JS']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', null, ['class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
       
         $(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
       
@@ -124,27 +122,17 @@ $(function() {
           console.log($(this).closest('tr').find(".Warehouse").val());
         });
         
-        $(document).on('click autocompletechange mouseleave', '.Barang, .Type, .Quantity, .Warehouse, .JS', function(){
+        $(document).on('click autocompletechange mouseleave', '.Barang, .Type, .Quantity, .JS', function(){
           var this2 = this;
           $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
           .done(function(data){
             result = $.parseJSON(data);
-            if($(this2).closest('tr').find(".Warehouse").val() == 'Kumbang'){
-              var jumlah = result.Kumbang
-            }else if($(this2).closest('tr').find(".Warehouse").val() == 'BulakSereh'){
-              var jumlah = result.BulakSereh
-            }else if($(this2).closest('tr').find(".Warehouse").val() == 'Legok'){
-              var jumlah = result.Legok
-            }else if($(this2).closest('tr').find(".Warehouse").val() == 'CitraGarden'){
-              var jumlah = result.CitraGarden
-            }
             if($(this2).closest('tr').find(".JS").val() == 'Jual'){
               var price = result.JualPrice
             }else{
               var price = result.Price
             }
             $(this2).closest('tr').find(".Amount").val('Rp '+price.toLocaleString().replace(/\,/g,'.'));
-            $(this2).closest('tr').find(".Stock").val(jumlah);
             $(this2).closest('tr').find(".ICode").val(result.Code);
           })
           .fail(function(data){
@@ -154,28 +142,18 @@ $(function() {
           });
         });
         
-        $(document).on('keyup', '.Barang, .Type, .Quantity, .Warehouse, .JS', function(e){
+        $(document).on('keyup', '.Barang, .Type, .Quantity, .JS', function(e){
           var this2 = this;
           if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
             $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
             .done(function(data){
               result = $.parseJSON(data);
-              if($(this2).closest('tr').find(".Warehouse").val() == 'Kumbang'){
-                var jumlah = result.Kumbang
-              }else if($(this2).closest('tr').find(".Warehouse").val() == 'BulakSereh'){
-                var jumlah = result.BulakSereh
-              }else if($(this2).closest('tr').find(".Warehouse").val() == 'Legok'){
-                var jumlah = result.Legok
-              }else if($(this2).closest('tr').find(".Warehouse").val() == 'CitraGarden'){
-                var jumlah = result.CitraGarden
-              }
               if($(this2).closest('tr').find(".JS").val() == 'Jual'){
                 var price = result.JualPrice
               }else{
                 var price = result.Price
               }
               $(this2).closest('tr').find(".Amount").val('Rp '+price.toLocaleString().replace(/\,/g,'.'));
-              $(this2).closest('tr').find(".Stock").val(jumlah);
               $(this2).closest('tr').find(".ICode").val(result.Code);
             })
             .fail(function(data){
@@ -187,12 +165,12 @@ $(function() {
         });
         
         $(document).on('keyup', '.Quantity', function(){
-          if(parseInt($(this).closest('tr').find(".Quantity").val()) < 0 || isNaN($(this).closest('tr').find(".Stock").val()))
+          if(parseInt($(this).closest('tr').find(".Quantity").val()) < 0)
             $(this).closest('tr').find(".Quantity").val(0);
-          if(parseInt($(this).closest('tr').find(".Quantity").val()) > $(this).closest('tr').find(".Stock").val())
+          /*if(parseInt($(this).closest('tr').find(".Quantity").val()) > $(this).closest('tr').find(".Stock").val())
             $(this).closest('tr').find(".Quantity").val($(this).closest('tr').find(".Stock").val());
           else
-            $(this).closest('tr').find(".Stock").val();
+            $(this).closest('tr').find(".Stock").val();*/
         });
 			}
 		});

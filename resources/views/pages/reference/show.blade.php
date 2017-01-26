@@ -73,6 +73,7 @@
 												<th>J/S</th>
 												<th>Item Name</th>
 												<th>Quantity</th>
+                        <th>Discount(%)</th>
 												<th>Price/Unit</th>
 												<th>Progress</th>
 												<th>Status</th>
@@ -85,7 +86,8 @@
 												<td>{{ $purchase -> JS }}</td>
 												<td>{{ $purchase -> Barang }}</td>
 												<td>{{ $purchase -> Quantity }}</td>
-												<td>Rp {{ number_format( $purchase -> Amount, 2,',', '.' ) }}</td>
+                        <td>{{ $purchase -> Discount }}</td>
+												<td>Rp {{ number_format( $purchase -> Amount-$purchase -> Amount*$purchase -> Discount/100, 2,',', '.' ) }}</td>
                           @if ( $purchase -> JS == "Sewa" ) <!-- Kalau SEWA -->
                             @if ( $purchase -> QSisaKir == $purchase -> Quantity && $purchase -> QSisaKem == 0 ) <!-- belum dikirim -->
                               <td>

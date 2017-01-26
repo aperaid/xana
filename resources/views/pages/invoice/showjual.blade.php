@@ -57,7 +57,8 @@
               <tr>
                 <th align="center">SJ Kirim</th>
                 <th align="center">Item</th>
-                <th>Quantity Kirim</th>
+                <th>Quantity</th>
+                <th>Discount(%)</th>
                 <th>Price/Unit</th>
                 <th>Total</th>
               </tr>
@@ -70,7 +71,8 @@
                 <td>{{$transaksi->SJKir}}</td>
                 <td>{{$transaksi->Barang}}</td>
                 <td>{{$transaksi->QKirim}}</td>
-                <td>Rp {{ number_format($transaksi->Amount, 2, ',', '.') }}</td>
+                <td>{{$transaksi->Discount}}</td>
+                <td>Rp {{ number_format($transaksi->Amount-$transaksi->Amount*$transaksi->Discount/100, 2, ',', '.') }}</td>
                 <td>Rp {{ number_format($total2[$key], 2,',','.') }}</td>
               </tr>
               @endforeach

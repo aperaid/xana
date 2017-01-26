@@ -77,7 +77,6 @@ class PenawaranController extends Controller
       $penawaran->Penawaran = $input['Penawaran'];
       $penawaran->Tgl = $input['Tgl'];
       $penawaran->Barang = $input['Barang'][$key];
-      $penawaran->Warehouse = $input['Warehouse'][$key];
       $penawaran->JS = $input['JS'][$key];
       $penawaran->Quantity = $input['Quantity'][$key];
       $penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
@@ -156,7 +155,6 @@ class PenawaranController extends Controller
       $penawaran->Penawaran = $input['Penawaran'];
       $penawaran->Tgl = $input['Tgl'];
       $penawaran->Barang = $input['Barang'][$key];
-      $penawaran->Warehouse = $input['Warehouse'][$key];
       $penawaran->JS = $input['JS'][$key];
       $penawaran->Quantity = $input['Quantity'][$key];
       $penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));

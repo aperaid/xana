@@ -134,6 +134,7 @@ class POController extends Controller
       'id' => $request['poid'],
       'POCode' => $request['POCode'],
       'Tgl' => $request['Tgl'],
+      'Discount' => $request['Discount'],
       'Catatan' => $request['Catatan'],
     ]);
 
@@ -147,7 +148,6 @@ class POController extends Controller
       $transaksis->JS = $input['JS'][$key];
       $JSC[] = $input['JS'][$key];
       $transaksis->Barang = $input['Barang'][$key];
-      $transaksis->Warehouse = $input['Warehouse'][$key];
       $transaksis->Quantity = $input['Quantity'][$key];
       $transaksis->QSisaKirInsert = $input['Quantity'][$key];
       $transaksis->QSisaKir = $input['Quantity'][$key];
@@ -322,6 +322,7 @@ class POController extends Controller
     $po->id = $request->poid;
     $po->POCode = $request->POCode;
     $po->Tgl = $request->Tgl;
+    $po->Discount = $request->Discount;
     $po->Catatan = $request->Catatan;
     $po->save();
 
@@ -338,7 +339,6 @@ class POController extends Controller
       $transaksis->JS = $input['JS'][$key];
       $JSC[] = $input['JS'][$key];
       $transaksis->Barang = $input['Barang'][$key];
-      $transaksis->Warehouse = $input['Warehouse'][$key];
       $transaksis->Quantity = $input['Quantity'][$key];
       $transaksis->QSisaKirInsert = $input['Quantity'][$key];
       $transaksis->QSisaKir = $input['Quantity'][$key];

@@ -41,6 +41,7 @@ class InvoiceController extends Controller
       'transaksi.Barang',
       'transaksi.Amount',
       'transaksi.POCode',
+      'po.Discount',
       'periode.S',
       'periode.E',
       DB::raw('SUM(periode.Quantity) AS SumQuantity'),
@@ -85,7 +86,7 @@ class InvoiceController extends Controller
       
       $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode2->SumQuantity*$periode2->Amount; 
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode2->SumQuantity*($periode2->Amount-($periode2->Amount*$periode2->Discount/100)); 
       $total += $total2[$key];
     }
     if ($invoice->Periode == 1){
@@ -260,6 +261,7 @@ class InvoiceController extends Controller
       'isisjkirim.QKirim',
       'sjkirim.SJKir',
       'sjkirim.Tgl',
+      'po.Discount',
       'transaksi.Purchase',
       'transaksi.Barang',
       'transaksi.Amount',
@@ -281,7 +283,7 @@ class InvoiceController extends Controller
     $total = 0;
     $x=0;
     foreach($transaksis as $transaksi2){
-      $total2[] = $transaksi2->QKirim * $transaksi2->Amount; 
+      $total2[] = $transaksi2->QKirim * ($transaksi2->Amount-$transaksi2->Amount*$transaksi2->Discount/100); 
       $total += $total2[$x];
       $x++;
     }

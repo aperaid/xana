@@ -35,8 +35,29 @@
         <!-- Main content -->
         <section class="content">
           @if(Session::has('message'))
-            <div class="callout callout-danger">
-              <h4>{{Session::get('message')}}</h4>
+            <div class="alert alert-success alert-dismissible">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              <h4><i class="icon fa fa-check"></i> Success</h4>
+              {{Session::get('message')}}
+            </div>
+          @endif
+          @if(Session::has('error'))
+            <div class="alert alert-danger alert-dismissible">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              <h4><i class="icon fa fa-ban"></i> Error!</h4>
+              {{Session::get('error')}}
+            </div>
+          @endif
+          <div id="globalmessage">
+          </div>
+          
+          @if (count($errors) > 0)
+            <div class="alert alert-danger alert-dismissible">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              <h4><i class="icon fa fa-ban"></i> Error!</h4>
+              @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+              @endforeach
             </div>
           @endif
           <!-- Your Page Content Here -->

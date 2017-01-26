@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Customer;
+use App\Project;
 use App\Reference;
 use App\Transaksi;
 use App\PO;
@@ -24,10 +26,11 @@ class ReferenceController extends Controller
 {
     public function index()
     {
-    $reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id'])
+    $reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id', 'po.Discount'])
             ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
             ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
             ->leftJoin('transaksi', 'pocustomer.Reference', '=', 'transaksi.Reference')
+            ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
             ->groupBy('pocustomer.Reference')
             ->get();
 
@@ -45,11 +48,15 @@ class ReferenceController extends Controller
         DB::raw('MAX(pocustomer.id) AS maxid')
       ])
       ->first();
+      $customer_id = Customer::max('id')+1;
+      $project_id = Project::max('id')+1;
       
       if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
         return view('pages.reference.create')
         ->with('url', 'reference')
         ->with('reference', $reference)
+        ->with('customer_id', $customer_id)
+        ->with('project_id', $project_id)
         ->with('top_menu_sel', 'menu_referensi')
         ->with('page_title', 'Purchase Order')
         ->with('page_description', 'Create');
@@ -85,6 +92,44 @@ class ReferenceController extends Controller
 
     	return redirect()->route('reference.index');
     }
+    
+    public function StoreCustomerProject(Request $request)
+    {
+    	$inputs = $request->all();
+      
+      $project = Project::Create([
+        'id' => $request['projectid'],
+        'PCode' => strtoupper($request['PCode']),
+        'Project' => strtoupper($request['Project']),
+        'ProjAlamat' => $request['ProjAlamat'],
+        'ProjZip' => $request['ProjZip'],
+        'ProjKota' => $request['ProjKota'],
+        'CCode' => strtoupper($request['CCode']),
+      ]);
+      
+      $customer = Customer::Create([
+        'id' => $request['customerid'],
+        'CCode' => strtoupper($request['CCode']),
+        'Company' => strtoupper($request['Company']),
+        'Customer' => strtoupper($request['Customer']),
+        'CompAlamat' => $request['CompAlamat'],
+        'CompZip' => $request['CompZip'],
+        'CompKota' => $request['CompKota'],
+        'CompPhone' => $request['CompPhone'],
+        'CompEmail' => $request['CompEmail'],
+        'CustPhone' => $request['CustPhone'],
+        'CustEmail' => $request['CustEmail'],
+        'Fax' => $request['Fax'],
+        'NPWP' => $request['NPWP'],
+      ]);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Create customer on CCode number '.$request['CCode'];
+      $history->save();
+
+      $request->session()->flash('message', 'Customer and Project has been successfully added with PCode '. strtoupper($request['PCode']));
+    }
 
     public function show($id)
     {
@@ -95,6 +140,7 @@ class ReferenceController extends Controller
       ->first();
       
       $purchase = Transaksi::leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
       ->where('transaksi.reference', $detail -> Reference)
       ->get();
       

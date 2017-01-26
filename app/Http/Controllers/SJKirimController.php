@@ -150,9 +150,12 @@ class SJKirimController extends Controller
       
       $transaksis = Transaksi::select([
         'transaksi.*',
+        'inventory.Type',
+        'inventory.Kumbang',
         'project.Project',
       ])
       ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->where('transaksi.Reference', $Reference)
       ->whereIn('transaksi.Purchase', $Purchase)
@@ -238,6 +241,7 @@ class SJKirimController extends Controller
         $isisjkirim->id = $input['isisjkirimid'][$key];
         $isisjkirim->IsiSJKir = $input['IsiSJKir'][$key];
         $isisjkirim->QKirim = $input['QKirim'][$key];
+        $isisjkirim->Warehouse = $input['Warehouse'][$key];
         $isisjkirim->Purchase = $input['Purchase'][$key];
         $isisjkirim->SJKir = $SJKir;
         $isisjkirim->save();
@@ -308,11 +312,13 @@ class SJKirimController extends Controller
 
       $isisjkirims = IsiSJKirim::select([
         'isisjkirim.*',
+        'sjkirim.*',
         'periode.Periode',
         'transaksi.*',
         'project.*',
         'customer.*'
       ])
+      ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
       ->leftJoin('periode', 'isisjkirim.IsiSJKir', '=', 'periode.IsiSJKir')
       ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
       ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
@@ -360,13 +366,15 @@ class SJKirimController extends Controller
       
       $isisjkirims = IsiSJKirim::select([
         'isisjkirim.*',
-        'sjkirim.Tgl',
+        'sjkirim.*',
         'transaksi.*',
+        'inventory.*',
         'project.Project',
       ])
       ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
       ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
       ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+      ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->where('isisjkirim.SJKir', $sjkirim->SJKir)
       ->orderBy('isisjkirim.id', 'asc')
@@ -396,14 +404,17 @@ class SJKirimController extends Controller
     {
     	$sjkirim = SJKirim::find($id);
       $sjkirim->Tgl = $request['Tgl'];
+      $sjkirim->NoPolisi = $request['NoPolisi'];
+      $sjkirim->Sopir = $request['Sopir'];
+      $sjkirim->Kenek = $request['Kenek'];
       $sjkirim->save();
       
       $isisjkirim = IsiSJKirim::where('isisjkirim.SJKir', $sjkirim -> SJKir);
       $purchase = $isisjkirim->pluck('Purchase');
-      $transaksi = Transaksi::whereIn('transaksi.Purchase', $purchase);
+      $warehouses = $isisjkirim->pluck('isisjkirim.Warehouse');
       $qkirim = $isisjkirim->pluck('QKirim');
-      $icode = $transaksi->pluck('ICode');
-      $inventories = $request['Barang'];
+      $input = Input::all();
+      $inventories = $input['ICode'];
       foreach ($inventories as $key => $inventory)
       {
         if($input['Warehouse'][$key] == 'Kumbang'){
@@ -415,12 +426,20 @@ class SJKirimController extends Controller
         }elseif($input['Warehouse'][$key] == 'CitraGarden'){
           $warehouse = 'CitraGarden';
         }
+        if($warehouses[$key] == 'Kumbang'){
+          $warehouse2 = 'Kumbang';
+        }elseif($warehouses[$key] == 'BulakSereh'){
+          $warehouse2 = 'BulakSereh';
+        }elseif($warehouses[$key] == 'Legok'){
+          $warehouse2 = 'Legok';
+        }elseif($warehouses[$key] == 'CitraGarden'){
+          $warehouse2 = 'CitraGarden';
+        }
         $data = Inventory::where('Code', $input['ICode'][$key])
         ->first();
-        $data->update([$warehouse => $data->$warehouse + $qkirim[$key] - $request['QKirim'][$key]]);
+        $data->update([$warehouse => $data->$warehouse + $qkirim[$key] - $request['QKirim'][$key]], [$warehouse2 => $data->$warehouse2 + $qkirim[$key] - $request['QKirim'][$key]]);
       }
-      
-      $input = Input::all();
+
       $transaksis = $input['id'];
       foreach ($transaksis as $key => $transaksi)
       {
@@ -442,14 +461,12 @@ class SJKirimController extends Controller
         $periode->save();
       }
       
-      $isisjkirim = IsiSJKirim::where('isisjkirim.SJKir', $sjkirim->SJKir);
-      $isisjkirimid = $isisjkirim->pluck('id');
-      
-      $isisjkirims = $isisjkirimid;
+      $isisjkirims = $input['id'];
       foreach ($isisjkirims as $key => $isisjkirim)
       {
         $isisjkirim = IsiSJKirim::find($isisjkirims[$key]);
         $isisjkirim->QKirim = $input['QKirim'][$key];
+        $isisjkirim->Warehouse = $input['Warehouse'][$key];
         $isisjkirim->save();
       }
       
@@ -457,6 +474,8 @@ class SJKirimController extends Controller
       $history->User = Auth::user()->name;
       $history->History = 'Update SJKirim on SJKir '.$sjkirim->SJKir;
       $history->save();
+      
+      Session::flash('message', $input['Warehouse'][1]);
 
     	return redirect()->route('sjkirim.show', $id);
     }
@@ -592,7 +611,7 @@ class SJKirimController extends Controller
       ->where('isisjkirim.SJKir', $sjkirim->SJKir);
       
       $transaksiid = $isisjkirim->pluck('transaksi.id');
-      $warehouse = $isisjkirim->pluck('transaksi.warehouse');
+      $warehouses = $isisjkirim->pluck('isisjkirim.Warehouse');
       $qkirim = $isisjkirim->pluck('isisjkirim.QKirim');
       $qtertanda = $isisjkirim->pluck('isisjkirim.QTertanda');
       $qsisakeminsert = $isisjkirim->pluck('isisjkirim.QSisaKemInsert');
@@ -602,13 +621,13 @@ class SJKirimController extends Controller
       $inventories = $icode;
       foreach ($inventories as $key => $inventory)
       {
-        if($warehouse[$key] == 'Kumbang'){
+        if($warehouses[$key] == 'Kumbang'){
           $warehouse = 'Kumbang';
-        }elseif($warehouse[$key] == 'BulakSereh'){
+        }elseif($warehouses[$key] == 'BulakSereh'){
           $warehouse = 'BulakSereh';
-        }elseif($warehouse[$key] == 'Legok'){
+        }elseif($warehouses[$key] == 'Legok'){
           $warehouse = 'Legok';
-        }elseif($warehouse[$key] == 'CitraGarden'){
+        }elseif($warehouses[$key] == 'CitraGarden'){
           $warehouse = 'CitraGarden';
         }
         $data = Inventory::where('Code', $icode[$key])
