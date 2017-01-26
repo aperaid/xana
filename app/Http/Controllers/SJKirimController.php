@@ -409,7 +409,7 @@ class SJKirimController extends Controller
       $sjkirim->Kenek = $request['Kenek'];
       $sjkirim->save();
       
-      $isisjkirim = IsiSJKirim::where('isisjkirim.SJKir', $sjkirim -> SJKir);
+      $isisjkirim = IsiSJKirim::where('isisjkirim.SJKir', $sjkirim -> SJKir)->orderBy('id', 'asc');
       $purchase = $isisjkirim->pluck('Purchase');
       $warehouses = $isisjkirim->pluck('isisjkirim.Warehouse');
       $qkirim = $isisjkirim->pluck('QKirim');
@@ -435,9 +435,15 @@ class SJKirimController extends Controller
         }elseif($warehouses[$key] == 'CitraGarden'){
           $warehouse2 = 'CitraGarden';
         }
-        $data = Inventory::where('Code', $input['ICode'][$key])
-        ->first();
-        $data->update([$warehouse => $data->$warehouse + $qkirim[$key] - $request['QKirim'][$key]], [$warehouse2 => $data->$warehouse2 + $qkirim[$key] - $request['QKirim'][$key]]);
+        if($warehouse==$warehouse2){
+          $data = Inventory::where('Code', $input['ICode'][$key])
+          ->first();
+          $data->update([$warehouse => $data->$warehouse + $qkirim[$key] - $request['QKirim'][$key]]);
+        }else{
+          $data = Inventory::where('Code', $input['ICode'][$key])
+          ->first();
+          $data->update([$warehouse => $data->$warehouse - $request['QKirim'][$key], $warehouse2 => $data->$warehouse2 + $qkirim[$key]]);
+        }
       }
 
       $transaksis = $input['id'];
@@ -475,7 +481,7 @@ class SJKirimController extends Controller
       $history->History = 'Update SJKirim on SJKir '.$sjkirim->SJKir;
       $history->save();
       
-      Session::flash('message', $input['Warehouse'][1]);
+      Session::flash('message', $warehouse2);
 
     	return redirect()->route('sjkirim.show', $id);
     }
