@@ -693,63 +693,6 @@ class SJKembaliController extends Controller
     	return redirect()->route('sjkembali.show', $id);
     }
 
-    public function getSPB($id)
-    { 
-      $phpWord = new \PhpOffice\PhpWord\PhpWord();
-    	$reference = Reference::find($id);
-      
-      $maxperiode = Periode::select([
-        DB::raw('max(periode.Periode) as maxperiode'),
-      ])
-      ->where('periode.Reference', $reference->Reference)
-      ->first();
-      
-      $transaksis = Transaksi::where('transaksi.Reference', $reference->Reference)
-      ->where('transaksi.JS', 'Sewa')
-      ->orderBy('transaksi.id', 'asc')
-      ->get();
-      
-      $transaksi = Reference::leftJoin('invoice', 'pocustomer.Reference', '=', 'invoice.Reference')
-      ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-      ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-      ->where('pocustomer.id', $id)
-      ->where('invoice.Periode', $maxperiode->maxperiode)
-      ->first();
-      
-      $document = $phpWord->loadTemplate(public_path('/template/SPB.docx'));
-      
-      $document->setValue('Company', ''.$transaksi->Company.'');
-      $document->setValue('Project', ''.$transaksi->Project.'');
-      $document->setValue('ProjAlamat', ''.$transaksi->ProjAlamat.'');
-      $document->setValue('Customer', ''.$transaksi->Customer.'');
-      $document->setValue('CustPhone', ''.$transaksi->CustPhone.'');
-      $document->setValue('Invoice', ''.$transaksi->Invoice.'');
-      $document->setValue('Tanggal', ''.date("d/m/Y").'');
-      $document->setValue('JS', 'Sewa');
-
-      foreach ($transaksis as $key => $transaksis)
-      {
-        $key2 = $key+1;
-        $document->setValue('Key'.$key, ''.$key2.'');
-        $document->setValue('Barang'.$key, ''.$transaksis->Barang.'');
-        $document->setValue('Quantity'.$key, ''.$transaksis->Quantity.' PCS');
-      }
-      
-      for($x=0;$x<20;$x++){
-        $document->setValue('Key'.$x, '');
-        $document->setValue('Barang'.$x, '');
-        $document->setValue('Quantity'.$x, '');
-      }
-      
-      $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-      $path = sprintf("C:\Users\%s\Desktop\SPB_", $user);
-      
-      $document->saveAs($path.$transaksi->Invoice.'.docx');
-      
-      Session::flash('message', 'Downloaded to Desktop file name SPB_'.$transaksi->Invoice.'.docx');
-    	return redirect()->route('reference.show', $id);
-    }
-    
     public function destroy(Request $request, $id)
     {
       $sjkembali = SJKembali::find($id);

@@ -163,6 +163,13 @@ class InvoiceController extends Controller
     ->where('invoice.Invoice', $invoice->Invoice)
     ->first();
     
+    $pocode = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Sewa')
+    ->groupBy('po.POCode')
+    ->orderBy('po.id', 'desc')
+    ->first();
+    
     $periodes = Periode::select([
       'transaksi.Barang',
       'periode.S',
@@ -193,10 +200,10 @@ class InvoiceController extends Controller
       $end3[] = strtotime($end2);
 
       $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
-      $pocode[] = $periode2->POCode;
+      //$pocode[] = $periode2->POCode;
     }
     $Quantity = $periodes->sum('SumQuantity');
-    $PEO = implode("/", array_unique($pocode));
+    //$PEO = implode("/", array_unique($pocode));
     
     $document = $phpWord->loadTemplate(public_path('/template/BA.docx'));
     
@@ -208,7 +215,7 @@ class InvoiceController extends Controller
     $document->setValue('S', ''.$firststart[0].'');
     $document->setValue('E', ''.$end.'');
     $document->setValue('Quantity', ''.$Quantity.'');
-    $document->setValue('PEO', ''.$PEO.'');
+    $document->setValue('PEO', ''.$pocode->POCode.'');
 
     foreach ($periodes as $key => $periodes)
     {
@@ -239,7 +246,7 @@ class InvoiceController extends Controller
     
     $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Desktop file name BA_'.$download.'.docx');
+    Session::flash('message', 'Downloaded to Desktop file name BA_'.$download);
     return redirect()->route('invoice.showsewa', $id);
   }
   

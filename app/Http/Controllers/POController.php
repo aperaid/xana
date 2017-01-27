@@ -201,7 +201,6 @@ class POController extends Controller
       $invoice = Invoice::select([
         DB::raw('MAX(id) AS maxid'),
       ])
-      ->where('Reference', $request['Reference'])
       ->first();
       
       $invoices = new Invoice;//Invoice::updateOrCreate(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
@@ -394,7 +393,6 @@ class POController extends Controller
       $invoice = Invoice::select([
         DB::raw('MAX(id) AS maxid'),
       ])
-      ->where('Reference', $request['Reference'])
       ->first();
       
       $invoices = new Invoice;

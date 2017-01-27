@@ -46,23 +46,19 @@ Route::group(['middleware' => 'auth'], function () {
 
   Route::resource('transaksi', 'TransaksiController');
 
-  Route::get('sjkirim/qtertanda/{id}', ['as' => 'sjkirim.qtertanda', 'uses' => 'SJKirimController@getQTertanda']);
-  Route::post('sjkirim/updateqtertanda/{id}', ['as' => 'sjkirim.updateqtertanda', 'uses' =>'SJKirimController@postQTertanda']);
-
+  Route::resource('sjkirim', 'SJKirimController');
   Route::post('sjkirim/create2/{id}', ['as' => 'sjkirim.create2', 'uses' => 'SJKirimController@getCreate2']);
   Route::post('sjkirim/create3/{id}', ['as' => 'sjkirim.create3', 'uses' => 'SJKirimController@getCreate3']);
-
-  Route::resource('sjkirim', 'SJKirimController');
-
-  Route::post('sjkembali/create2/{id}', ['as' => 'sjkembali.create2', 'uses' => 'SJKembaliController@getCreate2']);
-  Route::post('sjkembali/create3/{id}', ['as' => 'sjkembali.create3', 'uses' => 'SJKembaliController@getCreate3']);
-
-  Route::get('sjkembali/qterima/{id}', ['as' => 'sjkembali.qterima', 'uses' => 'SJKembaliController@getQTerima']);
-  Route::post('sjkembali/updateqterima/{id}', ['as' => 'sjkembali.updateqterima', 'uses' =>'SJKembaliController@postQTerima']);
-  Route::get('sjkembali/SPB/{id}', ['as' => 'sjkembali.SPB', 'uses' => 'SJKembaliController@getSPB']);
+  Route::get('sjkirim/qtertanda/{id}', ['as' => 'sjkirim.qtertanda', 'uses' => 'SJKirimController@getQTertanda']);
+  Route::post('sjkirim/updateqtertanda/{id}', ['as' => 'sjkirim.updateqtertanda', 'uses' =>'SJKirimController@postQTertanda']);
+  Route::get('sjkirim/SPB/{id}', ['as' => 'sjkirim.SPB', 'uses' => 'SJKirimController@getSPB']);
 
   Route::resource('sjkembali', 'SJKembaliController');
-
+  Route::post('sjkembali/create2/{id}', ['as' => 'sjkembali.create2', 'uses' => 'SJKembaliController@getCreate2']);
+  Route::post('sjkembali/create3/{id}', ['as' => 'sjkembali.create3', 'uses' => 'SJKembaliController@getCreate3']);
+  Route::get('sjkembali/qterima/{id}', ['as' => 'sjkembali.qterima', 'uses' => 'SJKembaliController@getQTerima']);
+  Route::post('sjkembali/updateqterima/{id}', ['as' => 'sjkembali.updateqterima', 'uses' =>'SJKembaliController@postQTerima']);
+  
   Route::get('invoice/showsewa/{id}', ['as' => 'invoice.showsewa', 'uses' => 'InvoiceController@getInvoiceSewa']);
   Route::post('invoice/updateshowsewa/{id}', ['as' => 'invoice.updateshowsewa', 'uses' => 'InvoiceController@postInvoiceSewa']);
   Route::get('invoice/showjual/{id}', ['as' => 'invoice.showjual', 'uses' => 'InvoiceController@getInvoiceJual']);
