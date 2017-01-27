@@ -63,6 +63,14 @@
           </tr>
         </tbody>
       </table>
+      <div class="box-body">
+      <div class="form-group">
+            {!! Form::label('FormMuat', 'Form Muat', ['class' => "col-sm-3 control-label"]) !!}
+            <div class="col-sm-6">
+              {!! Form::textarea('FormMuat', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Form Muat', 'rows' => '3')) !!}
+            </div>
+          </div>
+      </div>
       <div class="box-footer">
         {!! Form::submit('Insert',  array('class' => 'btn btn-success pull-right')) !!}
         <a href="{{route('sjkirim.create', 'id='.$referenceid->id)}}"><button type="button" class="btn btn-default">Cancel</button></a>

@@ -206,7 +206,7 @@ class POController extends Controller
       $invoices = new Invoice;//Invoice::updateOrCreate(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
       $invoices->id = $invoice->maxid + 1;
       if($JSC[$key]=="Sewa"){
-        $invoices->Invoice = $customercode->CCode."1/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+        $invoices->Invoice = $customercode->CCode."01/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
       }else{
         $invoices->Invoice = $customercode->CCode."01/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
       }
@@ -398,7 +398,7 @@ class POController extends Controller
       $invoices = new Invoice;
       $invoices->id = $invoice->maxid + 1;
       if($JSC[$key]=="Sewa"){
-        $invoices->Invoice = $customercode->CCode."1/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+        $invoices->Invoice = $customercode->CCode."01/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
       }else{
         $invoices->Invoice = $customercode->CCode."01/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
       }

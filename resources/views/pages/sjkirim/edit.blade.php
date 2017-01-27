@@ -63,6 +63,14 @@
           </tr>
         </tbody>
       </table>
+      <div class="box-body">
+      <div class="form-group">
+            {!! Form::label('FormMuat', 'Form Muat', ['class' => "col-sm-3 control-label"]) !!}
+            <div class="col-sm-6">
+              {!! Form::textarea('FormMuat', $sjkirim->FormMuat, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Form Muat', 'rows' => '3')) !!}
+            </div>
+          </div>
+      </div>
       <div class="box-footer">
         {!! Form::label('Send Date', 'Send Date', ['class' => "control-label"]) !!}
         <div class="input-group">

@@ -80,6 +80,14 @@
         </tbody>
       </table>
     </div>
+    <div class="box-body">
+      <div class="form-group">
+        {!! Form::label('FormMuat', 'Form Muat', ['class' => "col-sm-3 control-label"]) !!}
+        <div class="col-sm-6">
+          {!! Form::textarea('FormMuat', $isisjkirim->FormMuat, array('class' => 'form-control', 'rows' => '3', 'readonly')) !!}
+        </div>
+      </div>
+    </div>
     
     <div class="box-footer">
       <a href="{{route('sjkirim.index')}}"><button type="button" class="btn btn-default">Back</button></a>

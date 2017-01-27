@@ -182,7 +182,7 @@ class TransaksiController extends Controller
       if(substr($invoice->Tgl,6)!=date('Y')){
         Invoice::Create([
           'id' => $maxinvoice->maxinvoice+1,
-          'Invoice' => $customercode->CCode.$Periode."/1/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
+          'Invoice' => $customercode->CCode.str_pad($Periode, 2, "0", STR_PAD_LEFT)."/1/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
           'JSC' => 'Sewa',
           'Tgl' => $TglInvoice2,
           'Reference' => $invoice->Reference,
@@ -193,7 +193,7 @@ class TransaksiController extends Controller
       }else{
         Invoice::Create([
           'id' => $maxinvoice->maxinvoice+1,
-          'Invoice' =>  $customercode->CCode.$Periode."/".$Count."/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
+          'Invoice' =>  $customercode->CCode.str_pad($Periode, 2, "0", STR_PAD_LEFT)."/".$Count."/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
           'JSC' => 'Sewa',
           'Tgl' => $TglInvoice2,
           'Reference' => $invoice->Reference,

@@ -131,7 +131,7 @@
               <input id="Discount" name="Discount" type="number" class="form-control" placeholder="15" value="{{$invoice->Discount}}" onKeyUp="tot()" >
             </div>
           </div>
-          <!-- Catatan Input -->
+          <!-- Form Muat Input -->
           <div class="form-group">
             {!! Form::label('Catatan', 'Catatan', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">

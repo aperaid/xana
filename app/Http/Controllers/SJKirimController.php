@@ -231,6 +231,7 @@ class SJKirimController extends Controller
         'NoPolisi' => $request['NoPolisi'],
         'Sopir' => $request['Sopir'],
         'Kenek' => $request['Kenek'],
+        'FormMuat' => $request['FormMuat'],
       ]);
       
       $input = Input::all();
@@ -417,6 +418,7 @@ class SJKirimController extends Controller
       $sjkirim->NoPolisi = $request['NoPolisi'];
       $sjkirim->Sopir = $request['Sopir'];
       $sjkirim->Kenek = $request['Kenek'];
+      $sjkirim->FormMuat = $request['FormMuat'];
       $sjkirim->save();
       
       $isisjkirim = IsiSJKirim::where('isisjkirim.SJKir', $sjkirim -> SJKir)->orderBy('id', 'asc');
