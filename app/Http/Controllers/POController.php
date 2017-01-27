@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Project;
 use App\PO;
 use App\Transaksi;
 use App\Reference;
@@ -175,6 +176,8 @@ class POController extends Controller
       }
     }*/
     
+    $customercode = Project::leftJoin('pocustomer', 'project.PCode', '=', 'pocustomer.PCode')->where('Reference', $request['Reference'])->first();
+    
     $invppn = Invoice::where('Reference', $input['Reference'])
     ->first();
     if($invppn)
@@ -196,18 +199,24 @@ class POController extends Controller
     foreach ($invoices as $key => $invoices)
     {
       $invoice = Invoice::select([
-        DB::raw('MAX(id) AS maxid')
+        DB::raw('MAX(id) AS maxid'),
       ])
+      ->where('Reference', $request['Reference'])
       ->first();
       
       $invoices = new Invoice;//Invoice::updateOrCreate(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
       $invoices->id = $invoice->maxid + 1;
-      $invoices->Invoice = str_pad($invoice->maxid + 1, 5, "0", STR_PAD_LEFT);
+      if($JSC[$key]=="Sewa"){
+        $invoices->Invoice = $customercode->CCode."1/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+      }else{
+        $invoices->Invoice = $customercode->CCode."01/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
+      }
       $invoices->JSC = $JSC[$key];
       $invoices->Tgl = $request['Tgl'];
       $invoices->Reference = $request['Reference'];
       $invoices->Periode = 1;
       $invoices->PPN = $PPN;
+      $invoices->Count = 1;
       $invoices->save();
       
       $duplicateRecords = Invoice::select([
@@ -299,6 +308,9 @@ class POController extends Controller
     {
       $last_purchase = $maxpurchase['maxpurchase'];
     }
+    
+    $invoice = Invoice::where('Reference', $transaksis->first()->Reference)->where('periode', 1)
+    ->first();
 
     if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
       return view('pages.po.edit')
@@ -307,6 +319,7 @@ class POController extends Controller
       ->with('maxtransaksi', $maxtransaksi)
       ->with('transaksis', $transaksis)
       ->with('last_purchase', $last_purchase)
+      ->with('invoice', $invoice)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'Edit');
@@ -328,6 +341,7 @@ class POController extends Controller
 
     $ids = $transaksi->pluck('id');
     Transaksi::whereIn('id', $ids)->delete();
+    DB::statement('ALTER TABLE transaksi auto_increment = 1;');
     
     $input = Input::all();
     $transaksis = $input['transaksiid'];
@@ -337,7 +351,6 @@ class POController extends Controller
       $transaksis->id = $input['transaksiid'][$key];
       $transaksis->Purchase = $input['Purchase'][$key];
       $transaksis->JS = $input['JS'][$key];
-      $JSC[] = $input['JS'][$key];
       $transaksis->Barang = $input['Barang'][$key];
       $transaksis->Quantity = $input['Quantity'][$key];
       $transaksis->QSisaKirInsert = $input['Quantity'][$key];
@@ -349,27 +362,67 @@ class POController extends Controller
       $transaksis->save();
     }
     
-    Invoice::where('invoice.Reference', $input['Reference'])->where('invoice.Periode', 1)->delete();
+    //Invoice::where('invoice.Reference', $input['Reference'])->where('invoice.Periode', 1)->delete();
+
+    $customercode = Project::leftJoin('pocustomer', 'project.PCode', '=', 'pocustomer.PCode')->where('Reference', $request['Reference'])->first();
     
-    $invoice = Invoice::select([
-      DB::raw('MAX(id) AS maxid')
-    ])
+    $invppn = Invoice::where('Reference', $input['Reference'])
     ->first();
-    $invoice2 = $invoice->maxid+1;
+    if($invppn)
+      $ppn = $invppn->PPN;
+    else
+      $ppn = $input['PPN'];
 
+    if(Auth::user()->access == 'POPPN'){
+      $PPN = 1;
+    }elseif(Auth::user()->access == 'PONONPPN'){
+      $PPN = 0;
+    }elseif(Auth::user()->access == 'Admin'){
+      $PPN = $ppn;
+    }
+    
+    $JSC = Transaksi::where('reference', $request['Reference'])->pluck('JS')->toArray();
+    
     $JSC = array_unique($JSC);
-
+    
+    Invoice::where('reference', $request['Reference'])->delete();
+    DB::statement('ALTER TABLE invoice auto_increment = 1;');
+    
     $invoices = $JSC;
     foreach ($invoices as $key => $invoices)
     {
+      $invoice = Invoice::select([
+        DB::raw('MAX(id) AS maxid'),
+      ])
+      ->where('Reference', $request['Reference'])
+      ->first();
+      
       $invoices = new Invoice;
-      $invoices->id = $invoice2 + $key;
-      $invoices->Invoice = str_pad($invoice2 + $key, 5, "0", STR_PAD_LEFT);
+      $invoices->id = $invoice->maxid + 1;
+      if($JSC[$key]=="Sewa"){
+        $invoices->Invoice = $customercode->CCode."1/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+      }else{
+        $invoices->Invoice = $customercode->CCode."01/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
+      }
       $invoices->JSC = $JSC[$key];
       $invoices->Tgl = $request['Tgl'];
       $invoices->Reference = $request['Reference'];
-      $invoices->Periode = 1; 
+      $invoices->Periode = 1;
+      $invoices->PPN = $PPN;
+      $invoices->Count = 1;
       $invoices->save();
+      
+      $duplicateRecords = Invoice::select([
+        DB::raw('MAX(id) AS maxid')
+      ])
+      ->selectRaw('count(`Reference`) as `occurences`')
+      ->where('Reference', $input['Reference'])
+      ->groupBy('JSC', 'Periode')
+      ->having('occurences', '>', 1)
+      ->pluck('maxid');
+      
+      Invoice::whereIn('id', $duplicateRecords)->delete();
+      DB::statement('ALTER TABLE invoice auto_increment = 1;');
     }
 
     $history = new History;
@@ -389,6 +442,7 @@ class POController extends Controller
     ->first();
     
     Transaksi::whereIn('id', $transaksiid)->delete();
+    DB::statement('ALTER TABLE transaksi auto_increment = 1;');
     
     $invoice = Invoice::select('id')
     ->from('invoice as inv')
@@ -401,9 +455,11 @@ class POController extends Controller
     ->pluck('id');
     
     Invoice::whereIn('id', $invoice)->delete();
+    DB::statement('ALTER TABLE invoice auto_increment = 1;');
     
     PO::destroy($id);
-    
+    DB::statement('ALTER TABLE po auto_increment = 1;');
+
     $history = new History;
     $history->User = Auth::user()->name;
     $history->History = 'Delete PO on POCode '.$request['POCode'];

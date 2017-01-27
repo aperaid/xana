@@ -40,7 +40,7 @@
                 <td>{{$isisjkirim->SJKir}}</td>
               </tr>
             @endforeach
-            <p>{!! Form::checkbox('SelectAll', null, null, ['id' => 'SelectAll', 'class' => 'minimal']) !!}{!! Form::label('Check All', 'Check All') !!}
+            <p>{!! Form::checkbox('SelectAll', null, null, ['id' => 'SelectAll', 'class' => 'minimal']) !!}{!! Form::label('SelectAll', 'Check All') !!}
           </tbody>
         </table>
       </div>

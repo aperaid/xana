@@ -41,15 +41,13 @@
             <table class="table table-bordered table-striped table-responsive">
               <thead>
                 <tr>
-                  <th>Nomor PO</th>
+                  <th>Nomor PO Terakhir</th>
                 </tr>
               </thead>
               <tbody>
-                @foreach($pocodes as $pocode)
                 <tr>
                   <td>{{$pocode->POCode}}</td>
                 </tr>
-                @endforeach
               </tbody>
             </table>
           </div>
@@ -65,7 +63,7 @@
                 <th>Periode</th>
                 <th>I</th>
                 <th>Quantity</th>
-                <th>Discount(%)</th>
+                <th>PO Discount(%)</th>
                 <th>Price/Unit</th>
                 <th>Total</th>
               </tr>
@@ -93,7 +91,7 @@
           </table>
           <!-- PPN checkbox -->
           <div class="form-group">
-          {!! Form::label('Pajak', 'Pajak 10%', ['class' => "col-sm-2 control-label"]) !!}
+          {!! Form::label('PPN', 'Pajak 10%', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
               {!! Form::hidden('PPN', 0) !!}
               {!! Form::checkbox('PPN', 1, $invoice->PPN, ['id' => 'PPN', 'class' => 'minimal']) !!}
@@ -128,9 +126,9 @@
           </div>
           <!-- Discount Input -->
           <div class="form-group">
-            {!! Form::label('Discount', 'Discount', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              <input id="Discount" name="Discount" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Discount,0,',','.')}}" onKeyUp="tot()" >
+              <input id="Discount" name="Discount" type="number" class="form-control" placeholder="15" value="{{$invoice->Discount}}" onKeyUp="tot()" >
             </div>
           </div>
           <!-- Catatan Input -->
@@ -140,20 +138,27 @@
               {!! Form::textarea('Catatan', $invoice->Catatan, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '5')) !!}
             </div>
           </div>
+          <!-- Pembulatan Input -->
+          <div class="form-group">
+            {!! Form::label('Pembulatan', 'Pembulatan (-)', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-6">
+              <input id="Pembulatan" name="Pembulatan" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Pembulatan,0,',','.')}}" onKeyUp="tot()" >
+            </div>
+          </div>
           <!-- Total Text -->
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['id' => 'Total', 'class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
               @if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-                {!! Form::text('Total', 'Rp. ' . number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+                {!! Form::text('Total', 'Rp. ' . number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
               @elseif($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
               @elseif($invoice->Times > 0 && $invoice->PPNT == 1)
-                {!! Form::text('Total', 'Rp. ' . number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+                {!! Form::text('Total', 'Rp. ' . number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
               @elseif($invoice->Times > 0 && $invoice->PPNT == 0)
-                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
               @else
-                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+$toss-$invoice->Discount, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+$toss-((($total*$invoice->PPN*0.1)+$total+$toss)*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
               @endif
             </div>
               {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}
@@ -196,8 +201,15 @@ function tot(){
 <script>
   $(document).ready(function(){
 		//Mask Price
-		$("#Discount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+    $("#Pembulatan").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
     $("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
-	});
+    //Mask Discount
+    $(document).on('keyup', '#Discount', function(){
+    if(parseInt($(this).val()) > 100)
+       $(this).val(100);
+    else if(parseInt($(this).val()) < 0)
+      $(this).val(0);
+    });
+  });
 </script>
 @stop

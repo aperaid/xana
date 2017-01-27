@@ -61,11 +61,12 @@ class InvoiceController extends Controller
     ->orderBy('periode.id', 'asc')
     ->get();
     
-    $pocodes = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
+    $pocode = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
     ->where('transaksi.Reference', $parameter->Reference)
     ->where('transaksi.JS', 'Sewa')
     ->groupBy('po.POCode')
-    ->get();
+    ->orderBy('po.id', 'desc')
+    ->first();
 
     $total = 0;
     foreach($periodes as $key => $periode2){
@@ -109,7 +110,7 @@ class InvoiceController extends Controller
       ->with('url', 'invoice')
       ->with('invoice', $invoice)
       ->with('periodes', $periodes)
-      ->with('pocodes', $pocodes)
+      ->with('pocode', $pocode)
       ->with('SE', $SE)
       ->with('Days2', $Days2)
       ->with('I', $I)
@@ -131,7 +132,8 @@ class InvoiceController extends Controller
     
     $invoice->id = $id;
     $invoice->PPN = $request->PPN;
-    $invoice->Discount = str_replace(".","",substr($request->Discount, 3));
+    $invoice->Discount = $request->Discount;
+    $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
     $invoice->Catatan = $request->Catatan;
     $invoice->save();
     
@@ -232,10 +234,12 @@ class InvoiceController extends Controller
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
     $path = sprintf("C:\Users\%s\Desktop\BA_", $user);
+    $clear = str_replace("/","",$invoice->Invoice);
+    $download = sprintf('%s.docx', $clear);
     
-    $document->saveAs($path.$invoice->Invoice.'.docx');
+    $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Desktop file name BA_'.$invoice->Invoice.'.docx');
+    Session::flash('message', 'Downloaded to Desktop file name BA_'.$download.'.docx');
     return redirect()->route('invoice.showsewa', $id);
   }
   
@@ -274,11 +278,12 @@ class InvoiceController extends Controller
     ->where('transaksi.JS', 'Jual')
     ->get();
     
-    $pocodes = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
+    $pocode = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
     ->where('transaksi.Reference', $parameter->Reference)
     ->where('transaksi.JS', 'Jual')
     ->groupBy('po.POCode')
-    ->get();
+    ->orderBy('po.id', 'desc')
+    ->first();
     
     $total = 0;
     $x=0;
@@ -293,7 +298,7 @@ class InvoiceController extends Controller
       ->with('url', 'invoice')
       ->with('invoice', $invoice)
       ->with('transaksis', $transaksis)
-      ->with('pocodes', $pocodes)
+      ->with('pocode', $pocode)
       ->with('total', $total)
       ->with('total2', $total2)
       ->with('top_menu_sel', 'menu_invoice')
@@ -311,7 +316,8 @@ class InvoiceController extends Controller
       
       $invoice->id = $id;
       $invoice->PPN = $request->PPN;
-    	$invoice->Discount = str_replace(".","",substr($request->Discount, 3));
+    	$invoice->Discount = $request->Discount;
+      $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
       $invoice->Catatan = $request->Catatan;
     	$invoice->save();
 

@@ -61,6 +61,14 @@
           {!! Form::label('Catatan', 'Catatan') !!}
           {!! Form::textarea('Catatan', $po -> Catatan, array('id' => 'Catatan', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '5')) !!}
         </div>
+        @if(Auth::user()->access == 'Admin' && $invoice->Periode==1)
+          <div class="form-group">
+            {!! Form::hidden('PPN', 0) !!}
+            {!! Form::checkbox('PPN', 1, $invoice->PPN, ['id' => 'PPN', 'class' => 'minimal']) !!}
+            {!! Form::label('PPN', 'PPN 10%') !!}
+          </div>
+        @else
+        @endif
       </div>
       <!-- /.box-body -->
     </div>

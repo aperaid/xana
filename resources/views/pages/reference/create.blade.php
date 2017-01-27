@@ -36,8 +36,8 @@
         <div class="form-group">
         @if(Auth::user()->access == 'Admin')
           {!! Form::hidden('PPNT', 0) !!}
-          {!! Form::checkbox('PPNT', 1, null, ['class' => 'minimal']) !!}
-          {!! Form::label('Transport included in PPN', 'Transport included in PPN') !!}
+          {!! Form::checkbox('PPNT', 1, null, ['id' => 'PPNT', 'class' => 'minimal']) !!}
+          {!! Form::label('PPNT', 'Transport included in PPN') !!}
         @else
         @endif
         </div>

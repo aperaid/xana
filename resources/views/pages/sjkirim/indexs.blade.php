@@ -16,7 +16,7 @@
               <th>SJ Code</th>
               <th>Tgl Kirim</th>
               <th>Reference</th>
-              <th>Customer</th>
+              <th>Company</th>
               <th>Project</th>
             </tr>
           </thead>
@@ -28,7 +28,7 @@
               <td>{{$sjkirim->SJKir}}</td>
               <td>{{$sjkirim->Tgl}}</td>
               <td>{{$sjkirim->Reference}}</td>
-              <td>{{$sjkirim->Customer}}</td>
+              <td>{{$sjkirim->Company}}</td>
               <td>{{$sjkirim->Project}}</td>
             </tr>
             @endforeach

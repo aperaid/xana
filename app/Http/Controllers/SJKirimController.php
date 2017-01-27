@@ -31,7 +31,7 @@ class SJKirimController extends Controller
         'qttd',
         'sjkirim.*',
         'project.Project',
-        'customer.Customer',
+        'customer.Company',
       ])
       ->leftJoin('pocustomer', 'sjkirim.Reference', '=', 'pocustomer.Reference')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
@@ -522,7 +522,6 @@ class SJKirimController extends Controller
         'transaksi.Barang',
         'transaksi.JS',
         'transaksi.QSisaKir',
-        'transaksi.Warehouse',
         'project.Project',
       ])
       ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')

@@ -32,7 +32,7 @@ class SJKembaliController extends Controller
         'qtrima',
         'sjkembali.*',
         'project.Project',
-        'customer.Customer',
+        'customer.Company',
       ])
       ->leftJoin('pocustomer', 'sjkembali.Reference', '=', 'pocustomer.Reference')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
@@ -218,7 +218,6 @@ class SJKembaliController extends Controller
         'sjkirim.SJKir',
         'sjkirim.Tgl',
         'transaksi.Barang',
-        'transaksi.Warehouse',
       ])
       ->leftJoin('periode', 'isisjkirim.IsiSJKir', '=', 'periode.IsiSJKir')
       ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
@@ -445,11 +444,13 @@ class SJKembaliController extends Controller
     {
       $sjkembali = SJKembali::find($id);
       
+      $maxperiode = Periode::where('Reference', $sjkembali->Reference)->max('Periode');
+      
       $TglMin = Periode::select([
         'periode.S',
       ])
       ->where('periode.Reference', $sjkembali->Reference)
-      ->where('periode.Deletes', 'Sewa')
+      ->where('periode.Periode', $maxperiode)
       ->first();
       
       $TglMax = Periode::select([
@@ -550,7 +551,7 @@ class SJKembaliController extends Controller
         $data = Periode::where('periode.SJKem', $sjkembali->SJKem)
         ->where('periode.IsiSJKir', $isisjkir[$key])
         ->where('periode.Deletes', 'Kembali')->first();
-        $data->update(['Quantity' => $qtertanda2[$key]]);
+        $data->update(['Quantity' => $qtertanda2[$key], 'E' => $request->Tgl2]);
       }
       
       SJKembali::where('sjkembali.id', $id)

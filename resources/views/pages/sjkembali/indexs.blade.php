@@ -15,7 +15,7 @@
               <th>QTerima</th>
               <th>SJ Code</th>
               <th>Tgl Tertanda</th>
-              <th>Customer</th>
+              <th>Company</th>
               <th>Project</th>
             </tr>
           </thead>
@@ -26,7 +26,7 @@
               <td>{{$sjkembali->qtrima}}</td>
               <td>{{$sjkembali->SJKem}}</td>
               <td>{{$sjkembali->Tgl}}</td>
-              <td>{{$sjkembali->Customer}}</td>
+              <td>{{$sjkembali->Company}}</td>
               <td>{{$sjkembali->Project}}</td>
             </tr>
             @endforeach

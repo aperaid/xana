@@ -64,8 +64,8 @@
         @if(Auth::user()->access == 'Admin' && $ppn == 0)
           <div class="form-group">
             {!! Form::hidden('PPN', 0) !!}
-            {!! Form::checkbox('PPN', 1, null, ['class' => 'minimal']) !!}
-            {!! Form::label('PPN 10%', 'PPN 10%') !!}
+            {!! Form::checkbox('PPN', 1, null, ['id' => 'PPN', 'class' => 'minimal']) !!}
+            {!! Form::label('PPN', 'PPN 10%') !!}
           </div>
         @else
         @endif

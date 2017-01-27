@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Project;
 use App\Periode;
 use App\Invoice;
 use App\TransaksiClaim;
@@ -163,6 +164,8 @@ class TransaksiController extends Controller
       
       $periodeid = Periode::select([DB::raw('max(periode.id) as maxid')])->first();
       
+      $customercode = Project::leftJoin('pocustomer', 'project.PCode', '=', 'pocustomer.PCode')->where('Reference', $invoice->Reference)->first();
+      
       $Tgl = $invoice->Tgl;
       $Tgl2 = str_replace('/', '-', $Tgl);
       $TglInvoice = strtotime("+1 month", strtotime($Tgl2));
@@ -173,16 +176,32 @@ class TransaksiController extends Controller
       $SPeriode2 = date("d/m/Y", $SPeriode);
       $EPeriode = strtotime("+1 month", strtotime($E2));
       $EPeriode2 = date("d/m/Y", $EPeriode);
+      $Count = $invoice->Count+1;
+      $Periode = $invoice->Periode+1;
       
-      Invoice::Create([
-        'id' => $maxinvoice->maxinvoice+1,
-        'Invoice' => str_pad($maxinvoice->maxinvoice + 1, 5, "0", STR_PAD_LEFT),
-        'JSC' => 'Sewa',
-        'Tgl' => $TglInvoice2,
-        'Reference' => $invoice->Reference,
-        'Periode' => $invoice->Periode+1,
-        'PPN' => $invoice->PPN,
-      ]);
+      if(substr($invoice->Tgl,6)!=date('Y')){
+        Invoice::Create([
+          'id' => $maxinvoice->maxinvoice+1,
+          'Invoice' => $customercode->CCode.$Periode."/1/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
+          'JSC' => 'Sewa',
+          'Tgl' => $TglInvoice2,
+          'Reference' => $invoice->Reference,
+          'Periode' => $Periode,
+          'PPN' => $invoice->PPN,
+          'Count' => 1,
+        ]);
+      }else{
+        Invoice::Create([
+          'id' => $maxinvoice->maxinvoice+1,
+          'Invoice' =>  $customercode->CCode.$Periode."/".$Count."/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
+          'JSC' => 'Sewa',
+          'Tgl' => $TglInvoice2,
+          'Reference' => $invoice->Reference,
+          'Periode' => $Periode,
+          'PPN' => $invoice->PPN,
+          'Count' => $Count,
+        ]);
+      }
 
       $periode = $purchase;
       foreach ($periode as $key => $periode)

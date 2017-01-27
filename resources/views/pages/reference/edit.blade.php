@@ -36,8 +36,8 @@
         </div>
         <div class="form-group">
           {!! Form::hidden('PPNT', 0) !!}
-          {!! Form::checkbox('PPNT', 1, $reference->PPNT, ['class' => 'minimal']) !!}
-          {!! Form::label('Transport included in PPN', 'Transport included in PPN') !!}
+          {!! Form::checkbox('PPNT', 1, $reference->PPNT, ['id' => 'PPNT', 'class' => 'minimal']) !!}
+          {!! Form::label('PPNT', 'Transport included in PPN') !!}
         </div>
         <div class="form-group">
           {!! Form::label('Project Code', 'Project Code') !!}

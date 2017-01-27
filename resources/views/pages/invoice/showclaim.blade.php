@@ -63,10 +63,10 @@
             </tbody>
           </table>
           <div class="form-group">
-            <label class="col-sm-2 control-label">Pajak 10%</label>
+            {!! Form::label('PPN', 'Pajak 10%', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
               {!! Form::hidden('PPN', 0) !!}
-              {!! Form::checkbox('PPN', 1, $invoice->PPN, array('class' => 'minimal')) !!}
+              {!! Form::checkbox('PPN', 1, $invoice->PPN, array('id' => 'PPN', 'class' => 'minimal')) !!}
             </div>
           </div>
           <!-- Discount Input -->
