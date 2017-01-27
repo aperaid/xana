@@ -27,7 +27,8 @@
           <tbody>
             @foreach($isisjkirims as $isisjkirim)
             <tr>
-              {!! Form::hidden('id[]', $isisjkirim->id) !!}
+              {!! Form::hidden('isisjkirimid[]', $isisjkirim->isisjkirimid) !!}
+              {!! Form::hidden('transaksiid[]', $isisjkirim->transaksiid) !!}
               {!! Form::hidden('Purchase[]', $isisjkirim->Purchase) !!}
               {!! Form::hidden('IsiSJKir[]', $isisjkirim->IsiSJKir) !!}
               {!! Form::hidden('ICode[]', $isisjkirim->ICode) !!}

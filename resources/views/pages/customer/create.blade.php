@@ -11,7 +11,7 @@
   <div class="col-md-12">
     <div class="box box-info">
       <div class="box-header with-border">
-        <h3 class="box-title">Customer Detail</h3>
+        <h3 class="box-title">Company Detail</h3>
       </div>
       <!-- box-header -->
       <div class="box-body with-border">
@@ -77,6 +77,9 @@
               </div>
             </div>
           </div>
+          <div class="box-header">
+            <h3 class="box-title">Customer 1 Detail</h3>
+          </div>
           <hr>
           <div class="form-group">
             {!! Form::label('Contact Person', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
@@ -104,6 +107,72 @@
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
                 {!! Form::text('CustEmail', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+          </div>
+          <div class="box-header">
+            <h3 class="box-title">Customer 2 Detail</h3>
+          </div>
+          <hr>
+          <div class="form-group">
+            {!! Form::label('Contact Person', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-6">
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-user"></i>
+                </div>
+                {!! Form::text('Customer2', null, array('class' => 'form-control', 'placeholder' => 'CP Name', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Phone CP', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-2">
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-phone"></i>
+                </div>
+                {!! Form::text('CustPhone2', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+            {!! Form::label('Email CP', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                {!! Form::text('CustEmail2', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+          </div>
+          <div class="box-header">
+            <h3 class="box-title">Customer 3 Detail</h3>
+          </div>
+          <hr>
+          <div class="form-group">
+            {!! Form::label('Contact Person', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-6">
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-user"></i>
+                </div>
+                {!! Form::text('Customer3', null, array('class' => 'form-control', 'placeholder' => 'CP Name', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('Phone CP', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-2">
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-phone"></i>
+                </div>
+                {!! Form::text('CustPhone3', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
+              </div>
+            </div>
+            {!! Form::label('Email CP', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
+              <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                {!! Form::text('CustEmail3', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id', 'autocomplete' => 'off')) !!}
               </div>
             </div>
           </div>

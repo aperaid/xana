@@ -23,6 +23,7 @@ class InvoiceController extends Controller
     
     $invoice = Invoice::select([
       'invoice.*',
+      'pocustomer.id as pocusid',
       'pocustomer.Transport',
       'pocustomer.PPNT',
       'project.Project',
@@ -57,7 +58,7 @@ class InvoiceController extends Controller
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $parameter->Periode)
     ->where('periode.Quantity', '!=' , 0)
-    ->groupBy('periode.Purchase', 'periode.S', 'periode.Deletes')
+    ->groupBy('sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
     
@@ -67,6 +68,22 @@ class InvoiceController extends Controller
     ->groupBy('po.POCode')
     ->orderBy('po.id', 'desc')
     ->first();
+    
+    $sjkemcheck = 0;
+    $kemexist = Transaksi::where('transaksi.Reference', $invoice -> Reference)
+    ->count();
+    $kemfound = Transaksi::selectRaw('SUM(QSisaKem) as kemfound')
+    ->where('transaksi.Reference', $invoice -> Reference)
+    ->first();
+    if($kemexist == 0){
+      $sjkemcheck = 0;
+    }else{
+      if($kemfound -> kemfound == 0){
+        $sjkemcheck = 0;
+      }else{
+        $sjkemcheck = 1;
+      }
+      }
 
     $total = 0;
     foreach($periodes as $key => $periode2){
@@ -90,9 +107,21 @@ class InvoiceController extends Controller
       $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode2->SumQuantity*($periode2->Amount-($periode2->Amount*$periode2->Discount/100)); 
       $total += $total2[$key];
     }
+    
     if ($invoice->Periode == 1){
       $toss = $invoice->Transport; 
     }else $toss = 0;
+    
+    if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
+      $totals = number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
+      $totals = number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else if($invoice->Times > 0 && $invoice->PPNT == 1)
+      $totals = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else if($invoice->Times > 0 && $invoice->PPNT == 0)
+      $totals = number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else
+      $totals = number_format(($total*$invoice->PPN*0.1)+$total+$toss-((($total*$invoice->PPN*0.1)+$total+$toss)*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
     
     /*$pocodes = Periode::distinct()
     ->select('transaksi.POCode')
@@ -111,11 +140,13 @@ class InvoiceController extends Controller
       ->with('invoice', $invoice)
       ->with('periodes', $periodes)
       ->with('pocode', $pocode)
+      ->with('sjkemcheck', $sjkemcheck)
       ->with('SE', $SE)
       ->with('Days2', $Days2)
       ->with('I', $I)
       ->with('toss', $toss)
       ->with('total', $total)
+      ->with('totals', $totals)
       ->with('total2', $total2)
       ->with('top_menu_sel', 'menu_invoice')
       ->with('page_title', 'Invoice Sewa')
@@ -250,6 +281,152 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showsewa', $id);
   }
   
+  public function getInv($id)
+  {
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    $invoice = Invoice::find($id);
+    
+    $invoice = Invoice::select([
+      'invoice.*',
+      'project.*',
+      'customer.*',
+    ])
+    ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoice.Invoice', $invoice->Invoice)
+    ->first();
+    
+    $pocode = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Sewa')
+    ->groupBy('po.POCode')
+    ->orderBy('po.id', 'desc')
+    ->first();
+    
+    $periodes = Periode::select([
+      'transaksi.Barang',
+      'transaksi.Amount',
+      'periode.S',
+      'periode.E',
+      DB::raw('SUM(periode.Quantity) AS SumQuantity'),
+      'po.POCode',
+      'po.Discount'
+    ])
+    ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+    ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Sewa')
+    ->where('periode.Periode', $invoice->Periode)
+    ->where('periode.Quantity', '!=' , 0)
+    ->groupBy('periode.Purchase', 'periode.S', 'periode.Deletes')
+    ->orderBy('periode.id', 'asc')
+    ->get();
+    
+    $total = 0;
+    foreach($periodes as $key => $periode2){
+      $start = $periode2->S;
+      $end = $periode2->E;
+
+      $start2 = str_replace('/', '-', $start);
+      $end2 = str_replace('/', '-', $end);
+      $start3[] = strtotime($start2);
+      $end3[] = strtotime($end2);
+
+      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
+
+      $Days = str_replace('/', ',', $start);
+      $M = substr($Days, 3, -5);
+      $Y = substr($Days, 6);
+      $Days2[] = cal_days_in_month(CAL_GREGORIAN, $M, $Y);
+      
+      $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
+      
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode2->SumQuantity*($periode2->Amount-($periode2->Amount*$periode2->Discount/100));
+      $total += $total2[$key];
+    }
+    
+    if ($invoice->Periode == 1){
+      $toss = $invoice->Transport; 
+    }else $toss = 0;
+    
+    if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
+      $totals = "Rp. ".number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
+      $totals = "Rp. ".number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else if($invoice->Times > 0 && $invoice->PPNT == 1)
+      $totals = "Rp. ".number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else if($invoice->Times > 0 && $invoice->PPNT == 0)
+      $totals = "Rp. ".number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else
+      $totals = "Rp. ".number_format(($total*$invoice->PPN*0.1)+$total+$toss-((($total*$invoice->PPN*0.1)+$total+$toss)*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    
+    $firststart = $periodes->pluck('S');
+    
+    foreach($periodes as $key => $periode2){
+      $start = $periode2->S;
+      $end = $periode2->E;
+
+      $start2 = str_replace('/', '-', $start);
+      $end2 = str_replace('/', '-', $end);
+      $start3[] = strtotime($start2);
+      $end3[] = strtotime($end2);
+
+      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
+      //$pocode[] = $periode2->POCode;
+    }
+    $Quantity = $periodes->sum('SumQuantity');
+    //$PEO = implode("/", array_unique($pocode));
+    
+    $document = $phpWord->loadTemplate(public_path('/template/Inv.docx'));
+    
+    $document->setValue('Company', ''.$invoice->Company.'');
+    $document->setValue('CompPhone', ''.$invoice->CompPhone.'');
+    $document->setValue('PCode', ''.$invoice->PCode.'');
+    $document->setValue('Project', ''.$invoice->Project.'');
+    $document->setValue('Invoice', ''.$invoice->Invoice.'');
+    $document->setValue('S', ''.$firststart[0].'');
+    $document->setValue('E', ''.$end.'');
+    $document->setValue('Quantity', ''.$Quantity.'');
+    $document->setValue('Price', ''.$totals.'');
+    $document->setValue('PEO', ''.$pocode->POCode.'');
+
+    foreach ($periodes as $key => $periodes)
+    {
+      $key2 = $key+1;
+      $document->setValue('Key'.$key, ''.$key2.'');
+      $document->setValue('Barang'.$key, ''.$periodes->Barang.'');
+      $document->setValue('S'.$key, ''.$periodes->S.'');
+      $document->setValue('E'.$key, ''.$periodes->E.'');
+      $document->setValue('SE'.$key, ''.$SE[$key].'');
+      $document->setValue('Quantity'.$key, ''.$periodes->SumQuantity.'');
+      $document->setValue('Sat'.$key, 'PCS');
+      $document->setValue('Price'.$key, ''."Rp. ".number_format($total2[$key], 2, ',', '.').'');
+    }
+    
+    for($x=0;$x<20;$x++){
+      $document->setValue('Key'.$x, '');
+      $document->setValue('Barang'.$x, '');
+      $document->setValue('S'.$x, '');
+      $document->setValue('E'.$x, '');
+      $document->setValue('SE'.$x, '');
+      $document->setValue('Quantity'.$x, '');
+      $document->setValue('Sat'.$x, '');
+      $document->setValue('Price'.$x, '');
+    }
+    
+    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+    $path = sprintf("C:\Users\%s\Desktop\Inv_", $user);
+    $clear = str_replace("/","",$invoice->Invoice);
+    $download = sprintf('%s.docx', $clear);
+    
+    $document->saveAs($path.$download);
+    
+    Session::flash('message', 'Downloaded to Desktop file name Inv_'.$download);
+    return redirect()->route('invoice.showsewa', $id);
+  }
+  
   public function getInvoiceJual($id)
   {
     $parameter = Invoice::find($id);
@@ -300,6 +477,11 @@ class InvoiceController extends Controller
       $x++;
     }
     
+    if($invoice->PPNT == 1)
+      $totals = "Rp. ".number_format((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1)+($total+($invoice->Transport*$invoice->Times))-(((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1)+($total+($invoice->Transport*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else
+      $totals = "Rp. ".number_format(($total*$invoice->PPN*0.1)+$total+($invoice->Transport*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($invoice->Transport*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    
     if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
       return view('pages.invoice.showjual')
       ->with('url', 'invoice')
@@ -307,6 +489,7 @@ class InvoiceController extends Controller
       ->with('transaksis', $transaksis)
       ->with('pocode', $pocode)
       ->with('total', $total)
+      ->with('totals', $totals)
       ->with('total2', $total2)
       ->with('top_menu_sel', 'menu_invoice')
       ->with('page_title', 'Invoice Jual')

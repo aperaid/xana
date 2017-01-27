@@ -114,6 +114,12 @@ class CustomerController extends Controller
     	$customer->Customer = $request->Customer;
       $customer->CustPhone = $request->CustPhone;
     	$customer->CustEmail = $request->CustEmail;
+      $customer->Customer2 = $request->Customer2;
+      $customer->CustPhone2 = $request->CustPhone2;
+    	$customer->CustEmail2 = $request->CustEmail2;
+      $customer->Customer3 = $request->Customer3;
+      $customer->CustPhone3 = $request->CustPhone3;
+    	$customer->CustEmail3 = $request->CustEmail3;
     	$customer->save();
       
       $history = new History;

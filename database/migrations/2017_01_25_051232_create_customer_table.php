@@ -27,6 +27,12 @@ class CreateCustomerTable extends Migration
         $table->string('CustEmail')->nullable();
         $table->string('Fax')->nullable();
         $table->string('NPWP')->nullable();
+        $table->string('Customer2')->nullable();
+        $table->string('CustPhone2')->nullable();
+        $table->string('CustEmail2')->nullable();
+        $table->string('Customer3')->nullable();
+        $table->string('CustPhone3')->nullable();
+        $table->string('CustEmail3')->nullable();
       });
     }
 

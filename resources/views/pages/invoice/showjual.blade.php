@@ -56,7 +56,7 @@
                 <th align="center">SJ Kirim</th>
                 <th align="center">Item</th>
                 <th>Quantity</th>
-                <th>Discount(%)</th>
+                <th>PO Discount(%)</th>
                 <th>Price/Unit</th>
                 <th>Total</th>
               </tr>
@@ -126,17 +126,14 @@
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              @if($invoice->PPNT == 1)
-                {!! Form::text('Total', 'Rp. ' . number_format((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1)+($total+($invoice->Transport*$invoice->Times))-(((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1)+($total+($invoice->Transport*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
-              @else
-                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+($invoice->Transport*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($invoice->Transport*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
-              @endif
+              {!! Form::text('Total', $totals, array('class' => 'form-control', 'readonly')) !!}
             </div>
             {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}
           </div>
           <div class="box-footer">
             <!-- Back Button -->
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>
+            <!--<a href="{{route('invoice.Inv', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
             <!-- Submit Button -->
             {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
           </div>

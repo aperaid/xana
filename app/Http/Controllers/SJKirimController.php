@@ -373,8 +373,10 @@ class SJKirimController extends Controller
     	$sjkirim = SJKirim::find($id);
       
       $isisjkirims = IsiSJKirim::select([
+        'isisjkirim.id as isisjkirimid',
         'isisjkirim.*',
         'sjkirim.*',
+        'transaksi.id as transaksiid',
         'transaksi.*',
         'inventory.*',
         'project.Project',
@@ -454,7 +456,7 @@ class SJKirimController extends Controller
         }
       }
 
-      $transaksis = $input['id'];
+      $transaksis = $input['transaksiid'];
       foreach ($transaksis as $key => $transaksi)
       {
         $transaksi = Transaksi::find($transaksis[$key]);
@@ -472,10 +474,11 @@ class SJKirimController extends Controller
       {
         $periode = Periode::find($periodes[$key]);
         $periode->Quantity = $input['QKirim'][$key];
+        $periode->S = $input['Tgl'];
         $periode->save();
       }
       
-      $isisjkirims = $input['id'];
+      $isisjkirims = $input['isisjkirimid'];
       foreach ($isisjkirims as $key => $isisjkirim)
       {
         $isisjkirim = IsiSJKirim::find($isisjkirims[$key]);
@@ -488,8 +491,6 @@ class SJKirimController extends Controller
       $history->User = Auth::user()->name;
       $history->History = 'Update SJKirim on SJKir '.$sjkirim->SJKir;
       $history->save();
-      
-      Session::flash('message', $warehouse2);
 
     	return redirect()->route('sjkirim.show', $id);
     }

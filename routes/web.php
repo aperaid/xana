@@ -68,6 +68,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('invoice/lunas/{id}', ['as' => 'invoice.lunas', 'uses' => 'InvoiceController@getLunas']);
   Route::post('invoice/updatelunas/{id}', ['as' => 'invoice.updatelunas', 'uses' => 'InvoiceController@postLunas']);
   Route::get('invoice/BA/{id}', ['as' => 'invoice.BA', 'uses' => 'InvoiceController@getBA']);
+  Route::get('invoice/Inv/{id}', ['as' => 'invoice.Inv', 'uses' => 'InvoiceController@getInv']);
 
   Route::resource('invoice', 'InvoiceController');
 

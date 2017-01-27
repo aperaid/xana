@@ -149,17 +149,7 @@
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['id' => 'Total', 'class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              @if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-                {!! Form::text('Total', 'Rp. ' . number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
-              @elseif($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
-              @elseif($invoice->Times > 0 && $invoice->PPNT == 1)
-                {!! Form::text('Total', 'Rp. ' . number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
-              @elseif($invoice->Times > 0 && $invoice->PPNT == 0)
-                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
-              @else
-                {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total+$toss-((($total*$invoice->PPN*0.1)+$total+$toss)*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
-              @endif
+                {!! Form::text('Total', 'Rp. '.$totals, array('class' => 'form-control', 'readonly')) !!}
             </div>
               {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}
           </div>
@@ -169,8 +159,11 @@
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>
             <!-- Print Button -->
             <a href="{{route('invoice.BA', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Berita Acara</a>
+            <a href="{{route('invoice.Inv', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
             <!-- Submit Button -->
             {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
+            <a href="{{route('sjkembali.create', 'id='.$invoice->pocusid)}}"><button type="button" style="margin-right: 5px;"	@if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right"	@endif	>SJ Kembali</button></a>
+            <a href="{{route('transaksi.claimcreate', $invoice->pocusid)}}">	<button type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif	>Claim</button></a>
           </div>
           <!-- box-footer -->
         </div>

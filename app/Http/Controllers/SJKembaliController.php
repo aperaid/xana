@@ -136,7 +136,7 @@ class SJKembaliController extends Controller
       ->where('sjkirim.Reference', $Reference)
       ->where('transaksi.JS', 'Sewa')
       ->whereIn('periode.id', $maxperiodeid)
-      ->groupBy('isisjkirim.Purchase')
+      ->groupBy('isisjkirim.SJKir')
       ->orderBy('periode.id', 'asc')
       ->get();
       
