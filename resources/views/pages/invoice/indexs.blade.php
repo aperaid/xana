@@ -139,7 +139,7 @@ $(document).ready(function () {
 	// Invoice Sewa
 	var table = $("#datatabless").DataTable({
 		"processing": true,
-		"order": [2, "desc"],
+		"order": [0, "desc"],
 		"columnDefs":[
 			{
 				"targets": [0],
@@ -161,7 +161,7 @@ $(document).ready(function () {
 	// Invoice Jual
 	var table2 = $("#datatablesj").DataTable({
 		"processing": true,
-		"order": [2, "desc"],
+		"order": [0, "desc"],
 		"columnDefs":[
 			{
 				"targets": [0],
@@ -182,7 +182,7 @@ $(document).ready(function () {
 	//Invoice Claim
 	var table3 = $("#datatablesc").DataTable({
 		"processing": true,
-    "order": [2, "desc"],
+    "order": [0, "desc"],
 		"columnDefs":[
 			{
 				"targets": [0],
