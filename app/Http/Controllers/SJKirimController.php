@@ -311,6 +311,7 @@ class SJKirimController extends Controller
     {
       $sjkirim = SJKirim::select([
         'sjkirim.*',
+        'sjkirim.id as sjkirid', 
         'pocustomer.id as pocusid', 
       ])
       ->leftJoin('pocustomer', 'sjkirim.Reference', '=', 'pocustomer.Reference')
@@ -619,46 +620,45 @@ class SJKirimController extends Controller
     	return redirect()->route('sjkirim.show', $id);
     }
 
-    public function getSPB($id)
+    public function getSJ($id)
     {
       $phpWord = new \PhpOffice\PhpWord\PhpWord();
-    	$reference = Reference::find($id);
+    	$sjkirim = SJKirim::find($id);
       
-      $maxperiode = Periode::select([
-        DB::raw('max(periode.Periode) as maxperiode'),
-      ])
-      ->where('periode.Reference', $reference->Reference)
-      ->first();
-      
-      $transaksis = Transaksi::where('transaksi.Reference', $reference->Reference)
-      ->where('transaksi.JS', 'Sewa')
-      ->orderBy('transaksi.id', 'asc')
+      $isisjkirims = IsiSJKirim::leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+      ->where('isisjkirim.SJKir', $sjkirim->SJKir)
+      ->orderBy('isisjkirim.id', 'asc')
       ->get();
       
-      $transaksi = Reference::leftJoin('invoice', 'pocustomer.Reference', '=', 'invoice.Reference')
+      $sjkirim = IsiSJKirim::leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+      ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+      ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-      ->where('pocustomer.id', $id)
-      ->where('invoice.Periode', $maxperiode->maxperiode)
+      ->where('sjkirim.SJKir', $sjkirim->SJKir)
       ->first();
       
-      $document = $phpWord->loadTemplate(public_path('/template/SPB.docx'));
+      $document = $phpWord->loadTemplate(public_path('/template/SJ.docx'));
       
-      $document->setValue('Company', ''.$transaksi->Company.'');
-      $document->setValue('Project', ''.$transaksi->Project.'');
-      $document->setValue('ProjAlamat', ''.$transaksi->ProjAlamat.'');
-      $document->setValue('Customer', ''.$transaksi->Customer.'');
-      $document->setValue('CustPhone', ''.$transaksi->CustPhone.'');
-      $document->setValue('Invoice', ''.$transaksi->Invoice.'');
+      $document->setValue('Company', ''.$sjkirim->Company.'');
+      $document->setValue('Project', ''.$sjkirim->Project.'');
+      $document->setValue('ProjAlamat', ''.$sjkirim->ProjAlamat.'');
+      $document->setValue('Customer', ''.$sjkirim->Customer.'');
+      $document->setValue('CustPhone', ''.$sjkirim->CustPhone.'');
+      $document->setValue('SJKir', $sjkirim->SJKir);
       $document->setValue('Tanggal', ''.date("d/m/Y").'');
-      $document->setValue('JS', 'Sewa');
+      $document->setValue('JS', $sjkirim->JS);
+      $document->setValue('NoPolisi', $sjkirim->NoPolisi);
+      $document->setValue('FormMuat', $sjkirim->FormMuat);
+      $document->setValue('Sopir', $sjkirim->Sopir);
+      $document->setValue('Kenek', $sjkirim->Kenek);
 
-      foreach ($transaksis as $key => $transaksis)
+      foreach ($isisjkirims as $key => $isisjkirim)
       {
         $key2 = $key+1;
         $document->setValue('Key'.$key, ''.$key2.'');
-        $document->setValue('Barang'.$key, ''.$transaksis->Barang.'');
-        $document->setValue('Quantity'.$key, ''.$transaksis->Quantity.' PCS');
+        $document->setValue('Barang'.$key, ''.$isisjkirim->Barang.'');
+        $document->setValue('Quantity'.$key, ''.$isisjkirim->QKirim.' PCS');
       }
       
       for($x=0;$x<20;$x++){
@@ -668,14 +668,14 @@ class SJKirimController extends Controller
       }
       
       $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-      $path = sprintf("C:\Users\%s\Desktop\SPB_", $user);
-      $clear = str_replace("/","",$transaksi->Invoice);
+      $path = sprintf("C:\Users\%s\Desktop\SJ_", $user);
+      $clear = str_replace("/","_",$sjkirim->SJKir);
       $download = sprintf('%s.docx', $clear);
       
       $document->saveAs($path.$download);
       
-      Session::flash('message', 'Downloaded to Desktop file name SPB_'.$download);
-    	return redirect()->route('reference.show', $id);
+      Session::flash('message', 'Downloaded to Desktop file name SJ_'.$download);
+    	return redirect()->route('sjkirim.show', $id);
     }
     
     public function destroy(Request $request, $id)

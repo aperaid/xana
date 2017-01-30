@@ -273,13 +273,66 @@ class InvoiceController extends Controller
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
     $path = sprintf("C:\Users\%s\Desktop\BA_", $user);
-    $clear = str_replace("/","",$invoice->Invoice);
+    $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);
     
     Session::flash('message', 'Downloaded to Desktop file name BA_'.$download);
     return redirect()->route('invoice.showsewa', $id);
+  }
+  
+  function kekata($x) {
+    $x = abs($x);
+    $angka = array("", "satu", "dua", "tiga", "empat", "lima",
+    "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
+    $temp = "";
+    if($x <12) {
+      $temp = " ". $angka[$x];
+    }else if ($x <20) {
+      $temp = $this->kekata($x - 10). " belas";
+    }else if ($x <100) {
+      $temp = $this->kekata($x/10)." puluh". $this->kekata($x % 10);
+    }else if ($x <200) {
+      $temp = " seratus" . $this->kekata($x - 100);
+    }else if ($x <1000) {
+      $temp = $this->kekata($x/100) . " ratus" . $this->kekata($x % 100);
+    }else if ($x <2000) {
+      $temp = " seribu" . $this->kekata($x - 1000);
+    }else if ($x <1000000) {
+      $temp = $this->kekata($x/1000) . " ribu" . $this->kekata($x % 1000);
+    }else if ($x <1000000000) {
+      $temp = $this->kekata($x/1000000) . " juta" . $this->kekata($x % 1000000);
+    }else if ($x <1000000000000) {
+      $temp = $this->kekata($x/1000000000) . " milyar" . $this->kekata(fmod($x,1000000000));
+    }else if ($x <1000000000000000) {
+      $temp = $this->kekata($x/1000000000000) . " trilyun" . $this->kekata(fmod($x,1000000000000));
+    }
+    return $temp;
+  }
+ 
+ 
+  function terbilang($x, $style=4) {
+    if($x<0) {
+      $hasil = "minus ". trim(kekata($x));
+    } else {
+      $hasil = ucwords(trim($this->kekata($x)));
+    }     
+    switch ($style) {
+      case 1:
+        $hasil = strtoupper($hasil);
+        break;
+      case 2:
+        $hasil = strtolower($hasil);
+        break;
+      case 3:
+        $hasil = ucwords($hasil);
+        break;
+      default:
+        $hasil = ucfirst($hasil);
+        break;
+    }
+    return $hasil;
   }
   
   public function getInv($id)
@@ -355,26 +408,33 @@ class InvoiceController extends Controller
       $toss = 0;
     
     if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-      $totals = number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali))-(((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)))*$invoice->Discount/100)-$invoice->Pembulatan, 0, ',','.');
+      $totals = (($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali))-(((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)))*$invoice->Discount/100)-$invoice->Pembulatan;
     else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-      $totals = number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali))*$invoice->Discount/100)-$invoice->Pembulatan, 0, ',','.');
+      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali))*$invoice->Discount/100)-$invoice->Pembulatan;
     else if($invoice->Times > 0 && $invoice->PPNT == 1)
-      $totals = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 0, ',','.');
+      $totals = (($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
     else if($invoice->Times > 0 && $invoice->PPNT == 0)
-      $totals = number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 0, ',','.');
+      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
     else
-      $totals = number_format(($total*$invoice->PPN*0.1)+$total+$toss-((($total*$invoice->PPN*0.1)+$total+$toss)*$invoice->Discount/100)-$invoice->Pembulatan, 0, ',','.');
+      $totals = ($total*$invoice->PPN*0.1)+$total+$toss-((($total*$invoice->PPN*0.1)+$total+$toss)*$invoice->Discount/100)-$invoice->Pembulatan;
     
     if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-      $PPN = number_format(((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)), 0, ',','.');
+      $PPN = number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1), 0, ',','.');
     else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-      $PPN = number_format((($total*$invoice->PPN*0.1)), 0, ',','.');
+      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
     else if($invoice->Times > 0 && $invoice->PPNT == 1)
-      $PPN = number_format(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)), 0, ',','.');
+      $PPN = number_format(($total+($toss*$invoice->Times)*$invoice->PPN*0.1), 0, ',','.');
     else if($invoice->Times > 0 && $invoice->PPNT == 0)
-      $PPN = number_format((($total*$invoice->PPN*0.1)), 0, ',','.');
+      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
     else
       $PPN = number_format((($total*$invoice->PPN*0.1)+$toss), 0, ',','.');
+    
+    if($invoice->TimesKembali > 0)
+      $Transport = number_format($toss*$invoice->TimesKembali, 0, ',','.');
+    else if($invoice->Times > 0 )
+      $Transport = number_format($toss*$invoice->Times, 0, ',','.');
+    else
+      $Transport = number_format(0, 0, ',','.');
     
     $firststart = $periodes->pluck('S');
     
@@ -387,6 +447,7 @@ class InvoiceController extends Controller
       $start3[] = strtotime($start2);
       $end3[] = strtotime($end2);
 
+      $duedate = date('d/m/Y', strtotime($end2."+4 days"));
       $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
       //$pocode[] = $periode2->POCode;
     }
@@ -405,12 +466,14 @@ class InvoiceController extends Controller
     $document->setValue('Invoice', ''.$invoice->Invoice.'');
     $document->setValue('S', ''.$firststart[0].'');
     $document->setValue('E', ''.$end.'');
+    $document->setValue('DueDate', ''.$duedate.'');
     $document->setValue('SJKem', ''.$SJKem.'');
     $document->setValue('Quantity', ''.$Quantity.'');
     $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
-    $document->setValue('Transport', ''.number_format($toss, 0, ',','.').'');
+    $document->setValue('Transport', ''.$Transport.'');
     $document->setValue('PPN', ''.$PPN.'');
-    $document->setValue('Totals', ''.$totals.'');
+    $document->setValue('Totals', ''.number_format($totals, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($totals)).'');
 
     foreach ($periodes as $key => $periode)
     {
@@ -442,7 +505,7 @@ class InvoiceController extends Controller
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
     $path = sprintf("C:\Users\%s\Desktop\Inv_", $user);
-    $clear = str_replace("/","",$invoice->Invoice);
+    $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);

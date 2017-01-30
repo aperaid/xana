@@ -91,7 +91,8 @@
     
     <div class="box-footer">
       <a href="{{route('sjkirim.index')}}"><button type="button" class="btn btn-default">Back</button></a>
-      <a href="{{route('sjkirim.SPB', $sjkirim->pocusid)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print SPB</a>
+      <a href="{{route('sjkirim.SJ', $sjkirim->sjkirid)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print SJ</a>
+      
       <a href="{{route('sjkirim.qtertanda', $sjkirim->id)}}"><button type="button" @if ($qttdcheck > 0) class="btn btn-default pull-right" disabled @else class="btn btn-success pull-right" @endif >Q Tertanda</button></a>
       <a href="{{route('sjkirim.edit', $sjkirim->id)}}"><button type="button" @if ($jumlah > 0) style="margin-right: 5px" class="btn btn-default pull-right" disabled @else style="margin-right: 5px" class="btn btn-primary pull-right" @endif >Edit Pengiriman</button></a>
       <button type="submit" class="btn btn-danger pull-right" style="margin-right: 5px;" @if($jumlah > 1) disabled @endif onclick="return confirm('Delete SJ Kirim?')">Delete</button>
