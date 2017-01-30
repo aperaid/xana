@@ -272,13 +272,13 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\%s\Desktop\BA_", $user);
+    $path = sprintf("C:\Users\Public\Documents\BA_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Desktop file name BA_'.$download);
+    Session::flash('message', 'Downloaded to Server Public Documents file name BA_'.$download);
     return redirect()->route('invoice.showsewa', $id);
   }
   
@@ -310,8 +310,7 @@ class InvoiceController extends Controller
     }
     return $temp;
   }
- 
- 
+
   function terbilang($x, $style=4) {
     if($x<0) {
       $hasil = "minus ". trim(kekata($x));
@@ -504,13 +503,13 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\%s\Desktop\Inv_", $user);
+    $path = sprintf("C:\Users\Public\Documents\Inv_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Desktop file name Inv_'.$download);
+    Session::flash('message', 'Downloaded to Server Public Documents file name Inv_'.$download);
     return redirect()->route('invoice.showsewa', $id);
   }
   

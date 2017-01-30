@@ -668,13 +668,13 @@ class SJKirimController extends Controller
       }
       
       $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-      $path = sprintf("C:\Users\%s\Desktop\SJ_", $user);
+      $path = sprintf("C:\Users\Public\Documents\SJ_");
       $clear = str_replace("/","_",$sjkirim->SJKir);
       $download = sprintf('%s.docx', $clear);
       
       $document->saveAs($path.$download);
       
-      Session::flash('message', 'Downloaded to Desktop file name SJ_'.$download);
+      Session::flash('message', 'Downloaded to Server Public Documents file name SJ_'.$download);
     	return redirect()->route('sjkirim.show', $id);
     }
     

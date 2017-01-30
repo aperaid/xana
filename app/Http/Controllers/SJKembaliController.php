@@ -742,13 +742,13 @@ class SJKembaliController extends Controller
       }
       
       $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-      $path = sprintf("C:\Users\%s\Desktop\SPB_", $user);
+      $path = sprintf("C:\Users\Public\Documents\SPB_", $user);
       $clear = str_replace("/","_",$transaksi->Invoice);
       $download = sprintf('%s.docx', $clear);
       
       $document->saveAs($path.$download);
       
-      Session::flash('message', 'Downloaded to Desktop file name SPB_'.$download);
+      Session::flash('message', 'Downloaded to Server Public Documents file name SPB_'.$download);
     	return redirect()->route('reference.show', $id);
     }
 
