@@ -393,15 +393,17 @@ class TransaksiController extends Controller
       }else
         return redirect()->back();
     }
-    
+
     public function postClaim(Request $request)
     {
       $Tgl = Session::get('Tgl');
       $Reference = Session::get('Reference');
       
+      $customercode = Project::leftJoin('pocustomer', 'project.PCode', '=', 'pocustomer.PCode')->where('Reference', $Reference)->first();
+      
       $invoice = Invoice::Create([
         'id' => $request['invoiceid'],
-        'Invoice' => str_pad($request['invoiceid'], 5, "0", STR_PAD_LEFT),
+        'Invoice' => $customercode->CCode."01/".substr($Tgl, 0, -8)."CL/".substr($Tgl, 3, -5).substr($Tgl, 6)."/BDN",
         'JSC' => 'Claim',
         'Tgl' => $Tgl,
         'Reference' => $Reference,

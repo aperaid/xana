@@ -110,7 +110,7 @@
 	$(document).ready(function () {
 		var table = $("#datatabless").DataTable({
       "processing": true,
-      "order": [2, "desc"],
+      "order": [0, "desc"],
       "columnDefs":[
 				{
 					"targets" : 0,
@@ -130,7 +130,7 @@
 	$(document).ready(function () {
 		var table = $("#datatablesj").DataTable({
       "processing": true,
-      "order": [2, "desc"],
+      "order": [0, "desc"],
       "columnDefs": [{
         "targets": 0,
         "visible": false,
@@ -149,7 +149,7 @@
 	$(document).ready(function () {
 		var table = $("#datatablesc").DataTable({
       "processing" : true,
-      "order": [2, "desc"],
+      "order": [0, "desc"],
       "columnDefs": [{
         "targets": 0,
         "visible": false,

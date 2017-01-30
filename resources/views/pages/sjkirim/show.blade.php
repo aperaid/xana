@@ -82,8 +82,12 @@
     </div>
     <div class="box-body">
       <div class="form-group">
-        {!! Form::label('FormMuat', 'Form Muat', ['class' => "col-sm-3 control-label"]) !!}
-        <div class="col-sm-6">
+        {!! Form::label('Keterangan', 'Keterangan', ['class' => "col-sm-1 control-label"]) !!}
+        <div class="col-sm-5">
+          {!! Form::textarea('Keterangan', $isisjkirim->Keterangan, array('class' => 'form-control', 'rows' => '3', 'readonly')) !!}
+        </div>
+        {!! Form::label('FormMuat', 'Form Muat', ['class' => "col-sm-1 control-label"]) !!}
+        <div class="col-sm-5">
           {!! Form::textarea('FormMuat', $isisjkirim->FormMuat, array('class' => 'form-control', 'rows' => '3', 'readonly')) !!}
         </div>
       </div>

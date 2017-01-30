@@ -231,6 +231,7 @@ class SJKirimController extends Controller
         'NoPolisi' => $request['NoPolisi'],
         'Sopir' => $request['Sopir'],
         'Kenek' => $request['Kenek'],
+        'Keterangan' => $request['Keterangan'],
         'FormMuat' => $request['FormMuat'],
       ]);
       
@@ -420,6 +421,7 @@ class SJKirimController extends Controller
       $sjkirim->Sopir = $request['Sopir'];
       $sjkirim->Kenek = $request['Kenek'];
       $sjkirim->FormMuat = $request['FormMuat'];
+      $sjkirim->Keterangan = $request['Keterangan'];
       $sjkirim->save();
       
       $isisjkirim = IsiSJKirim::where('isisjkirim.SJKir', $sjkirim -> SJKir)->orderBy('id', 'asc');
@@ -649,6 +651,7 @@ class SJKirimController extends Controller
       $document->setValue('Tanggal', ''.date("d/m/Y").'');
       $document->setValue('JS', $sjkirim->JS);
       $document->setValue('NoPolisi', $sjkirim->NoPolisi);
+      $document->setValue('Keterangan', $sjkirim->Keterangan);
       $document->setValue('FormMuat', $sjkirim->FormMuat);
       $document->setValue('Sopir', $sjkirim->Sopir);
       $document->setValue('Kenek', $sjkirim->Kenek);

@@ -159,7 +159,7 @@
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>
             <!-- Print Button -->
             <a href="{{route('invoice.BA', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Berita Acara</a>
-            <a href="{{route('invoice.Inv', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
+            <a href="{{route('invoice.Invs', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
             <!-- Submit Button -->
             {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
             <a href="{{route('sjkembali.create', 'id='.$invoice->pocusid)}}"><button type="button" style="margin-right: 5px;"	@if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right"	@endif	>SJ Kembali</button></a>

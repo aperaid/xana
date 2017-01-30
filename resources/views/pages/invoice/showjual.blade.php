@@ -133,7 +133,7 @@
           <div class="box-footer">
             <!-- Back Button -->
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>
-            <!--<a href="{{route('invoice.Inv', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
+            <a href="{{route('invoice.Invj', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
             <!-- Submit Button -->
             {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
           </div>

@@ -22,6 +22,7 @@ class CreateSjkirimTable extends Migration
         $table->string('Sopir')->nullable();
         $table->string('Kenek')->nullable();
         $table->text('FormMuat')->nullable();
+        $table->text('Keterangan')->nullable();
       });
     }
 
