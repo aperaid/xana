@@ -91,21 +91,19 @@
           </table>
           <!-- PPN checkbox -->
           <div class="form-group">
-          {!! Form::label('PPN', 'Pajak 10%', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              {!! Form::hidden('PPN', 0) !!}
-              {!! Form::checkbox('PPN', 1, $invoice->PPN, ['id' => 'PPN', 'class' => 'minimal']) !!}
-            </div>
+            @if(Auth::user()->access == 'Admin')
+              {!! Form::label('PPN', 'Pajak 10%', ['class' => "col-sm-2 control-label"]) !!}
+              <div class="col-sm-6">
+                {!! Form::hidden('PPN', 0) !!}
+                {!! Form::checkbox('PPN', 1, $invoice->PPN, ['id' => 'PPN', 'class' => 'minimal']) !!}
+              </div>
+            @endif
           </div>
           <!-- Transport Input -->
           <div class="form-group">
             {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              @if($invoice->Times > 0 || $invoice->TimesKembali > 0)
-                {!! Form::text('Transport', 'Rp '. number_format($invoice->Transport,0,',','.'), ['class' => 'form-control', 'readonly']) !!}
-              @else
-                {!! Form::text('Transport', '', ['class' => 'form-control', 'readonly']) !!}
-              @endif
+              {!! Form::text('Transport', 'Rp '. $Transport, ['class' => 'form-control', 'readonly']) !!}
             </div>
           </div>
           <div class="form-group">

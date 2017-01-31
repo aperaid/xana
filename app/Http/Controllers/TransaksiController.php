@@ -164,7 +164,7 @@ class TransaksiController extends Controller
       
       $periodeid = Periode::select([DB::raw('max(periode.id) as maxid')])->first();
       
-      $customercode = Project::leftJoin('pocustomer', 'project.PCode', '=', 'pocustomer.PCode')->where('Reference', $invoice->Reference)->first();
+      $projectcode = Reference::where('Reference', $invoice->Reference)->first();
       
       $Tgl = $invoice->Tgl;
       $Tgl2 = str_replace('/', '-', $Tgl);
@@ -182,7 +182,7 @@ class TransaksiController extends Controller
       if(substr($invoice->Tgl,6)!=date('Y')){
         Invoice::Create([
           'id' => $maxinvoice->maxinvoice+1,
-          'Invoice' => $customercode->CCode.str_pad($Periode, 2, "0", STR_PAD_LEFT)."/1/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
+          'Invoice' => $projectcode->PCode.str_pad($Periode, 2, "0", STR_PAD_LEFT)."/1/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
           'JSC' => 'Sewa',
           'Tgl' => $TglInvoice2,
           'Reference' => $invoice->Reference,
@@ -193,7 +193,7 @@ class TransaksiController extends Controller
       }else{
         Invoice::Create([
           'id' => $maxinvoice->maxinvoice+1,
-          'Invoice' =>  $customercode->CCode.str_pad($Periode, 2, "0", STR_PAD_LEFT)."/".$Count."/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
+          'Invoice' =>  $projectcode->PCode.str_pad($Periode, 2, "0", STR_PAD_LEFT)."/".$Count."/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
           'JSC' => 'Sewa',
           'Tgl' => $TglInvoice2,
           'Reference' => $invoice->Reference,
@@ -399,11 +399,11 @@ class TransaksiController extends Controller
       $Tgl = Session::get('Tgl');
       $Reference = Session::get('Reference');
       
-      $customercode = Project::leftJoin('pocustomer', 'project.PCode', '=', 'pocustomer.PCode')->where('Reference', $Reference)->first();
+      $projectcode = Reference::where('Reference', $Reference)->first();
       
       $invoice = Invoice::Create([
         'id' => $request['invoiceid'],
-        'Invoice' => $customercode->CCode."01/".substr($Tgl, 0, -8)."CL/".substr($Tgl, 3, -5).substr($Tgl, 6)."/BDN",
+        'Invoice' => $projectcode->PCode."/".$request->Periode."CL/".substr($Tgl, 3, -5).substr($Tgl, 6)."/BDN",
         'JSC' => 'Claim',
         'Tgl' => $Tgl,
         'Reference' => $Reference,

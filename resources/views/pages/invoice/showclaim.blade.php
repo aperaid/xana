@@ -62,12 +62,15 @@
               @endforeach
             </tbody>
           </table>
+          <!-- PPN checkbox -->
           <div class="form-group">
-            {!! Form::label('PPN', 'Pajak 10%', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              {!! Form::hidden('PPN', 0) !!}
-              {!! Form::checkbox('PPN', 1, $invoice->PPN, array('id' => 'PPN', 'class' => 'minimal')) !!}
-            </div>
+            @if(Auth::user()->access == 'Admin')
+              {!! Form::label('PPN', 'Pajak 10%', ['class' => "col-sm-2 control-label"]) !!}
+              <div class="col-sm-6">
+                {!! Form::hidden('PPN', 0) !!}
+                {!! Form::checkbox('PPN', 1, $invoice->PPN, ['id' => 'PPN', 'class' => 'minimal']) !!}
+              </div>
+            @endif
           </div>
           <!-- Discount Input -->
           <div class="form-group">
@@ -101,6 +104,7 @@
           <div class="box-footer">
             <!-- Back Button -->
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>
+            <a href="{{route('invoice.Invc', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
             <!-- Submit Button -->
             {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
           </div>

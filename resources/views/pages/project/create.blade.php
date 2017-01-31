@@ -20,7 +20,7 @@
           <div class="form-group">
             {!! Form::label('Project Code', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('PCode', null, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'PRO01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+              {!! Form::text('PCode', null, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'PRO01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '6', 'required')) !!}
             </div>
           </div>
           <div class="form-group">

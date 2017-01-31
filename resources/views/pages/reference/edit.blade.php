@@ -35,9 +35,11 @@
           {!! Form::text('Transport', 'Rp ' . number_format( $reference -> Transport, 0,',', '.' ), array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Transport Fee', 'required')) !!}
         </div>
         <div class="form-group">
+        @if(Auth::user()->access == 'Admin' || Auth::user()->access == 'POPPN')
           {!! Form::hidden('PPNT', 0) !!}
           {!! Form::checkbox('PPNT', 1, $reference->PPNT, ['id' => 'PPNT', 'class' => 'minimal']) !!}
           {!! Form::label('PPNT', 'Transport included in PPN') !!}
+        @endif
         </div>
         <div class="form-group">
           {!! Form::label('Project Code', 'Project Code') !!}

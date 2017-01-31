@@ -176,7 +176,7 @@ class POController extends Controller
       }
     }*/
     
-    $customercode = Project::leftJoin('pocustomer', 'project.PCode', '=', 'pocustomer.PCode')->where('Reference', $request['Reference'])->first();
+    $projectcode = Reference::where('Reference', $request['Reference'])->first();
     
     $invppn = Invoice::where('Reference', $input['Reference'])
     ->first();
@@ -206,9 +206,9 @@ class POController extends Controller
       $invoices = new Invoice;//Invoice::updateOrCreate(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
       $invoices->id = $invoice->maxid + 1;
       if($JSC[$key]=="Sewa"){
-        $invoices->Invoice = $customercode->CCode."01/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+        $invoices->Invoice = $projectcode->PCode."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
       }else{
-        $invoices->Invoice = $customercode->CCode."01/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
+        $invoices->Invoice = $projectcode->PCode."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
       }
       $invoices->JSC = $JSC[$key];
       $invoices->Tgl = $request['Tgl'];
@@ -363,7 +363,7 @@ class POController extends Controller
     
     //Invoice::where('invoice.Reference', $input['Reference'])->where('invoice.Periode', 1)->delete();
 
-    $customercode = Project::leftJoin('pocustomer', 'project.PCode', '=', 'pocustomer.PCode')->where('Reference', $request['Reference'])->first();
+    $projectcode = Project::where('Reference', $request['Reference'])->first();
     
     $invppn = Invoice::where('Reference', $input['Reference'])
     ->first();
@@ -398,9 +398,9 @@ class POController extends Controller
       $invoices = new Invoice;
       $invoices->id = $invoice->maxid + 1;
       if($JSC[$key]=="Sewa"){
-        $invoices->Invoice = $customercode->CCode."01/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+        $invoices->Invoice = $projectcode->PCode."01/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
       }else{
-        $invoices->Invoice = $customercode->CCode."01/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
+        $invoices->Invoice = $projectcode->PCode."01/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
       }
       $invoices->JSC = $JSC[$key];
       $invoices->Tgl = $request['Tgl'];

@@ -34,11 +34,10 @@
           {!! Form::text('Transport', null, array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 100.000', 'required')) !!}
         </div>
         <div class="form-group">
-        @if(Auth::user()->access == 'Admin')
+        @if(Auth::user()->access == 'Admin' || Auth::user()->access == 'POPPN')
           {!! Form::hidden('PPNT', 0) !!}
           {!! Form::checkbox('PPNT', 1, null, ['id' => 'PPNT', 'class' => 'minimal']) !!}
           {!! Form::label('PPNT', 'Transport included in PPN') !!}
-        @else
         @endif
         </div>
         <div class="form-group">
@@ -77,7 +76,7 @@
           <div class="form-group">
             {!! Form::label('Project Code', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('PCode2', null, array('class' => 'form-control', 'id' => 'PCode2', 'placeholder' => 'PRO01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '5', 'required')) !!}
+              {!! Form::text('PCode2', null, array('class' => 'form-control', 'id' => 'PCode2', 'placeholder' => 'PRO01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '6', 'required')) !!}
             </div>
           </div>
           <div class="form-group">
