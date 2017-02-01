@@ -15,7 +15,7 @@
           <thead>
           <tr>
             <th>Pilih</th>
-            <th>J/S</th>
+            <th>Extend Date</th>
             <th>Barang</th>
             <th>Quantity Ditempat</th>
             <th>SJ Kirim Code</th>
@@ -34,7 +34,7 @@
                 @else
                 {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal']) !!}
                 @endif</td>
-                <td>{{$isisjkirim->Purchase}}</td>
+                <td>{{$isisjkirim->S}}</td>
                 <td>{{$isisjkirim->Barang}}</td>
                 <td>{{$isisjkirim->SumQSisaKem}}</td>
                 <td>{{$isisjkirim->SJKir}}</td>

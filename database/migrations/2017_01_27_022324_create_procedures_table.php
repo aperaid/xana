@@ -119,7 +119,7 @@ END');
 
       DB::unprepared('CREATE PROCEDURE insert_claim2() 
 BEGIN  
-DELETE FROM periode WHERE periode.Deletes="Claim" AND EXISTS (SELECT * FROM isisjkirim WHERE isisjkirim.IsiSJKir = periode.IsiSJKir AND isisjkirim.QTertanda = periode.Quantity AND isisjkirim.Purchase = periode.Purchase AND periode.Deletes="Claim");
+DELETE FROM periode WHERE periode.Deletes="Claim" AND periode.Claim IS NULL AND EXISTS (SELECT * FROM isisjkirim WHERE isisjkirim.IsiSJKir = periode.IsiSJKir AND isisjkirim.QTertanda = periode.Quantity AND isisjkirim.Purchase = periode.Purchase AND periode.Deletes="Claim");
 DELETE FROM periode WHERE periode.Deletes = "Claim" AND periode.Quantity = 0;
 ALTER TABLE periode AUTO_INCREMENT = 1;
 

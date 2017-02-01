@@ -26,7 +26,7 @@ class PenjualanTableSeeder extends Seeder
       ['id'=>'2','PCode'=>'MAN01','Project'=>'MANDIRI PROJECT','ProjAlamat'=>'Jl. Mega Kuningan No. 1','ProjZip' => '12190', 'ProjKota'=>'Jakarta', 'CCode'=>'MAND']
     ]);
     Reference::insert([
-      ['id'=>'1','Reference'=>'00001/260117','Tgl'=>'27/01/2017','PCode'=>'BCAP','Transport' => '300000', 'PPNT'=>'1']
+      ['id'=>'1','Reference'=>'00001/260117','Tgl'=>'27/01/2017','PCode'=>'BCA01','Transport' => '300000', 'PPNT'=>'1']
     ]);
   }
 }

@@ -36,6 +36,20 @@
               </div>
             </div>
           </div>
+          <div class="col-md-3">
+            <table class="table table-bordered table-striped table-responsive">
+              <thead>
+                <tr>
+                  <th>Nomor PO Terakhir</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{$pocode->POCode}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <table id="datatables" class="table table-bordered table-striped table-responsive">
             <thead>
               <tr>
@@ -44,7 +58,7 @@
                 <th>Tgl Claim</th>
                 <th>Quantity Claim</th>
                 <th>Price/Unit</th>
-                <th>Total</th>
+                <th>Jumlah</th>
               </tr>
             </thead>
             <tbody>
@@ -72,12 +86,18 @@
               </div>
             @endif
           </div>
-          <!-- Transport Invoice -->
+          <!-- Total Input -->
           <div class="form-group">
-            {!! Form::label('TransportInvoice', 'Pisah Invoice Transport', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              {!! Form::hidden('TransportInvoice', 0) !!}
-              {!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal']) !!}
+            {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-7">
+              {!! Form::text('Total', 'Rp '.number_format($total, 2, ',','.'), array('id' => 'Total', 'class' => 'form-control', 'readonly')) !!}
+            </div>
+          </div>
+          <!-- Pajak Input -->
+          <div class="form-group">
+            {!! Form::label('Pajak', 'Pajak', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-7">
+              {!! Form::text('Pajak', 'Rp '.$Pajak, array('id' => 'Pajak', 'class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <!-- Discount Input -->
@@ -101,14 +121,14 @@
               <input id="Pembulatan" name="Pembulatan" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Pembulatan,0,',','.')}}" onKeyUp="tot()" >
             </div>
           </div>
-          <!-- Total Text -->
+          <!-- Grand Total Input -->
           <div class="form-group">
-            {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              {!! Form::text('Total', 'Rp. ' . number_format(($total*$invoice->PPN*0.1)+$total-((($total*$invoice->PPN*0.1)+$total)*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
+            {!! Form::label('GrandTotal', 'Grand Total', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-7">
+              {!! Form::text('GrandTotal', 'Rp '.$totals, array('class' => 'form-control', 'readonly')) !!}
             </div>
-            {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}
           </div>
+          {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}
           <div class="box-footer">
             <!-- Back Button -->
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>

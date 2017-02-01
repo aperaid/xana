@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('sjkirim/qtertanda/{id}', ['as' => 'sjkirim.qtertanda', 'uses' => 'SJKirimController@getQTertanda']);
   Route::post('sjkirim/updateqtertanda/{id}', ['as' => 'sjkirim.updateqtertanda', 'uses' =>'SJKirimController@postQTertanda']);
   Route::get('sjkirim/SJ/{id}', ['as' => 'sjkirim.SJ', 'uses' => 'SJKirimController@getSJ']);
+  Route::post('sjkirim/baranghilang/{id}', ['as' => 'sjkirim.baranghilang', 'uses' =>'SJKirimController@postBarangHilang']);
 
   Route::resource('sjkembali', 'SJKembaliController');
   Route::post('sjkembali/create2/{id}', ['as' => 'sjkembali.create2', 'uses' => 'SJKembaliController@getCreate2']);
@@ -59,6 +60,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('sjkembali/qterima/{id}', ['as' => 'sjkembali.qterima', 'uses' => 'SJKembaliController@getQTerima']);
   Route::post('sjkembali/updateqterima/{id}', ['as' => 'sjkembali.updateqterima', 'uses' =>'SJKembaliController@postQTerima']);
   Route::get('sjkembali/SPB/{id}', ['as' => 'sjkembali.SPB', 'uses' => 'SJKembaliController@getSPB']);
+  Route::post('sjkembali/baranghilang/{id}', ['as' => 'sjkembali.baranghilang', 'uses' =>'SJKirimController@postBarangHilang']);
   
   Route::get('invoice/showsewa/{id}', ['as' => 'invoice.showsewa', 'uses' => 'InvoiceController@getInvoiceSewa']);
   Route::post('invoice/updateshowsewa/{id}', ['as' => 'invoice.updateshowsewa', 'uses' => 'InvoiceController@postInvoiceSewa']);

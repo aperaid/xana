@@ -104,7 +104,7 @@ class InventoryController extends Controller
     ->first();
     
     $input = $request->all();
-    $type = array("Baru", "Lama");
+    $type = array("NEW", "SECOND");
     $code = array($input['Code']."B", $input['Code']."L");
     $kumbang = array($input['Kumbang'], 0);
     $bulaksereh = array($input['BulakSereh'], 0);

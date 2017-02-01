@@ -101,7 +101,7 @@ class TransaksiController extends Controller
         'transaksiclaim.*',
         'invoice.id AS invoiceid',
         'invoice.Invoice',
-        'periode.Reference',
+        'transaksi.Reference',
         'transaksi.Barang',
         'transaksi.QSisaKem',
         'project.Project',

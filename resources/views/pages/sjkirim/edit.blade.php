@@ -69,8 +69,6 @@
           <div class="col-sm-5">
             {!! Form::textarea('Keterangan', $sjkirim->Keterangan, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Keterangan', 'rows' => '3')) !!}
           </div>
-        </div>
-        <div class="form-group">
           {!! Form::label('FormMuat', 'Form Muat', ['class' => "col-sm-1 control-label"]) !!}
           <div class="col-sm-5">
             {!! Form::textarea('FormMuat', $sjkirim->FormMuat, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Form Muat', 'rows' => '3')) !!}

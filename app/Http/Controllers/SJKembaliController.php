@@ -648,7 +648,7 @@ class SJKembaliController extends Controller
           $warehouse = 'CitraGarden';
         }
         $data = Inventory::where('Barang', $input['Barang'][$key])
-        ->where('Type', 'Lama')
+        ->where('Type', 'SECOND')
         ->first();
         $data->update([$warehouse => $data->$warehouse - $input['QTerima2'][$key] + $input['QTerima'][$key]]);
       }
@@ -781,7 +781,7 @@ class SJKembaliController extends Controller
           $warehouse = 'CitraGarden';
         }
         $data = Inventory::where('Barang', $barang[$key])
-        ->where('Type', 'Lama')
+        ->where('Type', 'SECOND')
         ->first();
         $data->update([$warehouse => $data->$warehouse - $qterima[$key]]);
       }
