@@ -86,48 +86,68 @@
               </div>
             @endif
           </div>
+          <!-- Transport Invoice -->
+          <div class="form-group">
+            {!! Form::label('TransportInvoice', 'Pisah Invoice Transport', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-6">
+              {!! Form::hidden('TransportInvoice', 0) !!}
+              @if($invoice->Transport==0)
+                {!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal', 'disabled']) !!}
+              @else
+                {!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal']) !!}
+              @endif
+            </div>
+          </div>
           <!-- Transport Input -->
           <div class="form-group">
             {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            <div class="col-sm-7">
               {!! Form::text('Transport', 'Rp '. $Transport, ['class' => 'form-control', 'readonly']) !!}
             </div>
           </div>
           <div class="form-group">
             {!! Form::label('Transport Status', 'Transport Status', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              @if($invoice->PPNT == 1)
-                {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+            <div class="col-sm-7">
+              @if($invoice->TransportInvoice==0)
+                @if($invoice->PPNT == 1)
+                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @else
+                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @endif
               @else
-                {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+                @if($invoice->PPNT == 1)
+                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @else
+                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+              @endif
               @endif
             </div>
           </div>
           <!-- Discount Input -->
           <div class="form-group">
             {!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            <div class="col-sm-7">
               <input id="Discount" name="Discount" type="number" class="form-control" placeholder="15" value="{{$invoice->Discount}}" onKeyUp="tot()" >
             </div>
           </div>
           <!-- Catatan Input -->
           <div class="form-group">
             {!! Form::label('Catatan', 'Catatan', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            <div class="col-sm-7">
               {!! Form::textarea('Catatan', $invoice->Catatan, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '5')) !!}
             </div>
           </div>
           <!-- Pembulatan Input -->
           <div class="form-group">
             {!! Form::label('Pembulatan', 'Pembulatan (-)', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            <div class="col-sm-7">
               <input id="Pembulatan" name="Pembulatan" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Pembulatan,0,',','.')}}" onKeyUp="tot()" >
             </div>
           </div>
           <!-- Total Text -->
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            <div class="col-sm-7">
               {!! Form::text('Total', $totals, array('class' => 'form-control', 'readonly')) !!}
             </div>
             {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}
@@ -136,6 +156,9 @@
             <!-- Back Button -->
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>
             <a href="{{route('invoice.Invj', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
+            @if($invoice->TransportInvoice==1)
+              <a href="{{route('invoice.Invjt', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Transport Invoice</a>
+            @endif
             <!-- Submit Button -->
             {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
           </div>

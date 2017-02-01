@@ -112,57 +112,67 @@
             </div>
           </div>
           <!-- Transport Input -->
-          @if($invoice->TransportInvoice==0)
-            <div class="form-group">
-              {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
-              <div class="col-sm-6">
-                {!! Form::text('Transport', 'Rp '. $Transport, ['class' => 'form-control', 'readonly']) !!}
-              </div>
+          <div class="form-group">
+            {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-7">
+              {!! Form::text('Transport', 'Rp '. $Transport, ['class' => 'form-control', 'readonly']) !!}
             </div>
-          @endif
-          @if($invoice->TransportInvoice==0)
+          </div>
           <div class="form-group">
             {!! Form::label('Transport Status', 'Transport Status', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              @if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-                {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
-              @elseif($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-                {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TIDAK TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
-              @elseif($invoice->Times > 0 && $invoice->PPNT == 1)
-                {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
-              @elseif($invoice->Times > 0 && $invoice->PPNT == 0)
-                {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+            <div class="col-sm-7">
+              @if($invoice->TransportInvoice==0)
+                @if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
+                  {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @elseif($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
+                  {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TIDAK TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @elseif($invoice->Times > 0 && $invoice->PPNT == 1)
+                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @elseif($invoice->Times > 0 && $invoice->PPNT == 0)
+                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @else
+                  {!! Form::text('Times', 'Masa Penyewaan Tidak Ada Biaya Transport', ['class' => 'form-control', 'readonly']) !!}
+                @endif
               @else
-                {!! Form::text('Times', '', ['class' => 'form-control', 'readonly']) !!}
+                @if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
+                  {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @elseif($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
+                  {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TIDAK TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @elseif($invoice->Times > 0 && $invoice->PPNT == 1)
+                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @elseif($invoice->Times > 0 && $invoice->PPNT == 0)
+                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @else
+                  {!! Form::text('Times', '', ['class' => 'form-control', 'readonly']) !!}
+                @endif
               @endif
             </div>
           </div>
-          @endif
           <!-- Discount Input -->
           <div class="form-group">
             {!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            <div class="col-sm-7">
               <input id="Discount" name="Discount" type="number" class="form-control" placeholder="15" value="{{$invoice->Discount}}" onKeyUp="tot()" >
             </div>
           </div>
           <!-- Form Muat Input -->
           <div class="form-group">
             {!! Form::label('Catatan', 'Catatan', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            <div class="col-sm-7">
               {!! Form::textarea('Catatan', $invoice->Catatan, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '5')) !!}
             </div>
           </div>
           <!-- Pembulatan Input -->
           <div class="form-group">
             {!! Form::label('Pembulatan', 'Pembulatan (-)', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            <div class="col-sm-7">
               <input id="Pembulatan" name="Pembulatan" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Pembulatan,0,',','.')}}" onKeyUp="tot()" >
             </div>
           </div>
           <!-- Total Text -->
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['id' => 'Total', 'class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            <div class="col-sm-7">
                 {!! Form::text('Total', 'Rp. '.$totals, array('class' => 'form-control', 'readonly')) !!}
             </div>
               {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}
@@ -175,7 +185,7 @@
             <a href="{{route('invoice.BA', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Berita Acara</a>
             <a href="{{route('invoice.Invs', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
             @if($invoice->TransportInvoice==1)
-              <a href="{{route('invoice.Invt', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Transport Invoice</a>
+              <a href="{{route('invoice.Invst', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Transport Invoice</a>
             @endif
             <!-- Submit Button -->
             {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}

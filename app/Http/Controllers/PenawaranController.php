@@ -70,19 +70,24 @@ class PenawaranController extends Controller
   {
     $input = Input::all();
     $penawarans = $input['penawaranid'];
-    foreach ($penawarans as $key => $penawaran)
-    {
-      $penawaran = new Penawaran;
-      $penawaran->id = $input['penawaranid'][$key];
-      $penawaran->Penawaran = $input['Penawaran'];
-      $penawaran->Tgl = $input['Tgl'];
-      $penawaran->Barang = $input['Barang'][$key];
-      $penawaran->JS = $input['JS'][$key];
-      $penawaran->Quantity = $input['Quantity'][$key];
-      $penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
-      $penawaran->PCode = $input['PCode'];
-      $penawaran->ICode = $input['ICode'][$key];
-      $penawaran->save();
+    $is_exist = Penawaran::where('Penawaran', $request->Penawaran)->first();
+    if(isset($is_exist->Penawaran)){
+      return redirect()->route('penawaran.index')->with('error', 'Penawaran with Penawaran Code '.$request->Penawaran.' is already exist!');
+    }else{
+      foreach ($penawarans as $key => $penawaran)
+      {
+        $penawaran = new Penawaran;
+        $penawaran->id = $input['penawaranid'][$key];
+        $penawaran->Penawaran = $input['Penawaran'];
+        $penawaran->Tgl = $input['Tgl'];
+        $penawaran->Barang = $input['Barang'][$key];
+        $penawaran->JS = $input['JS'][$key];
+        $penawaran->Quantity = $input['Quantity'][$key];
+        $penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
+        $penawaran->PCode = $input['PCode'];
+        $penawaran->ICode = $input['ICode'][$key];
+        $penawaran->save();
+      }
     }
     
     $history = new History;

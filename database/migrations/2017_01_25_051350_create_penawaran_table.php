@@ -15,7 +15,7 @@ class CreatePenawaranTable extends Migration
     {
       Schema::create('penawaran', function (Blueprint $table) {
         $table->increments('id');
-        $table->string('Penawaran');
+        $table->string('Penawaran')->unique();
         $table->string('Tgl');
         $table->string('Barang');
         $table->string('JS');
