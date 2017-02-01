@@ -1172,8 +1172,6 @@ class InvoiceController extends Controller
     else
       $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($invoice->Transport*$invoice->Times))*$invoice->Discount/100), 0, ',','.');
     
-    $Transport = number_format($invoice->Transport*$invoice->Times, 0, ',','.');
-    
     if($invoice->PPNT == 1)
       $PPN = number_format((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
     else
@@ -1204,7 +1202,6 @@ class InvoiceController extends Controller
     $document->setValue('SJKem', ''.$SJKem.'');
     $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
     $document->setValue('Discount', ''.$Discount.'');
-    $document->setValue('Transport', ''.$Transport.'');
     $document->setValue('PPN', ''.$PPN.'');
     $document->setValue('Totals', ''.number_format($totals, 0, ',','.').'');
     $document->setValue('Terbilang', ''.$this->terbilang(round($totals)).'');

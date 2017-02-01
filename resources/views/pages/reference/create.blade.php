@@ -68,6 +68,9 @@
     <div class="box">
       <div class="box-header with-border">
         <h3 class="box-title">Project Detail</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <!-- box-header -->
       <div class="form-horizontal">
@@ -99,6 +102,12 @@
               {!! Form::number('ProjZip', null, array('class' => 'form-control', 'placeholder' => '10203', 'autocomplete' => 'off')) !!}
             </div>
           </div>
+          <div class="form-group">
+            {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
+            <div class="col-md-4">
+              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '5', 'required')) !!}
+            </div>
+          </div>
         </div>
         <!-- box body -->
       </div>
@@ -106,9 +115,6 @@
       <!-- /.box-header -->
       <div class="box-header with-border">
         <h3 class="box-title">Customer Details</h3>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
       </div>
       <div class="box-body">
         <div class="form-horizontal">
@@ -116,13 +122,13 @@
           <div class="form-group">
             {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '5', 'required')) !!}
+              {!! Form::text('CCode2', null, array('class' => 'form-control', 'id' => 'CCode2', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '5')) !!}
             </div>
           </div>
           <div class="form-group">
             {!! Form::label('Company Name', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
-              {!! Form::text('Company', null, array('class' => 'form-control', 'id' => 'Company', 'placeholder' => 'PT. COMPANY', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'required')) !!}
+              {!! Form::text('Company', null, array('class' => 'form-control', 'id' => 'Company', 'placeholder' => 'PT. COMPANY', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase')) !!}
             </div>
             {!! Form::label('NPWP', 'NPWP', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
@@ -243,7 +249,7 @@ $("#customerproject").click(function(){
 //When customer form is submitted
 $("#customerprojectform").submit(function(event){
   $(".loading").show();
-  $.post( "customerproject",{ "_token": "{{ csrf_token() }}", projectid: $("#projectid").val(), PCode: $("#PCode2").val(), Project: $("#Project").val(), ProjAlamat: $("#ProjAlamat").val(), ProjZip: $("#ProjZip").val(), ProjKota: $("#ProjKota").val(), customerid: $("#customerid").val(), CCode: $("#CCode").val(), Company: $("#Company").val(), Customer: $("#Customer").val(), CompAlamat:$("#CompAlamat").val(), CompZip: $("#CompZip").val(), CompKota: $("#CompKota").val(), CompPhone: $("#CompPhone").val(), CompEmail: $("#CompEmail").val(), CustPhone: $("#CustPhone").val(), CustEmail: $("#CustEmail").val(), Fax: $("#Fax").val(), NPWP: $("#NPWP").val() }, function( data ) {})
+  $.post( "customerproject",{ "_token": "{{ csrf_token() }}", projectid: $("#projectid").val(), PCode: $("#PCode2").val(), Project: $("#Project").val(), ProjAlamat: $("#ProjAlamat").val(), ProjZip: $("#ProjZip").val(), ProjKota: $("#ProjKota").val(), CCode2: $("#CCode2").val(),customerid: $("#customerid").val(), CCode: $("#CCode").val(), Company: $("#Company").val(), Customer: $("#Customer").val(), CompAlamat:$("#CompAlamat").val(), CompZip: $("#CompZip").val(), CompKota: $("#CompKota").val(), CompPhone: $("#CompPhone").val(), CompEmail: $("#CompEmail").val(), CustPhone: $("#CustPhone").val(), CustEmail: $("#CustEmail").val(), Fax: $("#Fax").val(), NPWP: $("#NPWP").val() }, function( data ) {})
   .done(function(data){
     location.reload();
     $('#customerprojectmodal').modal('toggle');
@@ -254,6 +260,16 @@ $("#customerprojectform").submit(function(event){
   });
   event.preventDefault();
 });
+</script>
+<script>
+  $(function() {
+    var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompleteccode.php");?>;
+    $( "#CCode" ).autocomplete({
+      source: availableTags,
+      autoFocus: true,
+      appendTo: "#customerprojectform"
+    });
+  });
 </script>
 <script>
   $(function() {
