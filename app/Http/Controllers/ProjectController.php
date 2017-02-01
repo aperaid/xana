@@ -51,7 +51,12 @@ class ProjectController extends Controller
     	
     	$inputs = $request->all();
 
-    	$project = Project::Create($inputs);
+      $is_exist = Project::where('PCode', $request->PCode)->first();
+      if(isset($is_exist->PCode)){
+        return redirect()->route('project.create')->with('error', 'Project with PCode '.strtoupper($request->PCode).' is already exist!');
+      }else{
+        $project = Project::Create($inputs);
+      }
       
       $history = new History;
       $history->User = Auth::user()->name;

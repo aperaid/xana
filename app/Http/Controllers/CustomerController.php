@@ -58,7 +58,12 @@ class CustomerController extends Controller
 
     	//return $inputs;
 
-    	$customer = Customer::Create($inputs);
+      $is_exist = Customer::where('CCode', $request->CCode)->first();
+      if(isset($is_exist->CCode)){
+        return redirect()->route('customer.create')->with('error', 'Customer with CCode '.strtoupper($request->CCode).' is already exist!');
+      }else{
+        $customer = Customer::Create($inputs);
+      }
       
       $history = new History;
       $history->User = Auth::user()->name;

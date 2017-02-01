@@ -131,13 +131,18 @@ class POController extends Controller
   {
     $id = $request['id'];
     
-    $po = PO::Create([
-      'id' => $request['poid'],
-      'POCode' => $request['POCode'],
-      'Tgl' => $request['Tgl'],
-      'Discount' => $request['Discount'],
-      'Catatan' => $request['Catatan'],
-    ]);
+    $is_exist = PO::where('POCode', $request->POCode)->first();
+    if(isset($is_exist->POCode)){
+      return redirect()->route('po.create', 'id=' .Input::get('id'))->with('error', 'Reference with POCode '.strtoupper($request->POCode).' is already exist!');
+    }else{
+      $po = PO::Create([
+        'id' => $request['poid'],
+        'POCode' => $request['POCode'],
+        'Tgl' => $request['Tgl'],
+        'Discount' => $request['Discount'],
+        'Catatan' => $request['Catatan'],
+      ]);
+    }
 
     $input = Input::all();
     $transaksis = $input['transaksiid'];

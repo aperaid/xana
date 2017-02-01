@@ -95,7 +95,7 @@ class ReferenceController extends Controller
     
     public function StoreCustomerProject(Request $request)
     {
-      $is_exist = Project::where('PCode', strtoupper($request->PCode))->first();
+      $is_exist = Project::where('PCode', $request->PCode)->first();
       if(isset($is_exist->PCode)){
         $request->session()->flash('error', 'Project with PCode '.strtoupper($request->PCode).' is already exist!');
       }else{
@@ -115,7 +115,7 @@ class ReferenceController extends Controller
         //$this->validate($request, [
         //  'Company'=>'required'
         //]);
-        $is_exist = Customer::where('CCode', strtoupper($request->CCode2))->first();
+        $is_exist = Customer::where('CCode', $request->CCode2)->first();
         if(isset($is_exist->CCode)){
           $request->session()->flash('error', 'Customer with CCode '.strtoupper($request->CCode).' is already exist!');
         }else{

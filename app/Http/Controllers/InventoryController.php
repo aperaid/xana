@@ -111,21 +111,26 @@ class InventoryController extends Controller
     $legok = array($input['Legok'], 0);
     $citragarden = array($input['CitraGarden'], 0);
     
-    $inventories = $type;
-    foreach ($inventories as $key => $inventory)
-    {
-      $inventory = new Inventory;
-      $inventory->id = $maxinventory->maxid+$key+1;
-      $inventory->Code = $code[$key];
-      $inventory->Barang = $input['Barang'];
-      $inventory->JualPrice = str_replace(".","",substr($request->JualPrice, 3));
-      $inventory->Price = str_replace(".","",substr($request->Price, 3));
-      $inventory->Type = $type[$key];
-      $inventory->Kumbang = $kumbang;
-      $inventory->BulakSereh = $bulaksereh;
-      $inventory->Legok = $legok;
-      $inventory->CitraGarden = $citragarden;
-      $inventory->save();
+    $is_exist = Inventory::where('Code', $request->Code.'B')->first();
+    if(isset($is_exist->Code)){
+      return redirect()->route('inventory.registerinventory')->with('error', 'Inventory with Code '.strtoupper($request->Code).' is already exist!');
+    }else{
+      $inventories = $type;
+      foreach ($inventories as $key => $inventory)
+      {
+        $inventory = new Inventory;
+        $inventory->id = $maxinventory->maxid+$key+1;
+        $inventory->Code = $code[$key];
+        $inventory->Barang = $input['Barang'];
+        $inventory->JualPrice = str_replace(".","",substr($request->JualPrice, 3));
+        $inventory->Price = str_replace(".","",substr($request->Price, 3));
+        $inventory->Type = $type[$key];
+        $inventory->Kumbang = $kumbang;
+        $inventory->BulakSereh = $bulaksereh;
+        $inventory->Legok = $legok;
+        $inventory->CitraGarden = $citragarden;
+        $inventory->save();
+      }
     }
     
     /*$inputs['JualPrice'] = str_replace(".","",substr($request->JualPrice, 3));
