@@ -72,6 +72,14 @@
               </div>
             @endif
           </div>
+          <!-- Transport Invoice -->
+          <div class="form-group">
+            {!! Form::label('TransportInvoice', 'Pisah Invoice Transport', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-6">
+              {!! Form::hidden('TransportInvoice', 0) !!}
+              {!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal']) !!}
+            </div>
+          </div>
           <!-- Discount Input -->
           <div class="form-group">
             {!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}

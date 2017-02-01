@@ -72,6 +72,7 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('invoice/Invs/{id}', ['as' => 'invoice.Invs', 'uses' => 'InvoiceController@getInvs']);
   Route::get('invoice/Invj/{id}', ['as' => 'invoice.Invj', 'uses' => 'InvoiceController@getInvj']);
   Route::get('invoice/Invc/{id}', ['as' => 'invoice.Invc', 'uses' => 'InvoiceController@getInvc']);
+  Route::get('invoice/Invt/{id}', ['as' => 'invoice.Invt', 'uses' => 'InvoiceController@getInvt']);
 
   Route::resource('invoice', 'InvoiceController');
 

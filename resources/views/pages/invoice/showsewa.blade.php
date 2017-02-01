@@ -99,13 +99,28 @@
               </div>
             @endif
           </div>
-          <!-- Transport Input -->
+          <!-- Transport Invoice -->
           <div class="form-group">
-            {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('TransportInvoice', 'Pisah Invoice Transport', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
-              {!! Form::text('Transport', 'Rp '. $Transport, ['class' => 'form-control', 'readonly']) !!}
+              {!! Form::hidden('TransportInvoice', 0) !!}
+              @if($invoice->Transport==0)
+                {!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal', 'disabled']) !!}
+              @else
+                {!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal']) !!}
+              @endif
             </div>
           </div>
+          <!-- Transport Input -->
+          @if($invoice->TransportInvoice==0)
+            <div class="form-group">
+              {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
+              <div class="col-sm-6">
+                {!! Form::text('Transport', 'Rp '. $Transport, ['class' => 'form-control', 'readonly']) !!}
+              </div>
+            </div>
+          @endif
+          @if($invoice->TransportInvoice==0)
           <div class="form-group">
             {!! Form::label('Transport Status', 'Transport Status', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-6">
@@ -122,6 +137,7 @@
               @endif
             </div>
           </div>
+          @endif
           <!-- Discount Input -->
           <div class="form-group">
             {!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
@@ -158,6 +174,9 @@
             <!-- Print Button -->
             <a href="{{route('invoice.BA', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Berita Acara</a>
             <a href="{{route('invoice.Invs', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
+            @if($invoice->TransportInvoice==1)
+              <a href="{{route('invoice.Invt', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Transport Invoice</a>
+            @endif
             <!-- Submit Button -->
             {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
             <a href="{{route('sjkembali.create', 'id='.$invoice->pocusid)}}"><button type="button" style="margin-right: 5px;"	@if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right"	@endif	>SJ Kembali</button></a>
