@@ -45,9 +45,9 @@ class InvoiceController extends Controller
       'transaksi.Amount',
       'transaksi.POCode',
       'po.Discount',
+      'isisjkirim.QTertanda',
       'periode.S',
       'periode.E',
-      DB::raw('SUM(periode.Quantity) AS SumQuantity'),
       'periode.SJKem',
       'periode.Deletes',
       'periode.Periode',
@@ -106,7 +106,7 @@ class InvoiceController extends Controller
       
       $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode2->SumQuantity*($periode2->Amount-($periode2->Amount*$periode2->Discount/100)); 
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode2->QTertanda*($periode2->Amount-($periode2->Amount*$periode2->Discount/100)); 
       $total += $total2[$key];
     }
     
@@ -158,6 +158,9 @@ class InvoiceController extends Controller
     ->groupBy('periode.Purchase', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();*/
+		
+		$tglterima = str_replace('/', '-', $invoice->TglTerima);
+		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
     
     if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
       return view('pages.invoice.showsewa')
@@ -174,6 +177,7 @@ class InvoiceController extends Controller
       ->with('totals', $totals)
       ->with('Pajak', $Pajak)
       ->with('Transport', $Transport)
+			->with('duedate', $duedate)
       ->with('total2', $total2)
       ->with('top_menu_sel', 'menu_invoice')
       ->with('page_title', 'Invoice Sewa')
@@ -191,7 +195,11 @@ class InvoiceController extends Controller
     $invoice->id = $id;
     $invoice->PPN = $request->PPN;
     $invoice->TransportInvoice = $request->TransportInvoice;
+		$invoice->Times = $request->Times;
+		$invoice->TimesKembali = $request->TimesKembali;
     $invoice->Discount = $request->Discount;
+		$invoice->TglTerima = $request->TglTerima;
+		$invoice->Termin = $request->Termin;
     $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
     $invoice->Catatan = $request->Catatan;
     $invoice->save();
@@ -233,7 +241,7 @@ class InvoiceController extends Controller
       'transaksi.Barang',
       'periode.S',
       'periode.E',
-      DB::raw('SUM(periode.Quantity) AS SumQuantity'),
+      'isisjkirim.QTertanda',
       'po.POCode'
     ])
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
@@ -261,7 +269,7 @@ class InvoiceController extends Controller
       $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
       //$pocode[] = $periode2->POCode;
     }
-    $Quantity = $periodes->sum('SumQuantity');
+    $Quantity = $periodes->sum('QTertanda');
     //$PEO = implode("/", array_unique($pocode));
     $sjkirs = IsiSJKirim::leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')->where('transaksi.Reference', $invoice->Reference)->where('JS', 'Sewa')->pluck('SJKir')->toArray();
     $SJKir = join(', ', $sjkirs);
@@ -288,7 +296,7 @@ class InvoiceController extends Controller
       $document->setValue('S'.$key, ''.$periodes->S.'');
       $document->setValue('E'.$key, ''.$periodes->E.'');
       $document->setValue('SE'.$key, ''.$SE[$key].'');
-      $document->setValue('Quantity'.$key, ''.$periodes->SumQuantity.'');
+      $document->setValue('Quantity'.$key, ''.$periodes->QTertanda.'');
       $document->setValue('Sat'.$key, 'PCS');
     }
     
@@ -394,7 +402,7 @@ class InvoiceController extends Controller
       'transaksi.Amount',
       'periode.S',
       'periode.E',
-      DB::raw('SUM(periode.Quantity) AS SumQuantity'),
+      'isisjkirim.QTertanda',
       'po.POCode',
       'po.Discount'
     ])
@@ -429,7 +437,7 @@ class InvoiceController extends Controller
       
       $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*($periode->Amount-($periode->Amount*$periode->Discount/100));
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->QTertanda*($periode->Amount-($periode->Amount*$periode->Discount/100));
       $total += $total2[$key];
     }
     
@@ -488,7 +496,7 @@ class InvoiceController extends Controller
     $SJKir = join(', ', $sjkirs);
     $sjkems = Periode::where('Reference', $invoice->Reference)->where('Periode', $invoice->Periode)->where('Deletes', 'Kembali')->pluck('SJKem')->toArray();
     $SJKem = join(', ', $sjkems);*/
-    $Quantity = $periodes->sum('SumQuantity');
+    $Quantity = $periodes->sum('QTertanda');
     //$PEO = implode("/", array_unique($pocode));
     
     if($invoice->PPN==1)
@@ -525,7 +533,7 @@ class InvoiceController extends Controller
       $document->setValue('E'.$key, ''.$periode->E.'');
       $document->setValue('SE'.$key, ''.$SE[$key].'');
       $document->setValue('I'.$key, ''.$I[$key].'');
-      $document->setValue('Quantity'.$key, ''.$periode->SumQuantity.'');
+      $document->setValue('Quantity'.$key, ''.$periode->QTertanda.'');
       $document->setValue('Sat'.$key, 'PCS');
       $document->setValue('Price'.$key, ''.number_format($periode->Amount-($periode->Amount*$periode->Discount/100), 0, ',', '.').'');
       $document->setValue('Total'.$key, ''.number_format($total2[$key], 0, ',', '.').'');
@@ -584,7 +592,7 @@ class InvoiceController extends Controller
       'transaksi.Amount',
       'periode.S',
       'periode.E',
-      DB::raw('SUM(periode.Quantity) AS SumQuantity'),
+      'isisjkirim.QTertanda',
       'po.POCode',
       'po.Discount'
     ])
@@ -619,7 +627,7 @@ class InvoiceController extends Controller
       
       $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*($periode->Amount-($periode->Amount*$periode->Discount/100));
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->QTertanda*($periode->Amount-($periode->Amount*$periode->Discount/100));
       //$total += $total2[$key];
     }
     
@@ -666,7 +674,7 @@ class InvoiceController extends Controller
       $Transport = number_format($toss, 0, ',','.');
     
     $firststart = $periodes->pluck('S');
-    $Quantity = $periodes->sum('SumQuantity');
+    $Quantity = $periodes->sum('QTertanda');
     
     $document = $phpWord->loadTemplate(public_path('/template/Invst.docx'));
     
@@ -826,6 +834,7 @@ class InvoiceController extends Controller
     $invoice->id = $id;
     $invoice->PPN = $request->PPN;
     $invoice->TransportInvoice = $request->TransportInvoice;
+		$invoice->Times = $request->Times;
     $invoice->Discount = $request->Discount;
     $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
     $invoice->Catatan = $request->Catatan;

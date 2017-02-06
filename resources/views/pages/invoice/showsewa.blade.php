@@ -1,4 +1,5 @@
 @extends('layouts.xana.layout')
+
 @section('title')
 	View Invoice Sewa
 @stop
@@ -81,7 +82,7 @@
                 <td>{{$SE[$key]}}</td>
                 <td>{{$Days2[$key]}}</td>
                 <td>{{$I[$key]}}</td>
-                <td>{{$periode->SumQuantity}}</td>
+                <td>{{$periode->QTertanda}}</td>
                 <td>{{$periode->Discount}}</td>
                 <td>Rp {{ number_format($periode->Amount-($periode->Amount*$periode->Discount/100), 2, ',', '.') }}</td>
                 <td>Rp {{ number_format($total2[$key], 2, ',', '.') }}</td>
@@ -100,93 +101,131 @@
             @endif
           </div>
           <!-- Transport Invoice -->
+					@if($invoice->PPNT==0)
           <div class="form-group">
             {!! Form::label('TransportInvoice', 'Pisah Invoice Transport', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            <div class="col-sm-8">
               {!! Form::hidden('TransportInvoice', 0) !!}
-              @if($invoice->Times==0 && $invoice->TimesKembali==0)
-                {!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal', 'disabled']) !!}
-              @else
-                {!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal']) !!}
-              @endif
+							@if($invoice->Times==0 && $invoice->TimesKembali==0)
+								{!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal', 'disabled']) !!}
+							@else
+								{!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal']) !!}
+							@endif
             </div>
           </div>
-          <!-- Total Input -->
+					@else
+					@endif
+          <!-- Total & Transport & Pajak Input -->
           <div class="form-group">
-            {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+						{!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-2">
               {!! Form::text('Total', 'Rp '.number_format($total, 2, ',','.'), array('id' => 'Total', 'class' => 'form-control', 'readonly')) !!}
             </div>
-          </div>
-          <!-- Transport Input -->
-          <div class="form-group">
-            {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            {!! Form::label('Transport', 'Transport', ['class' => "col-sm-1 control-label"]) !!}
+            <div class="col-sm-2">
               {!! Form::text('Transport', 'Rp '. $Transport, ['class' => 'form-control', 'readonly']) !!}
+            </div>
+						{!! Form::label('Pajak', 'Pajak', ['class' => "col-sm-1 control-label"]) !!}
+            <div class="col-sm-2">
+              {!! Form::text('Pajak', 'Rp '.$Pajak, array('id' => 'Pajak', 'class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <div class="form-group">
             {!! Form::label('Transport Status', 'Transport Status', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            <div class="col-sm-8">
               @if($invoice->TransportInvoice==0)
-                @if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-                  {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+								@if($invoice->TimesKembali > 0 && $invoice->Times > 0 && $invoice->PPNT == 1)
+                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & '.$invoice->TimesKembali.' Kali Pengembalian & Transport TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @elseif($invoice->TimesKembali > 0 && $invoice->Times > 0 && $invoice->PPNT == 0)
+                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & '.$invoice->TimesKembali.' Kali Pengembalian & Transport TIDAK TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @elseif($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
+                  {!! Form::text('Status', $invoice->TimesKembali.' Kali Pengembalian & Transport TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
                 @elseif($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-                  {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TIDAK TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                  {!! Form::text('Status', $invoice->TimesKembali.' Kali Pengembalian & Transport TIDAK TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
                 @elseif($invoice->Times > 0 && $invoice->PPNT == 1)
-                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
                 @elseif($invoice->Times > 0 && $invoice->PPNT == 0)
-                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
                 @else
-                  {!! Form::text('Times', 'Masa Penyewaan Tidak Ada Biaya Transport', ['class' => 'form-control', 'readonly']) !!}
+                  {!! Form::text('Status', 'Masa Penyewaan Tidak Ada Biaya Transport', ['class' => 'form-control', 'readonly']) !!}
                 @endif
               @else
-                @if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-                  {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+								@if($invoice->TimesKembali > 0 && $invoice->Times > 0 && $invoice->PPNT == 1)
+                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & '.$invoice->TimesKembali.' Kali Pengembalian & Transport TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @elseif($invoice->TimesKembali > 0 && $invoice->Times > 0 && $invoice->PPNT == 0)
+                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & '.$invoice->TimesKembali.' Kali Pengembalian & Transport TIDAK TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                @elseif($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
+                  {!! Form::text('Status', $invoice->TimesKembali.' Kali Pengembalian & Transport TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
                 @elseif($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-                  {!! Form::text('Times', $invoice->TimesKembali.' Kali Pengembalian & Transport TIDAK TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                  {!! Form::text('Status', $invoice->TimesKembali.' Kali Pengembalian & Transport TIDAK TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
                 @elseif($invoice->Times > 0 && $invoice->PPNT == 1)
-                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
                 @elseif($invoice->Times > 0 && $invoice->PPNT == 0)
-                  {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
+                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
                 @else
                   {!! Form::text('Times', '', ['class' => 'form-control', 'readonly']) !!}
                 @endif
               @endif
             </div>
           </div>
-          <!-- Pajak Input -->
+					<!-- Transport Times -->
           <div class="form-group">
-            {!! Form::label('Pajak', 'Pajak', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
-              {!! Form::text('Pajak', 'Rp '.$Pajak, array('id' => 'Pajak', 'class' => 'form-control', 'readonly')) !!}
+            {!! Form::label('Times', 'Pengiriman', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              <input id="Times" name="Times" type="number" class="form-control" placeholder="Kali" value="{{$invoice->Times}}" >
+            </div>
+						{!! Form::label('TimesKembali', 'Pengembalian', ['class' => "col-sm-2 control-label"]) !!}
+						<div class="col-sm-3">
+              <input id="TimesKembali" name="TimesKembali" type="number" class="form-control" placeholder="Kali" value="{{$invoice->TimesKembali}}" >
             </div>
           </div>
-          <!-- Discount Input -->
-          <div class="form-group">
-            {!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
-              <input id="Discount" name="Discount" type="number" class="form-control" placeholder="15" value="{{$invoice->Discount}}" onKeyUp="tot()" >
+					<!-- Termin Input -->
+					<div class="form-group ">
+						{!! Form::label('TglTerima', 'Tgl Terima Surat', ['class' => "col-sm-2 control-label"]) !!}
+						<div class="col-sm-2">
+							<div class="input-group">
+								<div class="input-group-addon">
+									<i class="fa fa-calendar"></i>
+								</div>
+								{!! Form::text('TglTerima', $invoice->TglTerima, ['id' => 'TglTerima', 'class' => 'form-control', 'autocomplete' => 'off', 'required']) !!}
+							</div>
+						</div>
+						{!! Form::label('Termin', 'Termin', ['class' => "col-sm-1 control-label"]) !!}
+            <div class="col-sm-2">
+							{!! Form::number('Termin', $invoice->Termin, array('class' => 'form-control', 'placeholder' => 'Hari')) !!}
             </div>
-          </div>
-          <!-- Form Muat Input -->
+						{!! Form::label('DueDate', 'Due Date', ['class' => "col-sm-1 control-label"]) !!}
+            <div class="col-sm-2">
+							<div class="input-group">
+								<div class="input-group-addon">
+									<i class="fa fa-calendar"></i>
+								</div>
+								{!! Form::text('DueDate', $duedate, array('class' => 'form-control', 'readonly')) !!}
+							</div>
+						</div>
+					</div>
+          <!-- Catatan Input -->
           <div class="form-group">
             {!! Form::label('Catatan', 'Catatan', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            <div class="col-sm-8">
               {!! Form::textarea('Catatan', $invoice->Catatan, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '2')) !!}
             </div>
           </div>
-          <!-- Pembulatan Input -->
+          <!-- Discount & Pembulatan Input -->
           <div class="form-group">
+						{!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              <input id="Discount" name="Discount" type="number" class="form-control" placeholder="Percent" value="{{$invoice->Discount}}" onKeyUp="tot()" >
+            </div>
             {!! Form::label('Pembulatan', 'Pembulatan (-)', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            <div class="col-sm-3">
               <input id="Pembulatan" name="Pembulatan" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Pembulatan,0,',','.')}}" onKeyUp="tot()" >
             </div>
           </div>
           <!-- Grand Total Input -->
           <div class="form-group">
             {!! Form::label('GrandTotal', 'Grand Total', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            <div class="col-sm-8">
               {!! Form::text('GrandTotal', 'Rp '.$totals, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
@@ -219,6 +258,10 @@
 @stop
 
 @section('script')
+<!-- iCheck 1.0.1 -->
+<link rel="stylesheet" href="{{ asset('plugins/iCheck/all.css') }}">
+<script src="{{ asset('plugins/iCheck/icheck.min.js') }}"></script>
+
 <script>
 function tot(){
   var txtFirstNumberValue = document.getElementById('Total2').value;
@@ -230,19 +273,33 @@ function tot(){
 		document.getElementById('Total').value = result;
     }
 }
-</script>
-<script>
-  $(document).ready(function(){
-		//Mask Price
-    $("#Pembulatan").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
-    $("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
-    //Mask Discount
-    $(document).on('keyup', '#Discount', function(){
-    if(parseInt($(this).val()) > 100)
-       $(this).val(100);
-    else if(parseInt($(this).val()) < 0)
-      $(this).val(0);
-    });
-  });
+
+$(document).ready(function(){
+	//Mask Price
+	$("#Pembulatan").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	$("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	//Mask Discount
+	$(document).on('keyup', '#Discount', function(){
+	if(parseInt($(this).val()) > 100)
+		 $(this).val(100);
+	else if(parseInt($(this).val()) < 0)
+		$(this).val(0);
+	});
+	
+	//Red color scheme for iCheck
+	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+		checkboxClass: 'icheckbox_minimal-red',
+		radioClass: 'iradio_minimal-red'
+	});
+});
+
+$(function() {
+	$('#TglTerima').datepicker({
+		format: "dd/mm/yyyy",
+		startDate: '{{$periodes->first()->E}}',
+		todayHighlight: true,
+		autoclose: true
+	}); 
+});
 </script>
 @stop

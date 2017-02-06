@@ -21,13 +21,15 @@ class CreateInvoiceTable extends Migration
         $table->string('Reference');
         $table->integer('Periode');
         $table->integer('PPN');
-        $table->integer('Discount')->nullable();
+        $table->integer('Discount')->default(0);
         $table->text('Catatan')->nullable();
         $table->integer('Lunas');
         $table->integer('Count');
+				$table->text('TglTerima')->nullable();
+				$table->integer('Termin')->nullable();
         $table->integer('Times');
         $table->integer('TimesKembali');
-        $table->integer('Pembulatan')->nullable();
+        $table->integer('Pembulatan')->default(0);
         $table->integer('TransportInvoice')->nullable();
       });
     }

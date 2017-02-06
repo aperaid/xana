@@ -87,34 +87,38 @@
             @endif
           </div>
           <!-- Transport Invoice -->
-          <div class="form-group">
-            {!! Form::label('TransportInvoice', 'Pisah Invoice Transport', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              {!! Form::hidden('TransportInvoice', 0) !!}
-              @if($invoice->Times==0)
-                {!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal', 'disabled']) !!}
-              @else
-                {!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal']) !!}
-              @endif
-            </div>
-          </div>
-          <!-- Total Input -->
+					@if($invoice->PPNT==0)
+						<div class="form-group">
+							{!! Form::label('TransportInvoice', 'Pisah Invoice Transport', ['class' => "col-sm-2 control-label"]) !!}
+							<div class="col-sm-6">
+								{!! Form::hidden('TransportInvoice', 0) !!}
+								@if($invoice->Times==0)
+									{!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal', 'disabled']) !!}
+								@else
+									{!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal']) !!}
+								@endif
+							</div>
+						</div>
+					@else
+					@endif
+          <!-- Total & Transport & Pajak Input -->
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            <div class="col-sm-2">
               {!! Form::text('Total', 'Rp '.number_format($total, 2, ',','.'), array('id' => 'Total', 'class' => 'form-control', 'readonly')) !!}
             </div>
-          </div>
-          <!-- Transport Input -->
-          <div class="form-group">
-            {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+						{!! Form::label('Transport', 'Transport', ['class' => "col-sm-1 control-label"]) !!}
+            <div class="col-sm-2">
               {!! Form::text('Transport', 'Rp '. $Transport, ['class' => 'form-control', 'readonly']) !!}
+            </div>
+						{!! Form::label('Pajak', 'Pajak', ['class' => "col-sm-1 control-label"]) !!}
+            <div class="col-sm-2">
+              {!! Form::text('Pajak', 'Rp '.$Pajak, array('id' => 'Pajak', 'class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <div class="form-group">
             {!! Form::label('Transport Status', 'Transport Status', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            <div class="col-sm-8">
               @if($invoice->TransportInvoice==0)
                 @if($invoice->PPNT == 1)
                   {!! Form::text('Times', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
@@ -130,38 +134,35 @@
               @endif
             </div>
           </div>
-          <!-- Pajak Input -->
-          <div class="form-group">
-            {!! Form::label('Pajak', 'Pajak', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
-              {!! Form::text('Pajak', 'Rp '.$Pajak, array('id' => 'Pajak', 'class' => 'form-control', 'readonly')) !!}
-            </div>
-          </div>
-          <!-- Discount Input -->
-          <div class="form-group">
-            {!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
-              <input id="Discount" name="Discount" type="number" class="form-control" placeholder="15" value="{{$invoice->Discount}}" onKeyUp="tot()" >
-            </div>
-          </div>
+					<!-- Transport Times -->
+					<div class="form-group">
+						{!! Form::label('Times', 'Pengiriman', ['class' => "col-sm-2 control-label"]) !!}
+						<div class="col-sm-8">
+							<input id="Times" name="Times" type="number" class="form-control" placeholder="3" value="{{$invoice->Times}}" >
+						</div>
+					</div>
           <!-- Catatan Input -->
           <div class="form-group">
             {!! Form::label('Catatan', 'Catatan', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            <div class="col-sm-8">
               {!! Form::textarea('Catatan', $invoice->Catatan, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '2')) !!}
             </div>
           </div>
           <!-- Pembulatan Input -->
           <div class="form-group">
+						{!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              <input id="Discount" name="Discount" type="number" class="form-control" placeholder="15" value="{{$invoice->Discount}}" onKeyUp="tot()" >
+            </div>
             {!! Form::label('Pembulatan', 'Pembulatan (-)', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            <div class="col-sm-3">
               <input id="Pembulatan" name="Pembulatan" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Pembulatan,0,',','.')}}" onKeyUp="tot()" >
             </div>
           </div>
           <!-- Grand Total Input -->
           <div class="form-group">
             {!! Form::label('GrandTotal', 'Grand Total', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            <div class="col-sm-8">
               {!! Form::text('GrandTotal', 'Rp '.$totals, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>

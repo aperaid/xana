@@ -643,6 +643,7 @@ class SJKirimController extends Controller
       $document = $phpWord->loadTemplate(public_path('/template/SJ.docx'));
       
       $document->setValue('Company', ''.$sjkirim->Company.'');
+			$document->setValue('PCode', ''.$sjkirim->PCode.'');
       $document->setValue('Project', ''.$sjkirim->Project.'');
       $document->setValue('ProjAlamat', ''.$sjkirim->ProjAlamat.'');
       $document->setValue('Customer', ''.$sjkirim->Customer.'');
