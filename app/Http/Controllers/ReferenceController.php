@@ -103,6 +103,7 @@ class ReferenceController extends Controller
           'id' => $request['projectid'],
           'PCode' => strtoupper($request['PCode']),
           'Project' => strtoupper($request['Project']),
+					'Sales' => $request['Sales'],
           'ProjAlamat' => $request['ProjAlamat'],
           'ProjZip' => $request['ProjZip'],
           'ProjKota' => $request['ProjKota'],

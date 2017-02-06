@@ -99,9 +99,11 @@ class SJKirimController extends Controller
       
       $transaksis = Transaksi::select([
         'transaksi.*',
+				'po.Tgl as tglpo',
         'project.Project',
       ])
       ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
       ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
       ->where('transaksi.Reference', $Reference)
       ->where('transaksi.JS', $JS)

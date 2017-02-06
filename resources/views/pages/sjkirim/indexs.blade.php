@@ -14,7 +14,7 @@
               <th>id</th>
               <th>QTertanda</th>
               <th>SJ Code</th>
-              <th>Tgl Kirim</th>
+              <th>Send Date</th>
               <th>Reference</th>
               <th>Company</th>
               <th>Project</th>

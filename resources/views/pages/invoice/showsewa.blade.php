@@ -200,7 +200,11 @@
 								<div class="input-group-addon">
 									<i class="fa fa-calendar"></i>
 								</div>
-								{!! Form::text('DueDate', $duedate, array('class' => 'form-control', 'readonly')) !!}
+								@if(isset($invoice->TglTerima))
+									{!! Form::text('DueDate', $duedate, array('class' => 'form-control', 'readonly')) !!}
+								@else
+									{!! Form::text('DueDate', null, array('class' => 'form-control', 'readonly')) !!}
+								@endif
 							</div>
 						</div>
 					</div>

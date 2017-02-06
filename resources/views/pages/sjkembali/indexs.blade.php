@@ -14,7 +14,7 @@
               <th>id</th>
               <th>QTerima</th>
               <th>SJ Code</th>
-              <th>Tgl Tertanda</th>
+              <th>Return Date</th>
               <th>Company</th>
               <th>Project</th>
             </tr>

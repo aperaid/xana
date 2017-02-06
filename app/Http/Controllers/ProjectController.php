@@ -105,6 +105,7 @@ class ProjectController extends Controller
 
     	$project->PCode = $request->PCode;
     	$project->Project = $request->Project;
+			$project->Sales = $request->Sales;
       $project->ProjAlamat = $request->ProjAlamat;
       $project->ProjZip = $request->ProjZip;
       $project->ProjKota = $request->ProjKota;

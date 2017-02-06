@@ -18,15 +18,19 @@
         <div class="box-body">
           {!! Form::hidden('id', $project->maxid+1) !!}
           <div class="form-group">
-            {!! Form::label('Project Code', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('PCode', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
               {!! Form::text('PCode', null, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'PRO01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '6', 'required')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Project Name', 'Project Name', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('Project', 'Project Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
               {!! Form::text('Project', null, array('class' => 'form-control', 'id' => 'Project', 'placeholder' => 'Project Name', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
+            </div>
+						{!! Form::label('Sales', 'Sales', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
+              {!! Form::text('Sales', null, array('class' => 'form-control', 'id' => 'Sales', 'placeholder' => 'Sales', 'autocomplete' => 'off', 'required')) !!}
             </div>
           </div>
           <div class="form-group">

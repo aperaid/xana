@@ -26,7 +26,7 @@ class CreateInvoiceTable extends Migration
         $table->integer('Lunas');
         $table->integer('Count');
 				$table->text('TglTerima')->nullable();
-				$table->integer('Termin')->nullable();
+				$table->integer('Termin')->default(0);
         $table->integer('Times');
         $table->integer('TimesKembali');
         $table->integer('Pembulatan')->default(0);

@@ -162,8 +162,8 @@ class TransaksiController extends Controller
       $isisjkir = $periodes->pluck('periode.IsiSJKir');
       $purchase = $periodes->pluck('periode.Purchase');
       
+			$termin = Invoice::where('reference', $invoice->Reference)->where('periode', 1)->first();
       $periodeid = Periode::select([DB::raw('max(periode.id) as maxid')])->first();
-      
       $projectcode = Reference::where('Reference', $invoice->Reference)->first();
       
       $Tgl = $invoice->Tgl;
@@ -189,6 +189,7 @@ class TransaksiController extends Controller
           'Periode' => $Periode,
           'PPN' => $invoice->PPN,
           'Count' => 1,
+					'Termin' => $termin->Termin,
         ]);
       }else{
         Invoice::Create([
@@ -200,6 +201,7 @@ class TransaksiController extends Controller
           'Periode' => $Periode,
           'PPN' => $invoice->PPN,
           'Count' => $Count,
+					'Termin' => $termin->Termin,
         ]);
       }
 

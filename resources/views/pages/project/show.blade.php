@@ -28,6 +28,10 @@
             <div class="col-md-6">
               {!! Form::text('Project', $project->Project, array('class' => 'form-control', 'readonly')) !!}
             </div>
+						{!! Form::label('Sales', 'Sales', ['class' => "col-md-1 control-label"]) !!}
+            <div class="col-md-3">
+              {!! Form::text('Sales', $project->Sales, array('class' => 'form-control', 'readonly')) !!}
+            </div>
           </div>
           <div class="form-group">
             {!! Form::label('Project Address', 'Project Address', ['class' => "col-md-2 control-label"]) !!}

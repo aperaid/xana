@@ -16,6 +16,7 @@
           <tr>
             <th>Choose</th>
             <th>J/S</th>
+						<th>PO Date</th>
             <th>Barang</th>
             <th>Quantity Sisa Kirim</th>
           </tr>
@@ -29,6 +30,7 @@
                 {!! Form::checkbox('checkbox[]', $transaksi->Purchase, null, ['class' => 'minimal']) !!}
                 @endif</td>
                 <td>{{$transaksi->JS}}</td>
+								<td>{{$transaksi->tglpo}}</td>
                 <td>{{$transaksi->Barang}}</td>
                 <td>{{$transaksi->QSisaKirInsert}}</td>
               </tr>
@@ -63,12 +65,12 @@ $('#SelectAll').click(function () {
 	$('input[type=checkbox]').not(":disabled").prop('checked', checked_status);
 });
 
-$(document).ready(function(){
+/*$(document).ready(function(){
 	//iCheck
 	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
 		checkboxClass: 'icheckbox_flat-green',
 		increaseArea: '20%' // optional
 	});
-});
+});*/
 </script>
 @stop

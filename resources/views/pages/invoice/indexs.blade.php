@@ -23,7 +23,7 @@
                 <th>Project</th>
                 <th>Periode</th>
                 <th>Company</th>
-                <th>Tgl Invoice</th>
+                <th>Invoice Date</th>
                 <th>Reference</th>
                 <th width="10%">Status</th>
               </tr>
@@ -60,7 +60,7 @@
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Company</th>
-                <th>Tgl Invoice</th>
+                <th>Invoice Date</th>
                 <th>Reference</th>
                 <th width="10%">Status</th>
               </tr>
@@ -96,7 +96,7 @@
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Company</th>
-                <th>Tgl Invoice</th>
+                <th>Invoice Date</th>
                 <th>Reference</th>
                 <th width="10%">Status</th>
               </tr>

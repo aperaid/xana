@@ -16,6 +16,7 @@ class CreateProjectTable extends Migration
       Schema::create('project', function (Blueprint $table) {
         $table->increments('id');
         $table->string('PCode')->unique();
+				$table->string('Sales');
         $table->string('Project');
         $table->text('ProjAlamat')->nullable();
         $table->string('ProjZip')->nullable();
