@@ -19,3 +19,5 @@
 <script src="{{ asset('mystyles/maskmoney/src/jquery.maskMoney.js') }}"></script>
 <!-- datepicker -->
 <script src="{{ asset('/plugins/datepicker/bootstrap-datepicker.js') }}"></script>
+<!-- ICheck -->
+<script src="{{ asset('plugins/iCheck/icheck.min.js') }}"></script>

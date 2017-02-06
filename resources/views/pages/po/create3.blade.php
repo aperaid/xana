@@ -108,185 +108,186 @@
 
 @section('script')
 <script>
-Min = '{{$reference->Tgl}}'
 $(function() {
   $('#Tgl').datepicker({
 	  format: "dd/mm/yyyy",
 	  todayHighlight: true,
 	  autoclose: true,
-	  startDate: Min,
+	  startDate: '{{$reference->Tgl}}',
   }); 
 }); 
-</script>
-<script>
-    $(document).ready(function(){
-		var max_fields      = 10; //maximum input boxes allowed
+
+$(document).ready(function(){
+	var max_fields      = 10; //maximum input boxes allowed
+	
+	var x = 0; //initial text box count
+	
+	@foreach($penawarans as $key => $penawaran)
+		var y = {{$maxid + $key + 1}}
+		$("#customFields").append('<tr><td align="center"><a class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="transaksiid[]" value="'+ y +'"><input type="hidden" name="Purchase[]" value="'+ y +'"><td>{!! Form::text('Barang[]', $penawaran->Barang, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', $penawaran->ICode, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['NEW' => 'NEW', 'SECOND' => 'SECOND'], $penawaran->Type, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], $penawaran->JS, ['class' => 'form-control JS']) !!}</td><td>{!! Form::number('Quantity[]', $penawaran->Quantity, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', 'Rp '. number_format( $penawaran -> Amount, 0,',', '.' ), ['id' => 'Amount', 'class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+	@endforeach
+	
+	$(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 		
-		var x = 0; //initial text box count
-    
-		@foreach($penawarans as $key => $penawaran)
-      var y = {{$maxid + $key + 1}}
-      $("#customFields").append('<tr><td align="center"><a class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="transaksiid[]" value="'+ y +'"><input type="hidden" name="Purchase[]" value="'+ y +'"><td>{!! Form::text('Barang[]', $penawaran->Barang, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', $penawaran->ICode, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['NEW' => 'NEW', 'SECOND' => 'SECOND'], $penawaran->Type, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], $penawaran->JS, ['class' => 'form-control JS']) !!}</td><td>{!! Form::number('Quantity[]', $penawaran->Quantity, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', 'Rp '. number_format( $penawaran -> Amount, 0,',', '.' ), ['id' => 'Amount', 'class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
-		@endforeach
-    
-    $(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
-      
-    var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletebarang.php");?>;
-    $( ".Barang" ).autocomplete({
-      source: availableTags,
-      autoFocus: true
-    });
-    
-    $('.Barang').keyup(function(){
-      this.value = this.value.toUpperCase();
-    });
-    
-    $(document).on('click autocompletechange mouseenter mouseleave', '.Barang, .Type, .Quantity, .JS', function(){
-      var this2 = this;
-      $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
-      .done(function(data){
-        result = $.parseJSON(data);
-        if($(this2).closest('tr').find(".JS").val() == 'Jual'){
-          var price = result.JualPrice
-        }else{
-          var price = result.Price
-        }
-        $(this2).closest('tr').find(".Amount").val('Rp '+price.toLocaleString().replace(/\,/g,'.'));
-        $(this2).closest('tr').find(".ICode").val(result.Code);
-      })
-      .fail(function(data){
-        if( data.status === 500 ) {
-          console.log("Barang tak ditemukan");
-        }
-      });
-    });
-    
-    $(document).on('keyup', '.Barang, .Type, .Quantity, .JS', function(e){
-      var this2 = this;
-      if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
-        $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
-        .done(function(data){
-          result = $.parseJSON(data);
-          if($(this2).closest('tr').find(".JS").val() == 'Jual'){
-            var price = result.JualPrice
-          }else{
-            var price = result.Price
-          }
-          $(this2).closest('tr').find(".Amount").val('Rp '+price.toLocaleString().replace(/\,/g,'.'));
-          $(this2).closest('tr').find(".ICode").val(result.Code);
-        })
-        .fail(function(data){
-          if( data.status === 500 ) {
-            console.log("Barang tak ditemukan");
-          }
-        });
-      }
-    });
-    
-    $(document).on('keyup', '.Quantity', function(){
-      if(parseInt($(this).closest('tr').find(".Quantity").val()) < 0)
-        $(this).closest('tr').find(".Quantity").val(0);
-      /*if(parseInt($(this).closest('tr').find(".Quantity").val()) > $(this).closest('tr').find(".Stock").val())
-        $(this).closest('tr').find(".Quantity").val($(this).closest('tr').find(".Stock").val());
-      else
-        $(this).closest('tr').find(".Stock").val();*/
-    });
-    
-    $("#addCF").click(function(){
-			if(x < max_fields){ //max input box allowed
-				x++; //text box count increment
-				y++;
-				$("#customFields").append('<tr><td align="center"><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="transaksiid[]" value="'+ y +'"><input type="hidden" name="Purchase[]" value="'+ y +'"><td>{!! Form::text('Barang[]', null, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', null, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['NEW' => 'NEW', 'SECOND' => 'SECOND'], null, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control JS']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', null, ['class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
-		
-        $(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
-      
-        var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletebarang.php");?>;
-        $( ".Barang" ).autocomplete({
-          source: availableTags,
-          autoFocus: true
-        });
-        
-        $('.Barang').keyup(function(){
-          this.value = this.value.toUpperCase();
-        });
-        
-        $(document).on('click autocompletechange mouseenter mouseleave', '.Barang, .Type, .Quantity, .JS', function(){
-          var this2 = this;
-          $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
-          .done(function(data){
-            result = $.parseJSON(data);
-            if($(this2).closest('tr').find(".JS").val() == 'Jual'){
-              var price = result.JualPrice
-            }else{
-              var price = result.Price
-            }
-            $(this2).closest('tr').find(".Amount").val('Rp '+price.toLocaleString().replace(/\,/g,'.'));
-            $(this2).closest('tr').find(".ICode").val(result.Code);
-          })
-          .fail(function(data){
-            if( data.status === 500 ) {
-              console.log("Barang tak ditemukan");
-            }
-          });
-        });
-        
-        $(document).on('keyup', '.Barang, .Type, .Quantity, .JS', function(e){
-          var this2 = this;
-          if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
-            $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
-            .done(function(data){
-              result = $.parseJSON(data);
-              if($(this2).closest('tr').find(".JS").val() == 'Jual'){
-                var price = result.JualPrice
-              }else{
-                var price = result.Price
-              }
-              $(this2).closest('tr').find(".Amount").val('Rp '+price.toLocaleString().replace(/\,/g,'.'));
-              $(this2).closest('tr').find(".ICode").val(result.Code);
-            })
-            .fail(function(data){
-              if( data.status === 500 ) {
-                console.log("Barang tak ditemukan");
-              }
-            });
-          }
-        });
-        
-        $(document).on('keyup', '.Quantity', function(){
-          if(parseInt($(this).closest('tr').find(".Quantity").val()) < 0)
-            $(this).closest('tr').find(".Quantity").val(0);
-          /*if(parseInt($(this).closest('tr').find(".Quantity").val()) > $(this).closest('tr').find(".Stock").val())
-            $(this).closest('tr').find(".Quantity").val($(this).closest('tr').find(".Stock").val());
-          else
-            $(this).closest('tr').find(".Stock").val();*/
-        });
+	var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletebarang.php");?>;
+	$( ".Barang" ).autocomplete({
+		source: availableTags,
+		autoFocus: true
+	});
+	
+	$('.Barang').keyup(function(){
+		this.value = this.value.toUpperCase();
+	});
+	
+	$(document).on('click autocompletechange mouseenter mouseleave', '.Barang, .Type, .Quantity, .JS', function(){
+		var this2 = this;
+		$.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+		.done(function(data){
+			result = $.parseJSON(data);
+			if($(this2).closest('tr').find(".JS").val() == 'Jual'){
+				var price = result.JualPrice
+			}else{
+				var price = result.Price
+			}
+			$(this2).closest('tr').find(".Amount").val('Rp '+price.toLocaleString().replace(/\,/g,'.'));
+			$(this2).closest('tr').find(".ICode").val(result.Code);
+		})
+		.fail(function(data){
+			if( data.status === 500 ) {
+				console.log("Barang tak ditemukan");
 			}
 		});
+	});
+	
+	$(document).on('keyup', '.Barang, .Type, .Quantity, .JS', function(e){
+		var this2 = this;
+		if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
+			$.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+			.done(function(data){
+				result = $.parseJSON(data);
+				if($(this2).closest('tr').find(".JS").val() == 'Jual'){
+					var price = result.JualPrice
+				}else{
+					var price = result.Price
+				}
+				$(this2).closest('tr').find(".Amount").val('Rp '+price.toLocaleString().replace(/\,/g,'.'));
+				$(this2).closest('tr').find(".ICode").val(result.Code);
+			})
+			.fail(function(data){
+				if( data.status === 500 ) {
+					console.log("Barang tak ditemukan");
+				}
+			});
+		}
+	});
+	
+	$(document).on('keyup', '.Quantity', function(){
+		if(parseInt($(this).closest('tr').find(".Quantity").val()) < 0)
+			$(this).closest('tr').find(".Quantity").val(0);
+		/*if(parseInt($(this).closest('tr').find(".Quantity").val()) > $(this).closest('tr').find(".Stock").val())
+			$(this).closest('tr').find(".Quantity").val($(this).closest('tr').find(".Stock").val());
+		else
+			$(this).closest('tr').find(".Stock").val();*/
+	});
+	
+	$("#addCF").click(function(){
+		if(x < max_fields){ //max input box allowed
+			x++; //text box count increment
+			y++;
+			$("#customFields").append('<tr><td align="center"><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><input type="hidden" name="transaksiid[]" value="'+ y +'"><input type="hidden" name="Purchase[]" value="'+ y +'"><td>{!! Form::text('Barang[]', null, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', null, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['NEW' => 'NEW', 'SECOND' => 'SECOND'], null, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control JS']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', null, ['class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+	
+			$(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 		
-		$("#customFields").on('click','.remCF',function(){
-			$(this).parent().parent().remove();
-			x--;
-      y--;
-		});	
+			var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletebarang.php");?>;
+			$( ".Barang" ).autocomplete({
+				source: availableTags,
+				autoFocus: true
+			});
+			
+			$('.Barang').keyup(function(){
+				this.value = this.value.toUpperCase();
+			});
+			
+			$(document).on('click autocompletechange mouseenter mouseleave', '.Barang, .Type, .Quantity, .JS', function(){
+				var this2 = this;
+				$.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+				.done(function(data){
+					result = $.parseJSON(data);
+					if($(this2).closest('tr').find(".JS").val() == 'Jual'){
+						var price = result.JualPrice
+					}else{
+						var price = result.Price
+					}
+					$(this2).closest('tr').find(".Amount").val('Rp '+price.toLocaleString().replace(/\,/g,'.'));
+					$(this2).closest('tr').find(".ICode").val(result.Code);
+				})
+				.fail(function(data){
+					if( data.status === 500 ) {
+						console.log("Barang tak ditemukan");
+					}
+				});
+			});
+			
+			$(document).on('keyup', '.Barang, .Type, .Quantity, .JS', function(e){
+				var this2 = this;
+				if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
+					$.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
+					.done(function(data){
+						result = $.parseJSON(data);
+						if($(this2).closest('tr').find(".JS").val() == 'Jual'){
+							var price = result.JualPrice
+						}else{
+							var price = result.Price
+						}
+						$(this2).closest('tr').find(".Amount").val('Rp '+price.toLocaleString().replace(/\,/g,'.'));
+						$(this2).closest('tr').find(".ICode").val(result.Code);
+					})
+					.fail(function(data){
+						if( data.status === 500 ) {
+							console.log("Barang tak ditemukan");
+						}
+					});
+				}
+			});
+			
+			$(document).on('keyup', '.Quantity', function(){
+				if(parseInt($(this).closest('tr').find(".Quantity").val()) < 0)
+					$(this).closest('tr').find(".Quantity").val(0);
+				/*if(parseInt($(this).closest('tr').find(".Quantity").val()) > $(this).closest('tr').find(".Stock").val())
+					$(this).closest('tr').find(".Quantity").val($(this).closest('tr').find(".Stock").val());
+				else
+					$(this).closest('tr').find(".Stock").val();*/
+			});
+		}
 	});
-</script>
-<script>
-  $(document).ready(function(){
-		//Mask Price
-    $("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
-    //Mask Discount
-    $(document).on('keyup', '#Discount', function(){
-    if(parseInt($(this).val()) > 100)
-       $(this).val(100);
-    else if(parseInt($(this).val()) < 0)
-      $(this).val(0);
-    });
+	
+	$("#customFields").on('click','.remCF',function(){
+		$(this).parent().parent().remove();
+		x--;
+		y--;
+	});	
+});
+
+$(document).ready(function(){
+	//Mask Price
+	$("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	//Mask Discount
+	$(document).on('keyup', '#Discount', function(){
+	if(parseInt($(this).val()) > 100)
+		 $(this).val(100);
+	else if(parseInt($(this).val()) < 0)
+		$(this).val(0);
 	});
-</script>
-<script>
-  function capital() {
-    var x = document.getElementById("POCode");
-    x.value = x.value.toUpperCase();
-  }
+	//iCheck
+	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+		checkboxClass: 'icheckbox_flat-green',
+		increaseArea: '20%' // optional
+	});
+});
+
+function capital() {
+	var x = document.getElementById("POCode");
+	x.value = x.value.toUpperCase();
+}
 </script>
 @stop

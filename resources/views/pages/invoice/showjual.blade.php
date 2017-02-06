@@ -202,19 +202,23 @@ function tot(){
 		document.getElementById('Total').value = result;
     }
 }
-</script>
-<script>
-  $(document).ready(function(){
-		//Mask Price
-    $("#Pembulatan").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
-    $("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
-    //Mask Discount
-    $(document).on('keyup', '#Discount', function(){
-    if(parseInt($(this).val()) > 100)
-       $(this).val(100);
-    else if(parseInt($(this).val()) < 0)
-      $(this).val(0);
-    });
+
+$(document).ready(function(){
+	//Mask Price
+	$("#Pembulatan").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	$("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	//Mask Discount
+	$(document).on('keyup', '#Discount', function(){
+	if(parseInt($(this).val()) > 100)
+		 $(this).val(100);
+	else if(parseInt($(this).val()) < 0)
+		$(this).val(0);
 	});
+	//iCheck
+	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+		checkboxClass: 'icheckbox_flat-green',
+		increaseArea: '20%' // optional
+	});
+});
 </script>
 @stop

@@ -52,18 +52,23 @@
 
 @section('script')
 <script>
-var checkboxes = $("input[type='checkbox']"),
-    submitButt = $("input[type='submit']");
+var checkboxes = $("input[type='checkbox']"), submitButt = $("input[type='submit']");
 
 checkboxes.click(function() {
-    submitButt.attr("disabled", !checkboxes.is(":checked"));
+	submitButt.attr("disabled", !checkboxes.is(":checked"));
 });
-</script>
-<script>
-$('#SelectAll').click(function () {
-    var checked_status = this.checked;
 
-    $('input[type=checkbox]').not(":disabled").prop('checked', checked_status);
+$('#SelectAll').click(function () {
+	var checked_status = this.checked;
+	$('input[type=checkbox]').not(":disabled").prop('checked', checked_status);
+});
+
+$(document).ready(function(){
+	//iCheck
+	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+		checkboxClass: 'icheckbox_flat-green',
+		increaseArea: '20%' // optional
+	});
 });
 </script>
 @stop

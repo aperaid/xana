@@ -64,42 +64,43 @@
 
 @section('script')
 <script>
-  $('#Tgl').datepicker({
-	  format: "dd/mm/yyyy",
-	  todayHighlight: true,
-	  autoclose: true,
-	  startDate: '-7d',
-	  endDate: '+7d'
-  }); 
-</script>
-<script>
+$('#Tgl').datepicker({
+	format: "dd/mm/yyyy",
+	todayHighlight: true,
+	autoclose: true,
+	startDate: '-7d',
+	endDate: '+7d'
+}); 
+
 $(function() {
-    var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompleteccode.php");?>;
-    $( "#tx_insertproject_CCode" ).autocomplete({
-      source: availableTags,
-	  autoFocus: true
-    });
-  });
-</script>
-<script>
-  function capital() {
-    var x = document.getElementById("PCode");
-    x.value = x.value.toUpperCase();
-  }
-</script>
-<script>
-  $(function() {
-    var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletepcode.php");?>;
-    $( "#PCode" ).autocomplete({
-      source: availableTags,
-      autoFocus: true
-    });
-  });
-</script>
-<script>
-  $(document).ready(function(){
-		//Mask Transport
-		$("#Transport").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompleteccode.php");?>;
+	$( "#tx_insertproject_CCode" ).autocomplete({
+		source: availableTags,
+	autoFocus: true
 	});
+});
+
+function capital() {
+	var x = document.getElementById("PCode");
+	x.value = x.value.toUpperCase();
+}
+
+$(function() {
+	var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletepcode.php");?>;
+	$( "#PCode" ).autocomplete({
+		source: availableTags,
+		autoFocus: true
+	});
+});
+
+$(document).ready(function(){
+	//Mask Transport
+	$("#Transport").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	//iCheck
+	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+		checkboxClass: 'icheckbox_flat-green',
+		increaseArea: '20%' // optional
+	});
+});
 </script>
 @stop

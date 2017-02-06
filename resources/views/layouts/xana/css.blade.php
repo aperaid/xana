@@ -24,3 +24,5 @@ folder instead of downloading all of them to reduce the load. -->
 <link href="{{ asset('/plugins/datepicker/bootstrap-datepicker.min.css') }}" rel="stylesheet">
 <!-- logo -->
 <link href="{{ asset('/xanalogo.png') }}" rel="icon">
+<!-- ICheck -->
+<link rel="stylesheet" href="{{ asset('plugins/iCheck/all.css') }}">

@@ -71,11 +71,15 @@ function minmax(value, min, max)
     return parseInt(max); 
   else return value;
 }
-</script>
-<script>
-  $(document).ready(function(){
-		//Mask Price
-		$(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+
+$(document).ready(function(){
+	//Mask Price
+	$(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	//iCheck
+	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+		checkboxClass: 'icheckbox_flat-green',
+		increaseArea: '20%' // optional
 	});
+});
 </script>
 @stop

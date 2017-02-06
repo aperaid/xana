@@ -258,10 +258,6 @@
 @stop
 
 @section('script')
-<!-- iCheck 1.0.1 -->
-<link rel="stylesheet" href="{{ asset('plugins/iCheck/all.css') }}">
-<script src="{{ asset('plugins/iCheck/icheck.min.js') }}"></script>
-
 <script>
 function tot(){
   var txtFirstNumberValue = document.getElementById('Total2').value;
@@ -285,11 +281,10 @@ $(document).ready(function(){
 	else if(parseInt($(this).val()) < 0)
 		$(this).val(0);
 	});
-	
-	//Red color scheme for iCheck
+	//iCheck
 	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
-		checkboxClass: 'icheckbox_minimal-red',
-		radioClass: 'iradio_minimal-red'
+		checkboxClass: 'icheckbox_flat-green',
+		increaseArea: '20%' // optional
 	});
 });
 
