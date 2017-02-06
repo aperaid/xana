@@ -368,7 +368,7 @@ class POController extends Controller
     
     //Invoice::where('invoice.Reference', $input['Reference'])->where('invoice.Periode', 1)->delete();
 
-    $projectcode = Project::where('Reference', $request['Reference'])->first();
+    $projectcode = Reference::where('Reference', $request['Reference'])->first();
     
     $invppn = Invoice::where('Reference', $input['Reference'])
     ->first();
@@ -403,9 +403,9 @@ class POController extends Controller
       $invoices = new Invoice;
       $invoices->id = $invoice->maxid + 1;
       if($JSC[$key]=="Sewa"){
-        $invoices->Invoice = $projectcode->PCode."01/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+        $invoices->Invoice = $projectcode->PCode."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
       }else{
-        $invoices->Invoice = $projectcode->PCode."01/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
+        $invoices->Invoice = $projectcode->PCode."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
       }
       $invoices->JSC = $JSC[$key];
       $invoices->Tgl = $request['Tgl'];
