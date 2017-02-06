@@ -35,11 +35,11 @@
       </div>
       <div class="box-body">
         <div class="form-group">
-          {!! Form::label('Nomor PO', 'Nomor PO') !!}
+          {!! Form::label('POCode', 'Nomor PO') !!}
           {!! Form::text('POCode', $po -> POCode, array('class' => 'form-control', 'readonly')) !!}
         </div>
         <div class="form-group">
-          {!! Form::label('Tanggal', 'Tanggal') !!}
+          {!! Form::label('Tgl', 'Date') !!}
           <div class="input-group">
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
@@ -48,7 +48,7 @@
           </div>
         </div>
         <div class="form-group">
-          {!! Form::label('Discount(%)', 'Discount(%)') !!}
+          {!! Form::label('Discount', 'Discount(%)') !!}
           <div class="input-group">
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>

@@ -18,13 +18,13 @@
 	    <div class="box-body with-border">
         <div class="form-horizontal">
           <div class="form-group">
-            {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('CCode', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
               {!! Form::text('CCode', $customer->CCode, array('class' => 'form-control', 'id' => 'CCode', 'readonly')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Company Name', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('Company', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
               {!! Form::text('Company', $customer->Company, array('class' => 'form-control', 'id' => 'Company', 'placeholder' => 'PT. COMPANY', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
             </div>
@@ -37,21 +37,21 @@
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Company Address', 'Company Address', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('CompAlamat', 'Company Address', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
               {!! Form::text('CompAlamat', $customer->CompAlamat, array('class' => 'form-control', 'placeholder' => 'Jl. Nama Jalan 1A No.10, Kelurahan, Kecamatan, Kota', 'autocomplete' => 'off')) !!}
             </div>
-            {!! Form::label('City', 'City', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('CompKota', 'City', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-2">
               {!! Form::text('CompKota', $customer->CompKota, array('class' => 'form-control', 'placeholder' => 'Jakarta', 'autocomplete' => 'off')) !!}
             </div>
-            {!! Form::label('Zip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('CompZip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-2">
               {!! Form::number('CompZip', $customer->CompZip, array('class' => 'form-control', 'placeholder' => '10203', 'autocomplete' => 'off')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Company Phone', 'Company Phone', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('CompPhone', 'Company Phone', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-2">
               <div class="input-group">
                 <div class="input-group-addon">
@@ -69,7 +69,7 @@
                 {!! Form::text('Fax', $customer->Fax, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
               </div>
             </div>
-            {!! Form::label('Email', 'Email', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('CompEmail', 'Email', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
@@ -82,7 +82,7 @@
           </div>
           <hr>
           <div class="form-group">
-            {!! Form::label('Contact Person', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('Customer', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
               <div class="input-group">
                 <div class="input-group-addon">
@@ -93,7 +93,7 @@
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Phone CP', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('CustPhone', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-2">
               <div class="input-group">
                 <div class="input-group-addon">
@@ -102,7 +102,7 @@
                 {!! Form::text('CustPhone', $customer->CustPhone, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
               </div>
             </div>
-            {!! Form::label('Email CP', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('CustEmail', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
@@ -115,7 +115,7 @@
           </div>
           <hr>
           <div class="form-group">
-            {!! Form::label('Contact Person', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('Customer2', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
               <div class="input-group">
                 <div class="input-group-addon">
@@ -126,7 +126,7 @@
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Phone CP', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('CustPhone2', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-2">
               <div class="input-group">
                 <div class="input-group-addon">
@@ -135,7 +135,7 @@
                 {!! Form::text('CustPhone2', $customer->CustPhone2, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
               </div>
             </div>
-            {!! Form::label('Email CP', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('CustEmail2', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
@@ -148,7 +148,7 @@
           </div>
           <hr>
           <div class="form-group">
-            {!! Form::label('Contact Person', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('Customer3', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
               <div class="input-group">
                 <div class="input-group-addon">
@@ -159,7 +159,7 @@
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Phone CP', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('CustPhone3', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-2">
               <div class="input-group">
                 <div class="input-group-addon">
@@ -168,7 +168,7 @@
                 {!! Form::text('CustPhone3', $customer->CustPhone3, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
               </div>
             </div>
-            {!! Form::label('Email CP', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('CustEmail3', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>

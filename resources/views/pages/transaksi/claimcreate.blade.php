@@ -15,7 +15,7 @@
       </div>
       <div class="box-body">
         <div class="form-group">
-          {!! Form::label('Claim Date', 'Claim Date') !!}
+          {!! Form::label('Tgl', 'Claim Date') !!}
           <div class="input-group">
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
@@ -24,7 +24,7 @@
           </div>
         </div>
         <div class="form-group">
-          {!! Form::label('Reference Code', 'Reference Code') !!}
+          {!! Form::label('Reference', 'Reference Code') !!}
           {!! Form::text('Reference', $reference->Reference, array('class' => 'form-control', 'readonly')) !!}
         </div>
         <div class="box-footer">

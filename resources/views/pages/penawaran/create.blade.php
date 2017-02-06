@@ -32,11 +32,11 @@
 			</div>
       <div class="box-body">
         <div class="form-group">
-          {!! Form::label('Penawaran Code', 'Penawaran Code') !!}
+          {!! Form::label('Penawaran', 'Penawaran Code') !!}
           {!! Form::text('Penawaran', null, array('id' => 'Penawaran', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input Penawaran', 'required')) !!}
         </div>
         <div class="form-group">
-          {!! Form::label('Tanggal', 'Tanggal') !!}
+          {!! Form::label('Tgl', 'Date') !!}
           <div class="input-group">
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
@@ -45,7 +45,7 @@
           </div>
         </div>
         <div class="form-group">
-          {!! Form::label('Project Code', 'Project Code') !!}
+          {!! Form::label('PCode', 'Project Code') !!}
           {!! Form::text('PCode', null, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
           <p class="help-block">Enter the beginning of the Project Code, then pick from the dropdown</p>
         </div>

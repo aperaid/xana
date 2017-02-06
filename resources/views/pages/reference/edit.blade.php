@@ -22,7 +22,7 @@
           {!! Form::text('Reference', $reference->Reference, ['class' => 'form-control', 'readonly']) !!}
         </div>
         <div class="form-group">
-          {!! Form::label('Date', 'Date') !!}
+          {!! Form::label('Tgl', 'Date') !!}
           <div class="input-group">
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
@@ -42,7 +42,7 @@
         @endif
         </div>
         <div class="form-group">
-          {!! Form::label('Project Code', 'Project Code') !!}
+          {!! Form::label('PCode', 'Project Code') !!}
           {!! Form::text('PCode', $reference->PCode, ['class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required']) !!}
           <p class="help-block">Enter the beginning of the Project Code, then pick from the dropdown</p>
         </div>

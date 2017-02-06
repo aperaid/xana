@@ -25,11 +25,11 @@
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Jual Price', 'Jual Price', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('JualPrice', 'Jual Price', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
               {!! Form::text('JualPrice', null, array('id' => 'JualPrice', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 1.000.000', 'required')) !!}
             </div>
-            {!! Form::label('Sewa Price', 'Sewa Price', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('Price', 'Sewa Price', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
               {!! Form::text('Price', null, array('id' => 'Price', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 10.000', 'required')) !!}
             </div>
@@ -39,7 +39,7 @@
             <div class="col-sm-3">
               {!! Form::number('Kumbang', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
             </div>
-            {!! Form::label('Bulak Sereh', 'Bulak Sereh', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('BulakSereh', 'Bulak Sereh', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
               {!! Form::number('BulakSereh', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
             </div>
@@ -49,7 +49,7 @@
             <div class="col-sm-3">
               {!! Form::number('Legok', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
             </div>
-            {!! Form::label('Citra Garden', 'Citra Garden', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('CitraGarden', 'Citra Garden', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
               {!! Form::number('CitraGarden', null, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
             </div>

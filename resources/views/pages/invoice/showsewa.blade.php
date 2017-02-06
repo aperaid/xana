@@ -131,7 +131,7 @@
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Transport Status', 'Transport Status', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('Status', 'Transport Status', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-8">
               @if($invoice->TransportInvoice==0)
 								@if($invoice->TimesKembali > 0 && $invoice->Times > 0 && $invoice->PPNT == 1)

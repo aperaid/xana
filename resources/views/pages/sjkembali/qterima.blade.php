@@ -41,7 +41,7 @@
 			</div>
       <!-- box-body -->
       <div class="box-footer">
-        <label>Tanggal Selesai Penghitungan</label>
+        {!! Form::label('Tgl2', 'Tanggal Barang Sudah Kembali/Tanggal Selesai Penghitungan') !!}
         <div class="input-group">
           <div class="input-group-addon">
             <i class="fa fa-calendar"></i>

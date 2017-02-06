@@ -15,11 +15,11 @@
       </div>
       <div class="box-body">
         <div class="form-group">
-          {!! Form::label('No. Surat Jalan', 'No. Surat Jalan') !!}
+          {!! Form::label('SJKir', 'No. Surat Jalan') !!}
           {!! Form::text('SJKir', str_pad($sjkirim->maxid+1, 3, "0", STR_PAD_LEFT).'/SI/'.date("mY"), array('class' => 'form-control', 'readonly')) !!}
         </div>
         <div class="form-group">
-          {!! Form::label('Send Date', 'Send Date') !!}
+          {!! Form::label('Tgl', 'Send Date') !!}
           <div class="input-group">
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
@@ -28,7 +28,7 @@
           </div>
         </div>
         <div class="form-group">
-          {!! Form::label('J/S', 'J/S') !!}
+          {!! Form::label('JS', 'J/S') !!}
           {{ Form::select('JS', [
             'Jual' => 'Jual',
             'Sewa' => 'Sewa'
@@ -36,7 +36,7 @@
           }}
         </div>
         <div class="form-group">
-          {!! Form::label('Reference Code', 'Reference Code') !!}
+          {!! Form::label('Reference', 'Reference Code') !!}
           {!! Form::text('Reference', $reference->Reference, array('class' => 'form-control', 'readonly')) !!}
           <p class="help-block">Enter the beginning of the Reference Code, then pick from the dropdown</p>
         </div>

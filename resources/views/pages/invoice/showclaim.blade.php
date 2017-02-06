@@ -18,7 +18,7 @@
         <div class="box-body with-border">
           <div class="col-sm-9">
             <div class="form-group">
-              {!! Form::label('No. Invoice', 'No. Invoice', ['class' => "col-sm-4 control-label"]) !!}
+              {!! Form::label('Invoice', 'No. Invoice', ['class' => "col-sm-4 control-label"]) !!}
               <div class="col-sm-8">
                 {!! Form::text('Invoice', $invoice->Invoice, array('class' => 'form-control', 'readonly')) !!}
               </div>

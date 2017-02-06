@@ -32,11 +32,11 @@
       </div>
       <div class="box-body">
         <div class="form-group">
-          {!! Form::label('Penawaran Code', 'Penawaran Code') !!}
+          {!! Form::label('Penawaran', 'Penawaran Code') !!}
           {!! Form::text('Penawaran', $maxpenawaran -> Penawaran, array('id' => 'Penawaran', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input Penawaran', 'required')) !!}
         </div>
         <div class="form-group">
-          {!! Form::label('Tanggal', 'Tanggal') !!}
+          {!! Form::label('Tgl', 'Date') !!}
           <div class="input-group">
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>

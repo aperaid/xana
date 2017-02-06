@@ -15,7 +15,7 @@
       </div>
       <div class="box-body">
         <div class="form-group">
-          {!! Form::label('Penawaran Code', 'Penawaran Code') !!}
+          {!! Form::label('Penawaran', 'Penawaran Code') !!}
           {!! Form::text('Penawaran', null, array('id' => 'Penawaran', 'class' => 'form-control', 'onKeyUp' => 'capital()', 'required')) !!}
         </div>
         <div class="box-footer">

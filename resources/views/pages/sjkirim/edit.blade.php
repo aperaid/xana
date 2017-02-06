@@ -76,7 +76,7 @@
         </div>
       </div>
       <div class="box-footer">
-        {!! Form::label('Send Date', 'Send Date', ['class' => "control-label"]) !!}
+        {!! Form::label('Tgl', 'Send Date', ['class' => "control-label"]) !!}
         <div class="input-group">
           <div class="input-group-addon">
             <i class="fa fa-calendar"></i>

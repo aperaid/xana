@@ -70,12 +70,12 @@ $('#SelectAll').click(function () {
     $('input[type=checkbox]').not(":disabled").prop('checked', checked_status);
 });
 
-$(document).ready(function(){
+/*$(document).ready(function(){
 	//iCheck
 	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
 		checkboxClass: 'icheckbox_flat-green',
 		increaseArea: '20%' // optional
 	});
-});
+});*/
 </script>
 @stop

@@ -31,11 +31,11 @@
             <div class="col-sm-2">
               {!! Form::text('Type', $adjust->Type, ['class' => 'form-control', 'readonly']) !!}
             </div>
-            {!! Form::label('Jual', 'Jual', ['class' => "col-sm-1 control-label"]) !!}
+            {!! Form::label('JualPrice', 'Jual', ['class' => "col-sm-1 control-label"]) !!}
             <div class="col-sm-2">
               {!! Form::text('JualPrice', 'Rp ' . number_format($adjust->JualPrice, 0,',', '.' ), array('id' => 'JualPrice', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 1.000.000', 'required')) !!}
             </div>
-            {!! Form::label('Sewa', 'Sewa', ['class' => "col-sm-1 control-label"]) !!}
+            {!! Form::label('Price', 'Sewa', ['class' => "col-sm-1 control-label"]) !!}
             <div class="col-sm-2">
               {!! Form::text('Price', 'Rp ' . number_format($adjust->Price, 0,',', '.' ), array('id' => 'Price', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 10.000', 'required')) !!}
             </div>
@@ -45,7 +45,7 @@
             <div class="col-sm-3">
               {!! Form::number('Kumbang', $adjust->Kumbang, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
             </div>
-            {!! Form::label('Bulak Sereh', 'Bulak Sereh', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('BulakSereh', 'Bulak Sereh', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
               {!! Form::number('BulakSereh', $adjust->BulakSereh, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
             </div>
@@ -55,7 +55,7 @@
             <div class="col-sm-3">
               {!! Form::number('Legok', $adjust->Legok, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
             </div>
-            {!! Form::label('Citra Garden', 'Citra Garden', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('CitraGarden', 'Citra Garden', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
               {!! Form::number('CitraGarden', $adjust->CitraGarden, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '100', 'required')) !!}
             </div>

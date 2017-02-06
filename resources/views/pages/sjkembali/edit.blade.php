@@ -41,7 +41,7 @@
         </table>
 			</div>
       <div class="box-footer">
-        <label>Tanggal SJ Kembali</label>
+        {!! Form::label('Tgl2', 'Return Date') !!}
         <div class="input-group">
           <div class="input-group-addon">
             <i class="fa fa-calendar"></i>

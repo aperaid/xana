@@ -44,7 +44,7 @@
 			</div>
       <!-- box-body -->
       <div class="box-footer">
-        <label>Tanggal Barang Sampai Tujuan/Tanggal Mulai Penghitungan</label>
+				{!! Form::label('Tgl', 'Tanggal Barang Sampai Tujuan/Tanggal Mulai Penghitungan') !!}
         <div class="input-group">
           <div class="input-group-addon">
             <i class="fa fa-calendar"></i>

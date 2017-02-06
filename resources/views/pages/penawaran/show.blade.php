@@ -33,11 +33,11 @@
       </div>
       <div class="box-body">
         <div class="form-group">
-          {!! Form::label('Penawaran Code', 'Penawaran Code') !!}
+          {!! Form::label('Penawaran', 'Penawaran Code') !!}
           {!! Form::text('Penawaran', $penawaran -> Penawaran, array('class' => 'form-control', 'readonly')) !!}
         </div>
         <div class="form-group">
-          {!! Form::label('Tanggal', 'Tanggal') !!}
+          {!! Form::label('Tgl', 'Date') !!}
           <div class="input-group">
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
@@ -46,7 +46,7 @@
           </div>
         </div>
         <div class="form-group">
-          {!! Form::label('Project Code', 'Project Code') !!}
+          {!! Form::label('PCode', 'Project Code') !!}
           {!! Form::text('PCode', $penawaran -> PCode, array('class' => 'form-control', 'readonly')) !!}
         </div>
       </div>

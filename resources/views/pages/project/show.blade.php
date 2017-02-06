@@ -18,13 +18,13 @@
       <div class="form-horizontal">
         <div class="box-body">
           <div class="form-group">
-            {!! Form::label('Project Code', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('PCode', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
               {!! Form::text('PCode', $project->PCode, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Project Name', 'Project Name', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('Project', 'Project Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
               {!! Form::text('Project', $project->Project, array('class' => 'form-control', 'readonly')) !!}
             </div>
@@ -34,32 +34,32 @@
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Project Address', 'Project Address', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('ProjAlamat', 'Project Address', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
               {!! Form::text('ProjAlamat', $project->ProjAlamat, array('class' => 'form-control', 'readonly')) !!}
             </div>
-            {!! Form::label('City', 'City', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('ProjKota', 'City', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-2">
               {!! Form::text('ProjKota', $project->ProjKota, array('class' => 'form-control', 'readonly')) !!}
             </div>
-            {!! Form::label('Zip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('ProjZip', 'Zip', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-2">
               {!! Form::text('ProjZip', $project->ProjZip, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <hr>
           <div class="form-group">
-            {!! Form::label('Company Code', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('CCode', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
               {!! Form::text('CCode', $project->CCode, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('Company Name', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('Company', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
               {!! Form::text('Company', $project->Company, array('class' => 'form-control', 'readonly')) !!}
             </div>
-            {!! Form::label('Phone', 'Phone', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('CompPhone', 'Phone', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <div class="input-group-addon">
@@ -71,7 +71,7 @@
           </div>
           <hr>
           <div class="form-group">
-            {!! Form::label('Contact Person', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('Customer', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
               <div class="input-group">
                 <div class="input-group-addon">
@@ -80,7 +80,7 @@
                 {!! Form::text('Customer', $project->Customer, array('class' => 'form-control', 'readonly')) !!}
               </div>
             </div>
-            {!! Form::label('Phone CP', 'Phone CP', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('CustPhone', 'Phone CP', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <div class="input-group-addon">
