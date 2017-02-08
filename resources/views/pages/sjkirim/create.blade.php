@@ -56,11 +56,10 @@
 
 @section('script')
 <script>
-var Min = '{{ $po->Tgl }}';
 $(function() {
   $('#Tgl').datepicker({
 	  format: "dd/mm/yyyy",
-    startDate: Min,
+    startDate: '{{ $min }}',
 	  todayHighlight: true,
 	  autoclose: true,
   }); 

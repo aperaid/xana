@@ -141,16 +141,10 @@ class TransaksiController extends Controller
       }else
         return redirect()->back();
     }
-
-    public function getExtend($id)
-    {
-    	return view('pages.transaksi.extend')
-      ->with('id', $id);
-    }
     
-    public function postExtend(Request $request, $id)
+    public function Extend(Request $request)
     {
-      $invoice = Invoice::find($id);
+      $invoice = Invoice::find($request->id);
       $maxinvoice = Invoice::select([DB::raw('max(invoice.id) as maxinvoice')])->first();
       
       $periodes = Periode::leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
@@ -228,6 +222,24 @@ class TransaksiController extends Controller
       $history->save();
       
       Session::flash('message', 'Extend is successful!');
+
+    	return redirect()->route('transaksi.index');
+    }
+		
+		public function ExtendDelete(Request $request)
+    {
+      $invoice = Invoice::find($request->id);
+
+			Periode::where('Reference', $invoice->Reference)->where('Periode', $invoice->Periode)->where('Deletes', 'Extend')->delete();
+      
+      Invoice::destroy($invoice->id);
+      
+      $history = new History;
+      $history->User = Auth::user()->name;
+      $history->History = 'Delete Extend Transaksi on Transaksi '.$invoice->Invoice;
+      $history->save();
+      
+      Session::flash('message', 'Delete extend transaksi is successful!');
 
     	return redirect()->route('transaksi.index');
     }
@@ -496,15 +508,9 @@ class TransaksiController extends Controller
     	return redirect()->route('transaksi.index');
     }
     
-    public function getClaimDelete(Request $request, $id)
+    public function ClaimDelete(Request $request)
     {
-      return view('pages.transaksi.claimdelete')
-      ->with('id', $id);
-    }
-    
-    public function postClaimDelete(Request $request, $id)
-    {
-      $invoice = Invoice::find($id);
+      $invoice = Invoice::find($request->id);
       
       $periodes = Periode::select([
         DB::raw('SUM(periode.Quantity) AS SumQuantity'),
@@ -546,7 +552,7 @@ class TransaksiController extends Controller
       
       TransaksiClaim::whereIn('Claim', $claim)->delete();
       
-      Invoice::destroy($id);
+      Invoice::destroy($invoice->id);
       
       $history = new History;
       $history->User = Auth::user()->name;

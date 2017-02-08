@@ -12,7 +12,7 @@
   <div class="col-xs-12">
     <div class="box box-primary">
       <div class="box-body">
-        <a href="{{route('reference.show', $id )}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
+        <a href="{{route('reference.show', $reference->id )}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
         {!! Form::submit('Insert',  array('class' => 'btn btn-success pull-right')) !!}
         </div>
         <!-- /.box-body -->
@@ -32,8 +32,8 @@
 				<h3 class="box-title">PO Detail</h3>
 			</div>
       <div class="box-body">
-        {!! Form::hidden('id', $id) !!}
-        {!! Form::hidden('poid', $po->maxid+1) !!}
+        {!! Form::hidden('id', $reference->id) !!}
+        {!! Form::hidden('poid', $last_po+1) !!}
         {!! Form::hidden('Reference', $reference -> Reference) !!}
         <div class="form-group">
           {!! Form::label('POCode', 'Nomor PO') !!}
@@ -108,13 +108,12 @@
 
 @section('script')
 <script>
-Min = '{{$reference->Tgl}}'
 $(function() {
   $('#Tgl').datepicker({
 	  format: "dd/mm/yyyy",
 	  todayHighlight: true,
 	  autoclose: true,
-	  startDate: Min,
+	  startDate: '{{$min}}',
   }); 
 }); 
 
@@ -161,7 +160,7 @@ $(document).ready(function(){
 				});
 			});
 			
-			$(document).on('keyup', '.Barang, .Type, .Quantity, .JS', function(e){
+			$(document).on('keyup', '.Barang, .Type, .JS', function(e){
 				var this2 = this;
 				if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
 					$.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})

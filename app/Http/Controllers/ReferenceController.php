@@ -95,27 +95,10 @@ class ReferenceController extends Controller
     
     public function StoreCustomerProject(Request $request)
     {
-      $is_exist = Project::where('PCode', $request->PCode)->first();
-      if(isset($is_exist->PCode)){
-        $request->session()->flash('error', 'Project with PCode '.strtoupper($request->PCode).' is already exist!');
-      }else{
-        $project = Project::Create([
-          'id' => $request['projectid'],
-          'PCode' => strtoupper($request['PCode']),
-          'Project' => strtoupper($request['Project']),
-					'Sales' => $request['Sales'],
-          'ProjAlamat' => $request['ProjAlamat'],
-          'ProjZip' => $request['ProjZip'],
-          'ProjKota' => $request['ProjKota'],
-          'CCode' => strtoupper($request['CCode']),
-        ]);
-        $request->session()->flash('message', 'Project has been successfully added with PCode '. strtoupper($request['PCode']));
-      }
-      
       if($request['CCode2']!=''){
-        //$this->validate($request, [
-        //  'Company'=>'required'
-        //]);
+        $this->validate($request, [
+          'Company'=>'required'
+        ]);
         $is_exist = Customer::where('CCode', $request->CCode2)->first();
         if(isset($is_exist->CCode)){
           $request->session()->flash('error', 'Customer with CCode '.strtoupper($request->CCode).' is already exist!');
@@ -137,6 +120,23 @@ class ReferenceController extends Controller
           ]);
           $request->session()->flash('message', 'Customer and Project has been successfully added with PCode '. strtoupper($request['PCode']));
         }
+      }
+			
+			$is_exist = Project::where('PCode', $request->PCode)->first();
+      if(isset($is_exist->PCode)){
+        $request->session()->flash('error', 'Project with PCode '.strtoupper($request->PCode).' is already exist!');
+      }else{
+        $project = Project::Create([
+          'id' => $request['projectid'],
+          'PCode' => strtoupper($request['PCode']),
+          'Project' => strtoupper($request['Project']),
+					'Sales' => $request['Sales'],
+          'ProjAlamat' => $request['ProjAlamat'],
+          'ProjZip' => $request['ProjZip'],
+          'ProjKota' => $request['ProjKota'],
+          'CCode' => strtoupper($request['CCode']),
+        ]);
+        $request->session()->flash('message', 'Project has been successfully added with PCode '. strtoupper($request['PCode']));
       }
       
       $history = new History;

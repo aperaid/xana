@@ -35,14 +35,13 @@ Route::group(['middleware' => 'auth'], function () {
   
   Route::resource('po', 'POController');
 
-  Route::get('transaksi/extend/{id}', ['as' => 'transaksi.extend', 'uses' => 'TransaksiController@getExtend']);
-  Route::post('transaksi/updateextend/{id}', ['as' => 'transaksi.updateextend', 'uses' =>'TransaksiController@postExtend']);
+  Route::post('transaksi/extend', ['as' => 'transaksi.extend', 'uses' => 'TransaksiController@Extend']);
+	Route::post('transaksi/extenddelete', ['as' => 'transaksi.extenddelete', 'uses' => 'TransaksiController@ExtendDelete']);
   Route::get('transaksi/claimcreate/{id}', ['as' => 'transaksi.claimcreate', 'uses' => 'TransaksiController@getClaim']);
   Route::post('transaksi/claimcreate2/{id}', ['as' => 'transaksi.claimcreate2', 'uses' => 'TransaksiController@getClaim2']);
   Route::post('transaksi/claimcreate3/{id}', ['as' => 'transaksi.claimcreate3', 'uses' => 'TransaksiController@getClaim3']);
   Route::post('transaksi/updateclaimcreate', ['as' => 'transaksi.updateclaimcreate', 'uses' =>'TransaksiController@postClaim']);
-  Route::get('transaksi/claimdelete/{id}', ['as' => 'transaksi.claimdelete', 'uses' => 'TransaksiController@getClaimDelete']);
-  Route::post('transaksi/updateclaimdelete/{id}', ['as' => 'transaksi.updateclaimdelete', 'uses' => 'TransaksiController@postClaimDelete']);
+  Route::post('transaksi/claimdelete', ['as' => 'transaksi.claimdelete', 'uses' => 'TransaksiController@ClaimDelete']);
 
   Route::resource('transaksi', 'TransaksiController');
 

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\PO;
 use App\Periode;
 use App\SJKirim;
 use App\IsiSJKirim;
@@ -55,14 +56,16 @@ class SJKirimController extends Controller
 
     public function create()
     {
-      $id = Input::get('id');
+      $reference = Reference::find(Input::get('id'));
       
-      $reference = Reference::where('pocustomer.id', $id)
-      ->first();
-      
-      $po = Transaksi::leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
-      ->where('transaksi.Reference', $reference->Reference)
-      ->first();
+			$maxperiode = Transaksi::leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->where('Reference', $reference->Reference)
+			->max('Periode');
+			$po = Transaksi::leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->where('transaksi.Reference', $reference->Reference)
+			->where('po.Periode', $maxperiode)
+			->first();
+			$min = $po->Tgl;
       
       $sjkirim = SJKirim::select([
         DB::raw('MAX(sjkirim.id) AS maxid')
@@ -73,7 +76,7 @@ class SJKirimController extends Controller
         return view('pages.sjkirim.create')
         ->with('url', 'sjkirim')
         ->with('reference', $reference)
-        ->with('po', $po)
+        ->with('min', $min)
         ->with('sjkirim', $sjkirim)
         ->with('top_menu_sel', 'menu_sjkirim')
         ->with('page_title', 'Surat Jalan Kirim')
@@ -164,40 +167,29 @@ class SJKirimController extends Controller
       ->orderBy('transaksi.id', 'asc')
       ->get();
       
-      $sjkirim = SJKirim::select([
-        DB::raw('MAX(sjkirim.id) AS maxid')
-      ])
-      ->first();
+      $last_sjkirim = SJKirim::max('id');
       
-      $isisjkirim = IsiSJKirim::select([
-        DB::raw('MAX(isisjkirim.id) AS maxid')
-      ])
-      ->first();
+      $last_isisjkirim = IsiSJKirim::max('id');
       
-      $maxperiode = Periode::select([
-        DB::raw('MAX(periode.id) AS maxid')
-      ])
-      ->first();
+      $maxperiode = Periode::where('Reference', $Reference)->max('Periode');
       
-      $maxisisjkir = IsiSJKirim::select([
-        DB::raw('MAX(isisjkirim.IsiSJKir) AS IsiSJKir')
-      ])
-      ->first();
-      
+      $maxisisjkir = IsiSJKirim::max('IsiSJKir');
+
       $ECont = Periode::where('Reference', $Reference)
-      ->whereRaw('(SELECT MAX(Periode) FROM periode WHERE Reference = ?)', $Reference)
+      //->whereRaw('(SELECT MAX(Periode) FROM periode WHERE Reference = ?)', $Reference)
+			->where('Periode', $maxperiode)
       ->first();
       
       $end = str_replace('/', '-', $Tgl);
       $end2 = strtotime("-1 day +1 month", strtotime($end));
       $end3 = date("d/m/Y", $end2);
       
-      if(is_null($ECont)){
+      if(isset($ECont)){
+				$tglE = $ECont->E;
+        $periode = $ECont->Periode;
+      }else{
         $tglE = $end3;
         $periode = 1;
-      }else{
-        $tglE = $ECont->E;
-        $periode = $ECont->Periode;
       }
       
       if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
@@ -207,8 +199,8 @@ class SJKirimController extends Controller
         ->with('periode', $periode)
         ->with('referenceid', $referenceid)
         ->with('transaksis', $transaksis)
-        ->with('sjkirim', $sjkirim)
-        ->with('isisjkirim', $isisjkirim)
+        ->with('last_sjkirim', $last_sjkirim)
+        ->with('last_isisjkirim', $last_isisjkirim)
         ->with('maxperiode', $maxperiode)
         ->with('maxisisjkir', $maxisisjkir)
         ->with('top_menu_sel', 'menu_sjkirim')
@@ -276,7 +268,7 @@ class SJKirimController extends Controller
       }
       
       $data = Invoice::where('invoice.Reference', $Reference)
-      ->where('invoice.Periode', 1)
+      ->where('invoice.Periode', $input['Periode'])
       ->where('invoice.JSC', $JS)->first();
       $data->update(['Times' => $data->Times + 1]);
       
@@ -320,8 +312,6 @@ class SJKirimController extends Controller
       ->leftJoin('pocustomer', 'sjkirim.Reference', '=', 'pocustomer.Reference')
       ->where('sjkirim.id', $id)
       ->first();
-      
-      
 
       $isisjkirims = IsiSJKirim::select([
         'isisjkirim.*',
@@ -346,16 +336,17 @@ class SJKirimController extends Controller
       
       $jumlah = $isisjkirims->sum('QTertanda');
 
-      $qttdcheck = Periode::select([
-        DB::raw('max(periode.Periode) as found')
-      ])
-      ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
-      ->where('isisjkirim.SJKir', $sjkirim->SJKir)
-      ->first();
-      if($qttdcheck->found > 1){
-        $qttdcheck = 1;
-      }else{
+			$periode = Periode::leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+			->where('isisjkirim.SJKir', $sjkirim->SJKir)
+			->where('Deletes', 'Sewa')
+			->first();
+			
+      $maxperiode = Periode::where('Reference', $sjkirim->Reference)
+      ->max('Periode');
+      if($periode->Periode == $maxperiode){
         $qttdcheck = 0;
+      }else{
+        $qttdcheck = 1;
       }
       
       if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
@@ -376,6 +367,15 @@ class SJKirimController extends Controller
     public function edit($id)
     {
     	$sjkirim = SJKirim::find($id);
+			
+			$maxperiode = Transaksi::leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->where('Reference', $sjkirim->Reference)
+			->max('Periode');
+			$po = Transaksi::leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->where('transaksi.Reference', $sjkirim->Reference)
+			->where('po.Periode', $maxperiode)
+			->first();
+			$min = $po->Tgl;
       
       $isisjkirims = IsiSJKirim::select([
         'isisjkirim.id as isisjkirimid',
@@ -394,20 +394,13 @@ class SJKirimController extends Controller
       ->where('isisjkirim.SJKir', $sjkirim->SJKir)
       ->orderBy('isisjkirim.id', 'asc')
       ->get();
-      
-      $TglMin = Reference::select([
-        'pocustomer.Tgl',
-      ])
-      ->leftJoin('sjkirim', 'pocustomer.Reference', '=', 'sjkirim.Reference')
-      ->where('sjkirim.SJKir', $sjkirim->SJKir)
-      ->first();
-      
+
       if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
         return view('pages.sjkirim.edit')
         ->with('url', 'sjkirim')
         ->with('sjkirim', $sjkirim)
         ->with('isisjkirims', $isisjkirims)
-        ->with('TglMin', $TglMin)
+        ->with('min', $min)
         ->with('top_menu_sel', 'menu_sjkirim')
         ->with('page_title', 'Surat Jalan Kirim')
         ->with('page_description', 'Edit');

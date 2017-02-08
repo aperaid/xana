@@ -109,11 +109,10 @@ function minmax(value, min, max)
 </script>
 
 <script>
-var Min = '{{ $TglMin->Tgl }}';
 $(function() {
   $('#Tgl').datepicker({
   format: "dd/mm/yyyy",
-  startDate: Min,
+  startDate: '{{ $min }}',
   todayHighlight: true,
   autoclose: true
   }); 

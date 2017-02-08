@@ -13,6 +13,7 @@ use App\Reference;
 use App\Invoice;
 use App\History;
 use App\Penawaran;
+use App\Periode;
 use App\Inventory;
 use Session;
 use DB;
@@ -22,27 +23,29 @@ class POController extends Controller
 {
   public function create()
   {
-    $transaksi = Transaksi::select([
-      DB::raw('MAX(transaksi.id) AS maxid')
-    ])
-    ->first();
+    $last_transaksi = Transaksi::max('id');
     
-    if($transaksi -> maxid == 0){
+    if($last_transaksi == 0){
       $maxid = 0;
     }else{
-      $maxid = $transaksi -> maxid;
+      $maxid = $last_transaksi;
     }
     
-    $id = Input::get('id');
+    $reference = Reference::find(Input::get('id'));
   
-    $po = PO::select([
-      DB::raw('MAX(po.id) AS maxid')
-    ])
-    ->first();
+    $last_po = PO::max('id');
     
-    $reference = Reference::where('pocustomer.id', $id)
-    ->first();
-    
+		$maxperiode = Periode::where('reference', $reference->Reference)
+		->max('Periode');
+		if($maxperiode==0 || $maxperiode==1){
+			$min = $reference->Tgl;
+		}else{
+			$periode = Periode::where('reference', $reference->Reference)
+			->where('Periode', $maxperiode)
+			->first();
+			$min = $periode->S;
+		}
+
     $ppn = Invoice::where('Reference', $reference->Reference)
     ->first();
     if($ppn)
@@ -53,10 +56,10 @@ class POController extends Controller
     if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
       return view('pages.po.create')
       ->with('url', 'po')
-      ->with('po', $po)
+      ->with('last_po', $last_po)
       ->with('maxid', $maxid)
-      ->with('id', $id)
       ->with('reference', $reference)
+			->with('min', $min)
       ->with('ppn', $ppn)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
@@ -135,11 +138,18 @@ class POController extends Controller
     if(isset($is_exist->POCode)){
       return redirect()->route('po.create', 'id=' .Input::get('id'))->with('error', 'Reference with POCode '.strtoupper($request->POCode).' is already exist!');
     }else{
+			$maxperiode = Periode::where('reference', $request->Reference)
+			->max('Periode');
+			if(isset($maxperiode))
+				$periode = $maxperiode+1;
+			else
+				$periode = 1;
       $po = PO::Create([
         'id' => $request['poid'],
         'POCode' => $request['POCode'],
         'Tgl' => $request['Tgl'],
         'Discount' => $request['Discount'],
+				'Periode' => $periode,
         'Catatan' => $request['Catatan'],
       ]);
     }
@@ -282,6 +292,20 @@ class POController extends Controller
   public function edit($id)
   {
     $po = PO::find($id);
+		
+		$transaksi = Transaksi::where('POCode', $po->POCode)->first();
+		
+		$maxperiode = Periode::where('reference', $transaksi->Reference)
+		->max('Periode');
+		if($maxperiode==0 || $maxperiode==1){
+			$min = $po->Tgl;
+		}else{
+			$periode = Periode::where('reference', $transaksi->Reference)
+			->where('Periode', $maxperiode)
+			->first();
+			$min = $periode->S;
+		}
+		
     $transaksis = Transaksi::select('transaksi.*', 'inventory.Type')
     ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
     ->where('transaksi.POCode', $po -> POCode)
@@ -324,6 +348,7 @@ class POController extends Controller
       ->with('transaksis', $transaksis)
       ->with('last_purchase', $last_purchase)
       ->with('invoice', $invoice)
+			->with('min', $min)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'Edit');

@@ -111,8 +111,7 @@ $(function() {
 	  format: "dd/mm/yyyy",
 	  todayHighlight: true,
 	  autoclose: true,
-	  startDate: '-7d',
-	  endDate: '+7d'
+	  startDate: '{{$min}}',
   }); 
 }); 
 

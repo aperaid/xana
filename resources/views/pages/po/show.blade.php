@@ -58,7 +58,7 @@
         </div>
         <div class="form-group">
           {!! Form::label('Catatan', 'Catatan') !!}
-          {!! Form::textarea('Catatan', $po -> Catatan, array('class' => 'form-control', 'readonly')) !!}
+          {!! Form::textarea('Catatan', $po -> Catatan, array('class' => 'form-control', 'rows' => '5', 'readonly')) !!}
         </div>
       </div>
       <!-- box-body -->

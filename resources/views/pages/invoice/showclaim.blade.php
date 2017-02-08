@@ -86,45 +86,39 @@
               </div>
             @endif
           </div>
-          <!-- Total Input -->
+          <!-- Total & Pajak Input -->
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            <div class="col-sm-3">
               {!! Form::text('Total', 'Rp '.number_format($total, 2, ',','.'), array('id' => 'Total', 'class' => 'form-control', 'readonly')) !!}
             </div>
-          </div>
-          <!-- Pajak Input -->
-          <div class="form-group">
-            {!! Form::label('Pajak', 'Pajak', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+						{!! Form::label('Pajak', 'Pajak', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
               {!! Form::text('Pajak', 'Rp '.$Pajak, array('id' => 'Pajak', 'class' => 'form-control', 'readonly')) !!}
-            </div>
-          </div>
-          <!-- Discount Input -->
-          <div class="form-group">
-            {!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              <input id="Discount" name="Discount" type="number" class="form-control" placeholder="15" value="{{$invoice->Discount}}" onKeyUp="tot()" >
             </div>
           </div>
           <!-- Catatan Input -->
           <div class="form-group">
             {!! Form::label('Catatan', 'Catatan', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
-              {!! Form::textarea('Catatan', $invoice->Catatan, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '5')) !!}
+            <div class="col-sm-8">
+              {!! Form::textarea('Catatan', $invoice->Catatan, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '2')) !!}
             </div>
           </div>
-          <!-- Pembulatan Input -->
+          <!-- Discount & Pembulatan Input -->
           <div class="form-group">
-            {!! Form::label('Pembulatan', 'Pembulatan (-)', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-6">
+            {!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              <input id="Discount" name="Discount" type="number" class="form-control" placeholder="15" value="{{$invoice->Discount}}" onKeyUp="tot()" >
+            </div>
+						{!! Form::label('Pembulatan', 'Pembulatan (-)', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
               <input id="Pembulatan" name="Pembulatan" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Pembulatan,0,',','.')}}" onKeyUp="tot()" >
             </div>
           </div>
           <!-- Grand Total Input -->
           <div class="form-group">
             {!! Form::label('GrandTotal', 'Grand Total', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-7">
+            <div class="col-sm-8">
               {!! Form::text('GrandTotal', 'Rp '.$totals, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>

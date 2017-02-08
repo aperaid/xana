@@ -75,6 +75,8 @@
       <!-- box-header -->
       <div class="form-horizontal">
         <div class="box-body">
+					<div id="message">
+					</div>
           {!! Form::hidden('projectid', $project_id, ['id' => 'projectid']) !!}
           <div class="form-group">
             {!! Form::label('PCode2', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
@@ -260,7 +262,22 @@ $("#customerprojectform").submit(function(event){
     $(".loading").hide();
   })
   .fail(function(data) {
-    alert("Failed");
+    if( data.status === 422 ) {
+			var errors = data.responseJSON; //get the errors response data.
+			
+			var errorsHtml = '<div class="alert alert-danger alert-dismissible">';
+			errorsHtml += '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+			errorsHtml += '<h4><i class="icon fa fa-ban"></i> Error!</h4>';
+
+			$.each( errors, function( key, value ) {
+					errorsHtml += '<li>' + value[0] + '</li>';
+			});
+			
+			errorsHtml += '</div>';
+					
+			$("#message").html(errorsHtml);
+			$(".loading").hide();
+		}
   });
   event.preventDefault();
 });

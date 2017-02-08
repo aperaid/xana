@@ -23,15 +23,15 @@
             </tr>
           </thead>
           <tbody>
-            {!! Form::hidden('sjkirimid', $sjkirim->maxid+1) !!}
+            {!! Form::hidden('sjkirimid', $last_sjkirim+1) !!}
             {!! Form::hidden('tglE', $tglE) !!}
             {!! Form::hidden('Periode', $periode) !!}
             @foreach($transaksis as $key => $transaksi)
             <tr>
               {!! Form::hidden('id[]', $transaksi->id) !!}
-              {!! Form::hidden('isisjkirimid[]', $isisjkirim->maxid+$key+1) !!}
-              {!! Form::hidden('IsiSJKir[]', $maxisisjkir->IsiSJKir+$key+1) !!}
-              {!! Form::hidden('periodeid[]', $maxperiode->maxid+$key+1) !!}
+              {!! Form::hidden('isisjkirimid[]', $last_isisjkirim+$key+1) !!}
+              {!! Form::hidden('IsiSJKir[]', $maxisisjkir+$key+1) !!}
+              {!! Form::hidden('periodeid[]', $maxperiode+$key+1) !!}
               {!! Form::hidden('Reference[]', $transaksi->Reference) !!}
               {!! Form::hidden('Purchase[]', $transaksi->Purchase) !!}
               {!! Form::hidden('ICode[]', $transaksi->ICode) !!}

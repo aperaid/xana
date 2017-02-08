@@ -148,7 +148,7 @@
               {!! Form::textarea('Catatan', $invoice->Catatan, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '2')) !!}
             </div>
           </div>
-          <!-- Pembulatan Input -->
+          <!-- Discount & Pembulatan Input -->
           <div class="form-group">
 						{!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">

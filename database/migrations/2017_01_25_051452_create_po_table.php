@@ -18,6 +18,7 @@ class CreatePoTable extends Migration
         $table->string('POCode')->unique();
         $table->string('Tgl');
         $table->integer('Discount')->default(0);
+				$table->integer('Periode');
         $table->text('Catatan')->nullable();
       });
     }
