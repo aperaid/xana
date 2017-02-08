@@ -141,7 +141,7 @@ class POController extends Controller
 			$maxperiode = Periode::where('reference', $request->Reference)
 			->max('Periode');
 			if(isset($maxperiode))
-				$periode = $maxperiode+1;
+				$periode = $maxperiode;
 			else
 				$periode = 1;
       $po = PO::Create([

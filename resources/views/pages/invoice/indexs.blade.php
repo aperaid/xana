@@ -23,7 +23,7 @@
                 <th>Project</th>
                 <th>Periode</th>
                 <th>Company</th>
-                <th>Invoice Date</th>
+                <th>Due Date</th>
                 <th>Reference</th>
                 <th width="10%">Status</th>
               </tr>
@@ -37,7 +37,13 @@
                 <td>{{$invoices->Project}}</td>
                 <td>{{$invoices->Periode}}</td>
                 <td>{{$invoices->Company}}</td>
-                <td>{{$invoices->Tgl}}</td>
+                <td>
+									@if(isset($invoices->TglTerima))
+										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoices->TglTerima)."+".$invoices->Termin." days"))}}
+									@else
+										Fill Tgl Surat Terima
+									@endif
+								</td>
                 <td>{{$invoices->Reference}}</td>
                 <td>
                   @if($invoices->Lunas==0)

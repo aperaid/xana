@@ -25,6 +25,7 @@ class TransaksiController extends Controller
       $maxid = Periode::select([
         'periode.Reference',
         'periode.IsiSJKir',
+				'periode.Periode',
         DB::raw('MAX(periode.id) AS maxid')
       ])
       ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Extend")')
@@ -132,6 +133,7 @@ class TransaksiController extends Controller
       if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
         return view('pages.transaksi.indexs')
         ->with('url', 'transaksi')
+				->with('maxid', $maxid)
         ->with('transaksiss', $transaksis)
         ->with('transaksijs', $transaksij)
         ->with('transaksics', $transaksic)
@@ -231,6 +233,7 @@ class TransaksiController extends Controller
       $invoice = Invoice::find($request->id);
 
 			Periode::where('Reference', $invoice->Reference)->where('Periode', $invoice->Periode)->where('Deletes', 'Extend')->delete();
+			DB::statement('ALTER TABLE periode auto_increment = 1;');
       
       Invoice::destroy($invoice->id);
 			DB::statement('ALTER TABLE invoice auto_increment = 1;');

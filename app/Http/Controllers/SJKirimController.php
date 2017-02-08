@@ -170,6 +170,8 @@ class SJKirimController extends Controller
       $last_sjkirim = SJKirim::max('id');
       
       $last_isisjkirim = IsiSJKirim::max('id');
+			
+			$last_periode = Periode::where('Reference', $Reference)->max('id');
       
       $maxperiode = Periode::where('Reference', $Reference)->max('Periode');
       
@@ -201,6 +203,7 @@ class SJKirimController extends Controller
         ->with('transaksis', $transaksis)
         ->with('last_sjkirim', $last_sjkirim)
         ->with('last_isisjkirim', $last_isisjkirim)
+				->with('last_periode', $last_periode)
         ->with('maxperiode', $maxperiode)
         ->with('maxisisjkir', $maxisisjkir)
         ->with('top_menu_sel', 'menu_sjkirim')
@@ -299,7 +302,7 @@ class SJKirimController extends Controller
       Session::forget('JS');
       Session::forget('Reference');
       
-    	return redirect()->route('sjkirim.index');
+    	return redirect()->route('sjkirim.show', $request['sjkirimid']);
     }
 
     public function show($id)

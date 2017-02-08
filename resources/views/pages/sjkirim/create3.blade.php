@@ -31,7 +31,7 @@
               {!! Form::hidden('id[]', $transaksi->id) !!}
               {!! Form::hidden('isisjkirimid[]', $last_isisjkirim+$key+1) !!}
               {!! Form::hidden('IsiSJKir[]', $maxisisjkir+$key+1) !!}
-              {!! Form::hidden('periodeid[]', $maxperiode+$key+1) !!}
+              {!! Form::hidden('periodeid[]', $last_periode+$key+1) !!}
               {!! Form::hidden('Reference[]', $transaksi->Reference) !!}
               {!! Form::hidden('Purchase[]', $transaksi->Purchase) !!}
               {!! Form::hidden('ICode[]', $transaksi->ICode) !!}

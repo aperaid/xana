@@ -14,9 +14,9 @@
         <table id="datatables" class="table table-bordered table-striped table-responsive">
           <thead>
             <tr>
-              <th>Extend Date</th>
+              <th>Origin Warehouse</th>
 					    <th>Barang</th>
-					    <th>Warehouse</th>
+					    <th>Return Warehouse</th>
 					    <th>Q Sisa Kembali</th>
 					    <th>Q Pengambilan</th>
             </tr>
@@ -28,7 +28,7 @@
               {!! Form::hidden('id[]', $isisjkirim->id) !!}
               {!! Form::hidden('Periode', $isisjkirim->Periode) !!}
               {!! Form::hidden('Purchase[]', $isisjkirim->Purchase) !!}
-              <td>{!! Form::text('Tgl[]', $isisjkirim->S, array('class' => 'form-control', 'readonly')) !!}</td>
+              <td>{!! Form::text('Tgl[]', $isisjkirim->Warehouse, array('class' => 'form-control', 'readonly')) !!}</td>
               <td>{!! Form::text('Barang[]', $isisjkirim->Barang, array('class' => 'form-control', 'readonly')) !!}</td>
               <td>{!! Form::select('Warehouse[]', ['Kumbang'=>'Kumbang', 'BulakSereh'=>'Bulak Sereh', 'Legok'=>'Legok', 'CitraGarden'=>'Citra Garden'], $isisjkirim->Warehouse, ['class' => 'form-control']) !!}</td>
               <td>{!! Form::text('QSisaKem[]', $isisjkirim->SumQSisaKemInsert, array('class' => 'form-control', 'readonly')) !!}</td>

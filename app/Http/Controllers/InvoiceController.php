@@ -119,34 +119,24 @@ class InvoiceController extends Controller
       $toss = 0;
     }
 
-    if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-      $totals = number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali))-(((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
-    else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-      $totals = number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 1)
-      $totals = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 0)
-      $totals = number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    if($invoice->PPNT == 1)
+      $totals = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else if($invoice->PPNT == 0)
+      $totals = number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
     else
-      $totals = number_format(($total*$invoice->PPN*0.1)+$total+$toss-((($total*$invoice->PPN*0.1)+$total+$toss)*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+      $totals = 'Error';
 
-    if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-      $Pajak = number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1), 2, ',','.');
-    else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-      $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 1)
-      $Pajak = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1), 2, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 0)
+    if($invoice->PPNT == 1)
+      $Pajak = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1), 2, ',','.');
+    else if($invoice->PPNT == 0)
       $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
     else
-      $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
+      $Pajak = 'Error';
     
-    if($invoice->TimesKembali > 0)
-      $Transport = number_format(($toss*$invoice->TimesKembali), 2, ',','.');
-    else if($invoice->Times > 0)
-      $Transport = number_format(($toss*$invoice->Times), 2, ',','.');
+    if($invoice->TimesKembali > 0 || $invoice->Times > 0)
+      $Transport = number_format(($toss*$invoice->TimesKembali)+($toss*$invoice->Times), 2, ',','.');
     else
-      $Transport = number_format($toss, 2, ',','.');
+      $Transport = 'Error';
     
     /*$pocodes = Periode::distinct()
     ->select('transaksi.POCode')
@@ -452,45 +442,31 @@ class InvoiceController extends Controller
       $toss = 0;
     }
     
-    if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-      $totals = (($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali))-(((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)))*$invoice->Discount/100)-$invoice->Pembulatan;
-    else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali))*$invoice->Discount/100)-$invoice->Pembulatan;
-    else if($invoice->Times > 0 && $invoice->PPNT == 1)
-      $totals = (($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
-    else if($invoice->Times > 0 && $invoice->PPNT == 0)
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
+    if($invoice->PPNT == 1)
+      $totals = (($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
+    else if($invoice->PPNT == 0)
+      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
     else
-      $totals = ($total*$invoice->PPN*0.1)+$total+$toss-((($total*$invoice->PPN*0.1)+$total+$toss)*$invoice->Discount/100)-$invoice->Pembulatan;
+      $totals = 'Error';
     
-    if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)))*$invoice->Discount/100), 0, ',','.');
-    else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali))*$invoice->Discount/100), 0, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100), 0, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 0)
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100), 0, ',','.');
+    if($invoice->PPNT == 1)
+      $Discount = number_format((((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)))*$invoice->Discount/100), 0, ',','.');
+    else if($invoice->PPNT == 0)
+      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->Discount/100), 0, ',','.');
     else
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+$toss)*$invoice->Discount/100), 0, ',','.');
+      $Discount = 'Error';
     
-    if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1), 0, ',','.');
-    else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 0)
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
+    if($invoice->PPNT == 1)
+      $PPN = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1), 2, ',','.');
+    else if($invoice->PPNT == 0)
+      $PPN = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
     else
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
+      $PPN = 'Error';
     
-    if($invoice->TimesKembali > 0)
-      $Transport = number_format(($toss*$invoice->TimesKembali), 0, ',','.');
-    else if($invoice->Times > 0)
-      $Transport = number_format(($toss*$invoice->Times), 0, ',','.');
+    if($invoice->TimesKembali > 0 || $invoice->Times > 0)
+      $Transport = number_format(($toss*$invoice->TimesKembali)+($toss*$invoice->Times), 2, ',','.');
     else
-      $Transport = number_format($toss, 0, ',','.');
+      $Transport = 'Error';
     
     $firststart = $periodes->pluck('S');
     
@@ -636,45 +612,31 @@ class InvoiceController extends Controller
     
     $toss = $invoice->Transport;
     
-    if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-      $totals = (($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali))-(((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)))*$invoice->Discount/100)-$invoice->Pembulatan;
-    else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali))*$invoice->Discount/100)-$invoice->Pembulatan;
-    else if($invoice->Times > 0 && $invoice->PPNT == 1)
-      $totals = (($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
-    else if($invoice->Times > 0 && $invoice->PPNT == 0)
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
+    if($invoice->PPNT == 1)
+      $totals = (($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
+    else if($invoice->PPNT == 0)
+      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
     else
-      $totals = ($total*$invoice->PPN*0.1)+$total+$toss-((($total*$invoice->PPN*0.1)+$total+$toss)*$invoice->Discount/100)-$invoice->Pembulatan;
+      $totals = 'Error';
     
-    if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)))*$invoice->Discount/100), 0, ',','.');
-    else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali))*$invoice->Discount/100), 0, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100), 0, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 0)
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100), 0, ',','.');
+    if($invoice->PPNT == 1)
+      $Discount = number_format((((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->TimesKembali)))*$invoice->Discount/100), 0, ',','.');
+    else if($invoice->PPNT == 0)
+      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->TimesKembali))*$invoice->Discount/100), 0, ',','.');
     else
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+$toss)*$invoice->Discount/100), 0, ',','.');
+      $Discount = 'Error';
     
-    if($invoice->TimesKembali > 0 && $invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->TimesKembali))*$invoice->PPN*0.1), 0, ',','.');
-    else if($invoice->TimesKembali > 0 && $invoice->PPNT == 0)
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else if($invoice->Times > 0 && $invoice->PPNT == 0)
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
+    if($invoice->PPNT == 1)
+      $PPN = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1), 2, ',','.');
+    else if($invoice->PPNT == 0)
+      $PPN = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
     else
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
+      $PPN = 'Error';
     
-    if($invoice->TimesKembali > 0)
-      $Transport = number_format(($toss*$invoice->TimesKembali), 0, ',','.');
-    else if($invoice->Times > 0)
-      $Transport = number_format(($toss*$invoice->Times), 0, ',','.');
+    if($invoice->TimesKembali > 0 || $invoice->Times > 0)
+      $Transport = number_format(($toss*$invoice->TimesKembali)+($toss*$invoice->Times), 2, ',','.');
     else
-      $Transport = number_format($toss, 0, ',','.');
+      $Transport = 'Error';
     
     $firststart = $periodes->pluck('S');
     $Quantity = $periodes->sum('SumQTertanda');

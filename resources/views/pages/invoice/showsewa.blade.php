@@ -187,7 +187,7 @@
 								<div class="input-group-addon">
 									<i class="fa fa-calendar"></i>
 								</div>
-								{!! Form::text('TglTerima', $invoice->TglTerima, ['id' => 'TglTerima', 'class' => 'form-control', 'autocomplete' => 'off', 'required']) !!}
+								{!! Form::text('TglTerima', $invoice->TglTerima, ['id' => 'TglTerima', 'class' => 'form-control', 'autocomplete' => 'off']) !!}
 							</div>
 						</div>
 						{!! Form::label('Termin', 'Termin', ['class' => "col-sm-1 control-label"]) !!}

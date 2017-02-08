@@ -171,10 +171,10 @@ class SJKembaliController extends Controller
     public function getCreate3(Request $request, $id)
     {
       $input = Input::only('checkbox');
-      $purchases = $input['checkbox'];
-      foreach ($purchases as $key => $purchases)
+      $sjkirs = $input['checkbox'];
+      foreach ($sjkirs as $key => $sjkir)
       {
-        $Purchase[] = $input['checkbox'][$key];
+        $SJKir[] = $input['checkbox'][$key];
       }
       
       $SJKem = Session::get('SJKir');
@@ -223,7 +223,7 @@ class SJKembaliController extends Controller
       ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
       ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
       ->where('transaksi.Reference', $Reference)
-      ->whereIn('isisjkirim.Purchase', $Purchase)
+      ->whereIn('isisjkirim.SJKir', $SJKir)
       ->whereIn('periode.id', $maxperiodeid)
       ->groupBy('isisjkirim.Purchase')
       ->orderBy('periode.id', 'asc')
@@ -363,7 +363,7 @@ class SJKembaliController extends Controller
       //Session::forget('Tgl');
       //Session::forget('Reference');
       
-    	return redirect()->route('sjkembali.index');
+    	return redirect()->route('sjkembali.show', $request['sjkembaliid']);
     }
 
     public function show($id)
