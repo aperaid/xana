@@ -315,7 +315,7 @@ class TransaksiController extends Controller
       ->where('sjkirim.Reference', $Reference)
       ->where('transaksi.JS', 'Sewa')
       ->whereIn('periode.id', $maxperiodeid)
-      ->groupBy('isisjkirim.Purchase')
+      ->groupBy('isisjkirim.SJKir')
       ->orderBy('periode.id', 'asc')
       ->get();
       
@@ -352,7 +352,7 @@ class TransaksiController extends Controller
       $purchases = $input['checkbox'];
       foreach ($purchases as $key => $purchases)
       {
-        $Purchase[] = $input['checkbox'][$key];
+        $SJKir[] = $input['checkbox'][$key];
       }
       
       $Tgl = Session::get('Tgl');
@@ -391,7 +391,7 @@ class TransaksiController extends Controller
       ->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
       ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
       ->where('transaksi.Reference', $Reference)
-      ->whereIn('isisjkirim.Purchase', $Purchase)
+      ->whereIn('isisjkirim.SJKir', $SJKir)
       ->whereIn('periode.id', $maxperiodeid)
       ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Extend")')
       ->groupBy('isisjkirim.Purchase')
@@ -482,9 +482,7 @@ class TransaksiController extends Controller
       {
         DB::select('CALL insert_claim(?,?,?,?)',array($input['QClaim'][$key], $input['Purchase'][$key], $input['Periode'], $input['claim'][$key]));
       }
-      
-      DB::select('CALL insert_claim2');
-      
+
       $claims = $input['id'];
       foreach ($claims as $key => $claim)
       {
@@ -500,6 +498,8 @@ class TransaksiController extends Controller
         //$claim->PPN = $input['PPN'];
         $claim->save();
       }
+			
+			DB::select('CALL insert_claim2');
       
       $history = new History;
       $history->User = Auth::user()->name;

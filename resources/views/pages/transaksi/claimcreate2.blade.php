@@ -26,13 +26,13 @@
               <tr>
                 <td>
                 @if($check < $checks)
-                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
+                {!! Form::checkbox('checkbox[]', $isisjkirim->SJKir, null, ['class' => 'minimal',  'disabled' ]) !!}
                 @elseif($check > $checke)
-                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
+                {!! Form::checkbox('checkbox[]', $isisjkirim->SJKir, null, ['class' => 'minimal',  'disabled' ]) !!}
                 @elseif($isisjkirim->SumQSisaKem == 0)
-                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
+                {!! Form::checkbox('checkbox[]', $isisjkirim->SJKir, null, ['class' => 'minimal',  'disabled' ]) !!}
                 @else
-                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal']) !!}
+                {!! Form::checkbox('checkbox[]', $isisjkirim->SJKir, null, ['class' => 'minimal']) !!}
                 @endif</td>
                 <td>{{$isisjkirim->S}}</td>
                 <td>{{$isisjkirim->Barang}}</td>

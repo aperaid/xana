@@ -772,6 +772,9 @@ class InvoiceController extends Controller
     else
       $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
     
+		$tglterima = str_replace('/', '-', $invoice->TglTerima);
+		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
+		
     if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
       return view('pages.invoice.showjual')
       ->with('url', 'invoice')
@@ -781,6 +784,7 @@ class InvoiceController extends Controller
       ->with('total', $total)
       ->with('totals', $totals)
       ->with('Transport', $Transport)
+			->with('duedate', $duedate)
       ->with('Pajak', $Pajak)
       ->with('total2', $total2)
       ->with('top_menu_sel', 'menu_invoice')
@@ -801,6 +805,8 @@ class InvoiceController extends Controller
     $invoice->TransportInvoice = $request->TransportInvoice;
 		$invoice->Times = $request->Times;
     $invoice->Discount = $request->Discount;
+		$invoice->TglTerima = $request->TglTerima;
+		$invoice->Termin = $request->Termin;
     $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
     $invoice->Catatan = $request->Catatan;
     $invoice->save();
@@ -1121,6 +1127,9 @@ class InvoiceController extends Controller
     else
       $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
     
+		$tglterima = str_replace('/', '-', $invoice->TglTerima);
+		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
+		
     if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
       return view('pages.invoice.showclaim')
       ->with('url', 'invoice')
@@ -1130,6 +1139,7 @@ class InvoiceController extends Controller
       ->with('total', $total)
       ->with('total2', $total2)
       ->with('totals', $totals)
+			->with('duedate', $duedate)
       ->with('Pajak', $Pajak)
       ->with('top_menu_sel', 'menu_invoice')
       ->with('page_title', 'Invoice Claim')
@@ -1147,6 +1157,8 @@ class InvoiceController extends Controller
       $invoice->id = $id;
       $invoice->PPN = $request->PPN;
     	$invoice->Discount = $request->Discount;
+			$invoice->TglTerima = $request->TglTerima;
+			$invoice->Termin = $request->Termin;
       $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
       $invoice->Catatan = $request->Catatan;
     	$invoice->save();

@@ -171,7 +171,7 @@ class SJKirimController extends Controller
       
       $last_isisjkirim = IsiSJKirim::max('id');
 			
-			$last_periode = Periode::where('Reference', $Reference)->max('id');
+			$last_periode = Periode::max('id');
       
       $maxperiode = Periode::where('Reference', $Reference)->max('Periode');
       
@@ -341,7 +341,7 @@ class SJKirimController extends Controller
 
 			$periode = Periode::leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
 			->where('isisjkirim.SJKir', $sjkirim->SJKir)
-			->where('Deletes', 'Sewa')
+			->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Jual")')
 			->first();
 			
       $maxperiode = Periode::where('Reference', $sjkirim->Reference)

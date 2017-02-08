@@ -90,7 +90,7 @@ class ReferenceController extends Controller
       $history->History = 'Create Reference on Reference '.$request['Reference'];
       $history->save();
 
-    	return redirect()->route('reference.index');
+    	return redirect()->route('reference.show', $request['id']);
     }
     
     public function StoreCustomerProject(Request $request)

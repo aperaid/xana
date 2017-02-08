@@ -66,7 +66,7 @@
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Company</th>
-                <th>Invoice Date</th>
+                <th>Due Date</th>
                 <th>Reference</th>
                 <th width="10%">Status</th>
               </tr>
@@ -79,7 +79,13 @@
                 <td>{{$invoicej->Invoice}}</td>
                 <td>{{$invoicej->Project}}</td>
                 <td>{{$invoicej->Company}}</td>
-                <td>{{$invoicej->Tgl}}</td>
+                <td>
+									@if(isset($invoicej->TglTerima))
+										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoicej->TglTerima)."+".$invoicej->Termin." days"))}}
+									@else
+										Fill Tgl Surat Terima
+									@endif
+								</td>
                 <td>{{$invoicej->Reference}}</td>
                 <td>
                   @if($invoicej->Lunas==0)
@@ -102,7 +108,7 @@
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Company</th>
-                <th>Invoice Date</th>
+                <th>Due Date</th>
                 <th>Reference</th>
                 <th width="10%">Status</th>
               </tr>
@@ -115,7 +121,13 @@
                 <td>{{$invoicec->Invoice}}</td>
                 <td>{{$invoicec->Project}}</td>
                 <td>{{$invoicec->Company}}</td>
-                <td>{{$invoicec->Tgl}}</td>
+                <td>
+									@if(isset($invoicec->TglTerima))
+										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoicec->TglTerima)."+".$invoicec->Termin." days"))}}
+									@else
+										Fill Tgl Surat Terima
+									@endif
+								</td>
                 <td>{{$invoicec->Reference}}</td>
                 <td>
                   @if($invoicec->Lunas==0)

@@ -104,6 +104,42 @@
               {!! Form::textarea('Catatan', $invoice->Catatan, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '2')) !!}
             </div>
           </div>
+					<!-- Termin Input -->
+					<div class="form-group ">
+						{!! Form::label('TglTerima', 'Tgl Terima Surat', ['class' => "col-sm-2 control-label"]) !!}
+						<div class="col-sm-2">
+							<div class="input-group">
+								<div class="input-group-addon">
+									<i class="fa fa-calendar"></i>
+								</div>
+								{!! Form::text('TglTerima', $invoice->TglTerima, ['id' => 'TglTerima', 'class' => 'form-control', 'autocomplete' => 'off']) !!}
+							</div>
+						</div>
+						{!! Form::label('Termin', 'Termin', ['class' => "col-sm-1 control-label"]) !!}
+            <div class="col-sm-2">
+							{!! Form::number('Termin', $invoice->Termin, array('class' => 'form-control', 'placeholder' => 'Hari')) !!}
+            </div>
+						{!! Form::label('DueDate', 'Due Date', ['class' => "col-sm-1 control-label"]) !!}
+            <div class="col-sm-2">
+							<div class="input-group">
+								<div class="input-group-addon">
+									<i class="fa fa-calendar"></i>
+								</div>
+								@if(isset($invoice->TglTerima))
+									{!! Form::text('DueDate', $duedate, array('class' => 'form-control', 'readonly')) !!}
+								@else
+									{!! Form::text('DueDate', null, array('class' => 'form-control', 'readonly')) !!}
+								@endif
+							</div>
+						</div>
+					</div>
+          <!-- Catatan Input -->
+          <div class="form-group">
+            {!! Form::label('Catatan', 'Catatan', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-8">
+              {!! Form::textarea('Catatan', $invoice->Catatan, array('class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '2')) !!}
+            </div>
+          </div>
           <!-- Discount & Pembulatan Input -->
           <div class="form-group">
             {!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
@@ -172,5 +208,15 @@ $(document).ready(function(){
 		increaseArea: '20%' // optional
 	});
 });
+
+$(function() {
+	$('#TglTerima').datepicker({
+		format: "dd/mm/yyyy",
+		startDate: '{{$transaksis->first()->Tgl}}',
+		todayHighlight: true,
+		autoclose: true
+	}); 
+});
+</script>
 </script>
 @stop
