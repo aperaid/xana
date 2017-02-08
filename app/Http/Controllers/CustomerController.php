@@ -138,6 +138,7 @@ class CustomerController extends Controller
     public function destroy(Request $request, $id)
     {
     	Customer::destroy($id);
+			DB::statement('ALTER TABLE customer auto_increment = 1;');
       
       $history = new History;
       $history->User = Auth::user()->name;

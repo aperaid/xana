@@ -528,6 +528,7 @@ class SJKirimController extends Controller
       
       $isisjkirims = IsiSJKirim::select([
         'isisjkirim.*',
+				'transaksi.id as transaksiid',
         'transaksi.Barang',
         'transaksi.JS',
         'transaksi.QSisaKir',
@@ -558,13 +559,8 @@ class SJKirimController extends Controller
     {
     	$sjkirim = SJKirim::find($id);
       
-      $transaksi = Transaksi::select('transaksi.*')
-      ->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
-      ->where('isisjkirim.SJKir', $sjkirim->SJKir);
-      $transaksiid = $transaksi->pluck('id');
-      
       $input = Input::all();
-      $transaksis = $transaksiid;
+      $transaksis = $request->transaksiid;
       foreach ($transaksis as $key => $transaksi)
       {
         $transaksi = Transaksi::find($transaksis[$key]);
@@ -574,10 +570,7 @@ class SJKirimController extends Controller
       }
       Transaksi::where('JS', 'Jual')->update(['QSisaKem' => '0']);
       
-      $isisjkirim = IsiSJKirim::where('isisjkirim.SJKir', $sjkirim->SJKir);
-      $isisjkirimid = $isisjkirim->pluck('id');
-      
-      $isisjkirims = $isisjkirimid;
+      $isisjkirims = $request->id;
       foreach ($isisjkirims as $key => $isisjkirim)
       {
         $isisjkirim = IsiSJKirim::find($isisjkirims[$key]);
@@ -730,10 +723,13 @@ class SJKirimController extends Controller
       ->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Jual")');
       $periodeid = $periode->pluck('id');
       Periode::whereIn('id', $periodeid)->delete();
+			DB::statement('ALTER TABLE periode auto_increment = 1;');
       
       IsiSJKirim::where('SJKir', $sjkirim->SJKir)->delete();
+			DB::statement('ALTER TABLE isisjkirim auto_increment = 1;');
       
     	SJKirim::destroy($id);
+			DB::statement('ALTER TABLE sjkirim auto_increment = 1;');
       
       $history = new History;
       $history->User = Auth::user()->name;

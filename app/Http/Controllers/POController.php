@@ -243,6 +243,7 @@ class POController extends Controller
       ->pluck('maxid');
       
       Invoice::whereIn('id', $duplicateRecords)->delete();
+			DB::statement('ALTER TABLE invoice auto_increment = 1;');
     }
     
     $history = new History;

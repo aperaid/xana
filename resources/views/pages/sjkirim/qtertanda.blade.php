@@ -28,6 +28,7 @@
 					@foreach($isisjkirims as $isisjkirim)
 						<tr>
               {!! Form::hidden('id[]', $isisjkirim->id) !!}
+							{!! Form::hidden('transaksiid[]', $isisjkirim->transaksiid) !!}
               {!! Form::hidden('QSisaKir[]', $isisjkirim->QSisaKir, ['id' => 'QSisaKir2']) !!}
               {!! Form::hidden('IsiSJKir[]', $isisjkirim->IsiSJKir) !!}
               {!! Form::hidden('Purchase[]', $isisjkirim->Purchase) !!}

@@ -60,7 +60,7 @@ class InvoiceController extends Controller
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $parameter->Periode)
     ->where('periode.Quantity', '!=' , 0)
-    ->groupBy('sjkirim.SJKir', 'periode.S', 'periode.Deletes')
+    ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
     
@@ -247,11 +247,12 @@ class InvoiceController extends Controller
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
     ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+		->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
     ->where('periode.Quantity', '!=' , 0)
-    ->groupBy('periode.Purchase', 'periode.S', 'periode.Deletes')
+		->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
     
@@ -269,7 +270,7 @@ class InvoiceController extends Controller
       $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
       //$pocode[] = $periode2->POCode;
     }
-    $Quantity = $periodes->SumQTertanda;
+    $Quantity = $periodes->sum('SumQTertanda');
     //$PEO = implode("/", array_unique($pocode));
     $sjkirs = IsiSJKirim::leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')->where('transaksi.Reference', $invoice->Reference)->where('JS', 'Sewa')->pluck('SJKir')->toArray();
     $SJKir = join(', ', $sjkirs);
@@ -409,11 +410,12 @@ class InvoiceController extends Controller
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
     ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+		->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
     ->where('periode.Quantity', '!=' , 0)
-    ->groupBy('periode.Purchase', 'periode.S', 'periode.Deletes')
+    ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
     
@@ -496,7 +498,7 @@ class InvoiceController extends Controller
     $SJKir = join(', ', $sjkirs);
     $sjkems = Periode::where('Reference', $invoice->Reference)->where('Periode', $invoice->Periode)->where('Deletes', 'Kembali')->pluck('SJKem')->toArray();
     $SJKem = join(', ', $sjkems);*/
-    $Quantity = $periodes->SumQTertanda;
+    $Quantity = $periodes->sum('SumQTertanda');
     //$PEO = implode("/", array_unique($pocode));
     
     if($invoice->PPN==1)
@@ -599,11 +601,12 @@ class InvoiceController extends Controller
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
     ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+		->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
     ->where('periode.Quantity', '!=' , 0)
-    ->groupBy('periode.Purchase', 'periode.S', 'periode.Deletes')
+    ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
     
@@ -674,7 +677,7 @@ class InvoiceController extends Controller
       $Transport = number_format($toss, 0, ',','.');
     
     $firststart = $periodes->pluck('S');
-    $Quantity = $periodes->SumQTertanda;
+    $Quantity = $periodes->sum('SumQTertanda');
     
     $document = $phpWord->loadTemplate(public_path('/template/Invst.docx'));
     

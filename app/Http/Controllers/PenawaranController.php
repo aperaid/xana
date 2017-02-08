@@ -72,7 +72,7 @@ class PenawaranController extends Controller
     $penawarans = $input['penawaranid'];
     $is_exist = Penawaran::where('Penawaran', $request->Penawaran)->first();
     if(isset($is_exist->Penawaran)){
-      return redirect()->route('penawaran.index')->with('error', 'Penawaran with Penawaran Code '.$request->Penawaran.' is already exist!');
+      return redirect()->route('penawaran.create')->with('error', 'Penawaran with Penawaran Code '.$request->Penawaran.' is already exist!');
     }else{
       foreach ($penawarans as $key => $penawaran)
       {
@@ -150,6 +150,7 @@ class PenawaranController extends Controller
     $penawaran = Penawaran::find($id);
 
     Penawaran::where('Penawaran', $penawaran->Penawaran)->delete();
+		DB::statement('ALTER TABLE penawaran auto_increment = 1;');
     
     $input = Input::all();
     $penawarans = $input['penawaranid'];
@@ -183,6 +184,7 @@ class PenawaranController extends Controller
     $penawaranid = $penawarans->pluck('id');
     
     Penawaran::whereIn('id', $penawaranid)->delete();
+		DB::statement('ALTER TABLE penawaran auto_increment = 1;');
     
     $history = new History;
     $history->User = Auth::user()->name;

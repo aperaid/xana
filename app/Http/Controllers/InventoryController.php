@@ -169,6 +169,7 @@ class InventoryController extends Controller
     $inventory = Inventory::find($id);
     
     Inventory::where('Barang', $inventory->Barang)->delete();
+		DB::statement('ALTER TABLE inventory auto_increment = 1;');
     
     return redirect()->route('inventory.removeinventory');
   }
