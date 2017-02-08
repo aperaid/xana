@@ -815,10 +815,13 @@ class SJKembaliController extends Controller
       }
       
       Periode::where('SJKem', $sjkembali->SJKem)->delete();
+			DB::statement('ALTER TABLE periode auto_increment = 1;');
       
       IsiSJKembali::where('SJKem', $sjkembali->SJKem)->delete();
+			DB::statement('ALTER TABLE isisjkembali auto_increment = 1;');
       
     	SJKembali::destroy($id);
+			DB::statement('ALTER TABLE sjkembali auto_increment = 1;');
       
       $history = new History;
       $history->User = Auth::user()->name;

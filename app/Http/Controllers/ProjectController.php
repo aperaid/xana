@@ -123,6 +123,7 @@ class ProjectController extends Controller
     public function destroy(Request $request, $id)
     {
     	Project::destroy($id);
+			DB::statement('ALTER TABLE project auto_increment = 1;');
       
       $history = new History;
       $history->User = Auth::user()->name;

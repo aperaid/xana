@@ -233,6 +233,7 @@ class TransaksiController extends Controller
 			Periode::where('Reference', $invoice->Reference)->where('Periode', $invoice->Periode)->where('Deletes', 'Extend')->delete();
       
       Invoice::destroy($invoice->id);
+			DB::statement('ALTER TABLE invoice auto_increment = 1;');
       
       $history = new History;
       $history->User = Auth::user()->name;
@@ -549,10 +550,13 @@ class TransaksiController extends Controller
       }
       
       Periode::where('Reference', $invoice->Reference)->whereIn('Purchase', $purchase)->whereIn('IsiSJKir', $isisjkir)->whereIn('Claim', $claim)->where('Deletes', 'Claim')->delete();
+			DB::statement('ALTER TABLE periode auto_increment = 1;');
       
       TransaksiClaim::whereIn('Claim', $claim)->delete();
+			DB::statement('ALTER TABLE transaksiclaim auto_increment = 1;');
       
       Invoice::destroy($invoice->id);
+			DB::statement('ALTER TABLE invoice auto_increment = 1;');
       
       $history = new History;
       $history->User = Auth::user()->name;

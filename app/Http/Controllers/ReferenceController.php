@@ -396,12 +396,16 @@ class ReferenceController extends Controller
       $poid = $po->pluck('id');
       
       Invoice::whereIn('id', $invoiceid)->delete();
+			DB::statement('ALTER TABLE invoice auto_increment = 1;');
       
       Transaksi::whereIn('id', $transaksiid)->delete();
+			DB::statement('ALTER TABLE transaksi auto_increment = 1;');
       
       PO::whereIn('id', $poid)->delete();
+			DB::statement('ALTER TABLE po auto_increment = 1;');
       
       Reference::destroy($id);
+			DB::statement('ALTER TABLE pocustomer auto_increment = 1;');
       
       $history = new History;
       $history->User = Auth::user()->name;
