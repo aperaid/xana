@@ -9,6 +9,7 @@
     <div class="nav-tabs-custom">
       <ul class="nav nav-tabs">
         <li class="active"><a href="#sewa_tab" data-toggle="tab">Sewa</a></li>
+				<li><a href="#sewa_pisah_tab" data-toggle="tab">Sewa Pisah</a></li>
         <li><a href="#jual_tab" data-toggle="tab">Jual</a></li>
         <li><a href="#claim_tab" data-toggle="tab">Claim</a></li>
       </ul>
@@ -18,7 +19,6 @@
             <thead>
               <tr>
                 <th>id</th>
-                <th>Reference</th>
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Periode</th>
@@ -32,7 +32,6 @@
               @foreach($invoicess as $invoices)
               <tr>
                 <td>{{$invoices->id}}</td>
-                <td>{{$invoices->Reference}}</td>
                 <td>{{$invoices->Invoice}}</td>
                 <td>{{$invoices->Project}}</td>
                 <td>{{$invoices->Periode}}</td>
@@ -57,12 +56,53 @@
             </tbody>
           </table>
         </div>
+				<div class="tab-pane" id="sewa_pisah_tab">
+          <table id="datatablessp" class="table table-hover table-bordered">
+            <thead>
+              <tr>
+                <th>id</th>
+                <th>No. Invoice</th>
+                <th>Project</th>
+                <th>Periode</th>
+                <th>Company</th>
+                <th>Due Date</th>
+                <th>Reference</th>
+                <th width="10%">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($invoicessp as $invoicesp)
+              <tr>
+                <td>{{$invoicesp->id}}</td>
+                <td>{{$invoicesp->Invoice}}</td>
+                <td>{{$invoicesp->Project}}</td>
+                <td>{{$invoicesp->Periode}}</td>
+                <td>{{$invoicesp->Company}}</td>
+                <td>
+									@if(isset($invoicesp->TglTerima))
+										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoicesp->TglTerima)."+".$invoicesp->Termin." days"))}}
+									@else
+										Fill Tgl Surat Terima
+									@endif
+								</td>
+                <td>{{$invoicesp->Reference}}</td>
+                <td>
+                  @if($invoicesp->Lunas==0)
+                    <a href="{{route('invoice.lunas', $invoicesp->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
+                  @else
+                    <a href="{{route('invoice.lunas', $invoicesp->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
+                  @endif
+                </td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
         <div class="tab-pane" id="jual_tab">
           <table id="datatablesj" class="table table-hover table-bordered">
             <thead>
               <tr>
                 <th>id</th>
-                <th>Reference</th>
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Company</th>
@@ -75,7 +115,6 @@
               @foreach($invoicejs as $invoicej)
               <tr>
                 <td>{{$invoicej->id}}</td>
-                <td>{{$invoicej->Reference}}</td>
                 <td>{{$invoicej->Invoice}}</td>
                 <td>{{$invoicej->Project}}</td>
                 <td>{{$invoicej->Company}}</td>
@@ -104,7 +143,6 @@
             <thead>
               <tr>
                 <th>id</th>
-                <th>Reference</th>
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Company</th>
@@ -117,7 +155,6 @@
               @foreach($invoicecs as $invoicec)
               <tr>
                 <td>{{$invoicec->id}}</td>
-                <td>{{$invoicec->Reference}}</td>
                 <td>{{$invoicec->Invoice}}</td>
                 <td>{{$invoicec->Project}}</td>
                 <td>{{$invoicec->Company}}</td>
@@ -163,10 +200,6 @@ $(document).ready(function () {
 				"targets": [0],
 				"visible": false
 			},
-      {
-				"targets": [1],
-				"visible": false
-			}
 		],
 	});
 		
@@ -175,9 +208,8 @@ $(document).ready(function () {
 		window.open("invoice/showsewa/" + data[0],"_self");
 	} );
 
-
-	// Invoice Jual
-	var table2 = $("#datatablesj").DataTable({
+	// Invoice Sewa Pisah
+	var table2 = $("#datatablessp").DataTable({
 		"processing": true,
 		"order": [0, "desc"],
 		"columnDefs":[
@@ -185,20 +217,33 @@ $(document).ready(function () {
 				"targets": [0],
 				"visible": false
 			},
-      {
-				"targets": [1],
+		],
+	});
+		
+	$('#datatablessp tbody').on('click', 'tr', function () {
+		var data2 = table2.row( this ).data();
+		window.open("invoice/showsewapisah/" + data2[0],"_self");
+	} );
+
+	// Invoice Jual
+	var table3 = $("#datatablesj").DataTable({
+		"processing": true,
+		"order": [0, "desc"],
+		"columnDefs":[
+			{
+				"targets": [0],
 				"visible": false
-			}
+			},
 		],
 	});
 		
 	$('#datatablesj tbody').on('click', 'tr', function () {
-		var data2 = table2.row( this ).data();
-		window.open("invoice/showjual/"+ data2[0],"_self");
+		var data3 = table3.row( this ).data();
+		window.open("invoice/showjual/"+ data3[0],"_self");
 	} );
 
 	//Invoice Claim
-	var table3 = $("#datatablesc").DataTable({
+	var table4 = $("#datatablesc").DataTable({
 		"processing": true,
     "order": [0, "desc"],
 		"columnDefs":[
@@ -206,16 +251,12 @@ $(document).ready(function () {
 				"targets": [0],
 				"visible": false
 			},
-      {
-				"targets": [1],
-				"visible": false
-			}
 		],
 	});
 		
 	$('#datatablesc tbody').on('click', 'tr', function () {
-		var data3 = table3.row( this ).data();
-		window.open("invoice/showclaim/"+ data3[0],"_self");
+		var data4 = table4.row( this ).data();
+		window.open("invoice/showclaim/"+ data4[0],"_self");
 	} );
 });
 </script>

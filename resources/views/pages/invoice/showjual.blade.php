@@ -86,21 +86,6 @@
               </div>
             @endif
           </div>
-          <!-- Transport Invoice -->
-					@if($invoice->PPNT==0)
-						<div class="form-group">
-							{!! Form::label('TransportInvoice', 'Pisah Invoice Transport', ['class' => "col-sm-2 control-label"]) !!}
-							<div class="col-sm-6">
-								{!! Form::hidden('TransportInvoice', 0) !!}
-								@if($invoice->Times==0)
-									{!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal', 'disabled']) !!}
-								@else
-									{!! Form::checkbox('TransportInvoice', 1, $invoice->TransportInvoice, ['id' => 'TransportInvoice', 'class' => 'minimal']) !!}
-								@endif
-							</div>
-						</div>
-					@else
-					@endif
           <!-- Total & Transport & Pajak Input -->
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
@@ -109,7 +94,7 @@
             </div>
 						{!! Form::label('Transport', 'Transport', ['class' => "col-sm-1 control-label"]) !!}
             <div class="col-sm-2">
-              {!! Form::text('Transport', 'Rp '. $Transport, ['class' => 'form-control', 'readonly']) !!}
+							{!! Form::text('Transport', 'Rp '.$Transport, array('class' => 'form-control', 'readonly')) !!}
             </div>
 						{!! Form::label('Pajak', 'Pajak', ['class' => "col-sm-1 control-label"]) !!}
             <div class="col-sm-2">
@@ -119,19 +104,11 @@
           <div class="form-group">
             {!! Form::label('Status', 'Transport Status', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-8">
-              @if($invoice->TransportInvoice==0)
-                @if($invoice->PPNT == 1)
-                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
-                @else
-                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN & Invoice Transport TIDAK TERPISAH', ['class' => 'form-control', 'readonly']) !!}
-                @endif
-              @else
-                @if($invoice->PPNT == 1)
-                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
-                @else
-                  {!! Form::text('Status', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN & Invoice Transport TERPISAH', ['class' => 'form-control', 'readonly']) !!}
-              @endif
-              @endif
+							@if($invoice->PPNT == 1)
+								{!! Form::text('Status', $invoice->Times.' Kali Pengiriman & Transport TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+							@else
+								{!! Form::text('Status', $invoice->Times.' Kali Pengiriman & Transport TIDAK TERMASUK PPN', ['class' => 'form-control', 'readonly']) !!}
+							@endif
             </div>
           </div>
 					<!-- Transport Times -->
@@ -191,15 +168,19 @@
           <!-- Grand Total Input -->
           <div class="form-group">
             {!! Form::label('GrandTotal', 'Grand Total', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-8">
+            <div class="col-sm-3">
               {!! Form::text('GrandTotal', 'Rp '.$totals, array('class' => 'form-control', 'readonly')) !!}
+            </div>
+						{!! Form::label('GrandTotalTransport', 'Grand Total Transport', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+							{!! Form::text('GrandTotalTransport', 'Rp '.$GrandTotalTransport, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <div class="box-footer">
             <!-- Back Button -->
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>
             <a href="{{route('invoice.Invj', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
-            @if($invoice->TransportInvoice==1)
+            @if($invoice->PPNT==0 && $invoice->Times!=0)
               <a href="{{route('invoice.Invjt', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Transport Invoice</a>
             @endif
             <!-- Submit Button -->

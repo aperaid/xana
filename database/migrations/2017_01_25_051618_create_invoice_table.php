@@ -30,7 +30,6 @@ class CreateInvoiceTable extends Migration
         $table->integer('Times');
         $table->integer('TimesKembali');
         $table->integer('Pembulatan')->default(0);
-        $table->integer('TransportInvoice')->nullable();
       });
     }
 
