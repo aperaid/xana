@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Input;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Invoice;
+use App\InvoicePisah;
 use App\Periode;
 use App\Transaksi;
 use App\SJKirim;
@@ -169,7 +170,7 @@ class InvoiceController extends Controller
     }else
       return redirect()->back();
 	}
-  
+	
   public function postInvoiceSewa(Request $request, $id)
   {
     $invoice = Invoice::find($id);
@@ -195,6 +196,172 @@ class InvoiceController extends Controller
     Session::flash('message', 'Update is successful!');
     
     return redirect()->route('invoice.showsewa', $id);
+  }
+	
+	public function getInvoiceSewaPisah($id){
+    $parameter = InvoicePisah::find($id);
+    
+    $invoice = InvoicePisah::select([
+      'invoicepisah.*',
+      'pocustomer.id as pocusid',
+      'pocustomer.Transport',
+      'pocustomer.PPNT',
+      'project.Project',
+      'customer.Company',
+    ])
+    ->leftJoin('pocustomer', 'invoicepisah.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoicepisah.Invoice', $parameter->Invoice)
+    ->first();
+    
+    $periodes = Periode::select([
+      'sjkirim.SJKir',
+      'transaksi.Purchase',
+      'transaksi.Barang',
+      'transaksi.Amount',
+      'transaksi.POCode',
+      'po.Discount',
+			DB::raw('SUM(isisjkirim.QTertanda) as SumQTertanda'),
+      'periode.S',
+      'periode.E',
+      'periode.SJKem',
+      'periode.Deletes',
+      'periode.Periode',
+    ])
+    ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+    ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+    ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+    ->where('transaksi.Reference', $parameter->Reference)
+		->where('po.POCode', $parameter->POCode)
+    ->where('transaksi.JS', 'Sewa')
+    ->where('periode.Periode', $parameter->Periode)
+    ->where('periode.Quantity', '!=' , 0)
+    ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
+    ->orderBy('periode.id', 'asc')
+    ->get();
+    
+    $pocode = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
+    ->where('po.POCode', $parameter->POCode)
+    ->where('transaksi.JS', 'Sewa')
+    ->groupBy('po.POCode')
+    ->orderBy('po.id', 'desc')
+    ->first();
+    
+    $sjkemcheck = 0;
+    $kemexist = Transaksi::where('transaksi.Reference', $invoice -> Reference)
+    ->count();
+    $kemfound = Transaksi::selectRaw('SUM(QSisaKem) as kemfound')
+    ->where('transaksi.Reference', $invoice -> Reference)
+    ->first();
+    if($kemexist == 0){
+      $sjkemcheck = 0;
+    }else{
+      if($kemfound -> kemfound == 0){
+				$sjkemcheck = 0;
+			}else{
+				$sjkemcheck = 1;
+			}
+		}
+
+    $total = 0;
+    foreach($periodes as $key => $periode2){
+      $start = $periode2->S;
+      $end = $periode2->E;
+
+      $start2 = str_replace('/', '-', $start);
+      $end2 = str_replace('/', '-', $end);
+      $start3[] = strtotime($start2);
+      $end3[] = strtotime($end2);
+
+      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
+
+      $Days = str_replace('/', ',', $start);
+      $M = substr($Days, 3, -5);
+      $Y = substr($Days, 6);
+      $Days2[] = cal_days_in_month(CAL_GREGORIAN, $M, $Y);
+      
+      $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
+      
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode2->SumQTertanda*($periode2->Amount-($periode2->Amount*$periode2->Discount/100)); 
+      $total += $total2[$key];
+    }
+
+		if($invoice->PPNT == 1){
+			$toss = $invoice->Transport;
+			$toss2 = 0;
+		}else{
+			$toss = 0;
+			$toss2 = $invoice->Transport;
+		}
+
+    if($invoice->PPNT == 1)
+      $totals = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else
+      $totals = number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+
+    if($invoice->PPNT == 1)
+      $Pajak = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1), 2, ',','.');
+    else
+      $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
+
+		$Transport = number_format(($toss*$invoice->TimesKembali)+($toss*$invoice->Times), 2, ',','.');
+		$GrandTotalTransport = number_format(($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times), 2, ',','.');
+		
+		$tglterima = str_replace('/', '-', $invoice->TglTerima);
+		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
+    
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+      return view('pages.invoice.showsewapisah')
+      ->with('url', 'invoice')
+      ->with('invoice', $invoice)
+      ->with('periodes', $periodes)
+      ->with('pocode', $pocode)
+      ->with('sjkemcheck', $sjkemcheck)
+			->with('SE', $SE)
+      ->with('Days2', $Days2)
+      ->with('I', $I)
+      ->with('toss', $toss)
+      ->with('total', $total)
+      ->with('totals', $totals)
+      ->with('Pajak', $Pajak)
+      ->with('Transport', $Transport)
+			->with('GrandTotalTransport', $GrandTotalTransport)
+			->with('duedate', $duedate)
+			->with('total2', $total2)
+      ->with('top_menu_sel', 'menu_invoice')
+      ->with('page_title', 'Invoice Sewa Pisah')
+      ->with('page_description', 'View');
+    }else
+      return redirect()->back();
+	}
+	
+	public function postInvoiceSewaPisah(Request $request, $id)
+  {
+    $invoice = InvoicePisah::find($id);
+    
+    $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
+    
+    $invoice->id = $id;
+    $invoice->PPN = $request->PPN;
+		$invoice->Times = $request->Times;
+		$invoice->TimesKembali = $request->TimesKembali;
+    $invoice->Discount = $request->Discount;
+		$invoice->TglTerima = $request->TglTerima;
+		$invoice->Termin = $request->Termin;
+    $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
+    $invoice->Catatan = $request->Catatan;
+    $invoice->save();
+    
+    $history = new History;
+    $history->User = Auth::user()->name;
+    $history->History = 'Update invoice on Invoice Pisah '.$request['Invoice'];
+    $history->save();
+
+    Session::flash('message', 'Update is successful!');
+    
+    return redirect()->route('invoice.showsewapisah', $id);
   }
   
   public function getBA($id)
@@ -1179,25 +1346,27 @@ class InvoiceController extends Controller
     ->groupBy('invoice.Reference', 'invoice.Periode')
     ->get();
 		
-		$invoicesp = Invoice::select([
-        'invoice.*',
+		$invoicesp = InvoicePisah::select([
+        'invoicepisah.*',
         'project.Project',
         'customer.Company',
       ])
-    ->leftJoin('transaksi', 'invoice.Reference', '=', 'transaksi.Reference')
+    ->leftJoin('transaksi', 'invoicepisah.Reference', '=', 'transaksi.Reference')
 		->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
 		->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
     ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
     ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
     ->where('JSC', 'Sewa')
-    ->whereExists(function($query)
+		->whereExists(function($query)
       {
-        $query->select('periode.Reference')
+        $query->select('periode.Reference', 'po.POCode')
         ->from('periode')
-        ->whereRaw('invoice.Reference = periode.Reference')
+				->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
+				->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+        ->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
         ->where('periode.Deletes', 'Sewa');
       })
-    ->groupBy('invoice.Reference', 'invoice.Periode', 'transaksi.POCode')
+    ->groupBy('invoicepisah.Reference', 'invoicepisah.POCode', 'invoicepisah.Periode')
     ->get();
     
     $invoicej = Invoice::select([

@@ -50,7 +50,8 @@
       <address>
         <strong>{{ $isisjkirim -> NoPolisi }}</strong><br>
         Sopir: {{ $isisjkirim -> Sopir }}<br>
-        Kenek: {{ $isisjkirim -> Kenek }}
+        Kenek: {{ $isisjkirim -> Kenek }}<br>
+				Periode: {{ $isisjkirim -> Periode }}
       </address>
     </div>
   </div>
@@ -58,6 +59,7 @@
   <div class="row">
     <div class="col-xs-12 table-responsive">
       <table id="datatables" class="table table-striped">
+				{!! Form::hidden('Periode', $isisjkirim->Periode) !!}
         <thead>
           <tr>
             <th>J/S</th>

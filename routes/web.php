@@ -63,6 +63,8 @@ Route::group(['middleware' => 'auth'], function () {
   
   Route::get('invoice/showsewa/{id}', ['as' => 'invoice.showsewa', 'uses' => 'InvoiceController@getInvoiceSewa']);
   Route::post('invoice/updateshowsewa/{id}', ['as' => 'invoice.updateshowsewa', 'uses' => 'InvoiceController@postInvoiceSewa']);
+	Route::get('invoice/showsewapisah/{id}', ['as' => 'invoice.showsewapisah', 'uses' => 'InvoiceController@getInvoiceSewaPisah']);
+	Route::post('invoice/updateshowsewapisah/{id}', ['as' => 'invoice.updateshowsewapisah', 'uses' => 'InvoiceController@postInvoiceSewaPisah']);
   Route::get('invoice/showjual/{id}', ['as' => 'invoice.showjual', 'uses' => 'InvoiceController@getInvoiceJual']);
   Route::post('invoice/updateshowjual/{id}', ['as' => 'invoice.updateshowjual', 'uses' => 'InvoiceController@postInvoiceJual']);
   Route::get('invoice/showclaim/{id}', ['as' => 'invoice.showclaim', 'uses' => 'InvoiceController@getInvoiceClaim']);

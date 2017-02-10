@@ -1,20 +1,20 @@
 @extends('layouts.xana.layout')
 
 @section('title')
-	View Invoice Sewa
+	View Invoice Sewa Pisah
 @stop
 
 @section('content')
 {!! Form::model($invoice, [
   'method' => 'post',
-  'route' => ['invoice.updateshowsewa', $invoice->id]
+  'route' => ['invoice.updateshowsewapisah', $invoice->id]
 ]) !!}
 <div class="row">
   <div class="col-xs-12">
     <div class="box box-info">
       <div class='form-horizontal'>
         <div class="box-header with-border">
-          <h3 class="box-title">Invoice Sewa Detail</h3>
+          <h3 class="box-title">Invoice Sewa Pisah Detail</h3>
         </div>
         <!-- box-header -->
         <div class="box-body with-border">
@@ -42,7 +42,7 @@
             <table class="table table-bordered table-striped table-responsive">
               <thead>
                 <tr>
-                  <th>Nomor PO Terakhir</th>
+                  <th>Nomor PO</th>
                 </tr>
               </thead>
               <tbody>

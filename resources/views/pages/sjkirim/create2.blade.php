@@ -19,6 +19,7 @@
 						<th>PO Date</th>
             <th>Barang</th>
             <th>Quantity Sisa Kirim</th>
+						<th>POCode</th>
           </tr>
           </thead>
           <tbody>
@@ -33,6 +34,7 @@
 								<td>{{$transaksi->tglpo}}</td>
                 <td>{{$transaksi->Barang}}</td>
                 <td>{{$transaksi->QSisaKirInsert}}</td>
+								<td>{{$transaksi->POCode}}</td>
               </tr>
             @endforeach
             <p>{!! Form::checkbox('SelectAll', null, null, ['id' => 'SelectAll', 'class' => 'minimal']) !!}{!! Form::label('SelectAll', 'Check All') !!}

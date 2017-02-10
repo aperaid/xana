@@ -15,6 +15,7 @@ use App\Transaksi;
 use App\History;
 use App\Inventory;
 use App\Invoice;
+use App\InvoicePisah;
 use Session;
 use DB;
 use Auth;
@@ -298,9 +299,14 @@ class SJKembaliController extends Controller
         $periode->save();
       }
       
-      $data = Invoice::where('invoice.Reference', $Reference)
-      ->where('invoice.Periode', $input['Periode'])
-      ->where('invoice.JSC', 'Sewa')->first();
+      $data = Invoice::where('Reference', $Reference)
+      ->where('Periode', $input['Periode'])
+      ->where('JSC', 'Sewa')->first();
+      $data->update(['TimesKembali' => $data->TimesKembali + 1]);
+			
+			$data = InvoicePisah::where('Reference', $Reference)
+      ->where('Periode', $input['Periode'])
+      ->where('JSC', 'Sewa')->first();
       $data->update(['TimesKembali' => $data->TimesKembali + 1]);
       
       $storeprocs = $input['id'];
@@ -786,9 +792,14 @@ class SJKembaliController extends Controller
         $data->update([$warehouse => $data->$warehouse - $qterima[$key]]);
       }
       
-      $data = Invoice::where('invoice.Reference', $sjkembali->Reference)
-      ->where('invoice.Periode', $maxperiode->maxperiode)
-      ->where('invoice.JSC', 'Sewa')->first();
+      $data = Invoice::where('Reference', $sjkembali->Reference)
+      ->where('Periode', $maxperiode->maxperiode)
+      ->where('JSC', 'Sewa')->first();
+      $data->update(['TimesKembali' => $data->TimesKembali - 1]);
+			
+			$data = InvoicePisah::where('Reference', $sjkembali->Reference)
+      ->where('Periode', $maxperiode->maxperiode)
+      ->where('JSC', 'Sewa')->first();
       $data->update(['TimesKembali' => $data->TimesKembali - 1]);
       
       $transaksis = $purchase;

@@ -14,6 +14,7 @@ use App\Reference;
 use App\Transaksi;
 use App\History;
 use App\Invoice;
+use App\InvoicePisah;
 use App\Inventory;
 use Session;
 use DB;
@@ -91,9 +92,7 @@ class SJKirimController extends Controller
       Session::put('Tgl', $request->Tgl);
       Session::put('JS', $request->JS);
       Session::put('Reference', $request->Reference);
-      
-      $SJKir = Session::get('SJKir');
-      $Tgl = Session::get('Tgl');
+
       $JS = Session::get('JS');
       $Reference = Session::get('Reference');
       
@@ -103,6 +102,7 @@ class SJKirimController extends Controller
       $transaksis = Transaksi::select([
         'transaksi.*',
 				'po.Tgl as tglpo',
+				'po.POCode',
         'project.Project',
       ])
       ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
@@ -145,8 +145,7 @@ class SJKirimController extends Controller
       {
         $Purchase[] = $input['checkbox'][$key];
       }
-      
-      $SJKir = Session::get('SJKir');
+
       $Tgl = Session::get('Tgl');
       $Reference = Session::get('Reference');
       
@@ -270,9 +269,15 @@ class SJKirimController extends Controller
         $transaksi->save();
       }
       
-      $data = Invoice::where('invoice.Reference', $Reference)
-      ->where('invoice.Periode', $input['Periode'])
-      ->where('invoice.JSC', $JS)->first();
+      $data = Invoice::where('Reference', $Reference)
+      ->where('Periode', $input['Periode'])
+      ->where('JSC', $JS)->first();
+      $data->update(['Times' => $data->Times + 1]);
+			
+			$data = InvoicePisah::where('Reference', $Reference)
+			->where('POCode', $input['POCode'][0])
+      ->where('Periode', $input['Periode'])
+      ->where('JSC', $JS)->first();
       $data->update(['Times' => $data->Times + 1]);
       
       $inventories = $input['ICode'];
@@ -686,6 +691,7 @@ class SJKirimController extends Controller
       $qtertanda = $isisjkirim->pluck('isisjkirim.QTertanda');
       $qsisakeminsert = $isisjkirim->pluck('isisjkirim.QSisaKemInsert');
       $icode = $isisjkirim->pluck('ICode');
+			$pocode = $isisjkirim->pluck('POCode');
       $JS = $isisjkirim->first()->JS;
       
       $inventories = $icode;
@@ -705,9 +711,15 @@ class SJKirimController extends Controller
         $data->update([$warehouse => $data->$warehouse + $qkirim[$key]]);
       }
       
-      $data = Invoice::where('invoice.Reference', $sjkirim->Reference)
-      ->where('invoice.Periode', 1)
-      ->where('invoice.JSC', $JS)->first();
+      $data = Invoice::where('Reference', $sjkirim->Reference)
+      ->where('Periode', $request->Periode)
+      ->where('JSC', $JS)->first();
+      $data->update(['Times' => $data->Times - 1]);
+			
+			$data = InvoicePisah::where('Reference', $sjkirim->Reference)
+      ->where('Periode', $request->Periode)
+			->whereIn('POCode', $pocode)
+      ->where('JSC', $JS)->first();
       $data->update(['Times' => $data->Times - 1]);
       
       $transaksis = $transaksiid;
