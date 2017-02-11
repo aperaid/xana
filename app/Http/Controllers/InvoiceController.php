@@ -941,7 +941,7 @@ class InvoiceController extends Controller
     }else
       return redirect()->back();
 	}
-  
+	
   public function postInvoiceJual(Request $request, $id)
   {
     $invoice = Invoice::find($id);
@@ -966,6 +966,125 @@ class InvoiceController extends Controller
     Session::flash('message', 'Update is successful!');
     
     return redirect()->route('invoice.showjual', $id);
+  }
+	
+	public function getInvoiceJualPisah($id)
+  {
+    $parameter = InvoicePisah::find($id);
+    
+    $invoice = InvoicePisah::select([
+      'invoicepisah.*',
+      'pocustomer.Transport',
+      'pocustomer.PPNT',
+      'project.Project',
+      'customer.Company',
+    ])
+    ->leftJoin('pocustomer', 'invoicepisah.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoicepisah.Invoice', $parameter->Invoice)
+    ->first();
+    
+    $transaksis = Transaksi::select([
+      'isisjkirim.QKirim',
+      'sjkirim.SJKir',
+      'sjkirim.Tgl',
+      'po.Discount',
+      'transaksi.Purchase',
+      'transaksi.Barang',
+      'transaksi.Amount',
+      'transaksi.POCode',
+    ])
+    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+    ->rightJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
+    ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+    ->where('transaksi.Reference', $parameter->Reference)
+    ->where('transaksi.JS', 'Jual')
+    ->get();
+    
+    $pocode = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
+    ->where('transaksi.Reference', $parameter->Reference)
+    ->where('transaksi.JS', 'Jual')
+    ->groupBy('po.POCode')
+    ->orderBy('po.id', 'desc')
+    ->first();
+    
+    $total = 0;
+    $x=0;
+    foreach($transaksis as $transaksi2){
+      $total2[] = $transaksi2->QKirim * ($transaksi2->Amount-$transaksi2->Amount*$transaksi2->Discount/100); 
+      $total += $total2[$x];
+      $x++;
+    }
+		
+		if($invoice->PPNT == 1){
+			$toss = $invoice->Transport;
+			$toss2 = 0;
+		}else{
+			$toss = 0;
+			$toss2 = $invoice->Transport;
+		}
+    
+    if($invoice->PPNT == 1)
+      $totals = "Rp. ".number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    else
+      $totals = "Rp. ".number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+
+    if($invoice->PPNT == 1)
+      $Pajak = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1), 2, ',','.');
+    else
+      $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
+    
+    $Transport = number_format($toss*$invoice->Times, 2, ',','.');
+		$GrandTotalTransport = number_format($toss2*$invoice->Times, 2, ',','.');
+		
+		$tglterima = str_replace('/', '-', $invoice->TglTerima);
+		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
+		
+    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+      return view('pages.invoice.showjualpisah')
+      ->with('url', 'invoice')
+      ->with('invoice', $invoice)
+      ->with('transaksis', $transaksis)
+      ->with('pocode', $pocode)
+      ->with('total', $total)
+      ->with('totals', $totals)
+      ->with('Transport', $Transport)
+			->with('GrandTotalTransport', $GrandTotalTransport)
+			->with('duedate', $duedate)
+      ->with('Pajak', $Pajak)
+      ->with('total2', $total2)
+      ->with('top_menu_sel', 'menu_invoice')
+      ->with('page_title', 'Invoice Jual Pisah')
+      ->with('page_description', 'View');
+    }else
+      return redirect()->back();
+	}
+	
+	public function postInvoiceJualPisah(Request $request, $id)
+  {
+    $invoice = InvoicePisah::find($id);
+    
+    $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
+    
+    $invoice->id = $id;
+    $invoice->PPN = $request->PPN;
+		$invoice->Times = $request->Times;
+    $invoice->Discount = $request->Discount;
+		$invoice->TglTerima = $request->TglTerima;
+		$invoice->Termin = $request->Termin;
+    $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
+    $invoice->Catatan = $request->Catatan;
+    $invoice->save();
+
+    $history = new History;
+    $history->User = Auth::user()->name;
+    $history->History = 'Update invoice on Invoice Pisah '.$request['Invoice'];
+    $history->save();
+    
+    Session::flash('message', 'Update is successful!');
+    
+    return redirect()->route('invoice.showjualpisah', $id);
   }
   
   public function getInvj($id)
@@ -1380,6 +1499,7 @@ class InvoiceController extends Controller
     ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
     ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
     ->where('JSC', 'Jual')
+		->where('pocustomer.INVP', 0)
     ->whereExists(function($query)
       {
         $query->select('periode.Reference')
@@ -1388,6 +1508,28 @@ class InvoiceController extends Controller
         ->where('periode.Deletes', 'Jual');
       })
     ->groupBy('invoice.Reference', 'invoice.Periode')
+    ->get();
+		
+		$invoicejp = InvoicePisah::select([
+        'invoicepisah.*',
+        'project.Project',
+        'customer.Company',
+      ])
+    ->leftJoin('pocustomer', 'invoicepisah.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('JSC', 'Jual')
+		->where('pocustomer.INVP', 1)
+    ->whereExists(function($query)
+      {
+        $query->select('periode.Reference')
+        ->from('periode')
+				->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
+				->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+        ->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
+        ->where('periode.Deletes', 'Jual');
+      })
+    ->groupBy('invoicepisah.Reference', 'invoicepisah.Periode')
     ->get();
     
     $invoicec = Invoice::select([
@@ -1406,8 +1548,9 @@ class InvoiceController extends Controller
       return view('pages.invoice.indexs')
       ->with('url', 'invoice')
       ->with('invoicess', $invoices)
-			->with('invoicessp', $invoicesp)
+			->with('invoicesps', $invoicesp)
       ->with('invoicejs', $invoicej)
+			->with('invoicejps', $invoicejp)
       ->with('invoicecs', $invoicec)
       ->with('top_menu_sel', 'menu_invoice')
       ->with('page_title', 'Invoice')

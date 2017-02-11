@@ -471,7 +471,7 @@ class POController extends Controller
       $invoices->save();
 			
 			$last_invoicepisah = InvoicePisah::max('id')+1;
-			$abjad = InvoicePisah::where('Reference', $reference->Reference)->max('Abjad');
+			$abjad = InvoicePisah::where('Reference', $request->Reference)->max('Abjad');
 			if($abjad==0)
 				$x = 1;
 			else

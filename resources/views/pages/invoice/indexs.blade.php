@@ -11,6 +11,7 @@
         <li class="active"><a href="#sewa_tab" data-toggle="tab">Sewa</a></li>
 				<li><a href="#sewa_pisah_tab" data-toggle="tab">Sewa Pisah</a></li>
         <li><a href="#jual_tab" data-toggle="tab">Jual</a></li>
+				<li><a href="#jual_pisah_tab" data-toggle="tab">Jual Pisah</a></li>
         <li><a href="#claim_tab" data-toggle="tab">Claim</a></li>
       </ul>
       <div class="tab-content">
@@ -71,7 +72,7 @@
               </tr>
             </thead>
             <tbody>
-              @foreach($invoicessp as $invoicesp)
+              @foreach($invoicesps as $invoicesp)
               <tr>
                 <td>{{$invoicesp->id}}</td>
                 <td>{{$invoicesp->Invoice}}</td>
@@ -131,6 +132,46 @@
                     <a href="{{route('invoice.lunas', $invoicej->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
                   @else
                     <a href="{{route('invoice.lunas', $invoicej->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
+                  @endif
+                </td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+				<div class="tab-pane" id="jual_pisah_tab">
+          <table id="datatablesjp" class="table table-hover table-bordered">
+            <thead>
+              <tr>
+                <th>id</th>
+                <th>No. Invoice</th>
+                <th>Project</th>
+                <th>Company</th>
+                <th>Due Date</th>
+                <th>Reference</th>
+                <th width="10%">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($invoicejps as $invoicejp)
+              <tr>
+                <td>{{$invoicejp->id}}</td>
+                <td>{{$invoicejp->Invoice}}</td>
+                <td>{{$invoicejp->Project}}</td>
+                <td>{{$invoicejp->Company}}</td>
+                <td>
+									@if(isset($invoicejp->TglTerima))
+										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoicejp->TglTerima)."+".$invoicejp->Termin." days"))}}
+									@else
+										Fill Tgl Surat Terima
+									@endif
+								</td>
+                <td>{{$invoicejp->Reference}}</td>
+                <td>
+                  @if($invoicejp->Lunas==0)
+                    <a href="{{route('invoice.lunas', $invoicejp->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
+                  @else
+                    <a href="{{route('invoice.lunas', $invoicejp->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
                   @endif
                 </td>
               </tr>
@@ -241,9 +282,26 @@ $(document).ready(function () {
 		var data3 = table3.row( this ).data();
 		window.open("invoice/showjual/"+ data3[0],"_self");
 	} );
+	
+	// Invoice Jual Pisah
+	var table4 = $("#datatablesjp").DataTable({
+		"processing": true,
+		"order": [0, "desc"],
+		"columnDefs":[
+			{
+				"targets": [0],
+				"visible": false
+			},
+		],
+	});
+		
+	$('#datatablesjp tbody').on('click', 'tr', function () {
+		var data4 = table4.row( this ).data();
+		window.open("invoice/showjualpisah/"+ data4[0],"_self");
+	} );
 
 	//Invoice Claim
-	var table4 = $("#datatablesc").DataTable({
+	var table5 = $("#datatablesc").DataTable({
 		"processing": true,
     "order": [0, "desc"],
 		"columnDefs":[
@@ -255,8 +313,8 @@ $(document).ready(function () {
 	});
 		
 	$('#datatablesc tbody').on('click', 'tr', function () {
-		var data4 = table4.row( this ).data();
-		window.open("invoice/showclaim/"+ data4[0],"_self");
+		var data5 = table5.row( this ).data();
+		window.open("invoice/showclaim/"+ data5[0],"_self");
 	} );
 });
 </script>
