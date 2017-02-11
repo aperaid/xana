@@ -17,6 +17,7 @@ use App\IsiSJKembali;
 use App\Periode;
 use App\TransaksiClaim;
 use App\Invoice;
+use App\InvoicePisah;
 use App\History;
 use Session;
 use DB;
@@ -121,7 +122,7 @@ class ReferenceController extends Controller
           $request->session()->flash('message', 'Customer and Project has been successfully added with PCode '. strtoupper($request['PCode']));
         }
       }
-			
+
 			$is_exist = Project::where('PCode', $request->PCode)->first();
       if(isset($is_exist->PCode)){
         $request->session()->flash('error', 'Project with PCode '.strtoupper($request->PCode).' is already exist!');
@@ -144,6 +145,17 @@ class ReferenceController extends Controller
       $history->History = 'Create customer on CCode number '.$request['CCode'];
       $history->save();
     }
+		
+		public function EditTransportInvoice(Request $request)
+		{
+			$reference = Reference::find($request->editreferenceid);
+
+			$reference->PPNT = $request->PPNT;
+			$reference->INVP = $request->INVP;
+			$reference->save();
+			
+			$request->session()->flash('message', 'Edit Success');
+		}
 
     public function show($id)
     {
@@ -373,7 +385,6 @@ class ReferenceController extends Controller
     	$reference->Tgl = $request->Tgl;
       $reference->PCode = $request->PCode;
       $reference->Transport = str_replace(".","",substr($request->Transport, 3));
-      $reference->PPNT = $request->PPNT;
     	$reference->save();
       
       $history = new History;
@@ -397,6 +408,9 @@ class ReferenceController extends Controller
       
       Invoice::whereIn('id', $invoiceid)->delete();
 			DB::statement('ALTER TABLE invoice auto_increment = 1;');
+			
+			InvoicePisah::whereIn('id', $invoiceid)->delete();
+			DB::statement('ALTER TABLE invoicepisah auto_increment = 1;');
       
       Transaksi::whereIn('id', $transaksiid)->delete();
 			DB::statement('ALTER TABLE transaksi auto_increment = 1;');

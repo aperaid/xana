@@ -29,6 +29,7 @@ Route::group(['middleware' => 'auth'], function () {
 
   Route::resource('reference', 'ReferenceController');
   Route::post('/reference/customerproject', 'ReferenceController@StoreCustomerProject');
+	Route::post('/reference/transportinvoice', 'ReferenceController@EditTransportInvoice');
 
   Route::get('po/create2/{id}', ['as' => 'po.create2', 'uses' => 'POController@getCreate2']);
   Route::post('po/create3/{id}', ['as' => 'po.create3', 'uses' => 'POController@getCreate3']);

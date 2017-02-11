@@ -164,10 +164,11 @@
 									<a href="{{route('sjkirim.create', 'id='.$detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $sjkircheck == 0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right"	@endif	>SJ Kirim</button></a>
 									<a href="{{route('sjkembali.create', 'id='.$detail->pocusid)}}"><button type="button" style="margin-right: 5px;"	@if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right"	@endif	>SJ Kembali</button></a>
 									<a href="{{route('transaksi.claimcreate', $detail->pocusid)}}">	<button type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif	>Claim</button></a>
+									<button type="button" class="btn btn-info pull-right" id="editinv" data-toggle="modal"> Edit Invoice</button>
 									<a href="{{route('reference.edit', $detail->pocusid)}}"><button type="button" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right"	@endif >Edit</button></a>
-									<button type="submit" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
 									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert PO</button></a>
                   <a href="{{route('po.create2', $detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert Penawaran PO</button></a>
+									<button type="submit" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
 								</div>
 							</div>
 						</div>
@@ -372,127 +373,215 @@
 <!-- row -->
 <div class="clearfix"></div>
 {!! Form::close() !!}
+
+<div class="modal fade" id="editmodal" role="dialog">
+  <div class="modal-dialog">
+    <div class="box">
+      <div class="box-header with-border">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Edit PPN Transport & Invoice Pisah</h4>
+      </div>
+      <!-- form start -->
+      <form id="editform" name="editform" class="form-horizontal">
+        {!! Form::hidden('editreferenceid', $detail->pocusid, ['id' => 'editreferenceid']) !!}
+        <div class="box-body">
+          <div id="message">
+          </div>
+          <div class="form-group">
+            {!! Form::label('PPNT', 'PPN Transport', ['class' => 'col-lg-3']) !!}
+						<div class="input-group">
+              @if(Auth::user()->access == 'Admin' || Auth::user()->access == 'POPPN')
+								{!! Form::checkbox('PPNT', 1, $detail->PPNT, ['id' => 'PPNT', 'class' => 'minimal']) !!}
+								{!! Form::label('PPNT', 'Transport included in PPN') !!}
+							@else
+								{!! Form::checkbox('PPNT', 1, null, ['id' => 'PPNT', 'class' => 'minimal', 'disabled']) !!}
+								{!! Form::label('PPNT', 'Transport included in PPN') !!}
+							@endif
+						</div>
+          </div>
+          <div class="form-group">
+            {!! Form::label('INVP', 'Split Invoice', ['class' => 'col-lg-3']) !!}
+						<div class="input-group">
+							{!! Form::checkbox('INVP', 1, $detail->INVP, ['id' => 'INVP', 'class' => 'minimal']) !!}
+							{!! Form::label('INVP', 'Split Invoice based on PO') !!}
+						</div>
+          </div>
+        </div>
+        <div class="box-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary pull-right">Save changes</button>
+        </div>
+      </form>
+      <div class="overlay loading" hidden>
+        <i class="fa fa-refresh fa-spin"></i>
+      </div>
+      <!-- /.box-loading -->
+    </div>
+    <!-- /.box -->
+  </div>
+</div>
 @stop
 
 @section('script')
 <script>
-	$(document).ready(function () {
-		var table = $("#datatablespo").DataTable({
-      "processing": true,
-      "order": [1, "desc"],
-      "columnDefs":[
-				{
-					"targets" : 0,
-					"visible" : false,
-          "searchable": false
-				},
-      ],
-		});
-
-		$('#datatablespo tbody').on('click', 'tr', function () {
-			var data = table.row( this ).data();
-      window.open("../po/" + data[0], "_self");
-		});
+$(document).ready(function () {
+	var table = $("#datatablespo").DataTable({
+		"processing": true,
+		"order": [1, "desc"],
+		"columnDefs":[
+			{
+				"targets" : 0,
+				"visible" : false,
+				"searchable": false
+			},
+		],
 	});
-</script>
-<script>
-	$(document).ready(function () {
-		var table = $("#datatablessjkir").DataTable({
-      "processing": true,
-      "order": [1, "desc"],
-      "columnDefs":[
-				{
-					"targets" : 0,
-					"visible" : false,
-          "searchable": false
-				},
-      ],
-		});
 
-		$('#datatablessjkir tbody').on('click', 'tr', function () {
-			var data = table.row( this ).data();
-      window.open("../sjkirim/" + data[0], "_self");
-		});
+	$('#datatablespo tbody').on('click', 'tr', function () {
+		var data = table.row( this ).data();
+		window.open("../po/" + data[0], "_self");
 	});
-</script>
-<script>
-	$(document).ready(function () {
-		var table = $("#datatablessjkem").DataTable({
-      "processing": true,
-      "order": [1, "desc"],
-      "columnDefs":[
-				{
-					"targets" : 0,
-					"visible" : false,
-          "searchable": false
-				},
-      ],
-		});
+});
 
-		$('#datatablessjkem tbody').on('click', 'tr', function () {
-			var data = table.row( this ).data();
-      window.open("../sjkembali/" + data[0], "_self");
-		});
+$(document).ready(function () {
+	var table = $("#datatablessjkir").DataTable({
+		"processing": true,
+		"order": [1, "desc"],
+		"columnDefs":[
+			{
+				"targets" : 0,
+				"visible" : false,
+				"searchable": false
+			},
+		],
 	});
-</script>
-<script>
-	$(document).ready(function () {
-		var table = $("#datatabless").DataTable({
-      "processing": true,
-      "order": [1, "desc"],
-      "columnDefs":[
-				{
-					"targets" : 0,
-					"visible" : false,
-          "searchable": false
-				},
-      ],
-		});
 
-		$('#datatabless tbody').on('click', 'tr', function () {
-			var data = table.row( this ).data();
-      window.open("../invoice/showsewa/" + data[0], "_self");
-		});
+	$('#datatablessjkir tbody').on('click', 'tr', function () {
+		var data = table.row( this ).data();
+		window.open("../sjkirim/" + data[0], "_self");
 	});
-</script>
-<script>
-	$(document).ready(function () {
-		var table = $("#datatablesj").DataTable({
-      "processing": true,
-      "order": [1, "desc"],
-      "columnDefs":[
-				{
-					"targets" : 0,
-					"visible" : false,
-          "searchable": false
-				},
-      ],
-		});
+});
 
-		$('#datatablesj tbody').on('click', 'tr', function () {
-			var data = table.row( this ).data();
-      window.open("../invoice/showjual/" + data[0], "_self");
-		});
+$(document).ready(function () {
+	var table = $("#datatablessjkem").DataTable({
+		"processing": true,
+		"order": [1, "desc"],
+		"columnDefs":[
+			{
+				"targets" : 0,
+				"visible" : false,
+				"searchable": false
+			},
+		],
 	});
-</script>
-<script>
-	$(document).ready(function () {
-		var table = $("#datatablesc").DataTable({
-      "processing": true,
-      "order": [1, "desc"],
-      "columnDefs":[
-				{
-					"targets" : 0,
-					"visible" : false,
-          "searchable": false
-				},
-      ],
-		});
 
-		$('#datatablesc tbody').on('click', 'tr', function () {
-			var data = table.row( this ).data();
-      window.open("../invoice/showclaim/" + data[0], "_self");
-		});
+	$('#datatablessjkem tbody').on('click', 'tr', function () {
+		var data = table.row( this ).data();
+		window.open("../sjkembali/" + data[0], "_self");
 	});
+});
+
+$(document).ready(function () {
+	var table = $("#datatabless").DataTable({
+		"processing": true,
+		"order": [1, "desc"],
+		"columnDefs":[
+			{
+				"targets" : 0,
+				"visible" : false,
+				"searchable": false
+			},
+		],
+	});
+
+	$('#datatabless tbody').on('click', 'tr', function () {
+		var data = table.row( this ).data();
+		window.open("../invoice/showsewa/" + data[0], "_self");
+	});
+});
+
+$(document).ready(function () {
+	var table = $("#datatablesj").DataTable({
+		"processing": true,
+		"order": [1, "desc"],
+		"columnDefs":[
+			{
+				"targets" : 0,
+				"visible" : false,
+				"searchable": false
+			},
+		],
+	});
+
+	$('#datatablesj tbody').on('click', 'tr', function () {
+		var data = table.row( this ).data();
+		window.open("../invoice/showjual/" + data[0], "_self");
+	});
+});
+
+$(document).ready(function () {
+	var table = $("#datatablesc").DataTable({
+		"processing": true,
+		"order": [1, "desc"],
+		"columnDefs":[
+			{
+				"targets" : 0,
+				"visible" : false,
+				"searchable": false
+			},
+		],
+	});
+
+	$('#datatablesc tbody').on('click', 'tr', function () {
+		var data = table.row( this ).data();
+		window.open("../invoice/showclaim/" + data[0], "_self");
+	});
+});
+	
+$(document).ready(function () {
+	//iCheck
+	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+		checkboxClass: 'icheckbox_flat-green',
+		increaseArea: '20%' // optional
+	});
+});
+	
+//When edit is clicked
+$("#editinv").click(function(){
+  //Toggle the modal
+  $('#editmodal').modal('toggle');
+});
+
+//When edit form is submitted
+$("#editform").submit(function(event){
+  $(".loading").show();
+  $.post( "transportinvoice",{ "_token": "{{ csrf_token() }}", editreferenceid: $("#editreferenceid").val(), PPNT: $("#PPNT:checked").val(), INVP: $("#INVP:checked").val()}, function( data ) {})
+  .done(function(data){
+    location.reload();
+    $('#editmodal').modal('toggle');
+    $(".loading").hide();
+  })
+  .fail(function(data) {
+    if( data.status === 422 ) {
+      var errors = data.responseJSON; //get the errors response data.
+
+      var errorsHtml = '<div class="alert alert-danger alert-dismissible">';
+      errorsHtml += '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>';
+      errorsHtml += '<h4><i class="icon fa fa-ban"></i> Error!</h4>';
+
+      $.each( errors, function( key, value ) {
+          errorsHtml += '<li>' + value[0] + '</li>';
+      });
+
+      errorsHtml += '</div>';
+
+      $("#message").html(errorsHtml);
+      $(".loading").hide();
+    }
+  });
+  event.preventDefault();
+});
 </script>
 @stop

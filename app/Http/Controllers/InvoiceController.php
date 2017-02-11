@@ -1336,6 +1336,7 @@ class InvoiceController extends Controller
     ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
     ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
     ->where('JSC', 'Sewa')
+		->where('pocustomer.INVP', 0)
     ->whereExists(function($query)
       {
         $query->select('periode.Reference')
@@ -1357,6 +1358,7 @@ class InvoiceController extends Controller
     ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
     ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
     ->where('JSC', 'Sewa')
+		->where('pocustomer.INVP', 1)
 		->whereExists(function($query)
       {
         $query->select('periode.Reference', 'po.POCode')

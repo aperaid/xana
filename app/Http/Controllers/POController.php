@@ -235,9 +235,12 @@ class POController extends Controller
       $invoices->save();
 			
 			$last_invoicepisah = InvoicePisah::max('id')+1;
-			$abjad = InvoicePisah::where('Reference', $reference->Reference)->max('Abjad')+1;
-			$x = $abjad;
-			if($x==1)$y='A';else if($x==2)$y='B';else if($x==3)$y='C';else if($x==4)$y='D';else if($x==5)$y='E';else if($x==6)$y='F';else if($x==7)$y='G';else if($x==8)$y='H';else if($x==9)$y='I';else if($x==10)$y='J';else if($x==11)$y='K';else if($x==12)$y='L';else if($x==13)$y='M';else if($x==14)$y='N';else if($x==15)$y='O';else if($x==16)$y='P';else if($x==17)$y='Q';else if($x==18)$y='R';else if($x==19)$y='S';else if($x==20)$y='T';else if($x==21)$y='U';else if($x==22)$y='V';else if($x==23)$y='W';else if($x==24)$y='X';else if($x==25)$y='Y';else if($x==26)$y='Z';
+			$abjad = InvoicePisah::where('Reference', $reference->Reference)->max('Abjad');
+			if($abjad==0)
+				$x = 1;
+			else
+				$x = $abjad+1;
+			if($x==1)$y='';else if($x==2)$y='A';else if($x==3)$y='B';else if($x==4)$y='C';else if($x==5)$y='D';else if($x==6)$y='E';else if($x==7)$y='F';else if($x==8)$y='G';else if($x==9)$y='H';else if($x==10)$y='I';else if($x==11)$y='J';else if($x==12)$y='K';else if($x==13)$y='L';else if($x==14)$y='M';else if($x==15)$y='N';else if($x==16)$y='O';else if($x==17)$y='P';else if($x==18)$y='Q';else if($x==19)$y='R';else if($x==20)$y='S';else if($x==21)$y='T';else if($x==22)$y='U';else if($x==23)$y='V';else if($x==24)$y='W';else if($x==25)$y='X';else if($x==26)$y='Y';else if($x==27)$y='Z';
 
 			$invoicepisah = new InvoicePisah;
       $invoicepisah->id = $last_invoicepisah;
@@ -253,7 +256,7 @@ class POController extends Controller
       $invoicepisah->PPN = $PPN;
       $invoicepisah->Count = 1;
 			$invoicepisah->POCode = $request['POCode'];
-			$invoicepisah->Abjad = $abjad;
+			$invoicepisah->Abjad = $x;
       $invoicepisah->save();
       
       $duplicateRecords = Invoice::select([
@@ -468,9 +471,12 @@ class POController extends Controller
       $invoices->save();
 			
 			$last_invoicepisah = InvoicePisah::max('id')+1;
-			$abjad = InvoicePisah::where('Reference', $reference->Reference)->max('Abjad')+1;
-			$x = $abjad;
-			if($x==1)$y='A';else if($x==2)$y='B';else if($x==3)$y='C';else if($x==4)$y='D';else if($x==5)$y='E';else if($x==6)$y='F';else if($x==7)$y='G';else if($x==8)$y='H';else if($x==9)$y='I';else if($x==10)$y='J';else if($x==11)$y='K';else if($x==12)$y='L';else if($x==13)$y='M';else if($x==14)$y='N';else if($x==15)$y='O';else if($x==16)$y='P';else if($x==17)$y='Q';else if($x==18)$y='R';else if($x==19)$y='S';else if($x==20)$y='T';else if($x==21)$y='U';else if($x==22)$y='V';else if($x==23)$y='W';else if($x==24)$y='X';else if($x==25)$y='Y';else if($x==26)$y='Z';
+			$abjad = InvoicePisah::where('Reference', $reference->Reference)->max('Abjad');
+			if($abjad==0)
+				$x = 1;
+			else
+				$x = $abjad+1;
+			if($x==1)$y='';else if($x==2)$y='A';else if($x==3)$y='B';else if($x==4)$y='C';else if($x==5)$y='D';else if($x==6)$y='E';else if($x==7)$y='F';else if($x==8)$y='G';else if($x==9)$y='H';else if($x==10)$y='I';else if($x==11)$y='J';else if($x==12)$y='K';else if($x==13)$y='L';else if($x==14)$y='M';else if($x==15)$y='N';else if($x==16)$y='O';else if($x==17)$y='P';else if($x==18)$y='Q';else if($x==19)$y='R';else if($x==20)$y='S';else if($x==21)$y='T';else if($x==22)$y='U';else if($x==23)$y='V';else if($x==24)$y='W';else if($x==25)$y='X';else if($x==26)$y='Y';else if($x==27)$y='Z';
 
 			$invoicepisah = new InvoicePisah;
       $invoicepisah->id = $last_invoicepisah;
@@ -486,7 +492,7 @@ class POController extends Controller
       $invoicepisah->PPN = $PPN;
       $invoicepisah->Count = 1;
 			$invoicepisah->POCode = $request['POCode'];
-			$invoicepisah->Abjad = $abjad;
+			$invoicepisah->Abjad = $x;
       $invoicepisah->save();
       
       $duplicateRecords = Invoice::select([
