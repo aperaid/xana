@@ -210,17 +210,20 @@ class POController extends Controller
     }
     
     $JSC = array_unique($JSC);
-      
+    
+		$abjad = InvoicePisah::where('Reference', $reference->Reference)->max('Abjad');
+		if($abjad==0)
+			$x = 1;
+		else
+			$x = $abjad+1;
+		if($x==1)$y='';else if($x==2)$y='A';else if($x==3)$y='B';else if($x==4)$y='C';else if($x==5)$y='D';else if($x==6)$y='E';else if($x==7)$y='F';else if($x==8)$y='G';else if($x==9)$y='H';else if($x==10)$y='I';else if($x==11)$y='J';else if($x==12)$y='K';else if($x==13)$y='L';else if($x==14)$y='M';else if($x==15)$y='N';else if($x==16)$y='O';else if($x==17)$y='P';else if($x==18)$y='Q';else if($x==19)$y='R';else if($x==20)$y='S';else if($x==21)$y='T';else if($x==22)$y='U';else if($x==23)$y='V';else if($x==24)$y='W';else if($x==25)$y='X';else if($x==26)$y='Y';else if($x==27)$y='Z';
     $invoices = $JSC;
     foreach ($invoices as $key => $invoices)
     {
-      $invoice = Invoice::select([
-        DB::raw('MAX(id) AS maxid'),
-      ])
-      ->first();
+      $last_invoice = Invoice::max('id')+1;
       
       $invoices = new Invoice;//Invoice::updateOrCreate(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
-      $invoices->id = $invoice->maxid + 1;
+      $invoices->id = $last_invoice;
       if($JSC[$key]=="Sewa"){
         $invoices->Invoice = $projectcode->PCode."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
       }else{
@@ -233,15 +236,8 @@ class POController extends Controller
       $invoices->PPN = $PPN;
       $invoices->Count = 1;
       $invoices->save();
-			
-			$last_invoicepisah = InvoicePisah::max('id')+1;
-			$abjad = InvoicePisah::where('Reference', $reference->Reference)->max('Abjad');
-			if($abjad==0)
-				$x = 1;
-			else
-				$x = $abjad+1;
-			if($x==1)$y='';else if($x==2)$y='A';else if($x==3)$y='B';else if($x==4)$y='C';else if($x==5)$y='D';else if($x==6)$y='E';else if($x==7)$y='F';else if($x==8)$y='G';else if($x==9)$y='H';else if($x==10)$y='I';else if($x==11)$y='J';else if($x==12)$y='K';else if($x==13)$y='L';else if($x==14)$y='M';else if($x==15)$y='N';else if($x==16)$y='O';else if($x==17)$y='P';else if($x==18)$y='Q';else if($x==19)$y='R';else if($x==20)$y='S';else if($x==21)$y='T';else if($x==22)$y='U';else if($x==23)$y='V';else if($x==24)$y='W';else if($x==25)$y='X';else if($x==26)$y='Y';else if($x==27)$y='Z';
 
+			$last_invoicepisah = InvoicePisah::max('id')+1;
 			$invoicepisah = new InvoicePisah;
       $invoicepisah->id = $last_invoicepisah;
       if($JSC[$key]=="Sewa"){
@@ -389,7 +385,6 @@ class POController extends Controller
     $transaksi = Transaksi::where('transaksi.POCode', $po -> POCode);
 
     $po->id = $request->poid;
-    $po->POCode = $request->POCode;
     $po->Tgl = $request->Tgl;
     $po->Discount = $request->Discount;
     $po->Catatan = $request->Catatan;
@@ -441,22 +436,25 @@ class POController extends Controller
     
     $JSC = array_unique($JSC);
     
-    Invoice::where('reference', $request['Reference'])->delete();
+    Invoice::where('POCode', $po['POCode'])->delete();
     DB::statement('ALTER TABLE invoice auto_increment = 1;');
 		
-		InvoicePisah::where('reference', $request['Reference'])->delete();
+		InvoicePisah::where('POCode', $po['POCode'])->delete();
     DB::statement('ALTER TABLE invoicepisah auto_increment = 1;');
     
+		$abjad = InvoicePisah::where('Reference', $request->Reference)->max('Abjad');
+		if($abjad==0)
+			$x = 1;
+		else
+			$x = $abjad+1;
+		if($x==1)$y='';else if($x==2)$y='A';else if($x==3)$y='B';else if($x==4)$y='C';else if($x==5)$y='D';else if($x==6)$y='E';else if($x==7)$y='F';else if($x==8)$y='G';else if($x==9)$y='H';else if($x==10)$y='I';else if($x==11)$y='J';else if($x==12)$y='K';else if($x==13)$y='L';else if($x==14)$y='M';else if($x==15)$y='N';else if($x==16)$y='O';else if($x==17)$y='P';else if($x==18)$y='Q';else if($x==19)$y='R';else if($x==20)$y='S';else if($x==21)$y='T';else if($x==22)$y='U';else if($x==23)$y='V';else if($x==24)$y='W';else if($x==25)$y='X';else if($x==26)$y='Y';else if($x==27)$y='Z';
     $invoices = $JSC;
     foreach ($invoices as $key => $invoices)
     {
-      $invoice = Invoice::select([
-        DB::raw('MAX(id) AS maxid'),
-      ])
-      ->first();
+      $last_invoice = Invoice::max('id')+1;
       
       $invoices = new Invoice;
-      $invoices->id = $invoice->maxid + 1;
+      $invoices->id = $last_invoice;
       if($JSC[$key]=="Sewa"){
         $invoices->Invoice = $projectcode->PCode."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
       }else{
@@ -471,12 +469,6 @@ class POController extends Controller
       $invoices->save();
 			
 			$last_invoicepisah = InvoicePisah::max('id')+1;
-			$abjad = InvoicePisah::where('Reference', $request->Reference)->max('Abjad');
-			if($abjad==0)
-				$x = 1;
-			else
-				$x = $abjad+1;
-			if($x==1)$y='';else if($x==2)$y='A';else if($x==3)$y='B';else if($x==4)$y='C';else if($x==5)$y='D';else if($x==6)$y='E';else if($x==7)$y='F';else if($x==8)$y='G';else if($x==9)$y='H';else if($x==10)$y='I';else if($x==11)$y='J';else if($x==12)$y='K';else if($x==13)$y='L';else if($x==14)$y='M';else if($x==15)$y='N';else if($x==16)$y='O';else if($x==17)$y='P';else if($x==18)$y='Q';else if($x==19)$y='R';else if($x==20)$y='S';else if($x==21)$y='T';else if($x==22)$y='U';else if($x==23)$y='V';else if($x==24)$y='W';else if($x==25)$y='X';else if($x==26)$y='Y';else if($x==27)$y='Z';
 
 			$invoicepisah = new InvoicePisah;
       $invoicepisah->id = $last_invoicepisah;
