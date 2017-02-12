@@ -44,7 +44,7 @@
                   @endif
                 </td>
 								<td>
-									@if ($transaksis->Periode == $maxid->max('Periode'))
+									@if ($transaksis->Periode == $transaksis->maxperiode)
 										<button class='btn btn-block btn-danger delete'>Cancel</button>
 									@else
 										<button class='btn btn-block btn-default' disabled>Cancel</button>

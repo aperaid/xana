@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Project;
 use App\Periode;
 use App\Invoice;
+use App\InvoicePisah;
 use App\TransaksiClaim;
 use App\Reference;
 use App\IsiSJKirim;
@@ -37,6 +38,7 @@ class TransaksiController extends Controller
         'invoice.Invoice',
         'periode.id AS periodeid',
         'periode.*',
+				'per.maxperiode',
         'isisjkirim.SJKir',
         DB::raw('SUM(isisjkirim.QKirim) AS SumQKirim'),
         DB::raw('SUM(isisjkirim.QTertanda) AS SumQTertanda'),
@@ -56,6 +58,10 @@ class TransaksiController extends Controller
         $join->on('T1.Reference', '=', 'periode.Reference')
         ->on('T1.IsiSJKir', '=', 'periode.IsiSJKir');
       })
+			->leftJoin(DB::raw('(select Reference, IsiSJKir, MAX(Periode) AS maxperiode from Periode group by Reference) AS per'), function($join){
+				$join->on('per.Reference', '=', 'periode.Reference');
+				$join->on('per.IsiSJKir', '=', 'periode.IsiSJKir');
+			})
       ->where('invoice.JSC', 'Sewa')
       ->whereRaw('periode.Deletes = "Sewa" OR periode.Deletes = "Extend"')
       ->groupBy('invoice.Reference', 'invoice.Periode')
@@ -147,7 +153,7 @@ class TransaksiController extends Controller
     public function Extend(Request $request)
     {
       $invoice = Invoice::find($request->id);
-      $maxinvoice = Invoice::select([DB::raw('max(invoice.id) as maxinvoice')])->first();
+      $last_invoice = Invoice::max('id')+1;
       
       $periodes = Periode::leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
       ->where('periode.Reference', $invoice->Reference)
@@ -174,10 +180,10 @@ class TransaksiController extends Controller
       $EPeriode2 = date("d/m/Y", $EPeriode);
       $Count = $invoice->Count+1;
       $Periode = $invoice->Periode+1;
-      
+			
       if(substr($invoice->Tgl,6)!=date('Y')){
         Invoice::Create([
-          'id' => $maxinvoice->maxinvoice+1,
+          'id' => $last_invoice,
           'Invoice' => $projectcode->PCode."/1/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
           'JSC' => 'Sewa',
           'Tgl' => $TglInvoice2,
@@ -189,7 +195,7 @@ class TransaksiController extends Controller
         ]);
       }else{
         Invoice::Create([
-          'id' => $maxinvoice->maxinvoice+1,
+          'id' => $last_invoice,
           'Invoice' =>  $projectcode->PCode."/".$Count."/".substr($invoice->Tgl, 3, -5).substr($invoice->Tgl, 6)."/BDN",
           'JSC' => 'Sewa',
           'Tgl' => $TglInvoice2,
@@ -200,6 +206,47 @@ class TransaksiController extends Controller
 					'Termin' => $termin->Termin,
         ]);
       }
+      
+			$invoicepisahs = InvoicePisah::where('Reference', $invoice->Reference)
+			->where('Periode', $invoice->Periode)
+			->where('JSC', 'Sewa')
+			->get();
+			
+			$last_invoicepisah = InvoicePisah::max('id')+1;
+			
+			foreach ($invoicepisahs as $key => $invoicepisah){
+			$x = $invoicepisah->Abjad;
+			if($x==1)$y='';else if($x==2)$y='A';else if($x==3)$y='B';else if($x==4)$y='C';else if($x==5)$y='D';else if($x==6)$y='E';else if($x==7)$y='F';else if($x==8)$y='G';else if($x==9)$y='H';else if($x==10)$y='I';else if($x==11)$y='J';else if($x==12)$y='K';else if($x==13)$y='L';else if($x==14)$y='M';else if($x==15)$y='N';else if($x==16)$y='O';else if($x==17)$y='P';else if($x==18)$y='Q';else if($x==19)$y='R';else if($x==20)$y='S';else if($x==21)$y='T';else if($x==22)$y='U';else if($x==23)$y='V';else if($x==24)$y='W';else if($x==25)$y='X';else if($x==26)$y='Y';else if($x==27)$y='Z';
+			if(substr($invoice->Tgl,6)!=date('Y')){
+        InvoicePisah::Create([
+          'id' => $last_invoicepisah+$key,
+          'Invoice' => $projectcode->PCode.$y."/1/".substr($invoicepisah->Tgl, 3, -5).substr($invoicepisah->Tgl, 6)."/BDN",
+          'JSC' => 'Sewa',
+          'Tgl' => $TglInvoice2,
+          'Reference' => $invoicepisah->Reference,
+          'Periode' => $Periode,
+          'PPN' => $invoicepisah->PPN,
+          'Count' => 1,
+					'Termin' => $termin->Termin,
+					'POCode' => $invoicepisah->POCode,
+					'Abjad' => $invoicepisah->Abjad,
+        ]);
+      }else{
+        InvoicePisah::Create([
+          'id' => $last_invoicepisah+$key,
+          'Invoice' =>  $projectcode->PCode.$y."/".$Count."/".substr($invoicepisah->Tgl, 3, -5).substr($invoicepisah->Tgl, 6)."/BDN",
+          'JSC' => 'Sewa',
+          'Tgl' => $TglInvoice2,
+          'Reference' => $invoicepisah->Reference,
+          'Periode' => $Periode,
+          'PPN' => $invoicepisah->PPN,
+          'Count' => $Count,
+					'Termin' => $termin->Termin,
+					'POCode' => $invoicepisah->POCode,
+					'Abjad' => $invoicepisah->Abjad,
+        ]);
+      }
+			}
 
       $periode = $purchase;
       foreach ($periode as $key => $periode)
@@ -220,7 +267,7 @@ class TransaksiController extends Controller
       
       $history = new History;
       $history->User = Auth::user()->name;
-      $history->History = 'Extend Transaksi Sewa on Invoice '.str_pad($maxinvoice->maxinvoice + 1, 5, "0", STR_PAD_LEFT);
+      $history->History = 'Extend Transaksi Sewa on Invoice '.$invoice->Invoice;
       $history->save();
       
       Session::flash('message', 'Extend is successful!');
