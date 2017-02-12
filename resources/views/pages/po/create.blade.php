@@ -67,7 +67,10 @@
             {!! Form::checkbox('PPN', 1, null, ['id' => 'PPN', 'class' => 'minimal']) !!}
             {!! Form::label('PPN', 'PPN 10%') !!}
           </div>
-        @else
+        @elseif(Auth::user()->access == 'POINVPPN' || Auth::user()->access == 'CUSTINVPPN')
+					{!! Form::hidden('PPN', 1) !!}
+				@elseif(Auth::user()->access == 'POINVNONPPN' || Auth::user()->access == 'CUSTINVNONPPN')
+					{!! Form::hidden('PPN', 0) !!}
         @endif
       </div>
       <!-- /.box-body -->

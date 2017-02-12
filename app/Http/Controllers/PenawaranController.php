@@ -15,6 +15,17 @@ use Auth;
 
 class PenawaranController extends Controller
 {
+	public function __construct()
+	{
+		$this->middleware(function ($request, $next){
+			if(Auth::check()&&(Auth::user()->access == 'Admin'||Auth::user()->access()=='CUSTINVPPN'||Auth::user()->access()=='CUSTINVNONPPN'))
+				$this->access = array("index", "create", "show", "edit");
+			else
+				$this->access = array("");
+    return $next($request);
+    });
+	}
+	
   public function index()
   {
     $penawarans = Penawaran::select('penawaran.*', 'project.PCode')
@@ -23,7 +34,7 @@ class PenawaranController extends Controller
     ->orderBy('id', 'asc')
     ->get();
 
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+    if(in_array("index", $this->access)){
       return view('pages.penawaran.indexs')
       ->with('url', 'penawaran')
       ->with('penawarans', $penawarans)
@@ -53,7 +64,7 @@ class PenawaranController extends Controller
     ->orderBy('id', 'asc')
     ->pluck('Warehouse', 'Warehouse');*/
     
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+    if(in_array("create", $this->access)){
       return view('pages.penawaran.create')
       ->with('url', 'penawaran')
       ->with('maxid', $maxid)
@@ -105,7 +116,7 @@ class PenawaranController extends Controller
     ->orderBy('id', 'asc')
     ->get();
 
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+    if(in_array("show", $this->access)){
       return view('pages.penawaran.show')
       ->with('url', 'penawaran')
       ->with('penawarans', $penawarans)
@@ -132,7 +143,7 @@ class PenawaranController extends Controller
     ->where('penawaran.Penawaran', $penawaran -> Penawaran)
     ->first();
 
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+    if(in_array("edit", $this->access)){
       return view('pages.penawaran.edit')
       ->with('url', 'penawaran')
       ->with('id', $id)

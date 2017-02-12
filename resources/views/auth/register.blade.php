@@ -72,10 +72,10 @@
                             <div class="col-md-6">
                                 <select name="access" id="access" class="form-control" autofocus>
                                   <option value="Admin">Admin</option>
-                                  <option value="POPPN">PO PPN</option>
-                                  <option value="PONONPPN">PO NON PPN</option>
-                                  <option value="INVPPN">Invoice PPN</option>
-                                  <option value="INVNONPPN">Invoice NON PPN</option>
+                                  <option value="POINVPPN">PO - INV PPN</option>
+                                  <option value="POINVNONPPN">PO - INV NON PPN</option>
+                                  <option value="CUSTINVPPN">CUST - INV PPN</option>
+                                  <option value="CUSTINVNONPPN">CUST - INV NON PPN</option>
                                 </select>
 
                                 @if ($errors->has('access'))

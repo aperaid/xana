@@ -13,40 +13,60 @@ use Auth;
 
 class InventoryController extends Controller
 {
+	public function __construct()
+	{
+		$this->middleware(function ($request, $next){
+			if(Auth::check()&&(Auth::user()->access == 'Admin'))
+				$this->access = array("viewinventory", "adjustinventory", "editadjustinventory", "transferinventory", "registerinventory", "removeinventory");
+			else
+				$this->access = array("");
+    return $next($request);
+    });
+	}
+	
   public function getView()
   {
     $inventory = Inventory::all();
 
-    return view('pages.inventory.viewinventory')
-    ->with('url', 'viewinventory')
-    ->with('inventorys', $inventory)
-    ->with('top_menu_sel', 'menu_view')
-    ->with('page_title', 'Inventory')
-    ->with('page_description', 'Index');
+		if(in_array("viewinventory", $this->access)){
+			return view('pages.inventory.viewinventory')
+			->with('url', 'viewinventory')
+			->with('inventorys', $inventory)
+			->with('top_menu_sel', 'menu_view')
+			->with('page_title', 'Inventory')
+			->with('page_description', 'Index');
+		}else
+			return redirect()->back();
   }
   
   public function getAdjustment()
   {
     $adjust = Inventory::all();
 
-    return view('pages.inventory.adjustinventory')
-    ->with('url', 'adjustinventory')
-    ->with('adjusts', $adjust)
-    ->with('top_menu_sel', 'menu_adjustment')
-    ->with('page_title', 'Adjust Inventory')
-    ->with('page_description', 'Index');
+		if(in_array("adjustinventory", $this->access)){
+			return view('pages.inventory.adjustinventory')
+			->with('url', 'adjustinventory')
+			->with('adjusts', $adjust)
+			->with('top_menu_sel', 'menu_adjustment')
+			->with('page_title', 'Adjust Inventory')
+			->with('page_description', 'Index');
+		}else
+			return redirect()->back();
   }
 
   public function getEditAdjustment($id)
   {
     $adjust = Inventory::find($id);
 
-    return view('pages.inventory.editadjustinventory')
-    ->with('url', 'adjustinventory')
-    ->with('adjust', $adjust)
-    ->with('top_menu_sel', 'menu_adjustment')
-    ->with('page_title', 'Adjust Inventory')
-    ->with('page_description', 'Edit');
+		if(in_array("editadjustinventory", $this->access)){
+			return view('pages.inventory.editadjustinventory')
+			->with('url', 'adjustinventory')
+			->with('adjust', $adjust)
+			->with('top_menu_sel', 'menu_adjustment')
+			->with('page_title', 'Adjust Inventory')
+			->with('page_description', 'Edit');
+		}else
+			return redirect()->back();
   }
 
   public function postEditAdjustment(Request $request, $id)
@@ -73,13 +93,16 @@ class InventoryController extends Controller
   {
     $transfer = Inventory::orderby('id', 'desc')
     ->first();
-    
+		
+    if(in_array("transferinventory", $this->access)){
     return view('pages.inventory.transferinventory')
-    ->with('url', 'transferinventory')
-    ->with('transfer', $transfer)
-    ->with('top_menu_sel', 'menu_transfer')
-    ->with('page_title', 'Transfer Inventory')
-    ->with('page_description', 'Index');
+			->with('url', 'transferinventory')
+			->with('transfer', $transfer)
+			->with('top_menu_sel', 'menu_transfer')
+			->with('page_title', 'Transfer Inventory')
+			->with('page_description', 'Index');
+		}else
+			return redirect()->back();
   }
   
   public function getRegister()
@@ -87,12 +110,15 @@ class InventoryController extends Controller
     $register = Inventory::orderby('id', 'desc')
     ->first();
     
-    return view('pages.inventory.registerinventory')
-    ->with('url', 'registerinventory')
-    ->with('register', $register)
-    ->with('top_menu_sel', 'menu_register')
-    ->with('page_title', 'Register Inventory')
-    ->with('page_description', 'Create');
+		if(in_array("registerinventory", $this->access)){
+			return view('pages.inventory.registerinventory')
+			->with('url', 'registerinventory')
+			->with('register', $register)
+			->with('top_menu_sel', 'menu_register')
+			->with('page_title', 'Register Inventory')
+			->with('page_description', 'Create');
+		}else
+			return redirect()->back();
   }
 
   public function postRegister(Request $request)
@@ -150,12 +176,15 @@ class InventoryController extends Controller
     $removes = Inventory::groupBy('Barang')
     ->get();
 
-    return view('pages.inventory.removeinventory')
-    ->with('url', 'removeinventory')
-    ->with('removes', $removes)
-    ->with('top_menu_sel', 'menu_remove')
-    ->with('page_title', 'Remove Inventory')
-    ->with('page_description', 'Index');
+		if(in_array("removeinventory", $this->access)){
+			return view('pages.inventory.removeinventory')
+			->with('url', 'removeinventory')
+			->with('removes', $removes)
+			->with('top_menu_sel', 'menu_remove')
+			->with('page_title', 'Remove Inventory')
+			->with('page_description', 'Index');
+		}else
+			return redirect()->back();
   }
   
   public function getRemove($id)

@@ -21,6 +21,19 @@ use Auth;
 
 class InvoiceController extends Controller
 {
+	public function __construct()
+	{
+		$this->middleware(function ($request, $next){
+			if(Auth::check()&&(Auth::user()->access == 'Admin'||Auth::user()->access()=='CUSTINVPPN'||Auth::user()->access()=='CUSTINVNONPPN'))
+				$this->access = array("showsewa", "showsewapisah", "showjual", "showjualpisah", "showclaim", "index");
+			else if(Auth::check()&&(Auth::user()->access()=='POINVPPN'||Auth::user()->access()=='POINVNONPPN'))
+				$this->access = array("showsewa", "showsewapisah", "showjual", "showjualpisah", "showclaim", "index");
+			else
+				$this->access = array("");
+    return $next($request);
+    });
+	}
+	
   public function getInvoiceSewa($id){
     $parameter = Invoice::find($id);
     
@@ -146,7 +159,7 @@ class InvoiceController extends Controller
 		$tglterima = str_replace('/', '-', $invoice->TglTerima);
 		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
     
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+    if(in_array("showsewa", $this->access)){
       return view('pages.invoice.showsewa')
       ->with('url', 'invoice')
       ->with('invoice', $invoice)
@@ -285,7 +298,7 @@ class InvoiceController extends Controller
 		$tglterima = str_replace('/', '-', $invoice->TglTerima);
 		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
     
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+    if(in_array("showsewapisah", $this->access)){
       return view('pages.invoice.showsewapisah')
       ->with('url', 'invoice')
       ->with('invoice', $invoice)
@@ -950,7 +963,7 @@ class InvoiceController extends Controller
 		$tglterima = str_replace('/', '-', $invoice->TglTerima);
 		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
 		
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+    if(in_array("showjual", $this->access)){
       return view('pages.invoice.showjual')
       ->with('url', 'invoice')
       ->with('invoice', $invoice)
@@ -1069,7 +1082,7 @@ class InvoiceController extends Controller
 		$tglterima = str_replace('/', '-', $invoice->TglTerima);
 		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
 		
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+    if(in_array("showjualpisah", $this->access)){
       return view('pages.invoice.showjualpisah')
       ->with('url', 'invoice')
       ->with('invoice', $invoice)
@@ -1429,7 +1442,7 @@ class InvoiceController extends Controller
 		$tglterima = str_replace('/', '-', $invoice->TglTerima);
 		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
 		
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+    if(in_array("showclaim", $this->access)){
       return view('pages.invoice.showclaim')
       ->with('url', 'invoice')
       ->with('invoice', $invoice)
@@ -1572,7 +1585,7 @@ class InvoiceController extends Controller
     ->groupBy('invoice.Periode')
     ->get();
 
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='INVPPN'||Auth::user()->access()=='INVNONPPN'){
+    if(in_array("index", $this->access)){
       return view('pages.invoice.indexs')
       ->with('url', 'invoice')
       ->with('invoicess', $invoices)

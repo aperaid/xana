@@ -22,6 +22,17 @@ use Auth;
 
 class POController extends Controller
 {
+	public function __construct()
+	{
+		$this->middleware(function ($request, $next){
+			if(Auth::check()&&(Auth::user()->access == 'Admin'||Auth::user()->access()=='CUSTINVPPN'||Auth::user()->access()=='CUSTINVNONPPN'))
+				$this->access = array("create", "create2", "create3", "show", "edit");
+			else
+				$this->access = array("");
+    return $next($request);
+    });
+	}
+	
   public function create()
   {
     $last_transaksi = Transaksi::max('id');
@@ -54,7 +65,7 @@ class POController extends Controller
     else
       $ppn = 0;
 
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+    if(in_array("create", $this->access)){
       return view('pages.po.create')
       ->with('url', 'po')
       ->with('last_po', $last_po)
@@ -71,12 +82,15 @@ class POController extends Controller
   
   public function getCreate2($id)
   {
-    return view('pages.po.create2')
-    ->with('url', 'po')
-    ->with('id', $id)
-    ->with('top_menu_sel', 'menu_referensi')
-    ->with('page_title', 'Purchase Order')
-    ->with('page_description', 'Penawaran');
+		if(in_array("create2", $this->access)){
+			return view('pages.po.create2')
+			->with('url', 'po')
+			->with('id', $id)
+			->with('top_menu_sel', 'menu_referensi')
+			->with('page_title', 'Purchase Order')
+			->with('page_description', 'Penawaran');
+		}else
+			return redirect()->back();
   }
   
   public function getCreate3(Request $request, $id)
@@ -115,7 +129,7 @@ class POController extends Controller
     else
       $ppn = 0;
 
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+    if(in_array("create3", $this->access)){
       return view('pages.po.create3')
       ->with('url', 'po')
       ->with('maxid', $maxid)
@@ -197,17 +211,9 @@ class POController extends Controller
     $invppn = Invoice::where('Reference', $input['Reference'])
     ->first();
     if($invppn)
-      $ppn = $invppn->PPN;
+      $PPN = $invppn->PPN;
     else
-      $ppn = $input['PPN'];
-
-    if(Auth::user()->access == 'POPPN'){
-      $PPN = 1;
-    }elseif(Auth::user()->access == 'PONONPPN'){
-      $PPN = 0;
-    }elseif(Auth::user()->access == 'Admin'){
-      $PPN = $ppn;
-    }
+      $PPN = $input['PPN'];
     
     $JSC = array_unique($JSC);
     
@@ -297,7 +303,7 @@ class POController extends Controller
       $pocheck = 0;
     }
     
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+    if(in_array("show", $this->access)){
       return view('pages.po.show')
       ->with('url', 'po')
       ->with('po', $po)
@@ -363,7 +369,7 @@ class POController extends Controller
     $invoice = Invoice::where('Reference', $transaksis->first()->Reference)->where('periode', 1)
     ->first();
 
-    if(Auth::check()&&Auth::user()->access()=='Admin'||Auth::user()->access()=='POPPN'||Auth::user()->access()=='PONONPPN'){
+    if(in_array("edit", $this->access)){
       return view('pages.po.edit')
       ->with('url', 'po')
       ->with('po', $po)
@@ -421,17 +427,9 @@ class POController extends Controller
     $invppn = Invoice::where('Reference', $input['Reference'])
     ->first();
     if($invppn)
-      $ppn = $invppn->PPN;
+      $PPN = $invppn->PPN;
     else
-      $ppn = $input['PPN'];
-
-    if(Auth::user()->access == 'POPPN'){
-      $PPN = 1;
-    }elseif(Auth::user()->access == 'PONONPPN'){
-      $PPN = 0;
-    }elseif(Auth::user()->access == 'Admin'){
-      $PPN = $ppn;
-    }
+      $PPN = $input['PPN'];
     
     $JSC = Transaksi::where('reference', $request['Reference'])->pluck('JS')->toArray();
     $JSC = array_unique($JSC);
