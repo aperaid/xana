@@ -284,6 +284,11 @@ class TransaksiController extends Controller
       
       Invoice::destroy($invoice->id);
 			DB::statement('ALTER TABLE invoice auto_increment = 1;');
+			
+			InvoicePisah::where('Periode', $invoice->Periode)
+			->where('Reference', $invoice->Reference)
+			->delete();
+			DB::statement('ALTER TABLE invoicepisah auto_increment = 1;');
       
       $history = new History;
       $history->User = Auth::user()->name;

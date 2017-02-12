@@ -176,7 +176,7 @@ class SJKirimController extends Controller
       
       $maxisisjkir = IsiSJKirim::max('IsiSJKir');
 
-      $ECont = Periode::where('Reference', $Reference)
+      $ECont = Periode::whereIn('Purchase', $Purchase)
       //->whereRaw('(SELECT MAX(Periode) FROM periode WHERE Reference = ?)', $Reference)
 			->where('Periode', $maxperiode)
       ->first();
