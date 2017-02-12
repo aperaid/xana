@@ -90,6 +90,7 @@ class ReferenceController extends Controller
 			'Reference' => $request['Reference'],
 			'Tgl' => $request['Tgl'],
 			'PCode' => $request['PCode'],
+			'PPN' => $request['PPN'],
 			'Transport' => str_replace(".","",substr($request->Transport, 3)),
 			'PPNT' => $request['PPNT'],
 		]);
@@ -158,9 +159,28 @@ class ReferenceController extends Controller
 	{
 		$reference = Reference::find($request->editreferenceid);
 
+		$reference->PPN = $request->PPN;
 		$reference->PPNT = $request->PPNT;
 		$reference->INVP = $request->INVP;
 		$reference->save();
+		
+		$invoices = Invoice::where('Reference', $reference->Reference)
+		->get();
+
+		foreach ($invoices as $invoice){
+			$invoice = Invoice::find($invoice->id);
+			$invoice->PPN = $request->PPN;
+			$invoice->save();
+		}
+		
+		$invoicepisahs = InvoicePisah::where('Reference', $reference->Reference)
+		->get();
+		
+		foreach ($invoicepisahs as $invoicepisah){
+			$invoicepisah = InvoicePisah::find($invoicepisah->id);
+			$invoicepisah->PPN = $request->PPN;
+			$invoicepisah->save();
+		}
 		
 		$request->session()->flash('message', 'Edit Success');
 	}

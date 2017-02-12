@@ -61,17 +61,6 @@
           {!! Form::label('Catatan', 'Catatan') !!}
           {!! Form::textarea('Catatan', null, array('id' => 'Catatan', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '5')) !!}
         </div>
-        @if(Auth::user()->access == 'Admin' && $ppn == 0)
-          <div class="form-group">
-            {!! Form::hidden('PPN', 0) !!}
-            {!! Form::checkbox('PPN', 1, null, ['id' => 'PPN', 'class' => 'minimal']) !!}
-            {!! Form::label('PPN', 'PPN 10%') !!}
-          </div>
-        @elseif(Auth::user()->access == 'POINVPPN' || Auth::user()->access == 'CUSTINVPPN')
-					{!! Form::hidden('PPN', 1) !!}
-				@elseif(Auth::user()->access == 'POINVNONPPN' || Auth::user()->access == 'CUSTINVNONPPN')
-					{!! Form::hidden('PPN', 0) !!}
-        @endif
       </div>
       <!-- /.box-body -->
     </div>

@@ -34,11 +34,24 @@
           {!! Form::text('Transport', null, array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 100.000', 'required')) !!}
         </div>
         <div class="form-group">
-        @if(Auth::user()->access == 'Admin' || Auth::user()->access == 'POINVPPN' || Auth::user()->access == 'CUSTINVPPN')
-          {!! Form::hidden('PPNT', 0) !!}
+        @if(Auth::user()->access == 'Admin')
+					<div class="col-md-7">
+            {!! Form::hidden('PPN', 0) !!}
+            {!! Form::checkbox('PPN', 1, null, ['id' => 'PPN', 'class' => 'minimal']) !!}
+            {!! Form::label('PPN', 'PPN 10%') !!}
+          </div>
+					<div class="col-md-5">
+						{!! Form::hidden('PPNT', 0) !!}
+						{!! Form::checkbox('PPNT', 1, null, ['id' => 'PPNT', 'class' => 'minimal']) !!}
+						{!! Form::label('PPNT', 'Transport included in PPN') !!}
+					</div>
+				@elseif(Auth::user()->access == 'POINVPPN' || Auth::user()->access == 'CUSTINVPPN')
+					{!! Form::hidden('PPN', 1) !!}
+					{!! Form::hidden('PPNT', 0) !!}
           {!! Form::checkbox('PPNT', 1, null, ['id' => 'PPNT', 'class' => 'minimal']) !!}
           {!! Form::label('PPNT', 'Transport included in PPN') !!}
 				@elseif(Auth::user()->access == 'POINVNONPPN' || Auth::user()->access == 'CUSTINVNONPPN')
+					{!! Form::hidden('PPN', 0) !!}
 					{!! Form::hidden('PPNT', 0) !!}
         @endif
         </div>

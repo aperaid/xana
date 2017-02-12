@@ -58,13 +58,6 @@ class POController extends Controller
 			$min = $periode->S;
 		}
 
-    $ppn = Invoice::where('Reference', $reference->Reference)
-    ->first();
-    if($ppn)
-      $ppn = 1;
-    else
-      $ppn = 0;
-
     if(in_array("create", $this->access)){
       return view('pages.po.create')
       ->with('url', 'po')
@@ -72,7 +65,6 @@ class POController extends Controller
       ->with('maxid', $maxid)
       ->with('reference', $reference)
 			->with('min', $min)
-      ->with('ppn', $ppn)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'Item');
@@ -121,13 +113,6 @@ class POController extends Controller
     
     $reference = Reference::where('pocustomer.id', $id)
     ->first();
-    
-    $ppn = Invoice::where('Reference', $reference->Reference)
-    ->first();
-    if($ppn)
-      $ppn = 1;
-    else
-      $ppn = 0;
 
     if(in_array("create3", $this->access)){
       return view('pages.po.create3')
@@ -137,7 +122,6 @@ class POController extends Controller
       ->with('penawarans', $penawarans)
       ->with('po', $po)
       ->with('reference', $reference)
-      ->with('ppn', $ppn)
       ->with('top_menu_sel', 'menu_referensi')
       ->with('page_title', 'Purchase Order')
       ->with('page_description', 'Item');
@@ -208,13 +192,6 @@ class POController extends Controller
     
     $projectcode = Reference::where('Reference', $request['Reference'])->first();
     
-    $invppn = Invoice::where('Reference', $input['Reference'])
-    ->first();
-    if($invppn)
-      $PPN = $invppn->PPN;
-    else
-      $PPN = $input['PPN'];
-    
     $JSC = array_unique($JSC);
     
 		$abjad = InvoicePisah::where('Reference', $reference->Reference)->max('Abjad');
@@ -239,7 +216,7 @@ class POController extends Controller
       $invoices->Tgl = $request['Tgl'];
       $invoices->Reference = $request['Reference'];
       $invoices->Periode = 1;
-      $invoices->PPN = $PPN;
+      $invoices->PPN = $reference['PPN'];
       $invoices->Count = 1;
       $invoices->save();
 
@@ -255,7 +232,7 @@ class POController extends Controller
       $invoicepisah->Tgl = $request['Tgl'];
       $invoicepisah->Reference = $request['Reference'];
       $invoicepisah->Periode = 1;
-      $invoicepisah->PPN = $PPN;
+      $invoicepisah->PPN = $reference['PPN'];
       $invoicepisah->Count = 1;
 			$invoicepisah->POCode = $request['POCode'];
 			$invoicepisah->Abjad = $x;
@@ -424,13 +401,6 @@ class POController extends Controller
 
     $projectcode = Reference::where('Reference', $request['Reference'])->first();
     
-    $invppn = Invoice::where('Reference', $input['Reference'])
-    ->first();
-    if($invppn)
-      $PPN = $invppn->PPN;
-    else
-      $PPN = $input['PPN'];
-    
     $JSC = Transaksi::where('reference', $request['Reference'])->pluck('JS')->toArray();
     $JSC = array_unique($JSC);
     
@@ -453,7 +423,6 @@ class POController extends Controller
       $invoices->Tgl = $request['Tgl'];
       $invoices->Reference = $request['Reference'];
       $invoices->Periode = 1;
-      $invoices->PPN = $PPN;
       $invoices->Count = 1;
       $invoices->save();
       
@@ -497,7 +466,6 @@ class POController extends Controller
       $invoicepisah->Tgl = $request['Tgl'];
       $invoicepisah->Reference = $request['Reference'];
       $invoicepisah->Periode = 1;
-      $invoicepisah->PPN = $PPN;
       $invoicepisah->Count = 1;
 			$invoicepisah->POCode = $request['POCode'];
 			$invoicepisah->Abjad = $x;

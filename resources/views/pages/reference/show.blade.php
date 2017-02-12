@@ -389,6 +389,18 @@
         <div class="box-body">
           <div id="message">
           </div>
+					<div class="form-group">
+            {!! Form::label('PPN', 'PPN', ['class' => 'col-lg-3']) !!}
+						<div class="input-group">
+              @if(Auth::user()->access == 'Admin')
+								{!! Form::checkbox('PPN', 1, $detail->PPN, ['id' => 'PPN', 'class' => 'minimal']) !!}
+								{!! Form::label('PPN', 'PPN 10%') !!}
+							@else
+								{!! Form::checkbox('PPN', 1, $detail->PPN, ['id' => 'PPN', 'class' => 'minimal', 'disabled']) !!}
+								{!! Form::label('PPN', 'PPN 10%') !!}
+							@endif
+						</div>
+          </div>
           <div class="form-group">
             {!! Form::label('PPNT', 'PPN Transport', ['class' => 'col-lg-3']) !!}
 						<div class="input-group">
@@ -557,7 +569,7 @@ $("#editinv").click(function(){
 //When edit form is submitted
 $("#editform").submit(function(event){
   $(".loading").show();
-  $.post( "transportinvoice",{ "_token": "{{ csrf_token() }}", editreferenceid: $("#editreferenceid").val(), PPNT: $("#PPNT:checked").val(), INVP: $("#INVP:checked").val()}, function( data ) {})
+  $.post( "transportinvoice",{ "_token": "{{ csrf_token() }}", editreferenceid: $("#editreferenceid").val(), PPN: $("#PPN:checked").val(), PPNT: $("#PPNT:checked").val(), INVP: $("#INVP:checked").val()}, function( data ) {})
   .done(function(data){
     location.reload();
     $('#editmodal').modal('toggle');
