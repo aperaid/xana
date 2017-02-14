@@ -24,16 +24,16 @@ class InvoiceController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access == 'Admin'||Auth::user()->access()=='CUSTINVPPN'||Auth::user()->access()=='CUSTINVNONPPN'))
+			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='CUSTINVPPN'||Auth::user()->access=='CUSTINVNONPPN'))
 				$this->access = array("showsewa", "showsewapisah", "showjual", "showjualpisah", "showclaim", "index");
-			else if(Auth::check()&&(Auth::user()->access()=='POINVPPN'||Auth::user()->access()=='POINVNONPPN'))
+			else if(Auth::check()&&(Auth::user()->access=='POINVPPN'||Auth::user()->access=='POINVNONPPN'))
 				$this->access = array("showsewa", "showsewapisah", "showjual", "showjualpisah", "showclaim", "index");
 			else
 				$this->access = array("");
 			
-			if(Auth::user()->access()=='POINVPPN'||Auth::user()->access()=='CUSTINVPPN')
+			if(Auth::user()->access=='POINVPPN'||Auth::user()->access=='CUSTINVPPN')
 				$this->PPNNONPPN = 1;
-			else if(Auth::user()->access()=='POINVNONPPN'||Auth::user()->access()=='CUSTINVNONPPN')
+			else if(Auth::user()->access=='POINVNONPPN'||Auth::user()->access=='CUSTINVNONPPN')
 				$this->PPNNONPPN = 0;
     return $next($request);
     });
@@ -1531,7 +1531,7 @@ class InvoiceController extends Controller
 					->whereRaw('invoice.Reference = periode.Reference')
 					->where('periode.Deletes', 'Sewa');
 				})
-			->where('pocustomer.PPN', $this->PPNNONPPN)
+			->where('customer.PPN', $this->PPNNONPPN)
 			->groupBy('invoice.Reference', 'invoice.Periode')
 			->get();
 		}
@@ -1582,7 +1582,7 @@ class InvoiceController extends Controller
 					->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
 					->where('periode.Deletes', 'Sewa');
 				})
-			->where('pocustomer.PPN', $this->PPNNONPPN)
+			->where('customer.PPN', $this->PPNNONPPN)
 			->groupBy('invoicepisah.Reference', 'invoicepisah.POCode', 'invoicepisah.Periode')
 			->get();
 		}
@@ -1625,7 +1625,7 @@ class InvoiceController extends Controller
 					->whereRaw('invoice.Reference = periode.Reference')
 					->where('periode.Deletes', 'Jual');
 				})
-			->where('pocustomer.PPN', $this->PPNNONPPN)
+			->where('customer.PPN', $this->PPNNONPPN)
 			->groupBy('invoice.Reference', 'invoice.Periode')
 			->get();
 		}
@@ -1672,7 +1672,7 @@ class InvoiceController extends Controller
 					->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
 					->where('periode.Deletes', 'Jual');
 				})
-			->where('pocustomer.PPN', $this->PPNNONPPN)
+			->where('customer.PPN', $this->PPNNONPPN)
 			->groupBy('invoicepisah.Reference', 'invoicepisah.Periode')
 			->get();
 		}
@@ -1699,7 +1699,7 @@ class InvoiceController extends Controller
 			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->where('JSC', 'Claim')
-			->where('pocustomer.PPN', $this->PPNNONPPN)
+			->where('customer.PPN', $this->PPNNONPPN)
 			->groupBy('invoice.Periode')
 			->get();
 		}

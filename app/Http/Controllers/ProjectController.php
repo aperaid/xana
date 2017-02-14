@@ -16,14 +16,14 @@ class ProjectController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access == 'Admin'||Auth::user()->access()=='CUSTINVPPN'||Auth::user()->access()=='CUSTINVNONPPN'))
+			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='CUSTINVPPN'||Auth::user()->access=='CUSTINVNONPPN'))
 				$this->access = array("index", "create", "show", "edit");
 			else
 				$this->access = array("");
 			
-		if(Auth::user()->access()=='POINVPPN'||Auth::user()->access()=='CUSTINVPPN')
+		if(Auth::user()->access=='POINVPPN'||Auth::user()->access=='CUSTINVPPN')
 				$this->PPNNONPPN = 1;
-			else if(Auth::user()->access()=='POINVNONPPN'||Auth::user()->access()=='CUSTINVNONPPN')
+			else if(Auth::user()->access=='POINVNONPPN'||Auth::user()->access=='CUSTINVNONPPN')
 				$this->PPNNONPPN = 0;
     return $next($request);
     });
