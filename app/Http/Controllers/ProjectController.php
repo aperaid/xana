@@ -7,6 +7,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Project;
 use App\Reference;
+use App\Penawaran;
 use App\History;
 use Session;
 use DB;
@@ -96,17 +97,24 @@ class ProjectController extends Controller
 		->where('project.id', $id)
 		->first();
 		
-	$checkproj = Reference::where('PCode', $project->PCode)->count();
-		if($checkproj==0)
-			$checkproj = 0;
-		else
-			$checkproj = 1;
+		$checkproj = Reference::where('PCode', $project->PCode)->count();
+			if($checkproj==0)
+				$checkproj = 0;
+			else
+				$checkproj = 1;
+			
+		$checkpen = Penawaran::where('PCode', $project->PCode)->count();
+			if($checkpen==0)
+				$checkpen = 0;
+			else
+				$checkpen = 1;
 
 		if(in_array("show", $this->access)){
 			return view('pages.project.show')
 			->with('url', 'project')
 			->with('project', $project)
 			->with('checkproj', $checkproj)
+			->with('checkpen', $checkpen)
 			->with('top_menu_sel', 'menu_project')
 			->with('page_title', 'Project')
 			->with('page_description', 'View');
