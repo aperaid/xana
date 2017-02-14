@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Customer;
+use App\Project;
 use App\History;
 use Session;
 use DB;
@@ -97,10 +98,17 @@ class CustomerController extends Controller
 	public function show($id)
 	{
 		$customer = Customer::find($id);
+		
+		$checkcust = Project::where('CCode', $customer->CCode)->count();
+		if($checkcust==0)
+			$checkcust = 0;
+		else
+			$checkcust = 1;
 
 		if(in_array("show", $this->access)){
 			return view('pages.customer.show')
 			->with('url', 'customer')
+			->with('checkcust', $checkcust)
 			->with('customer', $customer)
 			->with('top_menu_sel', 'menu_customer')
 			->with('page_title', 'Customer')

@@ -186,7 +186,7 @@
       <!-- box body -->
       <div class="box-footer">
       	<a href="{{route('customer.index')}}"><button type="button" class="btn btn-default pull-left">Back</button></a>
-      	<button type="submit" style="margin-right: 5px;" class="btn btn-danger pull-left" onclick="return confirm('Delete Customer?')">Delete</button>
+      	<button type="submit" style="margin-right: 5px;" @if ( $checkcust == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete Customer?')">Delete</button>
       	<a href="{{route('customer.edit', $customer->id)}}"><button type="button" class="btn btn-info pull-right">Edit</button></a>
       </div>
       <!-- box footer -->

@@ -161,14 +161,14 @@
 								<div class="col-md-12">
 									<a href="{{route('reference.index')}}"><button type="button" class="btn btn-default pull-left" style="margin-right: 5px;">Back</button></a>
                   <a href="{{route('sjkembali.SPB', $detail->pocusid)}}" button type="button" @if ( $periodecheck->maxper == 0) class="btn btn-default" disabled	@else class="btn btn-default" @endif><i class="fa fa-print"></i> Print SPB</a>
-									<a href="{{route('sjkirim.create', 'id='.$detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $sjkircheck == 0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right"	@endif	>SJ Kirim</button></a>
-									<a href="{{route('sjkembali.create', 'id='.$detail->pocusid)}}"><button type="button" style="margin-right: 5px;"	@if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right"	@endif	>SJ Kembali</button></a>
-									<a href="{{route('transaksi.claimcreate', $detail->pocusid)}}">	<button type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif	>Claim</button></a>
+									<a href="{{route('sjkirim.create', 'id='.$detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $sjkircheck == 0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right" @endif>SJ Kirim</button></a>
+									<a href="{{route('sjkembali.create', 'id='.$detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right" @endif>SJ Kembali</button></a>
+									<a href="{{route('transaksi.claimcreate', $detail->pocusid)}}">	<button type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif>Claim</button></a>
 									<button type="button" class="btn btn-info pull-right" id="editinv" data-toggle="modal"> Edit Invoice</button>
-									<a href="{{route('reference.edit', $detail->pocusid)}}"><button type="button" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right"	@endif >Edit</button></a>
+									<a href="{{route('reference.edit', $detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right" @endif>Edit</button></a>
 									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert PO</button></a>
                   <a href="{{route('po.create2', $detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert Penawaran PO</button></a>
-									<button type="submit" style="margin-right: 5px;"	@if ( $delcheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
+									<button type="submit" style="margin-right: 5px;" @if ( $delcheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
 								</div>
 							</div>
 						</div>
