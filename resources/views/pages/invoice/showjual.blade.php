@@ -76,16 +76,6 @@
               @endforeach
             </tbody>
           </table>
-          <!-- PPN checkbox -->
-          <div class="form-group">
-            @if(Auth::user()->access == 'Admin')
-              {!! Form::label('PPN', 'Pajak 10%', ['class' => "col-sm-2 control-label"]) !!}
-              <div class="col-sm-6">
-                {!! Form::hidden('PPN', 0) !!}
-                {!! Form::checkbox('PPN', 1, $invoice->PPN, ['id' => 'PPN', 'class' => 'minimal']) !!}
-              </div>
-            @endif
-          </div>
           <!-- Total & Transport & Pajak Input -->
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
@@ -223,11 +213,6 @@ $(document).ready(function(){
 		 $(this).val(100);
 	else if(parseInt($(this).val()) < 0)
 		$(this).val(0);
-	});
-	//iCheck
-	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
-		checkboxClass: 'icheckbox_flat-green',
-		increaseArea: '20%' // optional
 	});
 });
 

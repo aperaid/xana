@@ -335,7 +335,7 @@ class InvoiceController extends Controller
     $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
     
     $invoice->id = $id;
-    $invoice->PPN = $request->PPN;
+    //$invoice->PPN = $request->PPN;
 		$invoice->Times = $request->Times;
 		$invoice->TimesKembali = $request->TimesKembali;
     $invoice->Discount = $request->Discount;
@@ -354,7 +354,7 @@ class InvoiceController extends Controller
 		foreach ($invoicepisahs as $key => $invoicepisah)
     {
 			$invoicepisah = InvoicePisah::find($invoicepisahs[$key]);
-			$invoicepisah->PPN = $invoice->PPN;
+			//$invoicepisah->PPN = $invoice->PPN;
 			//$invoicepisah->Discount = $invoice->Discount;
 			$invoicepisah->TglTerima = $invoice->TglTerima;
 			$invoicepisah->Termin = $invoice->Termin;
@@ -378,7 +378,7 @@ class InvoiceController extends Controller
     $POCode = Transaksi::where('transaksi.Reference', $invoicepisah->Reference)->pluck('POCode');
     
     $invoicepisah->id = $id;
-    $invoicepisah->PPN = $request->PPN;
+    //$invoicepisah->PPN = $request->PPN;
 		$invoicepisah->Times = $request->Times;
 		$invoicepisah->TimesKembali = $request->TimesKembali;
     $invoicepisah->Discount = $request->Discount;
@@ -394,7 +394,7 @@ class InvoiceController extends Controller
 		->first();
     
     $invoice = Invoice::find($invoice->id);
-		$invoice->PPN = $invoicepisah->PPN;
+		//$invoice->PPN = $invoicepisah->PPN;
 		//$invoice->Discount = $invoicepisah->Discount;
 		$invoice->TglTerima = $invoicepisah->TglTerima;
 		$invoice->Termin = $invoicepisah->Termin;
@@ -988,32 +988,6 @@ class InvoiceController extends Controller
       return redirect()->back();
 	}
 	
-  public function postInvoiceJual(Request $request, $id)
-  {
-    $invoice = Invoice::find($id);
-    
-    $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
-    
-    $invoice->id = $id;
-    $invoice->PPN = $request->PPN;
-		$invoice->Times = $request->Times;
-    $invoice->Discount = $request->Discount;
-		$invoice->TglTerima = $request->TglTerima;
-		$invoice->Termin = $request->Termin;
-    $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
-    $invoice->Catatan = $request->Catatan;
-    $invoice->save();
-
-    $history = new History;
-    $history->User = Auth::user()->name;
-    $history->History = 'Update invoice on Invoice '.$request['Invoice'];
-    $history->save();
-    
-    Session::flash('message', 'Update is successful!');
-    
-    return redirect()->route('invoice.showjual', $id);
-  }
-	
 	public function getInvoiceJualPisah($id)
   {
     $parameter = InvoicePisah::find($id);
@@ -1107,6 +1081,32 @@ class InvoiceController extends Controller
       return redirect()->back();
 	}
 	
+  public function postInvoiceJual(Request $request, $id)
+  {
+    $invoice = Invoice::find($id);
+    
+    $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
+    
+    $invoice->id = $id;
+    //$invoice->PPN = $request->PPN;
+		$invoice->Times = $request->Times;
+    $invoice->Discount = $request->Discount;
+		$invoice->TglTerima = $request->TglTerima;
+		$invoice->Termin = $request->Termin;
+    $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
+    $invoice->Catatan = $request->Catatan;
+    $invoice->save();
+
+    $history = new History;
+    $history->User = Auth::user()->name;
+    $history->History = 'Update invoice on Invoice '.$request['Invoice'];
+    $history->save();
+    
+    Session::flash('message', 'Update is successful!');
+    
+    return redirect()->route('invoice.showjual', $id);
+  }
+	
 	public function postInvoiceJualPisah(Request $request, $id)
   {
     $invoice = InvoicePisah::find($id);
@@ -1122,6 +1122,21 @@ class InvoiceController extends Controller
     $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
     $invoice->Catatan = $request->Catatan;
     $invoice->save();
+		
+		$invoicepisahs = InvoicePisah::where('Reference', $invoice->Reference)
+		->where('JSC', 'Jual')
+		->get();
+		
+		$invoicepisahs = $invoicepisahs->pluck('id');
+		foreach ($invoicepisahs as $key => $invoicepisah)
+    {
+			$invoicepisah = InvoicePisah::find($invoicepisahs[$key]);
+			//$invoicepisah->PPN = $invoice->PPN;
+			//$invoicepisah->Discount = $invoice->Discount;
+			$invoicepisah->TglTerima = $invoice->TglTerima;
+			$invoicepisah->Termin = $invoice->Termin;
+			$invoicepisah->save();
+		}
 
     $history = new History;
     $history->User = Auth::user()->name;
@@ -1472,7 +1487,7 @@ class InvoiceController extends Controller
       $input = Input::all();
       
       $invoice->id = $id;
-      $invoice->PPN = $request->PPN;
+      //$invoice->PPN = $request->PPN;
     	$invoice->Discount = $request->Discount;
 			$invoice->TglTerima = $request->TglTerima;
 			$invoice->Termin = $request->Termin;

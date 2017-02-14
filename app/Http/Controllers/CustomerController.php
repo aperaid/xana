@@ -129,7 +129,6 @@ class CustomerController extends Controller
 		$customer = Customer::find($id);
 
 		$customer->CCode = $request->CCode;
-		$customer->PPN = $request->PPN;
 		$customer->Company = $request->Company;
 		$customer->NPWP = $request->NPWP;
 		$customer->CompAlamat = $request->CompAlamat;

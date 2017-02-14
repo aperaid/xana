@@ -23,15 +23,6 @@
                {!! Form::text('CCode', $customer->CCode, array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
-					@if(Auth::user()->access == 'Admin')
-						<div class="form-group">
-							{!! Form::label('PPN', 'PPN', ['class' => "col-md-2 control-label"]) !!}
-							<div class="col-md-4">
-								{!! Form::checkbox('PPN', 1, $customer->PPN, ['id' => 'PPN', 'class' => 'minimal', 'disabled']) !!}
-								{!! Form::label('PPN', 'PPN 10%') !!}
-							</div>
-						</div>
-					@endif
           <div class="form-group">
             <!-- NAMA PERUSAHAAN -->
             {!! Form::label('Company Name', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
