@@ -168,7 +168,7 @@
 									<a href="{{route('reference.edit', $detail->pocusid)}}"><button type="button" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right"	@endif >Edit</button></a>
 									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert PO</button></a>
                   <a href="{{route('po.create2', $detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert Penawaran PO</button></a>
-									<button type="submit" style="margin-right: 5px;"	@if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
+									<button type="submit" style="margin-right: 5px;"	@if ( $delcheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif onclick="return confirm('Delete PO Customer?')">Delete</button>
 								</div>
 							</div>
 						</div>
@@ -388,18 +388,6 @@
         {!! Form::hidden('editreferenceid', $detail->pocusid, ['id' => 'editreferenceid']) !!}
         <div class="box-body">
           <div id="message">
-          </div>
-					<div class="form-group">
-            {!! Form::label('PPN', 'PPN', ['class' => 'col-lg-3']) !!}
-						<div class="input-group">
-              @if(Auth::user()->access == 'Admin')
-								{!! Form::checkbox('PPN', 1, $detail->PPN, ['id' => 'PPN', 'class' => 'minimal']) !!}
-								{!! Form::label('PPN', 'PPN 10%') !!}
-							@else
-								{!! Form::checkbox('PPN', 1, $detail->PPN, ['id' => 'PPN', 'class' => 'minimal', 'disabled']) !!}
-								{!! Form::label('PPN', 'PPN 10%') !!}
-							@endif
-						</div>
           </div>
           <div class="form-group">
             {!! Form::label('PPNT', 'PPN Transport', ['class' => 'col-lg-3']) !!}

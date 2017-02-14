@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Customer;
 use App\Project;
 use App\PO;
 use App\Transaksi;
@@ -190,7 +191,10 @@ class POController extends Controller
       }
     }*/
     
-    $projectcode = Reference::where('Reference', $request['Reference'])->first();
+    $projectcode = Reference::where('Reference', $request['Reference'])->first()->PCode;
+		$PPN = Customer::leftJoin('project', 'customer.CCode', '=', 'project.CCode')
+		->where('PCode', $projectcode)
+		->first()->PPN;
     
     $JSC = array_unique($JSC);
     
@@ -208,15 +212,15 @@ class POController extends Controller
       $invoices = new Invoice;//Invoice::updateOrCreate(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
       $invoices->id = $last_invoice;
       if($JSC[$key]=="Sewa"){
-        $invoices->Invoice = $projectcode->PCode."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+        $invoices->Invoice = $projectcode."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
       }else{
-        $invoices->Invoice = $projectcode->PCode."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
+        $invoices->Invoice = $projectcode."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
       }
       $invoices->JSC = $JSC[$key];
       $invoices->Tgl = $request['Tgl'];
       $invoices->Reference = $request['Reference'];
       $invoices->Periode = 1;
-      $invoices->PPN = $reference['PPN'];
+      $invoices->PPN = $PPN;
       $invoices->Count = 1;
       $invoices->save();
 
@@ -224,15 +228,15 @@ class POController extends Controller
 			$invoicepisah = new InvoicePisah;
       $invoicepisah->id = $last_invoicepisah;
       if($JSC[$key]=="Sewa"){
-        $invoicepisah->Invoice = $projectcode->PCode.$y."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+        $invoicepisah->Invoice = $projectcode.$y."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
       }else{
-        $invoicepisah->Invoice = $projectcode->PCode.$y."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
+        $invoicepisah->Invoice = $projectcode.$y."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
       }
       $invoicepisah->JSC = $JSC[$key];
       $invoicepisah->Tgl = $request['Tgl'];
       $invoicepisah->Reference = $request['Reference'];
       $invoicepisah->Periode = 1;
-      $invoicepisah->PPN = $reference['PPN'];
+      $invoicepisah->PPN = $PPN;
       $invoicepisah->Count = 1;
 			$invoicepisah->POCode = $request['POCode'];
 			$invoicepisah->Abjad = $x;

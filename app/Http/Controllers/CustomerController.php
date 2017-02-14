@@ -20,13 +20,23 @@ class CustomerController extends Controller
 				$this->access = array("index", "create", "show", "edit");
 			else
 				$this->access = array("");
+			
+		if(Auth::user()->access()=='POINVPPN'||Auth::user()->access()=='CUSTINVPPN')
+				$this->PPNNONPPN = 1;
+			else if(Auth::user()->access()=='POINVNONPPN'||Auth::user()->access()=='CUSTINVNONPPN')
+				$this->PPNNONPPN = 0;
     return $next($request);
     });
 	}
 	
 	public function index()
 	{
-		$customer = Customer::all();
+		if(Auth::user()->access == 'Admin'){
+			$customer = Customer::all();
+		}else{
+			$customer = Customer::where('PPN', $this->PPNNONPPN)
+			->get();
+		}
 		
 		if(in_array("index", $this->access)){
 			return view('pages.customer.indexs')
@@ -119,6 +129,7 @@ class CustomerController extends Controller
 		$customer = Customer::find($id);
 
 		$customer->CCode = $request->CCode;
+		$customer->PPN = $request->PPN;
 		$customer->Company = $request->Company;
 		$customer->NPWP = $request->NPWP;
 		$customer->CompAlamat = $request->CompAlamat;

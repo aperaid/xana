@@ -23,6 +23,20 @@
               {!! Form::text('CCode', $customer->CCode, array('class' => 'form-control', 'id' => 'CCode', 'readonly')) !!}
             </div>
           </div>
+					@if(Auth::user()->access == 'Admin')
+						<div class="form-group">
+							{!! Form::label('PPN', 'PPN', ['class' => "col-md-2 control-label"]) !!}
+							<div class="col-md-4">
+								{!! Form::hidden('PPN', 0) !!}
+								{!! Form::checkbox('PPN', 1, $customer->PPN, ['id' => 'PPN', 'class' => 'minimal']) !!}
+								{!! Form::label('PPN', 'PPN 10%') !!}
+							</div>
+						</div>
+					@elseif(Auth::user()->access == 'POINVPPN' || Auth::user()->access == 'CUSTINVPPN')
+						{!! Form::hidden('PPN', 1) !!}
+					@elseif(Auth::user()->access == 'POINVNONPPN' || Auth::user()->access == 'CUSTINVNONPPN')
+						{!! Form::hidden('PPN', 0) !!}
+					@endif
           <div class="form-group">
             {!! Form::label('Company', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
@@ -193,11 +207,21 @@
 {!! Form::close() !!}
 @stop
 
+@section('script')
 <script>
-  function capital() {
-    var x = document.getElementById("CCode");
-    x.value = x.value.toUpperCase();
-    var x = document.getElementById("Company");
-    x.value = x.value.toUpperCase();
-  }
+function capital() {
+	var x = document.getElementById("CCode");
+	x.value = x.value.toUpperCase();
+	var x = document.getElementById("Company");
+	x.value = x.value.toUpperCase();
+}
+	
+$(document).ready(function(){
+	//iCheck
+	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+		checkboxClass: 'icheckbox_flat-green',
+		increaseArea: '20%' // optional
+	});
+});
 </script>
+@stop

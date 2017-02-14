@@ -18,14 +18,20 @@
               <th>Id</th>
               <th>Customer Code</th>
               <th>Company Name</th>
+							<th>PPN</th>
             </tr>
           </thead>
           <tbody>
             @foreach($customers as $customer)
             <tr>
-              <td>{{$customer->id}}</td>
+              <td width="5%">{{$customer->id}}</td>
               <td>{{$customer->CCode}}</td>
               <td>{{$customer->Company}}</td>
+							@if($customer->PPN == 0)
+								<td width="10%">NON PPN</td>
+							@else
+								<td width="10%">PPN</td>
+							@endif
             </tr>
             @endforeach
           </tbody>

@@ -31,6 +31,11 @@ class SJKirimController extends Controller
 				$this->access = array("index", "create", "create2", "create3", "show", "edit", "qtertanda");
 			else
 				$this->access = array("");
+			
+			if(Auth::user()->access()=='POINVPPN'||Auth::user()->access()=='CUSTINVPPN')
+				$this->PPNNONPPN = 1;
+			else if(Auth::user()->access()=='POINVNONPPN'||Auth::user()->access()=='CUSTINVNONPPN')
+				$this->PPNNONPPN = 0;
     return $next($request);
     });
 	}
@@ -42,20 +47,39 @@ class SJKirimController extends Controller
 				DB::raw('sum(isisjkirim.QTertanda) AS qttd')
 			])
 			->groupBy('isisjkirim.SJKir');
-		$sjkirim = SJKirim::select([
-			'qttd',
-			'sjkirim.*',
-			'project.Project',
-			'customer.Company',
-		])
-		->leftJoin('pocustomer', 'sjkirim.Reference', '=', 'pocustomer.Reference')
-		->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-		->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-		->leftJoin(DB::raw(sprintf( '(%s) AS T1', $sum->toSql() )), function($join){
-				$join->on('T1.SJKir', '=', 'sjkirim.SJKir');
-			})
-		->orderBy('sjkirim.id', 'asc')
-		->get();
+			
+		if(Auth::user()->access == 'Admin'){
+			$sjkirim = SJKirim::select([
+				'qttd',
+				'sjkirim.*',
+				'project.Project',
+				'customer.Company',
+			])
+			->leftJoin('pocustomer', 'sjkirim.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->leftJoin(DB::raw(sprintf( '(%s) AS T1', $sum->toSql() )), function($join){
+					$join->on('T1.SJKir', '=', 'sjkirim.SJKir');
+				})
+			->orderBy('sjkirim.id', 'asc')
+			->get();
+		}else{
+			$sjkirim = SJKirim::select([
+				'qttd',
+				'sjkirim.*',
+				'project.Project',
+				'customer.Company',
+			])
+			->leftJoin('pocustomer', 'sjkirim.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->leftJoin(DB::raw(sprintf( '(%s) AS T1', $sum->toSql() )), function($join){
+					$join->on('T1.SJKir', '=', 'sjkirim.SJKir');
+				})
+			->where('PPN', $this->PPNNONPPN)
+			->orderBy('sjkirim.id', 'asc')
+			->get();
+		}
 
 		if(in_array("index", $this->access)){
 			return view('pages.sjkirim.indexs')

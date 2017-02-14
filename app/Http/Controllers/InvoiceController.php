@@ -30,6 +30,11 @@ class InvoiceController extends Controller
 				$this->access = array("showsewa", "showsewapisah", "showjual", "showjualpisah", "showclaim", "index");
 			else
 				$this->access = array("");
+			
+			if(Auth::user()->access()=='POINVPPN'||Auth::user()->access()=='CUSTINVPPN')
+				$this->PPNNONPPN = 1;
+			else if(Auth::user()->access()=='POINVNONPPN'||Auth::user()->access()=='CUSTINVNONPPN')
+				$this->PPNNONPPN = 0;
     return $next($request);
     });
 	}
@@ -1487,103 +1492,217 @@ class InvoiceController extends Controller
 
     public function index()
     {
-    $invoices = Invoice::select([
-        'invoice.*',
-        'project.Project',
-        'customer.Company',
-      ])
-    ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
-    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('JSC', 'Sewa')
-		->where('pocustomer.INVP', 0)
-    ->whereExists(function($query)
-      {
-        $query->select('periode.Reference')
-        ->from('periode')
-        ->whereRaw('invoice.Reference = periode.Reference')
-        ->where('periode.Deletes', 'Sewa');
-      })
-    ->groupBy('invoice.Reference', 'invoice.Periode')
-    ->get();
+			
+		if(Auth::user()->access == 'Admin'){
+			$invoices = Invoice::select([
+					'invoice.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Sewa')
+			->where('pocustomer.INVP', 0)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference')
+					->from('periode')
+					->whereRaw('invoice.Reference = periode.Reference')
+					->where('periode.Deletes', 'Sewa');
+				})
+			->groupBy('invoice.Reference', 'invoice.Periode')
+			->get();
+		}else{
+			$invoices = Invoice::select([
+					'invoice.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Sewa')
+			->where('pocustomer.INVP', 0)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference')
+					->from('periode')
+					->whereRaw('invoice.Reference = periode.Reference')
+					->where('periode.Deletes', 'Sewa');
+				})
+			->where('pocustomer.PPN', $this->PPNNONPPN)
+			->groupBy('invoice.Reference', 'invoice.Periode')
+			->get();
+		}
 		
-		$invoicesp = InvoicePisah::select([
-        'invoicepisah.*',
-        'project.Project',
-        'customer.Company',
-      ])
-    ->leftJoin('transaksi', 'invoicepisah.Reference', '=', 'transaksi.Reference')
-		->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
-		->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
-    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('JSC', 'Sewa')
-		->where('pocustomer.INVP', 1)
-		->whereExists(function($query)
-      {
-        $query->select('periode.Reference', 'po.POCode')
-        ->from('periode')
-				->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
-				->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
-        ->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
-        ->where('periode.Deletes', 'Sewa');
-      })
-    ->groupBy('invoicepisah.Reference', 'invoicepisah.POCode', 'invoicepisah.Periode')
-    ->get();
+		if(Auth::user()->access == 'Admin'){
+			$invoicesp = InvoicePisah::select([
+					'invoicepisah.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('transaksi', 'invoicepisah.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Sewa')
+			->where('pocustomer.INVP', 1)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference', 'po.POCode')
+					->from('periode')
+					->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
+					->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+					->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
+					->where('periode.Deletes', 'Sewa');
+				})
+			->groupBy('invoicepisah.Reference', 'invoicepisah.POCode', 'invoicepisah.Periode')
+			->get();
+		}else{
+			$invoicesp = InvoicePisah::select([
+					'invoicepisah.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('transaksi', 'invoicepisah.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Sewa')
+			->where('pocustomer.INVP', 1)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference', 'po.POCode')
+					->from('periode')
+					->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
+					->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+					->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
+					->where('periode.Deletes', 'Sewa');
+				})
+			->where('pocustomer.PPN', $this->PPNNONPPN)
+			->groupBy('invoicepisah.Reference', 'invoicepisah.POCode', 'invoicepisah.Periode')
+			->get();
+		}
     
-    $invoicej = Invoice::select([
-        'invoice.*',
-        'project.Project',
-        'customer.Company',
-      ])
-    ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
-    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('JSC', 'Jual')
-		->where('pocustomer.INVP', 0)
-    ->whereExists(function($query)
-      {
-        $query->select('periode.Reference')
-        ->from('periode')
-        ->whereRaw('invoice.Reference = periode.Reference')
-        ->where('periode.Deletes', 'Jual');
-      })
-    ->groupBy('invoice.Reference', 'invoice.Periode')
-    ->get();
+		if(Auth::user()->access == 'Admin'){
+			$invoicej = Invoice::select([
+					'invoice.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Jual')
+			->where('pocustomer.INVP', 0)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference')
+					->from('periode')
+					->whereRaw('invoice.Reference = periode.Reference')
+					->where('periode.Deletes', 'Jual');
+				})
+			->groupBy('invoice.Reference', 'invoice.Periode')
+			->get();
+		}else{
+			$invoicej = Invoice::select([
+					'invoice.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Jual')
+			->where('pocustomer.INVP', 0)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference')
+					->from('periode')
+					->whereRaw('invoice.Reference = periode.Reference')
+					->where('periode.Deletes', 'Jual');
+				})
+			->where('pocustomer.PPN', $this->PPNNONPPN)
+			->groupBy('invoice.Reference', 'invoice.Periode')
+			->get();
+		}
 		
-		$invoicejp = InvoicePisah::select([
-        'invoicepisah.*',
-        'project.Project',
-        'customer.Company',
-      ])
-    ->leftJoin('pocustomer', 'invoicepisah.Reference', '=', 'pocustomer.Reference')
-    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('JSC', 'Jual')
-		->where('pocustomer.INVP', 1)
-    ->whereExists(function($query)
-      {
-        $query->select('periode.Reference')
-        ->from('periode')
-				->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
-				->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
-        ->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
-        ->where('periode.Deletes', 'Jual');
-      })
-    ->groupBy('invoicepisah.Reference', 'invoicepisah.Periode')
-    ->get();
+		if(Auth::user()->access == 'Admin'){
+			$invoicejp = InvoicePisah::select([
+					'invoicepisah.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('pocustomer', 'invoicepisah.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Jual')
+			->where('pocustomer.INVP', 1)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference')
+					->from('periode')
+					->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
+					->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+					->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
+					->where('periode.Deletes', 'Jual');
+				})
+			->groupBy('invoicepisah.Reference', 'invoicepisah.Periode')
+			->get();
+		}else{
+			$invoicejp = InvoicePisah::select([
+					'invoicepisah.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('pocustomer', 'invoicepisah.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Jual')
+			->where('pocustomer.INVP', 1)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference')
+					->from('periode')
+					->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
+					->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+					->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
+					->where('periode.Deletes', 'Jual');
+				})
+			->where('pocustomer.PPN', $this->PPNNONPPN)
+			->groupBy('invoicepisah.Reference', 'invoicepisah.Periode')
+			->get();
+		}
     
-    $invoicec = Invoice::select([
-        'invoice.*',
-        'project.Project',
-        'customer.Company',
-      ])
-    ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
-    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('JSC', 'Claim')
-    ->groupBy('invoice.Periode')
-    ->get();
+		if(Auth::user()->access == 'Admin'){
+			$invoicec = Invoice::select([
+				'invoice.*',
+				'project.Project',
+				'customer.Company',
+			])
+			->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Claim')
+			->groupBy('invoice.Periode')
+			->get();
+		}else{
+			$invoicec = Invoice::select([
+				'invoice.*',
+				'project.Project',
+				'customer.Company',
+			])
+			->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Claim')
+			->where('pocustomer.PPN', $this->PPNNONPPN)
+			->groupBy('invoice.Periode')
+			->get();
+		}
 
     if(in_array("index", $this->access)){
       return view('pages.invoice.indexs')

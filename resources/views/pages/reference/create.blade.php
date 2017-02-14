@@ -35,23 +35,14 @@
         </div>
         <div class="form-group">
         @if(Auth::user()->access == 'Admin')
-					<div class="col-md-7">
-            {!! Form::hidden('PPN', 0) !!}
-            {!! Form::checkbox('PPN', 1, null, ['id' => 'PPN', 'class' => 'minimal']) !!}
-            {!! Form::label('PPN', 'PPN 10%') !!}
-          </div>
-					<div class="col-md-5">
-						{!! Form::hidden('PPNT', 0) !!}
-						{!! Form::checkbox('PPNT', 1, null, ['id' => 'PPNT', 'class' => 'minimal']) !!}
-						{!! Form::label('PPNT', 'Transport included in PPN') !!}
-					</div>
+					{!! Form::hidden('PPNT', 0) !!}
+					{!! Form::checkbox('PPNT', 1, null, ['id' => 'PPNT', 'class' => 'minimal']) !!}
+					{!! Form::label('PPNT', 'Transport included in PPN') !!}
 				@elseif(Auth::user()->access == 'POINVPPN' || Auth::user()->access == 'CUSTINVPPN')
-					{!! Form::hidden('PPN', 1) !!}
 					{!! Form::hidden('PPNT', 0) !!}
           {!! Form::checkbox('PPNT', 1, null, ['id' => 'PPNT', 'class' => 'minimal']) !!}
           {!! Form::label('PPNT', 'Transport included in PPN') !!}
 				@elseif(Auth::user()->access == 'POINVNONPPN' || Auth::user()->access == 'CUSTINVNONPPN')
-					{!! Form::hidden('PPN', 0) !!}
 					{!! Form::hidden('PPNT', 0) !!}
         @endif
         </div>
@@ -250,17 +241,16 @@
 
 @section('script')
 <script>
-  $(function() {
-    $('#Tgl').datepicker({
-      format: "dd/mm/yyyy",
-      todayHighlight: true,
-      autoclose: true,
-      startDate: '-7d',
-      endDate: '+7d'
-    }); 
-  }); 
-</script>
-<script>
+$(function() {
+	$('#Tgl').datepicker({
+		format: "dd/mm/yyyy",
+		todayHighlight: true,
+		autoclose: true,
+		startDate: '-7d',
+		endDate: '+7d'
+	}); 
+});
+	
 //When create customer is clicked
 $("#customerproject").click(function(){
   //Toggle the modal

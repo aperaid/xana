@@ -34,20 +34,36 @@ class ReferenceController extends Controller
 				$this->access = array("index", "create", "show", "edit");
 			else
 				$this->access = array("");
+			
+			if(Auth::user()->access()=='POINVPPN'||Auth::user()->access()=='CUSTINVPPN')
+				$this->PPNNONPPN = 1;
+			else if(Auth::user()->access()=='POINVNONPPN'||Auth::user()->access()=='CUSTINVNONPPN')
+				$this->PPNNONPPN = 0;
     return $next($request);
     });
 	}
 	
 	public function index()
 	{
-		$reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id', 'po.Discount'])
-		->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-		->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-		->leftJoin('transaksi', 'pocustomer.Reference', '=', 'transaksi.Reference')
-		->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
-		->groupBy('pocustomer.Reference')
-		->get();
-
+		if(Auth::user()->access == 'Admin'){
+			$reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id', 'po.Discount'])
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->leftJoin('transaksi', 'pocustomer.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->groupBy('pocustomer.Reference')
+			->get();
+		}else{
+			$reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id', 'po.Discount'])
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->leftJoin('transaksi', 'pocustomer.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->where('PPN', $this->PPNNONPPN)
+			->groupBy('pocustomer.Reference')
+			->get();
+		}
+		
 		if(in_array("index", $this->access)){
 			return view('pages.reference.indexs')
 			->with('url', 'reference')
@@ -230,7 +246,16 @@ class ReferenceController extends Controller
 			}
 		}
 		
-		$pocheck = SJKirim::where('sjkirim.Reference', $detail -> Reference)
+		$delcheck = SJKirim::where('sjkirim.Reference', $detail -> Reference)
+		->count();
+		if($delcheck == 0){
+			$delcheck = 0;
+		}else{
+			$delcheck = 1;
+		}
+		
+		$pocheck = po::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
+		->where('transaksi.Reference', $detail -> Reference)
 		->count();
 		if($pocheck == 0){
 			$pocheck = 0;
@@ -375,6 +400,7 @@ class ReferenceController extends Controller
 			->with('purchases', $purchase)
 			->with('sjkircheck', $sjkircheck)
 			->with('sjkemcheck', $sjkemcheck)
+			->with('delcheck', $delcheck)
 			->with('pocheck', $pocheck)
 			->with('periodecheck', $periodecheck)
 			->with('pos', $po)

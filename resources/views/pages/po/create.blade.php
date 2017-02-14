@@ -202,11 +202,6 @@ $(document).ready(function(){
 	else if(parseInt($(this).val()) < 0)
 		$(this).val(0);
 	});
-	//iCheck
-	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
-		checkboxClass: 'icheckbox_flat-green',
-		increaseArea: '20%' // optional
-	});
 });
 
 function capital() {

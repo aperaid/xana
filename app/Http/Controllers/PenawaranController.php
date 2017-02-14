@@ -22,18 +22,33 @@ class PenawaranController extends Controller
 				$this->access = array("index", "create", "show", "edit");
 			else
 				$this->access = array("");
+		
+		if(Auth::user()->access()=='POINVPPN'||Auth::user()->access()=='CUSTINVPPN')
+				$this->PPNNONPPN = 1;
+			else if(Auth::user()->access()=='POINVNONPPN'||Auth::user()->access()=='CUSTINVNONPPN')
+				$this->PPNNONPPN = 0;
     return $next($request);
     });
 	}
 	
   public function index()
   {
-    $penawarans = Penawaran::select('penawaran.*', 'project.PCode')
-    ->leftJoin('project', 'penawaran.PCode', '=', 'project.PCode')
-    ->groupBy('penawaran.Penawaran')
-    ->orderBy('id', 'asc')
-    ->get();
-
+		if(Auth::user()->access == 'Admin'){
+			$penawarans = Penawaran::select('penawaran.*', 'project.PCode')
+			->leftJoin('project', 'penawaran.PCode', '=', 'project.PCode')
+			->groupBy('penawaran.Penawaran')
+			->orderBy('id', 'asc')
+			->get();
+		}else{
+			$penawarans = Penawaran::select('penawaran.*', 'project.PCode', 'customer.PPN')
+			->leftJoin('project', 'penawaran.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('PPN', $this->PPNNONPPN)
+			->groupBy('penawaran.Penawaran')
+			->orderBy('id', 'asc')
+			->get();
+		}
+		
     if(in_array("index", $this->access)){
       return view('pages.penawaran.indexs')
       ->with('url', 'penawaran')

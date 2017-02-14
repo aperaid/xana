@@ -19,7 +19,6 @@ class CreatePocustomerTable extends Migration
         $table->string('Tgl');
         $table->string('PCode');
         $table->integer('Transport')->default(0);
-				$table->integer('PPN')->default(0);
         $table->integer('PPNT')->default(0);
 				$table->integer('INVP')->default(0);
       });
