@@ -175,7 +175,6 @@ class ReferenceController extends Controller
 	{
 		$reference = Reference::find($request->editreferenceid);
 
-		$reference->PPN = $request->PPN;
 		$reference->PPNT = $request->PPNT;
 		$reference->INVP = $request->INVP;
 		$reference->save();
