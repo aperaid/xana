@@ -40,6 +40,22 @@
 					</tbody>
         </table>
 			</div>
+			<table id="datatables" class="table table-bordered table-striped table-responsive">
+        <thead>
+          <tr>
+            <th>No Polisi</th>
+            <th>Sopir</th>
+            <th>Kenek</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{!! Form::text('NoPolisi', $sjkembali->NoPolisi, array('id' => 'NoPolisi', 'class' => 'form-control', 'autocomplete' => 'off', 'onkeyup' => 'capital()')) !!}</td>
+            <td>{!! Form::text('Sopir', $sjkembali->Sopir, array('class' => 'form-control', 'autocomplete' => 'off')) !!}</td>
+            <td>{!! Form::text('Kenek', $sjkembali->Kenek, array('class' => 'form-control', 'autocomplete' => 'off')) !!}</td>
+          </tr>
+        </tbody>
+      </table>
       <div class="box-footer">
         {!! Form::label('Tgl2', 'Return Date') !!}
         <div class="input-group">

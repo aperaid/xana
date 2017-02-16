@@ -18,6 +18,9 @@ class CreateSjkembaliTable extends Migration
         $table->string('SJKem')->unique();
         $table->string('Tgl');
         $table->string('Reference');
+        $table->string('NoPolisi')->nullable();
+        $table->string('Sopir')->nullable();
+        $table->string('Kenek')->nullable();
       });
     }
 

@@ -100,11 +100,13 @@
       <a href="{{route('sjkirim.SJ', $sjkirim->sjkirid)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print SJ</a>
       @if($isisjkirim->QKirim!=$isisjkirim->QTertanda)
 				<a button type="button" class="btn btn-danger hilang">Barang Hilang</a>
-			@elseif(count($transaksihilang)!=0)
+			@elseif(count($transaksihilangs)!=0&&$qttdcheck == 0)
 				<a button type="button" class="btn btn-danger cancel">Cancel Barang Hilang</a>
+			@elseif(count($transaksihilangs)!=0)
+				<a button type="button" class="btn btn-danger view">Show Barang Hilang</a>
       @endif
       
-      <a href="{{route('sjkirim.qtertanda', $sjkirim->sjkirid)}}"><button type="button" @if ($qttdcheck > 0) class="btn btn-default pull-right" disabled @else class="btn btn-success pull-right" @endif >Q Tertanda</button></a>
+      <a href="{{route('sjkirim.qtertanda', $sjkirim->sjkirid)}}"><button type="button" @if ($qttdcheck > 0 || count($transaksihilangs)!=0) class="btn btn-default pull-right" disabled @else class="btn btn-success pull-right" @endif >Q Tertanda</button></a>
       <a href="{{route('sjkirim.edit', $sjkirim->sjkirid)}}"><button type="button" @if ($jumlah > 0) style="margin-right: 5px" class="btn btn-default pull-right" disabled @else style="margin-right: 5px" class="btn btn-primary pull-right" @endif >Edit Pengiriman</button></a>
       <button type="submit" class="btn btn-danger pull-right" style="margin-right: 5px;" @if($jumlah > 0) disabled @endif onclick="return confirm('Delete SJ Kirim?')">Delete</button>
     </div>
@@ -128,6 +130,7 @@
         <div class="modal-body">
           <label class="text-default" data-toggle="modal"><h4> Kronologi atau penyebab Barang Hilang</h4></label>
 					<div class="form-group">
+						<input type="hidden" id="sjtype" value='Kirim'>
 						<input type="hidden" id="hilangid" value={{$sjkirim->sjkirid}}>
 						<textarea class="form-control" id="hilangtext" rows="5" placeholder="Barang Hilang"></textarea>
 					</div>
@@ -161,9 +164,10 @@
           <h4 class="modal-title">Cancel Barang Hilang</h4>
         </div>
         <div class="modal-body">
-					@if(count($transaksihilang)!=0)
+					@if(count($transaksihilangs)!=0)
 						<table id="datatables" class="table table-striped">
-							<input type="hidden" id="sjkir" value={{$transaksihilang->first()->SJ}}>
+							<input type="hidden" id="sjtype" value='Kirim'>
+							<input type="hidden" id="sjkir" value={{$transaksihilangs->first()->SJ}}>
 							<thead>
 								<tr>
 									<th>Barang Hilang</th>
@@ -171,7 +175,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								@foreach($transaksihilang as $transaksihilang)
+								@foreach($transaksihilangs as $transaksihilang)
 								<tr>
 									<td>{{ $transaksihilang->Barang }}</td>
 									<td>{{ $transaksihilang->QHilang }}</td>
@@ -190,6 +194,40 @@
   </div>
 </div>
 
+<div class="modal fade" id="viewmodal">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title"> List Barang Hilang</h4>
+        </div>
+        <div class="modal-body">
+					@if(count($transaksihilangs)!=0)
+						<table id="datatable" class="table table-striped">
+							<thead>
+								<tr>
+									<th>Barang Hilang</th>
+									<th>Quantity Hilang</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach($transaksihilangs as $transaksihilang)
+								<tr>
+									<td>{{ $transaksihilang->Barang }}</td>
+									<td>{{ $transaksihilang->QHilang }}</td>
+								</tr>
+								@endforeach
+							</tbody>
+						</table>
+					@endif
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+  </div>
+</div>
 @stop
 
 @section('script')
@@ -209,7 +247,7 @@ $(".hilang").click(function(){
 //When hilang form is submitted
 $("#hilangform").submit(function(event){
   $(".loading").show();
-  $.post("../transaksi/hilang", { "_token": "{{ csrf_token() }}", id: $("#hilangid").val(), HilangText: $("#hilangtext").val(), Tgl: $("#Tgl").val() }, function(data){})
+  $.post("../transaksi/hilang", { "_token": "{{ csrf_token() }}", sjtype: $("#sjtype").val(), id: $("#hilangid").val(), HilangText: $("#hilangtext").val(), Tgl: $("#Tgl").val() }, function(data){})
   .done(function(data){
     location.reload();
     $('#hilangmodal').modal('toggle');
@@ -225,7 +263,7 @@ $(".cancel").click(function(){
 //When cancel form is submitted
 $("#cancelform").submit(function(event){
   $(".loading").show();
-  $.post("../transaksi/cancelhilang", { "_token": "{{ csrf_token() }}", SJKir: $("#sjkir").val() }, function(data){})
+  $.post("../transaksi/cancelhilang", { "_token": "{{ csrf_token() }}", sjtype: $("#sjtype").val(), SJKir: $("#sjkir").val() }, function(data){})
   .done(function(data){
     location.reload();
     $('#cancelmodal').modal('toggle');
@@ -233,6 +271,10 @@ $("#cancelform").submit(function(event){
   .fail(function(data){
     console.log('fail');
   });
+});
+//When view button is clicked
+$(".view").click(function(){
+	$('#viewmodal').modal('toggle');
 });
 </script>
 @stop

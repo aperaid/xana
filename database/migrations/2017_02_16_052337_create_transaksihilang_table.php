@@ -19,6 +19,7 @@ class CreateTransaksihilangTable extends Migration
         $table->integer('QHilang');
         $table->integer('Purchase');
         $table->integer('Periode');
+				$table->string('SJType');
         $table->string('SJ');
 				$table->text('HilangText')->nullable();
       });

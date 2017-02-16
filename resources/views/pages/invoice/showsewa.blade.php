@@ -82,7 +82,7 @@
                 <td>{{$SE[$key]}}</td>
                 <td>{{$Days2[$key]}}</td>
                 <td>{{$I[$key]}}</td>
-                <td>{{$periode->SumQTertanda}}</td>
+                <td>{{$periode->SumQuantity}}</td>
                 <td>{{$periode->Discount}}</td>
                 <td>Rp {{ number_format($periode->Amount-($periode->Amount*$periode->Discount/100), 2, ',', '.') }}</td>
                 <td>Rp {{ number_format($total2[$key], 2, ',', '.') }}</td>

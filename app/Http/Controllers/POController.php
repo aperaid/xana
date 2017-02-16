@@ -133,134 +133,138 @@ class POController extends Controller
   public function store(Request $request)
   {
     $reference = Reference::find(Input::get('id'));
-    
-    $is_exist = PO::where('POCode', $request->POCode)->first();
-    if(isset($is_exist->POCode)){
-      return redirect()->route('po.create', 'id=' .$reference->id)->with('error', 'Reference with POCode '.strtoupper($request->POCode).' is already exist!');
-    }else{
+		$forgettransaksi = $request->Purchase[0];
+		if($forgettransaksi==null){
+			return redirect()->route('po.create', 'id=' .$reference->id)->with('error', 'Please add item first!');
+		}else{
 			$maxperiode = Periode::where('reference', $request->Reference)
 			->max('Periode');
 			if(isset($maxperiode))
 				$periode = $maxperiode;
 			else
 				$periode = 1;
-      $po = PO::Create([
-        'id' => $request['poid'],
-        'POCode' => $request['POCode'],
-        'Tgl' => $request['Tgl'],
-        'Discount' => $request['Discount'],
-				'Periode' => $periode,
-        'Catatan' => $request['Catatan'],
-      ]);
-    }
+			$is_exist = PO::where('POCode', $request->POCode)->first();
+			if(isset($is_exist->POCode)){
+				return redirect()->route('po.create', 'id=' .$reference->id)->with('error', 'Reference with POCode '.strtoupper($request->POCode).' is already exist!');
+			}else{
+				$po = PO::Create([
+					'id' => $request['poid'],
+					'POCode' => $request['POCode'],
+					'Tgl' => $request['Tgl'],
+					'Discount' => $request['Discount'],
+					'Periode' => $periode,
+					'Catatan' => $request['Catatan'],
+				]);
+			}
 
-    $input = Input::all();
-    $transaksis = $input['transaksiid'];
-    foreach ($transaksis as $key => $transaksis)
-    {
-      $transaksis = new Transaksi;
-      $transaksis->id = $input['transaksiid'][$key];
-      $transaksis->Purchase = $input['Purchase'][$key];
-      $transaksis->JS = $input['JS'][$key];
-      $JSC[] = $input['JS'][$key];
-      $transaksis->Barang = $input['Barang'][$key];
-      $transaksis->Quantity = $input['Quantity'][$key];
-      $transaksis->QSisaKirInsert = $input['Quantity'][$key];
-      $transaksis->QSisaKir = $input['Quantity'][$key];
-      $transaksis->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
-      $transaksis->Reference = $input['Reference'];
-      $transaksis->POCode = $input['POCode'];
-      $transaksis->ICode = $input['ICode'][$key];
-      $transaksis->save();
-    }
-    
-    /*$invoiceold = Invoice::where('Reference', $input['Reference'])
-    ->first();
-    if(is_null($invoiceold)){
-      $invoice = $invoicenew->maxid+1;
-    }else{
-    if(count($JSC==2)){
-      if(is_null($invoiceold)){
-        $invoice = $invoicenew->maxid+1;
-      }if($invoiceold == $JSC[0]){
-        $invoice[] = [$invoiceold->id, $invoiceold->id+1];
-      }else{
-        $invoice = $invoiceold->id+1;
-      }
-      
-      }
-    }*/
-    
-    $projectcode = Reference::where('Reference', $request['Reference'])->first()->PCode;
-		$PPN = Customer::leftJoin('project', 'customer.CCode', '=', 'project.CCode')
-		->where('PCode', $projectcode)
-		->first()->PPN;
-    
-    $JSC = array_unique($JSC);
-    
-		$abjad = InvoicePisah::where('Reference', $reference->Reference)->max('Abjad');
-		if($abjad==0)
-			$x = 1;
-		else
-			$x = $abjad+1;
-		if($x==1)$y='';else if($x==2)$y='A';else if($x==3)$y='B';else if($x==4)$y='C';else if($x==5)$y='D';else if($x==6)$y='E';else if($x==7)$y='F';else if($x==8)$y='G';else if($x==9)$y='H';else if($x==10)$y='I';else if($x==11)$y='J';else if($x==12)$y='K';else if($x==13)$y='L';else if($x==14)$y='M';else if($x==15)$y='N';else if($x==16)$y='O';else if($x==17)$y='P';else if($x==18)$y='Q';else if($x==19)$y='R';else if($x==20)$y='S';else if($x==21)$y='T';else if($x==22)$y='U';else if($x==23)$y='V';else if($x==24)$y='W';else if($x==25)$y='X';else if($x==26)$y='Y';else if($x==27)$y='Z';
-    $invoices = $JSC;
-    foreach ($invoices as $key => $invoices)
-    {
-      $last_invoice = Invoice::max('id')+1;
-      
-      $invoices = new Invoice;//Invoice::updateOrCreate(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
-      $invoices->id = $last_invoice;
-      if($JSC[$key]=="Sewa"){
-        $invoices->Invoice = $projectcode."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
-      }else{
-        $invoices->Invoice = $projectcode."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
-      }
-      $invoices->JSC = $JSC[$key];
-      $invoices->Tgl = $request['Tgl'];
-      $invoices->Reference = $request['Reference'];
-      $invoices->Periode = 1;
-      $invoices->PPN = $PPN;
-      $invoices->Count = 1;
-      $invoices->save();
+			$input = Input::all();
+			$transaksis = $input['transaksiid'];
+			foreach ($transaksis as $key => $transaksis)
+			{
+				$transaksis = new Transaksi;
+				$transaksis->id = $input['transaksiid'][$key];
+				$transaksis->Purchase = $input['Purchase'][$key];
+				$transaksis->JS = $input['JS'][$key];
+				$JSC[] = $input['JS'][$key];
+				$transaksis->Barang = $input['Barang'][$key];
+				$transaksis->Quantity = $input['Quantity'][$key];
+				$transaksis->QSisaKirInsert = $input['Quantity'][$key];
+				$transaksis->QSisaKir = $input['Quantity'][$key];
+				$transaksis->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
+				$transaksis->Reference = $input['Reference'];
+				$transaksis->POCode = $input['POCode'];
+				$transaksis->ICode = $input['ICode'][$key];
+				$transaksis->save();
+			}
+			
+			/*$invoiceold = Invoice::where('Reference', $input['Reference'])
+			->first();
+			if(is_null($invoiceold)){
+				$invoice = $invoicenew->maxid+1;
+			}else{
+			if(count($JSC==2)){
+				if(is_null($invoiceold)){
+					$invoice = $invoicenew->maxid+1;
+				}if($invoiceold == $JSC[0]){
+					$invoice[] = [$invoiceold->id, $invoiceold->id+1];
+				}else{
+					$invoice = $invoiceold->id+1;
+				}
+				
+				}
+			}*/
+			
+			$projectcode = Reference::where('Reference', $request['Reference'])->first()->PCode;
+			$PPN = Customer::leftJoin('project', 'customer.CCode', '=', 'project.CCode')
+			->where('PCode', $projectcode)
+			->first()->PPN;
+			
+			$JSC = array_unique($JSC);
+			
+			$abjad = InvoicePisah::where('Reference', $reference->Reference)->max('Abjad');
+			if($abjad==0)
+				$x = 1;
+			else
+				$x = $abjad+1;
+			if($x==1)$y='';else if($x==2)$y='A';else if($x==3)$y='B';else if($x==4)$y='C';else if($x==5)$y='D';else if($x==6)$y='E';else if($x==7)$y='F';else if($x==8)$y='G';else if($x==9)$y='H';else if($x==10)$y='I';else if($x==11)$y='J';else if($x==12)$y='K';else if($x==13)$y='L';else if($x==14)$y='M';else if($x==15)$y='N';else if($x==16)$y='O';else if($x==17)$y='P';else if($x==18)$y='Q';else if($x==19)$y='R';else if($x==20)$y='S';else if($x==21)$y='T';else if($x==22)$y='U';else if($x==23)$y='V';else if($x==24)$y='W';else if($x==25)$y='X';else if($x==26)$y='Y';else if($x==27)$y='Z';
+			$invoices = $JSC;
+			foreach ($invoices as $key => $invoices)
+			{
+				$last_invoice = Invoice::max('id')+1;
+				
+				$invoices = new Invoice;//Invoice::updateOrCreate(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
+				$invoices->id = $last_invoice;
+				if($JSC[$key]=="Sewa"){
+					$invoices->Invoice = $projectcode."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+				}else{
+					$invoices->Invoice = $projectcode."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
+				}
+				$invoices->JSC = $JSC[$key];
+				$invoices->Tgl = $request['Tgl'];
+				$invoices->Reference = $request['Reference'];
+				$invoices->Periode = 1;
+				$invoices->PPN = $PPN;
+				$invoices->Count = 1;
+				$invoices->save();
 
-			$last_invoicepisah = InvoicePisah::max('id')+1;
-			$invoicepisah = new InvoicePisah;
-      $invoicepisah->id = $last_invoicepisah;
-      if($JSC[$key]=="Sewa"){
-        $invoicepisah->Invoice = $projectcode.$y."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
-      }else{
-        $invoicepisah->Invoice = $projectcode.$y."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
-      }
-      $invoicepisah->JSC = $JSC[$key];
-      $invoicepisah->Tgl = $request['Tgl'];
-      $invoicepisah->Reference = $request['Reference'];
-      $invoicepisah->Periode = 1;
-      $invoicepisah->PPN = $PPN;
-      $invoicepisah->Count = 1;
-			$invoicepisah->POCode = $request['POCode'];
-			$invoicepisah->Abjad = $x;
-      $invoicepisah->save();
-      
-      $duplicateRecords = Invoice::select([
-        DB::raw('MAX(id) AS maxid')
-      ])
-      ->selectRaw('count(`Reference`) as `occurences`')
-      ->where('Reference', $input['Reference'])
-      ->groupBy('JSC', 'Periode')
-      ->having('occurences', '>', 1)
-      ->pluck('maxid');
-      
-      Invoice::whereIn('id', $duplicateRecords)->delete();
-			DB::statement('ALTER TABLE invoice auto_increment = 1;');
-    }
-    
-    $history = new History;
-    $history->User = Auth::user()->name;
-    $history->History = 'Create PO on POCode '.$request['POCode'];
-    $history->save();
-    
-    return redirect()->route('reference.show', $reference->id);
+				$last_invoicepisah = InvoicePisah::max('id')+1;
+				$invoicepisah = new InvoicePisah;
+				$invoicepisah->id = $last_invoicepisah;
+				if($JSC[$key]=="Sewa"){
+					$invoicepisah->Invoice = $projectcode.$y."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+				}else{
+					$invoicepisah->Invoice = $projectcode.$y."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
+				}
+				$invoicepisah->JSC = $JSC[$key];
+				$invoicepisah->Tgl = $request['Tgl'];
+				$invoicepisah->Reference = $request['Reference'];
+				$invoicepisah->Periode = $periode;
+				$invoicepisah->PPN = $PPN;
+				$invoicepisah->Count = 1;
+				$invoicepisah->POCode = $request['POCode'];
+				$invoicepisah->Abjad = $x;
+				$invoicepisah->save();
+				
+				$duplicateRecords = Invoice::select([
+					DB::raw('MAX(id) AS maxid')
+				])
+				->selectRaw('count(`Reference`) as `occurences`')
+				->where('Reference', $input['Reference'])
+				->groupBy('JSC', 'Periode')
+				->having('occurences', '>', 1)
+				->pluck('maxid');
+				
+				Invoice::whereIn('id', $duplicateRecords)->delete();
+				DB::statement('ALTER TABLE invoice auto_increment = 1;');
+			}
+			
+			$history = new History;
+			$history->User = Auth::user()->name;
+			$history->History = 'Create PO on POCode '.$request['POCode'];
+			$history->save();
+			
+			return redirect()->route('reference.show', $reference->id);
+		}
   }
 
   public function show($id)

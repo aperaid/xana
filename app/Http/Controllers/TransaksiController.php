@@ -15,6 +15,8 @@ use App\TransaksiHilang;
 use App\Reference;
 use App\SJKirim;
 use App\IsiSJKirim;
+use App\SJKembali;
+use App\IsiSJKembali;
 use App\Transaksi;
 use App\History;
 use Session;
@@ -423,69 +425,129 @@ class TransaksiController extends Controller
 	
 	public function Hilang(Request $request)
 	{
-		$sjkirim = SJKirim::find($request->id);
+		if($request->sjtype=='Kirim'){
+			$SJ = SJKirim::find($request->id);
 		
-		$isisjkirims = IsiSJKirim::select('isisjkirim.*', 'po.Periode')
-		->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
-		->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
-		->where('SJKir', $sjkirim->SJKir)
-		->groupBy('isisjkirim.IsiSJKir')
-		->get();
-		
-		$id = $isisjkirims->pluck('id');
-		$QKirim = $isisjkirims->pluck('QKirim');
-		$QTertanda = $isisjkirims->pluck('QTertanda');
-		$Purchase = $isisjkirims->pluck('Purchase');
-		$Periode = $isisjkirims->first()->Periode;
-		
-		$last_transaksihilang = TransaksiHilang::max('id')+1;
-		
-		foreach($isisjkirims as $key => $transaksihilang){
-			$transaksihilang = new TransaksiHilang;
-			$transaksihilang->id = $last_transaksihilang+$key;
-			$transaksihilang->Tgl = $request->Tgl;
-			$transaksihilang->QHilang = $QKirim[$key]-$QTertanda[$key];
-			$transaksihilang->Purchase = $Purchase[$key];
-			$transaksihilang->Periode = $Periode;
-			$transaksihilang->SJ = $sjkirim->SJKir;
-			$transaksihilang->HilangText = $request->HilangText;
-			$transaksihilang->save();
+			$isisjkirims = IsiSJKirim::select('isisjkirim.*', 'po.Periode')
+			->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->where('SJKir', $SJ->SJKir)
+			->groupBy('isisjkirim.IsiSJKir')
+			->get();
 			
-			$isisjkirim = IsiSJKirim::where('id', $id[$key])
-			->first();
-			$isisjkirim->update(['QKirim' => $isisjkirim->QKirim - ($QKirim[$key]-$QTertanda[$key])]);
+			$id = $isisjkirims->pluck('id');
+			$QKirim = $isisjkirims->pluck('QKirim');
+			$QTertanda = $isisjkirims->pluck('QTertanda');
+			$Purchase = $isisjkirims->pluck('Purchase');
+			$Periode = $isisjkirims->first()->Periode;
 			
-			$transaksi = Transaksi::where('Purchase', $Purchase[$key])
-			->first();
-			$transaksi->update(['Quantity' => $transaksi->Quantity - ($QKirim[$key]-$QTertanda[$key]), 'QSisaKir' => $transaksi->QSisaKir - ($QKirim[$key]-$QTertanda[$key])]);
+			$last_transaksihilang = TransaksiHilang::max('id')+1;
+			
+			foreach($isisjkirims as $key => $transaksihilang){
+				$transaksihilang = new TransaksiHilang;
+				$transaksihilang->id = $last_transaksihilang+$key;
+				$transaksihilang->Tgl = $request->Tgl;
+				$transaksihilang->QHilang = $QKirim[$key]-$QTertanda[$key];
+				$transaksihilang->Purchase = $Purchase[$key];
+				$transaksihilang->Periode = $Periode;
+				$transaksihilang->SJType = 'Kirim';
+				$transaksihilang->SJ = $SJ->SJKir;
+				$transaksihilang->HilangText = $request->HilangText;
+				$transaksihilang->save();
+				
+				$isisjkirim = IsiSJKirim::where('id', $id[$key])
+				->first();
+				$isisjkirim->update(['QKirim' => $isisjkirim->QKirim - ($QKirim[$key]-$QTertanda[$key])]);
+				
+				$transaksi = Transaksi::where('Purchase', $Purchase[$key])
+				->first();
+				$transaksi->update(['Quantity' => $transaksi->Quantity - ($QKirim[$key]-$QTertanda[$key]), 'QSisaKir' => $transaksi->QSisaKir - ($QKirim[$key]-$QTertanda[$key])]);
+			}
+		}else if($request->sjtype=='Kembali'){
+			$SJ = SJKembali::find($request->id);
+		
+			$isisjkembalis = IsiSJKembali::select('IsiSJKembali.*')
+			->where('SJKem', $SJ->SJKem)
+			->get();
+			
+			$id = $isisjkembalis->pluck('id');
+			$QTertanda = $isisjkembalis->pluck('QTertanda');
+			$QTerima = $isisjkembalis->pluck('QTerima');
+			$Purchase = $isisjkembalis->pluck('Purchase');
+			$Periode = $isisjkembalis->first()->Periode;
+			
+			$last_transaksihilang = TransaksiHilang::max('id')+1;
+			
+			foreach($isisjkembalis as $key => $transaksihilang){
+				$transaksihilang = new TransaksiHilang;
+				$transaksihilang->id = $last_transaksihilang+$key;
+				$transaksihilang->Tgl = $request->Tgl;
+				$transaksihilang->QHilang = $QTertanda[$key]-$QTerima[$key];
+				$transaksihilang->Purchase = $Purchase[$key];
+				$transaksihilang->Periode = $Periode;
+				$transaksihilang->SJType = 'Kembali';
+				$transaksihilang->SJ = $SJ->SJKem;
+				$transaksihilang->HilangText = $request->HilangText;
+				$transaksihilang->save();
+				
+				$isisjkembali = IsiSJKembali::where('id', $id[$key])
+				->first();
+				$isisjkembali->update(['QTertanda' => $isisjkembali->QTertanda - ($QTertanda[$key]-$QTerima[$key])]);
+			}
 		}
 	}
 	
 	public function CancelHilang(Request $request)
 	{
-		$sjkirim = SJKirim::where('SJKir', $request->SJKir)->first();
-		
-		$transaksihilangs = TransaksiHilang::select('transaksihilang.*', 'isisjkirim.Purchase')
-		->leftJoin('isisjkirim', 'transaksihilang.SJ', '=', 'isisjkirim.SJKir')
-		->where('SJ', $sjkirim->SJKir)
-		->groupBy('transaksihilang.SJ')
-		->get();
-		
-		$id = $transaksihilangs->pluck('id');
-		$QHilang = $transaksihilangs->pluck('QHilang');
-		$Purchase = $transaksihilangs->pluck('Purchase');
-		
-		foreach($transaksihilangs as $key => $isisjkirim){
-			$isisjkirim = IsiSJKirim::where('id', $id[$key])
-			->first();
-			$isisjkirim->update(['QKirim' => $isisjkirim->QKirim + $QHilang[$key]]);
+		if($request->sjtype=='Kirim'){
+			$sjkirim = SJKirim::where('SJKir', $request->SJKir)->first();
 			
-			$transaksi = Transaksi::where('Purchase', $Purchase[$key])
-			->first();
-			$transaksi->update(['Quantity' => $transaksi->Quantity + $QHilang[$key], 'QSisaKir' => $transaksi->QSisaKir + $QHilang[$key]]);
+			$transaksihilangs = TransaksiHilang::select('transaksihilang.*', 'isisjkirim.Purchase')
+			->leftJoin('isisjkirim', 'transaksihilang.SJ', '=', 'isisjkirim.SJKir')
+			->where('SJ', $sjkirim->SJKir)
+			->where('SJType', 'Kembali')
+			->groupBy('transaksihilang.SJ')
+			->get();
+			
+			$id = $transaksihilangs->pluck('id');
+			$QHilang = $transaksihilangs->pluck('QHilang');
+			$Purchase = $transaksihilangs->pluck('Purchase');
+			
+			foreach($transaksihilangs as $key => $isisjkirim){
+				$isisjkirim = IsiSJKirim::where('id', $id[$key])
+				->first();
+				$isisjkirim->update(['QKirim' => $isisjkirim->QKirim + $QHilang[$key]]);
+				
+				$transaksi = Transaksi::where('Purchase', $Purchase[$key])
+				->first();
+				$transaksi->update(['Quantity' => $transaksi->Quantity + $QHilang[$key], 'QSisaKir' => $transaksi->QSisaKir + $QHilang[$key]]);
+			}
+			
+			TransaksiHilang::where('SJ', $sjkirim->SJKir)->where('SJType', 'Kirim')->delete();
+			DB::statement('ALTER TABLE transaksihilang auto_increment = 1;');
+		}else if($request->sjtype=='Kembali'){
+			$sjkembali = SJKembali::where('SJKem', $request->SJKem)->first();
+			
+			$transaksihilangs = TransaksiHilang::select('transaksihilang.*', 'isisjkembali.Purchase')
+			->leftJoin('isisjkembali', 'transaksihilang.SJ', '=', 'isisjkembali.SJKem')
+			->where('SJ', $sjkembali->SJKem)
+			->where('SJType', 'Kembali')
+			->groupBy('transaksihilang.SJ')
+			->get();
+			
+			$id = $transaksihilangs->pluck('id');
+			$QHilang = $transaksihilangs->pluck('QHilang');
+			$Purchase = $transaksihilangs->pluck('Purchase');
+			
+			foreach($transaksihilangs as $key => $isisjkembali){
+				$isisjkembali = IsiSJKembali::where('id', $id[$key])
+				->first();
+				$isisjkembali->update(['QTertanda' => $isisjkembali->QTertanda + $QHilang[$key]]);
+			}
+			
+			TransaksiHilang::where('SJ', $sjkembali->SJKem)->where('SJType', 'Kembali')->delete();
+			DB::statement('ALTER TABLE transaksihilang auto_increment = 1;');
 		}
-		
-		TransaksiHilang::where('SJ', $sjkirim->SJKir)->delete();
 	}
 	
 	public function getClaim($id)

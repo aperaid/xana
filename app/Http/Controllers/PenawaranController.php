@@ -95,33 +95,38 @@ class PenawaranController extends Controller
   public function store(Request $request)
   {
     $input = Input::all();
-    $penawarans = $input['penawaranid'];
-    $is_exist = Penawaran::where('Penawaran', $request->Penawaran)->first();
-    if(isset($is_exist->Penawaran)){
-      return redirect()->route('penawaran.create')->with('error', 'Penawaran with Penawaran Code '.$request->Penawaran.' is already exist!');
-    }else{
-      foreach ($penawarans as $key => $penawaran)
-      {
-        $penawaran = new Penawaran;
-        $penawaran->id = $input['penawaranid'][$key];
-        $penawaran->Penawaran = $input['Penawaran'];
-        $penawaran->Tgl = $input['Tgl'];
-        $penawaran->Barang = $input['Barang'][$key];
-        $penawaran->JS = $input['JS'][$key];
-        $penawaran->Quantity = $input['Quantity'][$key];
-        $penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
-        $penawaran->PCode = $input['PCode'];
-        $penawaran->ICode = $input['ICode'][$key];
-        $penawaran->save();
-      }
-    }
-    
-    $history = new History;
-    $history->User = Auth::user()->name;
-    $history->History = 'Create Penawaran on Penawaran '.$request['Penawaran'];
-    $history->save();
-    
-    return redirect()->route('penawaran.index');
+		$forgetpenawaran = $request->penawaranid[0];
+		if($forgetpenawaran==null){
+			return redirect()->route('penawaran.create')->with('error', 'Please add item first!');
+		}else{
+			$penawarans = $input['penawaranid'];
+			$is_exist = Penawaran::where('Penawaran', $request->Penawaran)->first();
+			if(isset($is_exist->Penawaran)){
+				return redirect()->route('penawaran.create')->with('error', 'Penawaran with Penawaran Code '.$request->Penawaran.' is already exist!');
+			}else{
+				foreach ($penawarans as $key => $penawaran)
+				{
+					$penawaran = new Penawaran;
+					$penawaran->id = $input['penawaranid'][$key];
+					$penawaran->Penawaran = $input['Penawaran'];
+					$penawaran->Tgl = $input['Tgl'];
+					$penawaran->Barang = $input['Barang'][$key];
+					$penawaran->JS = $input['JS'][$key];
+					$penawaran->Quantity = $input['Quantity'][$key];
+					$penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
+					$penawaran->PCode = $input['PCode'];
+					$penawaran->ICode = $input['ICode'][$key];
+					$penawaran->save();
+				}
+			}
+			
+			$history = new History;
+			$history->User = Auth::user()->name;
+			$history->History = 'Create Penawaran on Penawaran '.$request['Penawaran'];
+			$history->save();
+			
+			return redirect()->route('penawaran.index');
+		}
   }
 
   public function show($id)

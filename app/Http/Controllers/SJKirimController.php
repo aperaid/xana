@@ -214,7 +214,8 @@ class SJKirimController extends Controller
 		
 		$maxisisjkir = IsiSJKirim::max('IsiSJKir');
 
-		$ECont = Periode::whereIn('Purchase', $Purchase)
+		$ECont = Periode::where('Reference', $Reference)
+		//->whereIn('Purchase', $Purchase)
 		//->whereRaw('(SELECT MAX(Periode) FROM periode WHERE Reference = ?)', $Reference)
 		->where('Periode', $maxperiode)
 		->first();
@@ -223,12 +224,12 @@ class SJKirimController extends Controller
 		$end2 = strtotime("-1 day +1 month", strtotime($end));
 		$end3 = date("d/m/Y", $end2);
 		
-		if(isset($ECont)){
-			$tglE = $ECont->E;
-			$periode = $ECont->Periode;
-		}else{
+		if(count($ECont)==0){
 			$tglE = $end3;
 			$periode = 1;
+		}else{
+			$tglE = $ECont->E;
+			$periode = $ECont->Periode;
 		}
 		
 		if(in_array("create3", $this->access)){
@@ -291,7 +292,6 @@ class SJKirimController extends Controller
 			$periodes->Periode = $input['Periode'];
 			$periodes->S = $Tgl;
 			$periodes->E = $input['tglE'];
-			$periodes->Quantity = $input['QKirim'][$key];
 			$periodes->IsiSJKir = $input['IsiSJKir'][$key];
 			$periodes->Reference = $Reference;
 			$periodes->Purchase = $input['Purchase'][$key];
@@ -395,9 +395,10 @@ class SJKirimController extends Controller
 			$qttdcheck = 1;
 		}
 		
-		$transaksihilang = TransaksiHilang::select('transaksihilang.*', 'transaksi.Barang')
+		$transaksihilangs = TransaksiHilang::select('transaksihilang.*', 'transaksi.Barang')
 		->leftJoin('transaksi', 'transaksihilang.Purchase', '=', 'transaksi.Purchase')
 		->where('SJ', $sjkirim->SJKir)
+		->where('SJType', 'Kirim')
 		->get();
 		
 		if(in_array("show", $this->access)){
@@ -408,7 +409,7 @@ class SJKirimController extends Controller
 			->with('isisjkirims', $isisjkirims)
 			->with('jumlah', $jumlah)
 			->with('qttdcheck', $qttdcheck)
-			->with('transaksihilang', $transaksihilang)
+			->with('transaksihilangs', $transaksihilangs)
 			->with('top_menu_sel', 'menu_sjkirim')
 			->with('page_title', 'Surat Jalan Kirim')
 			->with('page_description', 'View');
@@ -525,7 +526,6 @@ class SJKirimController extends Controller
 		foreach ($periodes as $key => $periode)
 		{
 			$periode = Periode::find($periodes[$key]);
-			$periode->Quantity = $input['QKirim'][$key];
 			$periode->S = $input['Tgl'];
 			$periode->save();
 		}
@@ -654,6 +654,7 @@ class SJKirimController extends Controller
 		foreach ($periodes as $key => $periode)
 		{
 			$periode = Periode::find($periodes[$key]);
+			$periode->Quantity = $input['QTertanda'][$key];
 			$periode->S = $input['Tgl'];
 			$periode->E = $TglMax4;
 			$periode->save();

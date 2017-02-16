@@ -46,7 +46,6 @@
           </tbody>
         </table>
       </div>
-      <!-- box-body -->
       <table id="datatables" class="table table-bordered table-striped table-responsive">
         <thead>
           <tr>

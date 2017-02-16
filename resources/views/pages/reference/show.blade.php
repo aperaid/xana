@@ -52,6 +52,7 @@
 										<strong>{{ $detail -> Project }}</strong><br>
 										{{ $detail -> ProjAlamat }}<br>
 										{{ $detail -> ProjKota }},  {{ $detail -> ProjZip }}<br>
+										Sales: {{ $detail -> Sales }}
 									</address>
 								</div>
 								<div class="col-sm-4">

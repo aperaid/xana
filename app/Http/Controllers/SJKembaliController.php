@@ -12,6 +12,7 @@ use App\Periode;
 use App\Reference;
 use App\IsiSJKirim;
 use App\Transaksi;
+use App\TransaksiHilang;
 use App\History;
 use App\Inventory;
 use App\Invoice;
@@ -294,6 +295,9 @@ class SJKembaliController extends Controller
 			'SJKem' => $SJKem,
 			'Tgl' => $Tgl,
 			'Reference' => $Reference,
+			'NoPolisi' => $request['NoPolisi'],
+			'Sopir' => $request['Sopir'],
+			'Kenek' => $request['Kenek'],
 		]);
 		
 		$maxid = Periode::select([
@@ -468,6 +472,12 @@ class SJKembaliController extends Controller
 			$periodecheck = 1;
 		}
 		
+		$transaksihilang = TransaksiHilang::select('transaksihilang.*', 'transaksi.Barang')
+		->leftJoin('transaksi', 'transaksihilang.Purchase', '=', 'transaksi.Purchase')
+		->where('SJ', $sjkembali->SJKem)
+		->where('SJType', 'Kembali')
+		->get();
+		
 		if(in_array("show", $this->access)){
 			return view('pages.sjkembali.show')
 			->with('url', 'sjkembali')
@@ -476,6 +486,7 @@ class SJKembaliController extends Controller
 			->with('isisjkembalis', $isisjkembalis)
 			->with('qtrimacheck', $qtrimacheck)
 			->with('periodecheck', $periodecheck)
+			->with('transaksihilang', $transaksihilang)
 			->with('top_menu_sel', 'menu_sjkembali')
 			->with('page_title', 'Surat Jalan Kembali')
 			->with('page_description', 'View');
@@ -597,8 +608,12 @@ class SJKembaliController extends Controller
 			$data->update(['Quantity' => $qtertanda2[$key], 'E' => $request->Tgl2]);
 		}
 		
-		SJKembali::where('sjkembali.id', $id)
-		->update(['sjkembali.Tgl' => $input['Tgl2']]);
+		$sjkembali = SJKembali::find($id);
+		$sjkembali->Tgl = $request['Tgl2'];
+		$sjkembali->NoPolisi = $request['NoPolisi'];
+		$sjkembali->Sopir = $request['Sopir'];
+		$sjkembali->Kenek = $request['Kenek'];
+		$sjkembali->save();
 
 		$history = new History;
 		$history->User = Auth::user()->name;

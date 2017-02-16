@@ -38,6 +38,22 @@
           </tbody>
         </table>
       </div>
+			<table id="datatables" class="table table-bordered table-striped table-responsive">
+        <thead>
+          <tr>
+            <th>No Polisi</th>
+            <th>Sopir</th>
+            <th>Kenek</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{!! Form::text('NoPolisi', null, array('id' => 'NoPolisi', 'class' => 'form-control', 'autocomplete' => 'off', 'onkeyup' => 'capital()')) !!}</td>
+            <td>{!! Form::text('Sopir', null, array('class' => 'form-control', 'autocomplete' => 'off')) !!}</td>
+            <td>{!! Form::text('Kenek', null, array('class' => 'form-control', 'autocomplete' => 'off')) !!}</td>
+          </tr>
+        </tbody>
+      </table>
       <div class="box-footer">
         {!! Form::submit('Insert',  array('class' => 'btn btn-success pull-right')) !!}
         <a href="{{route('sjkembali.create', 'id='.$id)}}"><button type="button" class="btn btn-default">Cancel</button></a>

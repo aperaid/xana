@@ -18,7 +18,7 @@ class CreatePeriodeTable extends Migration
         $table->integer('Periode');
         $table->string('S');
         $table->string('E');
-        $table->integer('Quantity');
+        $table->integer('Quantity')->default(0);
         $table->integer('IsiSJKir');
         $table->string('SJKem')->nullable();
         $table->string('Reference');
