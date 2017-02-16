@@ -11,7 +11,9 @@ use App\Periode;
 use App\Invoice;
 use App\InvoicePisah;
 use App\TransaksiClaim;
+use App\TransaksiHilang;
 use App\Reference;
+use App\SJKirim;
 use App\IsiSJKirim;
 use App\Transaksi;
 use App\History;
@@ -417,6 +419,73 @@ class TransaksiController extends Controller
 		Session::flash('message', 'Delete extend transaksi is successful!');
 
 		return redirect()->route('transaksi.index');
+	}
+	
+	public function Hilang(Request $request)
+	{
+		$sjkirim = SJKirim::find($request->id);
+		
+		$isisjkirims = IsiSJKirim::select('isisjkirim.*', 'po.Periode')
+		->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+		->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+		->where('SJKir', $sjkirim->SJKir)
+		->groupBy('isisjkirim.IsiSJKir')
+		->get();
+		
+		$id = $isisjkirims->pluck('id');
+		$QKirim = $isisjkirims->pluck('QKirim');
+		$QTertanda = $isisjkirims->pluck('QTertanda');
+		$Purchase = $isisjkirims->pluck('Purchase');
+		$Periode = $isisjkirims->first()->Periode;
+		
+		$last_transaksihilang = TransaksiHilang::max('id')+1;
+		
+		foreach($isisjkirims as $key => $transaksihilang){
+			$transaksihilang = new TransaksiHilang;
+			$transaksihilang->id = $last_transaksihilang+$key;
+			$transaksihilang->Tgl = $request->Tgl;
+			$transaksihilang->QHilang = $QKirim[$key]-$QTertanda[$key];
+			$transaksihilang->Purchase = $Purchase[$key];
+			$transaksihilang->Periode = $Periode;
+			$transaksihilang->SJ = $sjkirim->SJKir;
+			$transaksihilang->HilangText = $request->HilangText;
+			$transaksihilang->save();
+			
+			$isisjkirim = IsiSJKirim::where('id', $id[$key])
+			->first();
+			$isisjkirim->update(['QKirim' => $isisjkirim->QKirim - ($QKirim[$key]-$QTertanda[$key])]);
+			
+			$transaksi = Transaksi::where('Purchase', $Purchase[$key])
+			->first();
+			$transaksi->update(['Quantity' => $transaksi->Quantity - ($QKirim[$key]-$QTertanda[$key]), 'QSisaKir' => $transaksi->QSisaKir - ($QKirim[$key]-$QTertanda[$key])]);
+		}
+	}
+	
+	public function CancelHilang(Request $request)
+	{
+		$sjkirim = SJKirim::where('SJKir', $request->SJKir)->first();
+		
+		$transaksihilangs = TransaksiHilang::select('transaksihilang.*', 'isisjkirim.Purchase')
+		->leftJoin('isisjkirim', 'transaksihilang.SJ', '=', 'isisjkirim.SJKir')
+		->where('SJ', $sjkirim->SJKir)
+		->groupBy('transaksihilang.SJ')
+		->get();
+		
+		$id = $transaksihilangs->pluck('id');
+		$QHilang = $transaksihilangs->pluck('QHilang');
+		$Purchase = $transaksihilangs->pluck('Purchase');
+		
+		foreach($transaksihilangs as $key => $isisjkirim){
+			$isisjkirim = IsiSJKirim::where('id', $id[$key])
+			->first();
+			$isisjkirim->update(['QKirim' => $isisjkirim->QKirim + $QHilang[$key]]);
+			
+			$transaksi = Transaksi::where('Purchase', $Purchase[$key])
+			->first();
+			$transaksi->update(['Quantity' => $transaksi->Quantity + $QHilang[$key], 'QSisaKir' => $transaksi->QSisaKir + $QHilang[$key]]);
+		}
+		
+		TransaksiHilang::where('SJ', $sjkirim->SJKir)->delete();
 	}
 	
 	public function getClaim($id)

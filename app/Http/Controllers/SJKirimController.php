@@ -12,6 +12,7 @@ use App\SJKirim;
 use App\IsiSJKirim;
 use App\Reference;
 use App\Transaksi;
+use App\TransaksiHilang;
 use App\History;
 use App\Invoice;
 use App\InvoicePisah;
@@ -394,6 +395,11 @@ class SJKirimController extends Controller
 			$qttdcheck = 1;
 		}
 		
+		$transaksihilang = TransaksiHilang::select('transaksihilang.*', 'transaksi.Barang')
+		->leftJoin('transaksi', 'transaksihilang.Purchase', '=', 'transaksi.Purchase')
+		->where('SJ', $sjkirim->SJKir)
+		->get();
+		
 		if(in_array("show", $this->access)){
 			return view('pages.sjkirim.show')
 			->with('url', 'sjkirim')
@@ -402,6 +408,7 @@ class SJKirimController extends Controller
 			->with('isisjkirims', $isisjkirims)
 			->with('jumlah', $jumlah)
 			->with('qttdcheck', $qttdcheck)
+			->with('transaksihilang', $transaksihilang)
 			->with('top_menu_sel', 'menu_sjkirim')
 			->with('page_title', 'Surat Jalan Kirim')
 			->with('page_description', 'View');

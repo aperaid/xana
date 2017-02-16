@@ -38,6 +38,8 @@ Route::group(['middleware' => 'auth'], function () {
 
   Route::post('transaksi/extend', ['as' => 'transaksi.extend', 'uses' => 'TransaksiController@Extend']);
 	Route::post('transaksi/extenddelete', ['as' => 'transaksi.extenddelete', 'uses' => 'TransaksiController@ExtendDelete']);
+	Route::post('transaksi/hilang', ['as' => 'transaksi.hilang', 'uses' => 'TransaksiController@Hilang']);
+	Route::post('transaksi/cancelhilang', ['as' => 'transaksi.cancelhilang', 'uses' => 'TransaksiController@CancelHilang']);
   Route::get('transaksi/claimcreate/{id}', ['as' => 'transaksi.claimcreate', 'uses' => 'TransaksiController@getClaim']);
   Route::post('transaksi/claimcreate2/{id}', ['as' => 'transaksi.claimcreate2', 'uses' => 'TransaksiController@getClaim2']);
   Route::post('transaksi/claimcreate3/{id}', ['as' => 'transaksi.claimcreate3', 'uses' => 'TransaksiController@getClaim3']);

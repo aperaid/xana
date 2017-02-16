@@ -6,7 +6,7 @@
 @section('content')
 {!! Form::open([
   'method' => 'delete',
-  'route' => ['sjkirim.destroy', $sjkirim->id]
+  'route' => ['sjkirim.destroy', $sjkirim->sjkirid]
 ]) !!}
 <section class="invoice">
   <div class="row">
@@ -99,11 +99,13 @@
       <a href="{{route('sjkirim.index')}}"><button type="button" class="btn btn-default">Back</button></a>
       <a href="{{route('sjkirim.SJ', $sjkirim->sjkirid)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print SJ</a>
       @if($isisjkirim->QKirim!=$isisjkirim->QTertanda)
-      <a href="{{route('sjkirim.baranghilang', $sjkirim->sjkirid)}}" button type="button" class="btn btn-danger">Barang Hilang</a>
+				<a button type="button" class="btn btn-danger hilang">Barang Hilang</a>
+			@elseif(count($transaksihilang)!=0)
+				<a button type="button" class="btn btn-danger cancel">Cancel Barang Hilang</a>
       @endif
       
-      <a href="{{route('sjkirim.qtertanda', $sjkirim->id)}}"><button type="button" @if ($qttdcheck > 0) class="btn btn-default pull-right" disabled @else class="btn btn-success pull-right" @endif >Q Tertanda</button></a>
-      <a href="{{route('sjkirim.edit', $sjkirim->id)}}"><button type="button" @if ($jumlah > 0) style="margin-right: 5px" class="btn btn-default pull-right" disabled @else style="margin-right: 5px" class="btn btn-primary pull-right" @endif >Edit Pengiriman</button></a>
+      <a href="{{route('sjkirim.qtertanda', $sjkirim->sjkirid)}}"><button type="button" @if ($qttdcheck > 0) class="btn btn-default pull-right" disabled @else class="btn btn-success pull-right" @endif >Q Tertanda</button></a>
+      <a href="{{route('sjkirim.edit', $sjkirim->sjkirid)}}"><button type="button" @if ($jumlah > 0) style="margin-right: 5px" class="btn btn-default pull-right" disabled @else style="margin-right: 5px" class="btn btn-primary pull-right" @endif >Edit Pengiriman</button></a>
       <button type="submit" class="btn btn-danger pull-right" style="margin-right: 5px;" @if($jumlah > 0) disabled @endif onclick="return confirm('Delete SJ Kirim?')">Delete</button>
     </div>
     <!-- box footer -->
@@ -112,4 +114,125 @@
 </section>
 <!-- invoice -->
 {!! Form::close() !!}
+
+<div class="modal fade" id="hilangmodal">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <!-- form start -->
+      <form id="hilangform" name="hilangform">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Barang Hilang</h4>
+        </div>
+        <div class="modal-body">
+          <label class="text-default" data-toggle="modal"><h4> Kronologi atau penyebab Barang Hilang</h4></label>
+					<div class="form-group">
+						<input type="hidden" id="hilangid" value={{$sjkirim->sjkirid}}>
+						<textarea class="form-control" id="hilangtext" rows="5" placeholder="Barang Hilang"></textarea>
+					</div>
+					<div class="form-group">
+						{!! Form::label('Tgl', 'Lost Date') !!}
+						<div class="input-group">
+							<div class="input-group-addon">
+								<i class="fa fa-calendar"></i>
+							</div>
+							{!! Form::text('Tgl', null, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '31/12/2000', 'required')) !!}
+						</div>
+					</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger pull-right">Hilang</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="cancelmodal">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <!-- form start -->
+      <form id="cancelform" name="cancelform">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Cancel Barang Hilang</h4>
+        </div>
+        <div class="modal-body">
+					@if(count($transaksihilang)!=0)
+						<table id="datatables" class="table table-striped">
+							<input type="hidden" id="sjkir" value={{$transaksihilang->first()->SJ}}>
+							<thead>
+								<tr>
+									<th>Barang Hilang</th>
+									<th>Quantity Hilang</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach($transaksihilang as $transaksihilang)
+								<tr>
+									<td>{{ $transaksihilang->Barang }}</td>
+									<td>{{ $transaksihilang->QHilang }}</td>
+								</tr>
+								@endforeach
+							</tbody>
+						</table>
+					@endif
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger pull-right">Cancel Hilang</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@stop
+
+@section('script')
+<script>
+$(function() {
+  $('#Tgl').datepicker({
+	  format: "dd/mm/yyyy",
+	  todayHighlight: true,
+	  autoclose: true,
+	  startDate: '{{$sjkirim->Tgl}}',
+  }); 
+});
+//When hilang button is clicked
+$(".hilang").click(function(){
+	$('#hilangmodal').modal('toggle');
+});
+//When hilang form is submitted
+$("#hilangform").submit(function(event){
+  $(".loading").show();
+  $.post("../transaksi/hilang", { "_token": "{{ csrf_token() }}", id: $("#hilangid").val(), HilangText: $("#hilangtext").val(), Tgl: $("#Tgl").val() }, function(data){})
+  .done(function(data){
+    location.reload();
+    $('#hilangmodal').modal('toggle');
+  })
+  .fail(function(data){
+    console.log('fail');
+  });
+});
+//When cancel button is clicked
+$(".cancel").click(function(){
+	$('#cancelmodal').modal('toggle');
+});
+//When cancel form is submitted
+$("#cancelform").submit(function(event){
+  $(".loading").show();
+  $.post("../transaksi/cancelhilang", { "_token": "{{ csrf_token() }}", SJKir: $("#sjkir").val() }, function(data){})
+  .done(function(data){
+    location.reload();
+    $('#cancelmodal').modal('toggle');
+  })
+  .fail(function(data){
+    console.log('fail');
+  });
+});
+</script>
 @stop
