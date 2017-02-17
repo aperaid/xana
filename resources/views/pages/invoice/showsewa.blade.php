@@ -71,6 +71,7 @@
             </thead>
             <tbody>
               {!! Form::hidden('Invoice', $invoice->Invoice) !!}
+							{!! Form::hidden('InvType', 'Invoice') !!}
               @foreach($periodes as $key => $periode)
               <tr>
                 {!! Form::hidden('POCode', $periode->POCode) !!}
@@ -90,6 +91,7 @@
               @endforeach
             </tbody>
           </table>
+					<hr>
           <!-- Total & Transport & Pajak Input -->
           <div class="form-group">
 						{!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
@@ -98,7 +100,7 @@
             </div>
             {!! Form::label('Transport', 'Transport', ['class' => "col-sm-1 control-label"]) !!}
             <div class="col-sm-2">
-							{!! Form::text('Transport', 'Rp '.$Transport, array('class' => 'form-control', 'readonly')) !!}
+							{!! Form::text('Transport', 'Rp '.$Transport, ['class' => 'form-control', 'readonly']) !!}
             </div>
 						{!! Form::label('Pajak', 'Pajak', ['class' => "col-sm-1 control-label"]) !!}
             <div class="col-sm-2">
@@ -201,7 +203,7 @@
             <!-- Print Button -->
             <a href="{{route('invoice.BA', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Berita Acara</a>
             <a href="{{route('invoice.Invs', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
-            @if($invoice->PPNT==0 && $invoice->Times!=0 && $invoice->TimesKembali!=0)
+            @if($invoice->PPNT==0 && ($invoice->Times!=0 || $invoice->TimesKembali!=0))
               <a href="{{route('invoice.Invst', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Transport Invoice</a>
             @endif
             <!-- Submit Button -->

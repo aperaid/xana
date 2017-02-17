@@ -179,24 +179,6 @@ class ReferenceController extends Controller
 		$reference->INVP = $request->INVP;
 		$reference->save();
 		
-		$invoices = Invoice::where('Reference', $reference->Reference)
-		->get();
-
-		foreach ($invoices as $invoice){
-			$invoice = Invoice::find($invoice->id);
-			$invoice->PPN = $request->PPN;
-			$invoice->save();
-		}
-		
-		$invoicepisahs = InvoicePisah::where('Reference', $reference->Reference)
-		->get();
-		
-		foreach ($invoicepisahs as $invoicepisah){
-			$invoicepisah = InvoicePisah::find($invoicepisah->id);
-			$invoicepisah->PPN = $request->PPN;
-			$invoicepisah->save();
-		}
-		
 		$request->session()->flash('message', 'Edit Success');
 	}
 

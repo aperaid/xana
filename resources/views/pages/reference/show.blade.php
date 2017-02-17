@@ -165,7 +165,7 @@
 									<a href="{{route('sjkirim.create', 'id='.$detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $sjkircheck == 0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right" @endif>SJ Kirim</button></a>
 									<a href="{{route('sjkembali.create', 'id='.$detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right" @endif>SJ Kembali</button></a>
 									<a href="{{route('transaksi.claimcreate', $detail->pocusid)}}">	<button type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif>Claim</button></a>
-									<button type="button" class="btn btn-info pull-right" id="editinv" data-toggle="modal"> Edit Invoice</button>
+									<button type="button" id="editinv" style="margin-right: 5px;" @if ( $detail->PPN == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif> Edit Invoice</button>
 									<a href="{{route('reference.edit', $detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right" @endif>Edit</button></a>
 									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert PO</button></a>
                   <a href="{{route('po.create2', $detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert Penawaran PO</button></a>
@@ -393,19 +393,22 @@
           <div class="form-group">
             {!! Form::label('PPNT', 'PPN Transport', ['class' => 'col-lg-3']) !!}
 						<div class="input-group">
-              @if(Auth::user()->access == 'Admin' || Auth::user()->access == 'POINVPPN' || Auth::user()->access == 'CUSTINVPPN')
+              @if($detail->PPN == 1 && (Auth::user()->access == 'Admin' || Auth::user()->access == 'POINVPPN' || Auth::user()->access == 'CUSTINVPPN'))
 								{!! Form::checkbox('PPNT', 1, $detail->PPNT, ['id' => 'PPNT', 'class' => 'minimal']) !!}
-								{!! Form::label('PPNT', 'Transport included in PPN') !!}
 							@else
 								{!! Form::checkbox('PPNT', 1, null, ['id' => 'PPNT', 'class' => 'minimal', 'disabled']) !!}
-								{!! Form::label('PPNT', 'Transport included in PPN') !!}
 							@endif
+							{!! Form::label('PPNT', 'Transport included in PPN') !!}
 						</div>
           </div>
           <div class="form-group">
             {!! Form::label('INVP', 'Split Invoice', ['class' => 'col-lg-3']) !!}
 						<div class="input-group">
-							{!! Form::checkbox('INVP', 1, $detail->INVP, ['id' => 'INVP', 'class' => 'minimal']) !!}
+							@if($detail->PPN == 1 && (Auth::user()->access == 'Admin' || Auth::user()->access == 'POINVPPN' || Auth::user()->access == 'CUSTINVPPN'))
+								{!! Form::checkbox('INVP', 1, $detail->INVP, ['id' => 'INVP', 'class' => 'minimal']) !!}
+							@else
+								{!! Form::checkbox('INVP', 1, null, ['id' => 'INVP', 'class' => 'minimal', 'disabled']) !!}
+							@endif
 							{!! Form::label('INVP', 'Split Invoice based on PO') !!}
 						</div>
           </div>

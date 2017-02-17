@@ -68,7 +68,7 @@
                 {!! Form::hidden('POCode', $transaksi->POCode) !!}
                 <td>{{$transaksi->SJKir}}</td>
                 <td>{{$transaksi->Barang}}</td>
-                <td>{{$transaksi->QKirim}}</td>
+                <td>{{$transaksi->QTertanda}}</td>
                 <td>{{$transaksi->Discount}}</td>
                 <td>Rp {{ number_format($transaksi->Amount-$transaksi->Amount*$transaksi->Discount/100, 2, ',', '.') }}</td>
                 <td>Rp {{ number_format($total2[$key], 2,',','.') }}</td>
@@ -76,6 +76,7 @@
               @endforeach
             </tbody>
           </table>
+					<hr>
           <!-- Total & Transport & Pajak Input -->
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
@@ -170,7 +171,7 @@
             <!-- Back Button -->
             <a href="{{route('invoice.index')}}"><button type="button" class="btn btn-default">Back</button></a>
             <a href="{{route('invoice.Invj', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
-            @if($invoice->PPNT==0 && $invoice->Times!=0)
+            @if($invoice->PPNT==0 && ($invoice->Times!=0 || $invoice->TimesKembali!=0))
               <a href="{{route('invoice.Invjt', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Transport Invoice</a>
             @endif
             <!-- Submit Button -->

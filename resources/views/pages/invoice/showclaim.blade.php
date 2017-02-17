@@ -76,6 +76,7 @@
               @endforeach
             </tbody>
           </table>
+					<hr>
           <!-- Total & Pajak Input -->
           <div class="form-group">
             {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}

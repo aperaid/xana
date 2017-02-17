@@ -26,7 +26,7 @@
                 <th>Company</th>
                 <th>Due Date</th>
                 <th>Reference</th>
-                <th width="10%">Status</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -38,15 +38,17 @@
                 <td>{{$invoices->Periode}}</td>
                 <td>{{$invoices->Company}}</td>
                 <td>
-									@if(isset($invoices->TglTerima))
+									@if($invoices->TglTerima!='')
 										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoices->TglTerima)."+".$invoices->Termin." days"))}}
 									@else
 										Fill Tgl Surat Terima
 									@endif
 								</td>
                 <td>{{$invoices->Reference}}</td>
-                <td>
-                  @if($invoices->Lunas==0)
+                <td width="10%">
+									@if($invoices->TglTerima=='')
+										<a><button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button></a>
+                  @elseif($invoices->Lunas==0)
                     <a href="{{route('invoice.lunas', $invoices->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
                   @else
                     <a href="{{route('invoice.lunas', $invoices->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
@@ -68,7 +70,7 @@
                 <th>Company</th>
                 <th>Due Date</th>
                 <th>Reference</th>
-                <th width="10%">Status</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -80,15 +82,17 @@
                 <td>{{$invoicesp->Periode}}</td>
                 <td>{{$invoicesp->Company}}</td>
                 <td>
-									@if(isset($invoicesp->TglTerima))
+									@if($invoicesp->TglTerima!='')
 										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoicesp->TglTerima)."+".$invoicesp->Termin." days"))}}
 									@else
 										Fill Tgl Surat Terima
 									@endif
 								</td>
                 <td>{{$invoicesp->Reference}}</td>
-                <td>
-                  @if($invoicesp->Lunas==0)
+                <td width="10%">
+									@if($invoicesp->TglTerima=='')
+										<a><button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button></a>
+                  @elseif($invoicesp->Lunas==0)
                     <a href="{{route('invoice.lunas', $invoicesp->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
                   @else
                     <a href="{{route('invoice.lunas', $invoicesp->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
@@ -109,7 +113,7 @@
                 <th>Company</th>
                 <th>Due Date</th>
                 <th>Reference</th>
-                <th width="10%">Status</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -120,15 +124,17 @@
                 <td>{{$invoicej->Project}}</td>
                 <td>{{$invoicej->Company}}</td>
                 <td>
-									@if(isset($invoicej->TglTerima))
+									@if($invoicej->TglTerima!='')
 										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoicej->TglTerima)."+".$invoicej->Termin." days"))}}
 									@else
 										Fill Tgl Surat Terima
 									@endif
 								</td>
                 <td>{{$invoicej->Reference}}</td>
-                <td>
-                  @if($invoicej->Lunas==0)
+                <td width="10%">
+									@if($invoicej->TglTerima=='')
+										<a><button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button></a>
+                  @elseif($invoicej->Lunas==0)
                     <a href="{{route('invoice.lunas', $invoicej->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
                   @else
                     <a href="{{route('invoice.lunas', $invoicej->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
@@ -149,7 +155,7 @@
                 <th>Company</th>
                 <th>Due Date</th>
                 <th>Reference</th>
-                <th width="10%">Status</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -160,15 +166,17 @@
                 <td>{{$invoicejp->Project}}</td>
                 <td>{{$invoicejp->Company}}</td>
                 <td>
-									@if(isset($invoicejp->TglTerima))
+									@if($invoicejp->TglTerima!='')
 										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoicejp->TglTerima)."+".$invoicejp->Termin." days"))}}
 									@else
 										Fill Tgl Surat Terima
 									@endif
 								</td>
                 <td>{{$invoicejp->Reference}}</td>
-                <td>
-                  @if($invoicejp->Lunas==0)
+                <td width="10%">
+									@if($invoicejp->TglTerima=='')
+										<a><button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button></a>
+                  @elseif($invoicejp->Lunas==0)
                     <a href="{{route('invoice.lunas', $invoicejp->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
                   @else
                     <a href="{{route('invoice.lunas', $invoicejp->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
@@ -189,7 +197,7 @@
                 <th>Company</th>
                 <th>Due Date</th>
                 <th>Reference</th>
-                <th width="10%">Status</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -200,15 +208,17 @@
                 <td>{{$invoicec->Project}}</td>
                 <td>{{$invoicec->Company}}</td>
                 <td>
-									@if(isset($invoicec->TglTerima))
+									@if($invoicec->TglTerima!='')
 										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoicec->TglTerima)."+".$invoicec->Termin." days"))}}
 									@else
 										Fill Tgl Surat Terima
 									@endif
 								</td>
                 <td>{{$invoicec->Reference}}</td>
-                <td>
-                  @if($invoicec->Lunas==0)
+                <td width="10%">
+									@if($invoicec->TglTerima=='')
+										<a><button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button></a>
+                  @elseif($invoicec->Lunas==0)
                     <a href="{{route('invoice.lunas', $invoicec->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
                   @else
                     <a href="{{route('invoice.lunas', $invoicec->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
