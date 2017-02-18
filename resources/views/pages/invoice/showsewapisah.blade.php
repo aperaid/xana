@@ -76,7 +76,7 @@
               <tr>
                 {!! Form::hidden('POCode', $periode->POCode) !!}
                 <td>{{$periode->SJKir}}</td>
-                <td>{{$periode->SJKem}}</td>
+                <td>@if($periode->Deletes=='Claim')Claimed @else{{$periode->SJKem}}@endif</td>
                 <td>{{$periode->Barang}}</td>
                 <td>{{$periode->S}}</td>
                 <td>{{$periode->E}}</td>

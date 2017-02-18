@@ -62,6 +62,7 @@
                 <th hidden>id</th>
                 <th>Reference</th>
                 <th>Invoice</th>
+								<th>Sell Date</th>
                 <th>Project</th>
               </tr>
             </thead>
@@ -71,6 +72,7 @@
                 <td hidden>{{$transaksij->id}}</td>
                 <td>{{$transaksij->Reference}}</td>
                 <td>{{$transaksij->Invoice}}</td>
+								<td>{{$transaksij->Tgl}}</td>
                 <td>{{$transaksij->Project}}</td>
               </tr>
               @endforeach
@@ -85,7 +87,7 @@
               <th>Reference</th>
               <th>Invoice</th>
               <th>Periode</th>
-              <th>Tanggal Claim</th>
+              <th>Claim Date</th>
               <th>Project</th>
               <th>Cancel</th>
             </thead>

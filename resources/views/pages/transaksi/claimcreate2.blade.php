@@ -22,17 +22,17 @@
           </tr>
           </thead>
           <tbody>
-            @foreach($isisjkirims as $isisjkirim)
+            @foreach($isisjkirims as $key => $isisjkirim)
               <tr>
                 <td>
-                @if($check < $checks)
-                {!! Form::checkbox('checkbox[]', $isisjkirim->SJKir, null, ['class' => 'minimal',  'disabled' ]) !!}
-                @elseif($check > $checke)
-                {!! Form::checkbox('checkbox[]', $isisjkirim->SJKir, null, ['class' => 'minimal',  'disabled' ]) !!}
+                @if($check < $checks[$key])
+                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
+                @elseif($check > $checke[$key])
+                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
                 @elseif($isisjkirim->SumQSisaKem == 0)
-                {!! Form::checkbox('checkbox[]', $isisjkirim->SJKir, null, ['class' => 'minimal',  'disabled' ]) !!}
+                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal',  'disabled' ]) !!}
                 @else
-                {!! Form::checkbox('checkbox[]', $isisjkirim->SJKir, null, ['class' => 'minimal']) !!}
+                {!! Form::checkbox('checkbox[]', $isisjkirim->Purchase, null, ['class' => 'minimal']) !!}
                 @endif</td>
                 <td>{{$isisjkirim->S}}</td>
                 <td>{{$isisjkirim->Barang}}</td>

@@ -104,20 +104,20 @@
                                 </div>
                               </td>
                               <td><span class="badge bg-yellow">Separuh Terkirim</span></td>
-                            @elseif ( $purchase -> QSisaKir == 0 && $purchase -> QSisaKem == $purchase -> Quantity ) <!-- pengiriman selesai, dalam proses penyewaan -->
+                            @elseif ( $purchase -> QSisaKir == 0 && $purchase -> QSisaKem == $purchase -> QKirim ) <!-- pengiriman selesai, dalam proses penyewaan -->
                               <td>
                                 <div class="progress progress-xs">
                                   <div class="progress-bar progress-bar-blue" style="width:50%"></div>
                                 </div>
                               </td>
                               <td><span class="badge bg-blue">Pengiriman Selesai, dalam penyewaan</span></td>
-                            @elseif ( $purchase -> QSisaKem < $purchase -> Quantity && $purchase -> QSisaKem != 0 ) <!-- setengah dikembalikan -->
+                            @elseif ( $purchase -> QSisaKem < $purchase -> QKirim && $purchase -> QSisaKem != 0 ) <!-- setengah dikembalikan -->
                               <td>
                                 <div class="progress progress-xs">
                                   <div class="progress-bar progress-bar-yellow" style="width:75%"></div>
                                 </div>
                               </td>
-                              <td><span class="badge bg-yellow">Separuh Kembali</span></td>
+                              <td><span class="badge bg-yellow">Separuh Kembali/Claimed</span></td>
                             @elseif ( $purchase -> QSisaKem == 0 && $purchase -> QSisaKir == 0 ) <!-- selesai dikembalikan -->
                               <td>
                                 <div class="progress progress-xs">

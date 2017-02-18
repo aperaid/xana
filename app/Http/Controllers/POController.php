@@ -137,12 +137,31 @@ class POController extends Controller
 		if($forgettransaksi==null){
 			return redirect()->route('po.create', 'id=' .$reference->id)->with('error', 'Please add item first!');
 		}else{
-			$maxperiode = Periode::where('reference', $request->Reference)
+			//get last periode if exist
+			$maxperiode = Periode::where('Reference', $request->Reference)
 			->max('Periode');
 			if(isset($maxperiode))
 				$periode = $maxperiode;
 			else
 				$periode = 1;
+			
+			//get first count for periode that start from 1 after new year if exist
+			$firstcount = Invoice::where('Reference', $request->Reference)
+			->where('Periode', $maxperiode)
+			->first();
+			if(isset($firstcount))
+				$count = $firstcount->Count;
+			else
+				$count = 1;
+			
+			//get termin if exist
+			$firsttermin = Invoice::where('Reference', $request->Reference)
+			->first();
+			if(isset($firsttermin))
+				$termin = $firsttermin->Termin;
+			else
+				$termin = 0;
+			
 			$is_exist = PO::where('POCode', $request->POCode)->first();
 			if(isset($is_exist->POCode)){
 				return redirect()->route('po.create', 'id=' .$reference->id)->with('error', 'Reference with POCode '.strtoupper($request->POCode).' is already exist!');
@@ -215,23 +234,24 @@ class POController extends Controller
 				$invoices = new Invoice;//Invoice::updateOrCreate(['Reference' => $request['Reference'], 'JSC' => $JSC[$key]]);
 				$invoices->id = $last_invoice;
 				if($JSC[$key]=="Sewa"){
-					$invoices->Invoice = $projectcode."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+					$invoices->Invoice = $projectcode."/".$count."/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
 				}else{
 					$invoices->Invoice = $projectcode."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
 				}
 				$invoices->JSC = $JSC[$key];
 				$invoices->Tgl = $request['Tgl'];
 				$invoices->Reference = $request['Reference'];
-				$invoices->Periode = 1;
+				$invoices->Periode = $periode;
 				$invoices->PPN = $PPN;
-				$invoices->Count = 1;
+				$invoices->Count = $count;
+				$invoices->Termin = $termin;
 				$invoices->save();
 
 				$last_invoicepisah = InvoicePisah::max('id')+1;
 				$invoicepisah = new InvoicePisah;
 				$invoicepisah->id = $last_invoicepisah;
 				if($JSC[$key]=="Sewa"){
-					$invoicepisah->Invoice = $projectcode.$y."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+					$invoicepisah->Invoice = $projectcode.$y."/".$count."/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
 				}else{
 					$invoicepisah->Invoice = $projectcode.$y."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
 				}
@@ -240,7 +260,8 @@ class POController extends Controller
 				$invoicepisah->Reference = $request['Reference'];
 				$invoicepisah->Periode = $periode;
 				$invoicepisah->PPN = $PPN;
-				$invoicepisah->Count = 1;
+				$invoicepisah->Count = $count;
+				$invoicepisah->Termin = $termin;
 				$invoicepisah->POCode = $request['POCode'];
 				$invoicepisah->Abjad = $x;
 				$invoicepisah->save();
@@ -254,7 +275,18 @@ class POController extends Controller
 				->having('occurences', '>', 1)
 				->pluck('maxid');
 				
+				/*$duplicateRecords2 = Invoice::select([
+					DB::raw('MAX(id) AS maxid')
+				])
+				->selectRaw('count(`Reference`) as `occurences`')
+				->where('Reference', $input['Reference'])
+				->where('JSC', 'Jual')
+				->groupBy('JSC')
+				->having('occurences', '>', 1)
+				->pluck('maxid');*/
+				
 				Invoice::whereIn('id', $duplicateRecords)->delete();
+				//Invoice::whereIn('id', $duplicateRecords2)->delete();
 				DB::statement('ALTER TABLE invoice auto_increment = 1;');
 			}
 			
@@ -374,6 +406,31 @@ class POController extends Controller
   {
     $po = PO::find($id);
     $transaksi = Transaksi::where('transaksi.POCode', $po -> POCode);
+		
+		//get last periode if exist
+		$maxperiode = Periode::where('Reference', $request->Reference)
+		->max('Periode');
+		if(isset($maxperiode))
+			$periode = $maxperiode;
+		else
+			$periode = 1;
+		
+		//get first count for periode that start from 1 after new year if exist
+		$firstcount = Invoice::where('Reference', $request->Reference)
+		->where('Periode', $maxperiode)
+		->first();
+		if(isset($firstcount))
+			$count = $firstcount->Count;
+		else
+			$count = 1;
+		
+		//get termin if exist
+		$firsttermin = Invoice::where('Reference', $request->Reference)
+		->first();
+		if(isset($firsttermin))
+			$termin = $firsttermin->Termin;
+		else
+			$termin = 0;
 
     $po->id = $request->poid;
     $po->Tgl = $request->Tgl;
@@ -407,13 +464,23 @@ class POController extends Controller
     
     //Invoice::where('invoice.Reference', $input['Reference'])->where('invoice.Periode', 1)->delete();
 
-    $projectcode = Reference::where('Reference', $request['Reference'])->first();
+    $projectcode = Reference::where('Reference', $request['Reference'])->first()->PCode;
+		$PPN = Customer::leftJoin('project', 'customer.CCode', '=', 'project.CCode')
+		->where('PCode', $projectcode)
+		->first()->PPN;
     
     $JSC = Transaksi::where('reference', $request['Reference'])->pluck('JS')->toArray();
-    $JSC = array_unique($JSC);
+		$combineJSC = array_merge($JSC, $JSCPisah);
+    $JSC = array_unique($combineJSC);
     
-    Invoice::where('reference', $request['Reference'])->delete();
-    DB::statement('ALTER TABLE invoice auto_increment = 1;');
+    /*Invoice::where('Reference', $request['Reference'])
+		->where('Periode', 1)
+		->where(function($query){
+			$query->where('JSC', "Sewa")
+			->orWhere('JSC', "Jual");
+		})
+		->delete();
+    DB::statement('ALTER TABLE invoice auto_increment = 1;');*/
 
     $invoices = $JSC;
     foreach ($invoices as $key => $invoices)
@@ -423,15 +490,17 @@ class POController extends Controller
       $invoices = new Invoice;
       $invoices->id = $last_invoice;
       if($JSC[$key]=="Sewa"){
-        $invoices->Invoice = $projectcode->PCode."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+        $invoices->Invoice = $projectcode."/".$count."/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
       }else{
-        $invoices->Invoice = $projectcode->PCode."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
+        $invoices->Invoice = $projectcode."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
       }
       $invoices->JSC = $JSC[$key];
       $invoices->Tgl = $request['Tgl'];
       $invoices->Reference = $request['Reference'];
-      $invoices->Periode = 1;
-      $invoices->Count = 1;
+      $invoices->Periode = $periode;
+			$invoices->PPN = $PPN;
+      $invoices->Count = $count;
+			$invoices->Termin = $termin;
       $invoices->save();
       
       $duplicateRecords = Invoice::select([
@@ -442,14 +511,39 @@ class POController extends Controller
       ->groupBy('JSC', 'Periode')
       ->having('occurences', '>', 1)
       ->pluck('maxid');
+			
+			/*$duplicateRecords2 = Invoice::select([
+        DB::raw('MAX(id) AS maxid')
+      ])
+      ->selectRaw('count(`Reference`) as `occurences`')
+      ->where('Reference', $input['Reference'])
+			->where('JSC', 'Jual')
+      ->groupBy('JSC')
+      ->having('occurences', '>', 1)
+      ->pluck('maxid');*/
+			
+			$duplicateRecords3 = Invoice::select([
+        DB::raw('MAX(id) AS maxid')
+      ])
+      ->selectRaw('count(`Reference`) as `occurences`')
+      ->where('Reference', $input['Reference'])
+			->whereNotIn('JSC', $JSC)
+      ->pluck('maxid');
       
       Invoice::whereIn('id', $duplicateRecords)->delete();
+			//Invoice::whereIn('id', $duplicateRecords2)->delete();
+			Invoice::whereIn('id', $duplicateRecords3)->delete();
       DB::statement('ALTER TABLE invoice auto_increment = 1;');
     }
 		
     $JSCPisah = array_unique($JSCPisah);
 		
-		InvoicePisah::where('POCode', $po['POCode'])->delete();
+		InvoicePisah::where('POCode', $po['POCode'])
+		->where(function($query){
+			$query->where('JSC', "Sewa")
+			->orWhere('JSC', "Jual");
+		})
+		->delete();
     DB::statement('ALTER TABLE invoicepisah auto_increment = 1;');
 		
 		$abjad = InvoicePisah::where('Reference', $request->Reference)->max('Abjad');
@@ -465,16 +559,18 @@ class POController extends Controller
 
 			$invoicepisah = new InvoicePisah;
       $invoicepisah->id = $last_invoicepisah;
-      if($JSC[$key]=="Sewa"){
-        $invoicepisah->Invoice = $projectcode->PCode.$y."/1/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
+      if($JSCPisah[$key]=="Sewa"){
+        $invoicepisah->Invoice = $projectcode.$y."/".$count."/".substr($request['Tgl'], 3, -5).substr($request['Tgl'], 6)."/BDN";
       }else{
-        $invoicepisah->Invoice = $projectcode->PCode.$y."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
+        $invoicepisah->Invoice = $projectcode.$y."/".substr($request['Tgl'], 3, -5)."/".substr($request['Tgl'], 6);
       }
-      $invoicepisah->JSC = $JSC[$key];
+      $invoicepisah->JSC = $JSCPisah[$key];
       $invoicepisah->Tgl = $request['Tgl'];
       $invoicepisah->Reference = $request['Reference'];
-      $invoicepisah->Periode = 1;
-      $invoicepisah->Count = 1;
+      $invoicepisah->Periode = $periode;
+			$invoicepisah->PPN = $PPN;
+      $invoicepisah->Count = $count;
+			$invoicepisah->Termin = $termin;
 			$invoicepisah->POCode = $request['POCode'];
 			$invoicepisah->Abjad = $x;
       $invoicepisah->save();

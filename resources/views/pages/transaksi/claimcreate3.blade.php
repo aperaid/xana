@@ -39,16 +39,6 @@
         </table>
       </div>
       <div class="box-footer">
-        <table class="table table-hover table-bordered">
-          <thead>
-            <th>PPN</th>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{!! Form::hidden('PPN', 0) !!}{!! Form::checkbox('PPN', 1, null, array('class' => 'minimal')) !!}</td>
-            </tr>
-    			</tbody>
-        </table>
         {!! Form::submit('Insert',  array('class' => 'btn btn-success pull-right')) !!}
         <a href="{{route('transaksi.claimcreate', $id)}}"><button type="button" class="btn btn-default">Cancel</button></a>
       </div>

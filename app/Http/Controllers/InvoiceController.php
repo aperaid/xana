@@ -430,7 +430,7 @@ class InvoiceController extends Controller
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    //->where('periode.Quantity', '!=' , 0)
+    ->where('periode.Quantity', '!=' , 0)
 		->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -530,7 +530,7 @@ class InvoiceController extends Controller
 		->where('po.POCode', $invoice->POCode)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    //->where('periode.Quantity', '!=' , 0)
+    ->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -690,7 +690,7 @@ class InvoiceController extends Controller
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    //->where('periode.Quantity', '!=' , 0)
+    ->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -842,7 +842,7 @@ class InvoiceController extends Controller
 		->where('po.POCode', $invoice->POCode)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    //->where('periode.Quantity', '!=' , 0)
+    ->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -999,7 +999,7 @@ class InvoiceController extends Controller
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    //->where('periode.Quantity', '!=' , 0)
+    ->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -1149,7 +1149,7 @@ class InvoiceController extends Controller
 		->where('po.POCode', $invoice->POCode)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    //->where('periode.Quantity', '!=' , 0)
+    ->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -2509,26 +2509,22 @@ class InvoiceController extends Controller
     Session::flash('message', 'Downloaded to Server Public Documents file name Invc_'.$download);
     return redirect()->route('invoice.showclaim', $id);
   }
-    
-    public function getLunas($id)
-    {
-    	return view('pages.invoice.lunas')
-      ->with('id', $id);
-    }
-    
-    public function postLunas(Request $request, $id)
-    {
-      $invoice = Invoice::find($id);
-      
-      if($invoice->Lunas == 0){
-        $lunas = 1;
-      }else{
-        $lunas = 0;
-      }
-      
-      Invoice::where('invoice.id', $id)
-      ->update(['Invoice.Lunas' => $lunas]);
-      
-      return redirect()->route('invoice.index');
-    }
+
+	public function postLunas(Request $request)
+	{
+		if($request->LunasType=='Gabung')
+			$invoice = Invoice::find($request->id);
+		else if($request->LunasType=='Pisah')
+			$invoice = InvoicePisah::find($request->id);
+
+		if($invoice->Lunas == 0)
+			$lunas = 1;
+		else
+			$lunas = 0;
+		
+		if($request->LunasType=='Gabung')
+			Invoice::where('invoice.id', $invoice->id)->update(['invoice.Lunas' => $lunas]);
+		else if($request->LunasType=='Pisah')
+			InvoicePisah::where('invoicepisah.id', $invoice->id)->update(['invoicepisah.Lunas' => $lunas]);
+	}
 }

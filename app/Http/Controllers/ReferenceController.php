@@ -192,6 +192,7 @@ class ReferenceController extends Controller
 		
 		$purchase = Transaksi::leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
 		->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+		->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
 		->where('transaksi.reference', $detail -> Reference)
 		->get();
 		

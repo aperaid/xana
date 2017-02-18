@@ -19,7 +19,7 @@
           <table id="datatabless" class="table table-hover table-bordered">
             <thead>
               <tr>
-                <th>id</th>
+                <th hidden>id</th>
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Periode</th>
@@ -27,12 +27,13 @@
                 <th>Due Date</th>
                 <th>Reference</th>
                 <th>Status</th>
+								<th hidden>Type</th>
               </tr>
             </thead>
             <tbody>
               @foreach($invoicess as $invoices)
               <tr>
-                <td>{{$invoices->id}}</td>
+                <td hidden>{{$invoices->id}}</td>
                 <td>{{$invoices->Invoice}}</td>
                 <td>{{$invoices->Project}}</td>
                 <td>{{$invoices->Periode}}</td>
@@ -47,13 +48,14 @@
                 <td>{{$invoices->Reference}}</td>
                 <td width="10%">
 									@if($invoices->TglTerima=='')
-										<a><button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button></a>
+										<button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button>
                   @elseif($invoices->Lunas==0)
-                    <a href="{{route('invoice.lunas', $invoices->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
+                    <button type="button" class="btn btn-block btn-danger lunas">Belum Lunas</button>
                   @else
-                    <a href="{{route('invoice.lunas', $invoices->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
+                    <button type="button" class="btn btn-block btn-success lunas">Lunas</button>
                   @endif
                 </td>
+								<td hidden>Gabung</td>
               </tr>
               @endforeach
             </tbody>
@@ -63,7 +65,7 @@
           <table id="datatablessp" class="table table-hover table-bordered">
             <thead>
               <tr>
-                <th>id</th>
+                <th hidden>id</th>
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Periode</th>
@@ -71,12 +73,13 @@
                 <th>Due Date</th>
                 <th>Reference</th>
                 <th>Status</th>
+								<th hidden>Type</th>
               </tr>
             </thead>
             <tbody>
               @foreach($invoicesps as $invoicesp)
               <tr>
-                <td>{{$invoicesp->id}}</td>
+                <td hidden>{{$invoicesp->id}}</td>
                 <td>{{$invoicesp->Invoice}}</td>
                 <td>{{$invoicesp->Project}}</td>
                 <td>{{$invoicesp->Periode}}</td>
@@ -91,13 +94,14 @@
                 <td>{{$invoicesp->Reference}}</td>
                 <td width="10%">
 									@if($invoicesp->TglTerima=='')
-										<a><button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button></a>
+										<button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button>
                   @elseif($invoicesp->Lunas==0)
-                    <a href="{{route('invoice.lunas', $invoicesp->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
+                    <button type="button" class="btn btn-block btn-danger lunas">Belum Lunas</button>
                   @else
-                    <a href="{{route('invoice.lunas', $invoicesp->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
+                    <button type="button" class="btn btn-block btn-success lunas">Lunas</button>
                   @endif
                 </td>
+								<td hidden>Pisah</td>
               </tr>
               @endforeach
             </tbody>
@@ -107,19 +111,20 @@
           <table id="datatablesj" class="table table-hover table-bordered">
             <thead>
               <tr>
-                <th>id</th>
+                <th hidden>id</th>
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Company</th>
                 <th>Due Date</th>
                 <th>Reference</th>
                 <th>Status</th>
+								<th hidden>Type</th>
               </tr>
             </thead>
             <tbody>
               @foreach($invoicejs as $invoicej)
               <tr>
-                <td>{{$invoicej->id}}</td>
+                <td hidden>{{$invoicej->id}}</td>
                 <td>{{$invoicej->Invoice}}</td>
                 <td>{{$invoicej->Project}}</td>
                 <td>{{$invoicej->Company}}</td>
@@ -133,13 +138,14 @@
                 <td>{{$invoicej->Reference}}</td>
                 <td width="10%">
 									@if($invoicej->TglTerima=='')
-										<a><button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button></a>
+										<button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button>
                   @elseif($invoicej->Lunas==0)
-                    <a href="{{route('invoice.lunas', $invoicej->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
+                    <button type="button" class="btn btn-block btn-danger lunas">Belum Lunas</button>
                   @else
-                    <a href="{{route('invoice.lunas', $invoicej->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
+                    <button type="button" class="btn btn-block btn-success lunas">Lunas</button>
                   @endif
                 </td>
+								<td hidden>Gabung</td>
               </tr>
               @endforeach
             </tbody>
@@ -149,19 +155,20 @@
           <table id="datatablesjp" class="table table-hover table-bordered">
             <thead>
               <tr>
-                <th>id</th>
+                <th hidden>id</th>
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Company</th>
                 <th>Due Date</th>
                 <th>Reference</th>
                 <th>Status</th>
+								<th hidden>Type</th>
               </tr>
             </thead>
             <tbody>
               @foreach($invoicejps as $invoicejp)
               <tr>
-                <td>{{$invoicejp->id}}</td>
+                <td hidden>{{$invoicejp->id}}</td>
                 <td>{{$invoicejp->Invoice}}</td>
                 <td>{{$invoicejp->Project}}</td>
                 <td>{{$invoicejp->Company}}</td>
@@ -175,13 +182,14 @@
                 <td>{{$invoicejp->Reference}}</td>
                 <td width="10%">
 									@if($invoicejp->TglTerima=='')
-										<a><button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button></a>
+										<button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button>
                   @elseif($invoicejp->Lunas==0)
-                    <a href="{{route('invoice.lunas', $invoicejp->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
+                    <button type="button" class="btn btn-block btn-danger lunas">Belum Lunas</button>
                   @else
-                    <a href="{{route('invoice.lunas', $invoicejp->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
+                    <button type="button" class="btn btn-block btn-success lunas">Lunas</button>
                   @endif
                 </td>
+								<td hidden>Pisah</td>
               </tr>
               @endforeach
             </tbody>
@@ -191,19 +199,20 @@
           <table id="datatablesc" class="table table-hover table-bordered">
             <thead>
               <tr>
-                <th>id</th>
+                <th hidden>id</th>
                 <th>No. Invoice</th>
                 <th>Project</th>
                 <th>Company</th>
                 <th>Due Date</th>
                 <th>Reference</th>
                 <th>Status</th>
+								<th hidden>Type</th>
               </tr>
             </thead>
             <tbody>
               @foreach($invoicecs as $invoicec)
               <tr>
-                <td>{{$invoicec->id}}</td>
+                <td hidden>{{$invoicec->id}}</td>
                 <td>{{$invoicec->Invoice}}</td>
                 <td>{{$invoicec->Project}}</td>
                 <td>{{$invoicec->Company}}</td>
@@ -217,13 +226,14 @@
                 <td>{{$invoicec->Reference}}</td>
                 <td width="10%">
 									@if($invoicec->TglTerima=='')
-										<a><button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button></a>
+										<button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button>
                   @elseif($invoicec->Lunas==0)
-                    <a href="{{route('invoice.lunas', $invoicec->id)}}"><button type="button" class="btn btn-block btn-danger" >Belum Lunas</button></a>
+                    <button type="button" class="btn btn-block btn-danger lunas">Belum Lunas</button>
                   @else
-                    <a href="{{route('invoice.lunas', $invoicec->id)}}"><button type="button" class="btn btn-block btn-success" onclick="return confirm('Pembayaran belum lunas?')" >Lunas</button></a>
+                    <button type="button" class="btn btn-block btn-success lunas">Lunas</button>
                   @endif
                 </td>
+								<td hidden>Gabung</td>
               </tr>
               @endforeach
             </tbody>
@@ -241,7 +251,6 @@
 @section('script')
 <script>
 $(document).ready(function () {
-
 	// Invoice Sewa
 	var table = $("#datatabless").DataTable({
 		"processing": true,
@@ -249,15 +258,19 @@ $(document).ready(function () {
 		"columnDefs":[
 			{
 				"targets": [0],
-				"visible": false
+				"visible": true,
+				"searchable": false
 			},
 		],
 	});
 		
-	$('#datatabless tbody').on('click', 'tr', function () {
-		var data = table.row( this ).data();
-		window.open("invoice/showsewa/" + data[0],"_self");
-	} );
+	$('#datatabless tbody').on('click', 'td', function () {
+		var data = table.row( $(this).closest('tr') ).data();
+		if ($(this).index() == 7)
+			return;
+		else
+			window.open("invoice/showsewa/" + data[0],"_self");
+	});
 
 	// Invoice Sewa Pisah
 	var table2 = $("#datatablessp").DataTable({
@@ -266,15 +279,19 @@ $(document).ready(function () {
 		"columnDefs":[
 			{
 				"targets": [0],
-				"visible": false
+				"visible": true,
+				"searchable": false
 			},
 		],
 	});
 		
-	$('#datatablessp tbody').on('click', 'tr', function () {
-		var data2 = table2.row( this ).data();
-		window.open("invoice/showsewapisah/" + data2[0],"_self");
-	} );
+	$('#datatablessp tbody').on('click', 'td', function () {
+		var data2 = table2.row( $(this).closest('tr') ).data();
+		if ($(this).index() == 7)
+			return;
+		else
+			window.open("invoice/showsewapisah/" + data2[0],"_self");
+	});
 
 	// Invoice Jual
 	var table3 = $("#datatablesj").DataTable({
@@ -283,15 +300,19 @@ $(document).ready(function () {
 		"columnDefs":[
 			{
 				"targets": [0],
-				"visible": false
+				"visible": true,
+				"searchable": false
 			},
 		],
 	});
 		
-	$('#datatablesj tbody').on('click', 'tr', function () {
-		var data3 = table3.row( this ).data();
-		window.open("invoice/showjual/"+ data3[0],"_self");
-	} );
+	$('#datatablesj tbody').on('click', 'td', function () {
+		var data3 = table3.row( $(this).closest('tr') ).data();
+		if ($(this).index() == 6)
+			return;
+		else
+			window.open("invoice/showjual/"+ data3[0],"_self");
+	});
 	
 	// Invoice Jual Pisah
 	var table4 = $("#datatablesjp").DataTable({
@@ -300,15 +321,19 @@ $(document).ready(function () {
 		"columnDefs":[
 			{
 				"targets": [0],
-				"visible": false
+				"visible": true,
+				"searchable": false
 			},
 		],
 	});
 		
-	$('#datatablesjp tbody').on('click', 'tr', function () {
-		var data4 = table4.row( this ).data();
-		window.open("invoice/showjualpisah/"+ data4[0],"_self");
-	} );
+	$('#datatablesjp tbody').on('click', 'td', function () {
+		var data4 = table4.row( $(this).closest('tr') ).data();
+		if ($(this).index() == 6)
+			return;
+		else
+			window.open("invoice/showjualpisah/"+ data4[0],"_self");
+	});
 
 	//Invoice Claim
 	var table5 = $("#datatablesc").DataTable({
@@ -317,15 +342,30 @@ $(document).ready(function () {
 		"columnDefs":[
 			{
 				"targets": [0],
-				"visible": false
+				"visible": true,
+				"searchable": false
 			},
 		],
 	});
 		
-	$('#datatablesc tbody').on('click', 'tr', function () {
-		var data5 = table5.row( this ).data();
-		window.open("invoice/showclaim/"+ data5[0],"_self");
-	} );
+	$('#datatablesc tbody').on('click', 'td', function () {
+		var data5 = table5.row( $(this).closest('tr') ).data();
+		if ($(this).index() == 6)
+			return;
+		else
+			window.open("invoice/showclaim/"+ data5[0],"_self");
+	});
 });
+
+$(".lunas").click(function(){
+  $.post("invoice/updatelunas", {"_token":"{{csrf_token()}}", id: $(this).parent().siblings(":first").text(), LunasType: $(this).parent().siblings(":last").text()}, function(){})
+  .done(function(data){
+    location.reload();
+  })
+  .fail(function(data){
+    console.log('fail');
+  });
+});
+
 </script>
 @stop

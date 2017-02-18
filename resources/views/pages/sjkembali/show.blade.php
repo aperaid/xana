@@ -35,6 +35,7 @@
         <strong>{{ $isisjkembali -> Project }}</strong><br>
         {{ $isisjkembali -> ProjAlamat }}<br>
         {{ $isisjkembali -> ProjKota }},  {{ $isisjkembali -> ProjZip }}<br>
+				Sales: {{ $isisjkembali -> Sales }}
       </address>
     </div>
     <div class="col-sm-3 invoice-col">
@@ -86,7 +87,7 @@
       <a href="{{route('sjkembali.index')}}"><button type="button" class="btn btn-default">Back</button></a>
 			@if($isisjkembali->SumQTertanda!=$isisjkembali->SumQTerima)
 				<a button type="button" class="btn btn-danger hilang">Barang Hilang</a>
-			@elseif(count($transaksihilang)!=0&&$periodecheck != 0)
+			@elseif(count($transaksihilang)!=0)
 				<a button type="button" class="btn btn-danger cancel">Cancel Barang Hilang</a>
       @endif
       
@@ -112,7 +113,7 @@
           <h4 class="modal-title">Barang Hilang</h4>
         </div>
         <div class="modal-body">
-          <label class="text-default" data-toggle="modal"><h4> Kronologi atau penyebab Barang Hilang</h4></label>
+          <label class="text-default" data-toggle="modal"><h4> Penyebab Barang Hilang</h4></label>
 					<div class="form-group">
 						<input type="hidden" id="sjtype" value='Kembali'>
 						<input type="hidden" id="hilangid" value={{$sjkembali->id}}>
@@ -167,6 +168,11 @@
 								@endforeach
 							</tbody>
 						</table>
+						<hr>
+						<label class="text-default" data-toggle="modal"><h4> Penyebab Barang Hilang</h4></label>
+						<div class="form-group">
+							<textarea class="form-control" rows="5" readonly>{{ $transaksihilang->first()->HilangText }}</textarea>
+						</div>
 					@endif
         </div>
         <div class="modal-footer">

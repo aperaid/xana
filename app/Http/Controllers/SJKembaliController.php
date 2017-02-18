@@ -175,7 +175,7 @@ class SJKembaliController extends Controller
 		->where('sjkirim.Reference', $Reference)
 		->where('transaksi.JS', 'Sewa')
 		->whereIn('periode.id', $maxperiodeid)
-		->groupBy('isisjkirim.SJKir')
+		->groupBy('isisjkirim.SJKir', 'transaksi.Purchase')
 		->orderBy('periode.id', 'asc')
 		->get();
 		
@@ -210,10 +210,10 @@ class SJKembaliController extends Controller
 	public function getCreate3(Request $request, $id)
 	{
 		$input = Input::only('checkbox');
-		$sjkirs = $input['checkbox'];
-		foreach ($sjkirs as $key => $sjkir)
+		$purchases = $input['checkbox'];
+		foreach ($purchases as $key => $purchase)
 		{
-			$SJKir[] = $input['checkbox'][$key];
+			$Purchase[] = $input['checkbox'][$key];
 		}
 		
 		$SJKem = Session::get('SJKir');
@@ -262,7 +262,7 @@ class SJKembaliController extends Controller
 		->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
 		->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
 		->where('transaksi.Reference', $Reference)
-		->whereIn('isisjkirim.SJKir', $SJKir)
+		->whereIn('isisjkirim.Purchase', $Purchase)
 		->whereIn('periode.id', $maxperiodeid)
 		->groupBy('isisjkirim.Purchase')
 		->orderBy('periode.id', 'asc')
@@ -790,7 +790,7 @@ class SJKembaliController extends Controller
 			$key2 = $key+1;
 			$document->setValue('Key'.$key, ''.$key2.'');
 			$document->setValue('Barang'.$key, ''.$transaksis->Barang.'');
-			$document->setValue('Quantity'.$key, ''.$transaksis->Quantity.' PCS');
+			$document->setValue('Quantity'.$key, ''.$transaksis->QSisaKem.' PCS');
 		}
 		
 		for($x=0;$x<20;$x++){

@@ -17,7 +17,7 @@
             <tr>
               <th>Id</th>
               <th>Penawaran Code</th>
-              <th>Tgl</th>
+              <th>Date</th>
               <th>PCode</th>
             </tr>
           </thead>

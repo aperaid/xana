@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Customer;
 use App\Project;
 use App\Periode;
 use App\Invoice;
@@ -461,7 +462,7 @@ class TransaksiController extends Controller
 				
 				$transaksi = Transaksi::where('Purchase', $Purchase[$key])
 				->first();
-				$transaksi->update(['Quantity' => $transaksi->Quantity - ($QKirim[$key]-$QTertanda[$key]), 'QSisaKir' => $transaksi->QSisaKir - ($QKirim[$key]-$QTertanda[$key])]);
+				$transaksi->update(['QSisaKir' => $transaksi->QSisaKir - ($QKirim[$key]-$QTertanda[$key])]);
 			}
 		}else if($request->sjtype=='Kembali'){
 			$SJ = SJKembali::find($request->id);
@@ -490,6 +491,14 @@ class TransaksiController extends Controller
 				$transaksihilang->HilangText = $request->HilangText;
 				$transaksihilang->save();
 				
+				$transaksi = Transaksi::where('Purchase', $Purchase[$key])
+				->first();
+				$transaksi->update(['QSisaKem' => $transaksi->QSisaKem - ($QTertanda[$key]-$QTerima[$key])]);
+				
+				$isisjkirim = IsiSJKirim::where('Purchase', $Purchase[$key])
+				->first();
+				$isisjkirim->update(['QSisaKem' => $isisjkirim->QSisaKem - ($QTertanda[$key]-$QTerima[$key])]);
+				
 				$isisjkembali = IsiSJKembali::where('id', $id[$key])
 				->first();
 				$isisjkembali->update(['QTertanda' => $isisjkembali->QTertanda - ($QTertanda[$key]-$QTerima[$key])]);
@@ -502,11 +511,11 @@ class TransaksiController extends Controller
 		if($request->sjtype=='Kirim'){
 			$sjkirim = SJKirim::where('SJKir', $request->SJKir)->first();
 			
-			$transaksihilangs = TransaksiHilang::select('transaksihilang.*', 'isisjkirim.Purchase')
+			$transaksihilangs = TransaksiHilang::select('transaksihilang.*')
 			->leftJoin('isisjkirim', 'transaksihilang.SJ', '=', 'isisjkirim.SJKir')
 			->where('SJ', $sjkirim->SJKir)
-			->where('SJType', 'Kembali')
-			->groupBy('transaksihilang.SJ')
+			->where('SJType', 'Kirim')
+			->groupBy('transaksihilang.id')
 			->get();
 			
 			$id = $transaksihilangs->pluck('id');
@@ -520,7 +529,7 @@ class TransaksiController extends Controller
 				
 				$transaksi = Transaksi::where('Purchase', $Purchase[$key])
 				->first();
-				$transaksi->update(['Quantity' => $transaksi->Quantity + $QHilang[$key], 'QSisaKir' => $transaksi->QSisaKir + $QHilang[$key]]);
+				$transaksi->update(['QSisaKir' => $transaksi->QSisaKir + $QHilang[$key]]);
 			}
 			
 			TransaksiHilang::where('SJ', $sjkirim->SJKir)->where('SJType', 'Kirim')->delete();
@@ -528,11 +537,11 @@ class TransaksiController extends Controller
 		}else if($request->sjtype=='Kembali'){
 			$sjkembali = SJKembali::where('SJKem', $request->SJKem)->first();
 			
-			$transaksihilangs = TransaksiHilang::select('transaksihilang.*', 'isisjkembali.Purchase')
+			$transaksihilangs = TransaksiHilang::select('transaksihilang.*')
 			->leftJoin('isisjkembali', 'transaksihilang.SJ', '=', 'isisjkembali.SJKem')
 			->where('SJ', $sjkembali->SJKem)
 			->where('SJType', 'Kembali')
-			->groupBy('transaksihilang.SJ')
+			->groupBy('transaksihilang.id')
 			->get();
 			
 			$id = $transaksihilangs->pluck('id');
@@ -540,6 +549,14 @@ class TransaksiController extends Controller
 			$Purchase = $transaksihilangs->pluck('Purchase');
 			
 			foreach($transaksihilangs as $key => $isisjkembali){
+				$transaksi = Transaksi::where('Purchase', $Purchase[$key])
+				->first();
+				$transaksi->update(['QSisaKem' => $transaksi->QSisaKem + $QHilang[$key]]);
+				
+				$isisjkirim = IsiSJKirim::where('Purchase', $Purchase[$key])
+				->first();
+				$isisjkirim->update(['QSisaKem' => $isisjkirim->QSisaKem + $QHilang[$key]]);
+				
 				$isisjkembali = IsiSJKembali::where('id', $id[$key])
 				->first();
 				$isisjkembali->update(['QTertanda' => $isisjkembali->QTertanda + $QHilang[$key]]);
@@ -617,7 +634,7 @@ class TransaksiController extends Controller
 		->where('sjkirim.Reference', $Reference)
 		->where('transaksi.JS', 'Sewa')
 		->whereIn('periode.id', $maxperiodeid)
-		->groupBy('isisjkirim.SJKir')
+		->groupBy('isisjkirim.SJKir', 'transaksi.Purchase')
 		->orderBy('periode.id', 'asc')
 		->get();
 		
@@ -629,8 +646,8 @@ class TransaksiController extends Controller
 			$converte = str_replace('/', '-', $tgle);
 			
 			$check = strtotime($convert);
-			$checks = strtotime($converts);
-			$checke = strtotime($converte);
+			$checks[] = strtotime($converts);
+			$checke[] = strtotime($converte);
 		}
 		
 		if(in_array("claimcreate2", $this->access)){
@@ -654,7 +671,7 @@ class TransaksiController extends Controller
 		$purchases = $input['checkbox'];
 		foreach ($purchases as $key => $purchases)
 		{
-			$SJKir[] = $input['checkbox'][$key];
+			$Purchase[] = $input['checkbox'][$key];
 		}
 		
 		$Tgl = Session::get('Tgl');
@@ -693,7 +710,7 @@ class TransaksiController extends Controller
 		->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
 		->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
 		->where('transaksi.Reference', $Reference)
-		->whereIn('isisjkirim.SJKir', $SJKir)
+		->whereIn('isisjkirim.Purchase', $Purchase)
 		->whereIn('periode.id', $maxperiodeid)
 		->whereRaw('(periode.Deletes = "Sewa" OR periode.Deletes = "Extend")')
 		->groupBy('isisjkirim.Purchase')
@@ -719,16 +736,30 @@ class TransaksiController extends Controller
 		$Tgl = Session::get('Tgl');
 		$Reference = Session::get('Reference');
 		
-		$projectcode = Reference::where('Reference', $Reference)->first();
+		//get first count for periode that start from 1 after new year if exist
+		$count = Invoice::where('Reference', $Reference)
+		->where('Periode', $request->Periode)
+		->first()->Count;
+		
+		//get termin if exist
+		$termin = Invoice::where('Reference', $Reference)
+		->first()->Termin;
+		
+		$projectcode = Reference::where('Reference', $Reference)->first()->PCode;
+		$PPN = Customer::leftJoin('project', 'customer.CCode', '=', 'project.CCode')
+		->where('PCode', $projectcode)
+		->first()->PPN;
 		
 		$invoice = Invoice::Create([
 			'id' => $request['invoiceid'],
-			'Invoice' => $projectcode->PCode."/".$request->Periode."CL/".substr($Tgl, 3, -5).substr($Tgl, 6)."/BDN",
+			'Invoice' => $projectcode."/".$request->Periode."CL/".substr($Tgl, 3, -5).substr($Tgl, 6)."/BDN",
 			'JSC' => 'Claim',
 			'Tgl' => $Tgl,
 			'Reference' => $Reference,
 			'Periode' => $request['Periode'],
-			'PPN' => $request['PPN'],
+			'PPN' => $PPN,
+			'Count' => $count,
+			'Termin' => $termin,
 		]);
 		
 		$maxperiodeid = Periode::select([

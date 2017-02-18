@@ -35,6 +35,7 @@
         <strong>{{ $isisjkirim -> Project }}</strong><br>
         {{ $isisjkirim -> ProjAlamat }}<br>
         {{ $isisjkirim -> ProjKota }},  {{ $isisjkirim -> ProjZip }}<br>
+				Sales: {{ $isisjkirim -> Sales }}
       </address>
     </div>
     <div class="col-sm-3 invoice-col">
@@ -51,7 +52,7 @@
         <strong>{{ $isisjkirim -> NoPolisi }}</strong><br>
         Sopir: {{ $isisjkirim -> Sopir }}<br>
         Kenek: {{ $isisjkirim -> Kenek }}<br>
-				Periode: {{ $isisjkirim -> Periode }}
+				Periode: @if(in_array("Sewa", $isisjkirims->pluck('JS')->toArray())) {{$isisjkirim -> Periode}} @else - @endif
       </address>
     </div>
   </div>
@@ -97,8 +98,8 @@
     
     <div class="box-footer">
       <a href="{{route('sjkirim.index')}}"><button type="button" class="btn btn-default">Back</button></a>
-      <a href="{{route('sjkirim.SJ', $sjkirim->sjkirid)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print SJ</a>
-      @if($isisjkirim->QKirim!=$isisjkirim->QTertanda)
+      <a href="{{route('sjkirim.SJ', $sjkirim->sjkirid)}}" button type="button" @if ($qttdcheck > 0 || count($transaksihilangs)!=0 || $isisjkirims->sum('QTertanda')!=0) class="btn btn-default" disabled @else class="btn btn-default" @endif><i class="fa fa-print"></i> Print SJ</a>
+      @if($isisjkirim->sum('QKirim')!=$isisjkirim->sum('QTertanda'))
 				<a button type="button" class="btn btn-danger hilang">Barang Hilang</a>
 			@elseif(count($transaksihilangs)!=0&&$qttdcheck == 0)
 				<a button type="button" class="btn btn-danger cancel">Cancel Barang Hilang</a>
@@ -128,7 +129,7 @@
           <h4 class="modal-title">Barang Hilang</h4>
         </div>
         <div class="modal-body">
-          <label class="text-default" data-toggle="modal"><h4> Kronologi atau penyebab Barang Hilang</h4></label>
+          <label class="text-default" data-toggle="modal"><h4> Penyebab Barang Hilang</h4></label>
 					<div class="form-group">
 						<input type="hidden" id="sjtype" value='Kirim'>
 						<input type="hidden" id="hilangid" value={{$sjkirim->sjkirid}}>
@@ -183,6 +184,11 @@
 								@endforeach
 							</tbody>
 						</table>
+						<hr>
+						<label class="text-default" data-toggle="modal"><h4> Penyebab Barang Hilang</h4></label>
+						<div class="form-group">
+							<textarea class="form-control" rows="5" readonly>{{ $transaksihilang->first()->HilangText }}</textarea>
+						</div>
 					@endif
         </div>
         <div class="modal-footer">
@@ -220,6 +226,11 @@
 								@endforeach
 							</tbody>
 						</table>
+						<hr>
+						<label class="text-default" data-toggle="modal"><h4> Penyebab Barang Hilang</h4></label>
+						<div class="form-group">
+							<textarea class="form-control" rows="5" readonly>{{ $transaksihilang->first()->HilangText }}</textarea>
+						</div>
 					@endif
         </div>
         <div class="modal-footer">
