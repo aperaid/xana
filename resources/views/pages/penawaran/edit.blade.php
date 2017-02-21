@@ -117,7 +117,7 @@ $(function() {
       this.value = this.value.toUpperCase();
     });
     
-    $(document).on('click autocompletechange mouseenter mouseleave', '.Barang, .Type, .Quantity, .JS', function(){
+    $(document).on('click autocompletechange', '.Barang, .ICode, .Type, .Quantity, .JS, .Amount', function(){
       var this2 = this;
       $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
       .done(function(data){
@@ -137,7 +137,7 @@ $(function() {
       });
     });
     
-    $(document).on('keyup', '.Barang, .Type, .Quantity, .JS', function(e){
+    $(document).on('keyup', '.Barang, .ICode, .Type, .Quantity, .JS, .Amount', function(e){
       var this2 = this;
       if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
         $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
@@ -172,7 +172,7 @@ $(function() {
 			if(x < max_fields){ //max input box allowed
 				x++; //text box count increment
 				y++;
-				$("#customFields").append('<tr><td align="center"><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><td><input type="text" name="penawaranid[]"  id="penawaranid" value="'+ y +'"></td><td><input type="text" name="Purchase[]" value="'+ y +'"></td><td>{!! Form::text('Barang[]', null, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', null, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['NEW' => 'NEW', 'SECOND' => 'SECOND'], null, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control JS']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', null, ['class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
+				$("#customFields").append('<tr><td align="center"><a href="javascript:void(0);" class="remCF glyphicon glyphicon-remove"></a></td><td hidden><input type="text" name="penawaranid[]"  id="penawaranid" value="'+ y +'"></td><td hidden><input type="text" name="Purchase[]" value="'+ y +'"></td><td>{!! Form::text('Barang[]', null, ['class' => 'form-control Barang', 'autocomplete' => 'off', 'placeholder' => 'Main Frame', 'required']) !!}</td><td>{!! Form::text('ICode[]', null, ['class' => 'form-control ICode', 'readonly']) !!}</td><td>{!! Form::select('Type[]', ['NEW' => 'NEW', 'SECOND' => 'SECOND'], null, ['class' => 'form-control Type']) !!}</td><td>{!! Form::select('JS[]', ['Jual' => 'Jual', 'Sewa' => 'Sewa'], null, ['class' => 'form-control JS']) !!}</td><td>{!! Form::number('Quantity[]', null, ['class' => 'form-control Quantity', 'autocomplete' => 'off', 'placeholder' => '100', 'required']) !!}</td><td>{!! Form::text('Amount[]', null, ['class' => 'form-control Amount', 'autocomplete' => 'off', 'placeholder' => 'Rp 100.000', 'required']) !!}</td></tr>');
         
         $(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
       
@@ -186,7 +186,7 @@ $(function() {
           this.value = this.value.toUpperCase();
         });
         
-        $(document).on('click autocompletechange mouseenter mouseleave', '.Barang, .Type, .Quantity, .JS', function(){
+        $(document).on('click autocompletechange', '.Barang, .ICode, .Type, .Quantity, .JS, .Amount', function(){
           var this2 = this;
           $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
           .done(function(data){
@@ -206,7 +206,7 @@ $(function() {
           });
         });
         
-        $(document).on('keyup', '.Barang, .Type, .Quantity, .JS', function(e){
+        $(document).on('keyup', '.Barang, .ICode, .Type, .Quantity, .JS, .Amount', function(e){
           var this2 = this;
           if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
             $.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})

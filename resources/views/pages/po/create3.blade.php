@@ -131,7 +131,7 @@ $(document).ready(function(){
 		this.value = this.value.toUpperCase();
 	});
 	
-	$(document).on('click autocompletechange mouseenter mouseleave', '.Barang, .Type, .Quantity, .JS', function(){
+	$(document).on('click autocompletechange', '.Barang, .ICode, .Type, .Quantity, .JS, .Amount', function(){
 		var this2 = this;
 		$.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
 		.done(function(data){
@@ -151,7 +151,7 @@ $(document).ready(function(){
 		});
 	});
 	
-	$(document).on('keyup', '.Barang, .Type, .JS', function(e){
+	$(document).on('keyup', '.Barang, .ICode, .Type, .Quantity, .JS, .Amount', function(e){
 		var this2 = this;
 		if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
 			$.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
@@ -200,7 +200,7 @@ $(document).ready(function(){
 				this.value = this.value.toUpperCase();
 			});
 			
-			$(document).on('click autocompletechange mouseenter mouseleave', '.Barang, .Type, .Quantity, .JS', function(){
+			$(document).on('click autocompletechange', '.Barang, .ICode, .Type, .Quantity, .JS, .Amount', function(){
 				var this2 = this;
 				$.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
 				.done(function(data){
@@ -220,7 +220,7 @@ $(document).ready(function(){
 				});
 			});
 			
-			$(document).on('keyup', '.Barang, .Type, .JS', function(e){
+			$(document).on('keyup', '.Barang, .ICode, .Type, .Quantity, .JS, .Amount', function(e){
 				var this2 = this;
 				if(e.keyCode == 9 || e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40){
 					$.post("/barang", { "_token": "{{ csrf_token() }}", namabarang: $(this).closest('tr').find(".Barang").val(), tipebarang: $(this).closest('tr').find(".Type").val() }, function(data){})
