@@ -176,9 +176,9 @@
           </div>
           <!-- Discount & Pembulatan Input -->
           <div class="form-group">
-						{!! Form::label('Discount', 'Inv Discount(%)', ['class' => "col-sm-2 control-label"]) !!}
+						{!! Form::label('Discount', 'Inv Discount', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
-              <input id="Discount" name="Discount" type="number" class="form-control" placeholder="Percent" value="{{$invoice->Discount}}" onKeyUp="tot()" >
+              <input id="Discount" name="Discount" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Discount,0,',','.')}}" onKeyUp="tot()" >
             </div>
             {!! Form::label('Pembulatan', 'Pembulatan (-)', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
@@ -240,20 +240,21 @@ function tot(){
 $(document).ready(function(){
 	//Mask Price
 	$("#Pembulatan").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	$("#Discount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 	$("#Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 	//Mask Discount
-	$(document).on('keyup', '#Discount', function(){
+	/*$(document).on('keyup', '#Discount', function(){
 	if(parseInt($(this).val()) > 100)
 		 $(this).val(100);
 	else if(parseInt($(this).val()) < 0)
 		$(this).val(0);
-	});
+	});*/
 });
 
 $(function() {
 	$('#TglTerima').datepicker({
 		format: "dd/mm/yyyy",
-		startDate: '{{$periodes->first()->E}}',
+		startDate: '{{$periodes->first()->S}}',
 		todayHighlight: true,
 		autoclose: true
 	}); 

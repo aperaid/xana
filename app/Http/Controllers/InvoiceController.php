@@ -430,7 +430,7 @@ class InvoiceController extends Controller
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    ->where('periode.Quantity', '!=' , 0)
+    //->where('periode.Quantity', '!=' , 0)
 		->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -530,7 +530,7 @@ class InvoiceController extends Controller
 		->where('po.POCode', $invoice->POCode)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    ->where('periode.Quantity', '!=' , 0)
+    //->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -690,7 +690,7 @@ class InvoiceController extends Controller
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    ->where('periode.Quantity', '!=' , 0)
+    //->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -842,7 +842,7 @@ class InvoiceController extends Controller
 		->where('po.POCode', $invoice->POCode)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    ->where('periode.Quantity', '!=' , 0)
+    //->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -999,7 +999,7 @@ class InvoiceController extends Controller
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    ->where('periode.Quantity', '!=' , 0)
+    //->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -1149,7 +1149,7 @@ class InvoiceController extends Controller
 		->where('po.POCode', $invoice->POCode)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
-    ->where('periode.Quantity', '!=' , 0)
+    //->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
     ->get();
@@ -2220,7 +2220,7 @@ class InvoiceController extends Controller
 			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->where('JSC', 'Jual')
-			->where('pocustomer.INVP', 0)
+			//->where('pocustomer.INVP', 0)
 			->whereExists(function($query)
 				{
 					$query->select('periode.Reference')
@@ -2240,7 +2240,7 @@ class InvoiceController extends Controller
 			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->where('JSC', 'Jual')
-			->where('pocustomer.INVP', 0)
+			//->where('pocustomer.INVP', 0)
 			->whereExists(function($query)
 				{
 					$query->select('periode.Reference')

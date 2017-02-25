@@ -11,7 +11,7 @@
         <li class="active"><a href="#sewa_tab" data-toggle="tab">Sewa</a></li>
 				<li><a href="#sewa_pisah_tab" data-toggle="tab">Sewa Pisah</a></li>
         <li><a href="#jual_tab" data-toggle="tab">Jual</a></li>
-				<li><a href="#jual_pisah_tab" data-toggle="tab">Jual Pisah</a></li>
+				<!--<li><a href="#jual_pisah_tab" data-toggle="tab">Jual Pisah</a></li>-->
         <li><a href="#claim_tab" data-toggle="tab">Claim</a></li>
       </ul>
       <div class="tab-content">
