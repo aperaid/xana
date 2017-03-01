@@ -193,6 +193,7 @@ class TransaksiController extends Controller
 			$transaksic = TransaksiClaim::select([
 				'periodeclaim',
 				'periodeextend',
+				'per.maxperiode',
 				'transaksiclaim.*',
 				'invoice.id AS invoiceid',
 				'invoice.Invoice',
@@ -218,6 +219,10 @@ class TransaksiController extends Controller
 			})
 			->leftJoin(DB::raw(sprintf( '(%s) AS T2', $T2->toSql() )), function($join){
 				$join->on('T2.Reference', '=', 'periode.Reference');
+			})
+			->leftJoin(DB::raw('(select Reference, IsiSJKir, MAX(Periode) AS maxperiode from Periode group by Reference) AS per'), function($join){
+				$join->on('per.Reference', '=', 'periode.Reference');
+				$join->on('per.IsiSJKir', '=', 'periode.IsiSJKir');
 			})
 			->where('invoice.JSC', 'Claim')
 			->groupBy('transaksiclaim.Periode')
@@ -606,6 +611,7 @@ class TransaksiController extends Controller
 	public function getClaim2(Request $request, $id)
 	{
 		Session::put('Tgl', $request->Tgl);
+		Session::put('Discount', $request->Discount);
 		Session::put('Reference', $request->Reference);
 		
 		$Tgl = Session::get('Tgl');
@@ -734,6 +740,7 @@ class TransaksiController extends Controller
 	public function postClaim(Request $request)
 	{
 		$Tgl = Session::get('Tgl');
+		$Discount = Session::get('Discount');
 		$Reference = Session::get('Reference');
 		
 		//get first count for periode that start from 1 after new year if exist
@@ -761,6 +768,19 @@ class TransaksiController extends Controller
 			'Count' => $count,
 			'Termin' => $termin,
 		]);
+		
+		$duplicateRecords = Invoice::select([
+			DB::raw('MAX(id) AS maxid')
+		])
+		->selectRaw('count(`Reference`) as `occurences`')
+		->where('Reference', $Reference)
+		->where('JSC', 'Claim')
+		->groupBy('Periode')
+		->having('occurences', '>', 1)
+		->pluck('maxid');
+		
+		Invoice::whereIn('id', $duplicateRecords)->delete();
+		DB::statement('ALTER TABLE invoice auto_increment = 1;');
 		
 		$maxperiodeid = Periode::select([
 			DB::raw('MAX(periode.id) AS maxid')
@@ -799,6 +819,7 @@ class TransaksiController extends Controller
 			$periode->IsiSJKir = $isisjkir[$key];
 			$periode->Reference = $Reference;
 			$periode->Purchase = $purchase[$key];
+			$periode->Claim = $input['claim'][$key];
 			$periode->Deletes = 'Claim';
 			$periode->save();
 		}
@@ -815,7 +836,7 @@ class TransaksiController extends Controller
 		{
 			DB::select('CALL insert_claim(?,?,?,?)',array($input['QClaim'][$key], $input['Purchase'][$key], $input['Periode'], $input['claim'][$key]));
 		}
-
+		
 		$claims = $input['id'];
 		foreach ($claims as $key => $claim)
 		{
@@ -825,9 +846,11 @@ class TransaksiController extends Controller
 			$claim->Tgl = $Tgl;
 			$claim->QClaim = $input['QClaim'][$key];
 			$claim->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
+			$claim->Discount = $Discount;
 			$claim->Purchase = $input['Purchase'][$key];
 			$claim->Periode = $input['Periode'];
 			$claim->IsiSJKir = $input['IsiSJKir'][$key];
+			$claim->Reference = $Reference;
 			//$claim->PPN = $input['PPN'];
 			$claim->save();
 		}
@@ -840,6 +863,7 @@ class TransaksiController extends Controller
 		$history->save();
 
 		Session::forget('Tgl');
+		Session::forget('Discount');
 		Session::forget('Reference');
 		
 		return redirect()->route('transaksi.index');
@@ -850,13 +874,13 @@ class TransaksiController extends Controller
 		$invoice = Invoice::find($request->id);
 		
 		$periodes = Periode::select([
-			DB::raw('SUM(periode.Quantity) AS SumQuantity'),
+			//DB::raw('SUM(periode.Quantity) AS SumQuantity'),
 			'periode.*',
 		])
 		->where('periode.Reference', $invoice->Reference)
 		->where('periode.Periode', $invoice->Periode)
-		->where('periode.Deletes', 'Claim')
-		->groupBy('periode.IsiSJKir');
+		->where('periode.Deletes', 'Claim');
+		//->groupBy('periode.IsiSJKir');
 		$periodeid = $periodes->pluck('periode.id');
 		$quantity = $periodes->pluck('periode.Quantity');
 		$claim = $periodes->pluck('periode.Claim');
@@ -891,8 +915,18 @@ class TransaksiController extends Controller
 		TransaksiClaim::whereIn('Claim', $claim)->delete();
 		DB::statement('ALTER TABLE transaksiclaim auto_increment = 1;');
 		
-		Invoice::destroy($invoice->id);
-		DB::statement('ALTER TABLE invoice auto_increment = 1;');
+		$invoices = Invoice::select('id')
+    ->from('invoice as inv')
+    ->whereNotExists(function($query)
+      {
+        $query->from('transaksiclaim as tran')
+        ->whereRaw('inv.Reference = tran.Reference AND inv.Periode = tran.Periode');
+      })
+    ->whereRaw('(inv.JSC = "Claim")')
+    ->pluck('id');
+		
+		Invoice::whereIn('id', $invoices)->delete();
+    DB::statement('ALTER TABLE invoice auto_increment = 1;');
 		
 		$history = new History;
 		$history->User = Auth::user()->name;
@@ -900,7 +934,6 @@ class TransaksiController extends Controller
 		$history->save();
 		
 		Session::flash('message', 'Delete claim is successful!');
-
-		return redirect()->route('transaksi.index');
+		//return redirect()->route('transaksi.index');
 	}
 }

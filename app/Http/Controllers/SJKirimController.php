@@ -667,6 +667,10 @@ class SJKirimController extends Controller
 	{
 		$phpWord = new \PhpOffice\PhpWord\PhpWord();
 		$sjkirim = SJKirim::find($id);
+		$reference = Reference::leftJoin('project', 'pocustomer.PCode', 'project.PCode')
+		->leftJoin('customer', 'project.CCode', 'customer.CCode')
+		->where('Reference', $sjkirim->Reference)
+		->first();
 		
 		$isisjkirims = IsiSJKirim::leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
 		->where('isisjkirim.SJKir', $sjkirim->SJKir)
@@ -713,7 +717,16 @@ class SJKirimController extends Controller
 		}
 		
 		$user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-		$path = sprintf("C:\Users\Public\Documents\SJ_");
+		if($reference->PPN==1)
+			if($sjkirim->JS=='Jual')
+				$path = sprintf("C:\Users\Public\Documents\PPN\JUAL\SJ\SJ_");
+			else
+				$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\SJ\SJ_");
+		else
+			if($sjkirim->JS=='Jual')
+				$path = sprintf("C:\Users\Public\Documents\NON PPN\JUAL\SJ\SJ_");
+			else
+				$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\SJ\SJ_");
 		$clear = str_replace("/","_",$sjkirim->SJKir);
 		$download = sprintf('%s.docx', $clear);
 		

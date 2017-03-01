@@ -167,7 +167,6 @@ class POController extends Controller
 					'id' => $request['poid'],
 					'POCode' => $request['POCode'],
 					'Tgl' => $request['Tgl'],
-					'Discount' => $request['Discount'],
 					'Periode' => $periode,
 					'Catatan' => $request['Catatan'],
 				]);
@@ -415,7 +414,6 @@ class POController extends Controller
 
     $po->id = $request->poid;
     $po->Tgl = $request->Tgl;
-    $po->Discount = $request->Discount;
     $po->Catatan = $request->Catatan;
     $po->save();
 

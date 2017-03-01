@@ -33,7 +33,16 @@
           {!! Form::label('Transport', 'Transport') !!}
           {!! Form::text('Transport', null, array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 100.000', 'required')) !!}
         </div>
-        <div class="form-group">
+				<div class="form-group">
+					{!! Form::label('Discount', 'Discount(%)') !!}
+          <div class="input-group">
+            <div class="input-group-addon">
+              <i class="fa fa-calendar"></i>
+            </div>
+            {!! Form::number('Discount', null, array('id' => 'Discount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '15')) !!}
+          </div>
+				</div>
+        <!--<div class="form-group">
         @if(Auth::user()->access == 'Admin')
 					{!! Form::hidden('PPNT', 0) !!}
 					{!! Form::checkbox('PPNT', 1, null, ['id' => 'PPNT', 'class' => 'minimal']) !!}
@@ -45,7 +54,7 @@
 				@elseif(Auth::user()->access == 'POINVNONPPN' || Auth::user()->access == 'CUSTINVNONPPN')
 					{!! Form::hidden('PPNT', 0) !!}
         @endif
-        </div>
+        </div>-->
         <div class="form-group">
           {!! Form::label('PCode', 'Project Code') !!}
           {!! Form::text('PCode', null, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'maxlength' => '5', 'style' => 'text-transform: uppercase', 'required')) !!}
@@ -307,6 +316,13 @@ $(function() {
 $(document).ready(function(){
 	//Mask Transport
 	$("#Transport").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	//Mask Discount
+	$(document).on('keyup', '#Discount', function(){
+	if(parseInt($(this).val()) > 100)
+		 $(this).val(100);
+	else if(parseInt($(this).val()) < 0)
+		$(this).val(0);
+	});
 	//iCheck
 	$('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
 		checkboxClass: 'icheckbox_flat-green',

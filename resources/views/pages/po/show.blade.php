@@ -48,15 +48,6 @@
           </div>
         </div>
         <div class="form-group">
-          {!! Form::label('Discount', 'Discount(%)') !!}
-          <div class="input-group">
-            <div class="input-group-addon">
-              <i class="fa fa-calendar"></i>
-            </div>
-            {!! Form::number('Discount', $po -> Discount, array('id' => 'Discount', 'class' => 'form-control', 'readonly')) !!}
-          </div>
-        </div>
-        <div class="form-group">
           {!! Form::label('Catatan', 'Catatan') !!}
           {!! Form::textarea('Catatan', $po -> Catatan, array('class' => 'form-control', 'rows' => '5', 'readonly')) !!}
         </div>

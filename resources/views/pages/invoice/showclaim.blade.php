@@ -53,8 +53,8 @@
           <table id="datatables" class="table table-bordered table-striped table-responsive">
             <thead>
               <tr>
-                <th align="center">SJKir</th>
-                <th align="center">Item</th>
+                <th>SJKir</th>
+                <th>Item</th>
                 <th>Tgl Claim</th>
                 <th>Quantity Claim</th>
                 <th>Price/Unit</th>
@@ -77,15 +77,22 @@
             </tbody>
           </table>
 					<hr>
-          <!-- Total & Pajak Input -->
-          <div class="form-group">
-            {!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-3">
+          <!-- Total -->
+					<div class="form-group">
+						{!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-8">
               {!! Form::text('Total', 'Rp '.number_format($total, 2, ',','.'), array('id' => 'Total', 'class' => 'form-control', 'readonly')) !!}
             </div>
-						{!! Form::label('Pajak', 'Pajak', ['class' => "col-sm-2 control-label"]) !!}
+					</div>
+          <!-- Discount & Pajak Input -->
+          <div class="form-group">
+						{!! Form::label('PODisc', 'PO Discount '.$transaksis->first()->Discount.'%', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
-              {!! Form::text('Pajak', 'Rp '.$Pajak, array('id' => 'Pajak', 'class' => 'form-control', 'readonly')) !!}
+							{!! Form::text('PODisc', 'Rp '.number_format($Discount, 2, ',','.'), ['class' => 'form-control', 'readonly']) !!}
+            </div>
+						{!! Form::label('Pajak', 'Pajak 10%', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-3">
+              {!! Form::text('Pajak', 'Rp '.number_format($Pajak, 2, ',','.'), array('id' => 'Pajak', 'class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <!-- Catatan Input -->
@@ -133,20 +140,20 @@
           </div>
           <!-- Discount & Pembulatan Input -->
           <div class="form-group">
-            {!! Form::label('Discount', 'Inv Discount', ['class' => "col-sm-2 control-label"]) !!}
+            {!! Form::label('Discount', 'Inv Discount (-)', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
-              <input id="Discount" name="Discount" type="text" class="form-control" placeholder="15" value="{{'Rp '. number_format($invoice->Discount,0,',','.')}}" onKeyUp="tot()" >
+              <input id="Discount" name="Discount" type="text" class="form-control" placeholder="15" value="{{'Rp '. number_format($invoice->Discount,0,',','.')}}" onKeyUp="tot()" autocomplete="off">
             </div>
 						{!! Form::label('Pembulatan', 'Pembulatan (-)', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
-              <input id="Pembulatan" name="Pembulatan" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Pembulatan,0,',','.')}}" onKeyUp="tot()" >
+              <input id="Pembulatan" name="Pembulatan" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Pembulatan,0,',','.')}}" onKeyUp="tot()" autocomplete="off">
             </div>
           </div>
           <!-- Grand Total Input -->
           <div class="form-group">
             {!! Form::label('GrandTotal', 'Grand Total', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-8">
-              {!! Form::text('GrandTotal', 'Rp '.$totals, array('class' => 'form-control', 'readonly')) !!}
+              {!! Form::text('GrandTotal', 'Rp '.number_format($GrandTotal, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           {!! Form::hidden('Total2', round($total, 2), array('id' => 'Total2', 'class' => 'form-control')) !!}

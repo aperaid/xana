@@ -100,7 +100,13 @@
                 <td>{{$transaksic->Periode}}</td>
                 <td>{{$transaksic->Tgl}}</td>
                 <td>{{$transaksic->Project}}</td>
-                <td><button class='btn btn-block btn-danger claimdelete'>Cancel</button></td>
+								<td>
+									@if ($transaksic->Periode == $transaksic->maxperiode)
+										<button class='btn btn-block btn-danger claimdelete'>Cancel</button>
+									@else
+										<button class='btn btn-block btn-default' disabled>Cancel</button>
+									@endif
+								</td>
               </tr>
               @endforeach
             </tbody>

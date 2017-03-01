@@ -108,11 +108,11 @@ SELECT var_q - isisjkirim.QSisaKem INTO var_q FROM isisjkirim WHERE isisjkirim.I
 IF var_q < 0 THEN
 UPDATE isisjkirim SET isisjkirim.QSisaKemInsert = ABS(var_q), isisjkirim.QSisaKem = ABS(var_q) WHERE isisjkirim.IsiSJKir = var_isisjkir AND isisjkirim.Purchase = p_purchase;
 UPDATE periode SET periode.Quantity = ABS(var_q) WHERE periode.Periode = p_periode AND periode.IsiSJKir = var_isisjkir AND periode.Purchase = p_purchase AND (periode.Deletes = "Sewa" OR periode.Deletes = "Extend");
-UPDATE periode SET periode.Quantity = periode.Quantity + var_q, periode.Claim = p_claim WHERE periode.Periode = p_periode AND periode.IsiSJKir = var_isisjkir AND periode.Purchase = p_purchase AND periode.Deletes = "Claim";
+UPDATE periode SET periode.Quantity = periode.Quantity + var_q WHERE periode.Periode = p_periode AND periode.IsiSJKir = var_isisjkir AND periode.Purchase = p_purchase AND periode.Claim = p_claim AND periode.Deletes = "Claim";
 ELSE
 UPDATE isisjkirim SET isisjkirim.QSisaKemInsert = 0, isisjkirim.QSisaKem = 0 WHERE isisjkirim.IsiSJKir = var_isisjkir AND isisjkirim.Purchase = p_purchase;
 UPDATE periode SET periode.Quantity = 0 WHERE periode.Periode = p_periode AND periode.IsiSJKir = var_isisjkir AND periode.Purchase = p_purchase AND (periode.Deletes = "Sewa" OR periode.Deletes = "Extend");
-UPDATE periode SET periode.Claim = p_claim WHERE periode.Periode = p_periode AND periode.IsiSJKir = var_isisjkir AND periode.Purchase = p_purchase AND periode.Deletes = "Claim" AND periode.Claim IS NULL;
+UPDATE periode SET periode.Claim = p_claim WHERE periode.Periode = p_periode AND periode.IsiSJKir = var_isisjkir AND periode.Purchase = p_purchase AND periode.Claim = p_claim AND periode.Deletes = "Claim" AND periode.Claim IS NULL;
 END IF;
 END WHILE;
 END');

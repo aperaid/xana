@@ -55,16 +55,15 @@
           <table id="datatables" class="table table-bordered table-striped table-responsive">
             <thead>
               <tr>
-                <th align="center">SJ Kirim</th>
-                <th align="center">SJ Kembali</th>
-                <th align="center">Item</th>
+                <th>SJ Kirim</th>
+                <th>SJ Kembali</th>
+                <th>Item</th>
                 <th>S</th>
                 <th>E</th>
                 <th>S-E</th>
                 <th>Periode</th>
                 <th>I</th>
                 <th>Quantity</th>
-                <th>PO Discount(%)</th>
                 <th>Price/Unit</th>
                 <th>Jumlah</th>
               </tr>
@@ -84,7 +83,6 @@
                 <td>{{$Days2[$key]}}</td>
                 <td>{{$I[$key]}}</td>
                 <td>{{$periode->SumQuantity}}</td>
-                <td>{{$periode->Discount}}</td>
                 <td>Rp {{ number_format($periode->Amount-($periode->Amount*$periode->Discount/100), 2, ',', '.') }}</td>
                 <td>Rp {{ number_format($total2[$key], 2, ',', '.') }}</td>
               </tr>
@@ -92,19 +90,26 @@
             </tbody>
           </table>
 					<hr>
-          <!-- Total & Transport & Pajak Input -->
-          <div class="form-group">
+          <!-- Total -->
+					<div class="form-group">
 						{!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
-            <div class="col-sm-2">
+            <div class="col-sm-8">
               {!! Form::text('Total', 'Rp '.number_format($total, 2, ',','.'), array('id' => 'Total', 'class' => 'form-control', 'readonly')) !!}
+            </div>
+					</div>
+          <!-- Discount & Transport & Pajak Input -->
+          <div class="form-group">
+						{!! Form::label('PODisc', 'PO Discount '.$invoice->podisc.'%', ['class' => "col-sm-2 control-label"]) !!}
+            <div class="col-sm-2">
+							{!! Form::text('PODisc', 'Rp '.number_format($Discount, 2, ',','.'), ['class' => 'form-control', 'readonly']) !!}
             </div>
             {!! Form::label('Transport', 'Transport', ['class' => "col-sm-1 control-label"]) !!}
             <div class="col-sm-2">
-              {!! Form::text('Transport', 'Rp '.$Transport, ['class' => 'form-control', 'readonly']) !!}
+							{!! Form::text('Transport', 'Rp '.number_format($Transport, 2, ',','.'), ['class' => 'form-control', 'readonly']) !!}
             </div>
-						{!! Form::label('Pajak', 'Pajak', ['class' => "col-sm-1 control-label"]) !!}
+						{!! Form::label('Pajak', 'Pajak 10%', ['class' => "col-sm-1 control-label"]) !!}
             <div class="col-sm-2">
-              {!! Form::text('Pajak', 'Rp '.$Pajak, array('id' => 'Pajak', 'class' => 'form-control', 'readonly')) !!}
+              {!! Form::text('Pajak', 'Rp '.number_format($Pajak, 2, ',','.'), array('id' => 'Pajak', 'class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <div class="form-group">
@@ -176,24 +181,24 @@
           </div>
           <!-- Discount & Pembulatan Input -->
           <div class="form-group">
-						{!! Form::label('Discount', 'Inv Discount', ['class' => "col-sm-2 control-label"]) !!}
+						{!! Form::label('Discount', 'Inv Discount (-)', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
-              <input id="Discount" name="Discount" type="text" class="form-control" placeholder="Percent" value="{{'Rp '. number_format($invoice->Discount,0,',','.')}}" onKeyUp="tot()" >
+              <input id="Discount" name="Discount" type="text" class="form-control" placeholder="Percent" value="{{'Rp '. number_format($invoice->Discount,0,',','.')}}" onKeyUp="tot()" autocomplete="off">
             </div>
             {!! Form::label('Pembulatan', 'Pembulatan (-)', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
-              <input id="Pembulatan" name="Pembulatan" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Pembulatan,0,',','.')}}" onKeyUp="tot()" >
+              <input id="Pembulatan" name="Pembulatan" type="text" class="form-control" placeholder="Rp. 10,000" value="{{'Rp '. number_format($invoice->Pembulatan,0,',','.')}}" onKeyUp="tot()" autocomplete="off">
             </div>
           </div>
           <!-- Grand Total Input -->
           <div class="form-group">
             {!! Form::label('GrandTotal', 'Grand Total', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
-              {!! Form::text('GrandTotal', 'Rp '.$totals, array('class' => 'form-control', 'readonly')) !!}
+              {!! Form::text('GrandTotal', 'Rp '.number_format($GrandTotal, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
             </div>
 						{!! Form::label('GrandTotalTransport', 'Grand Total Transport', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
-							{!! Form::text('GrandTotalTransport', 'Rp '.$GrandTotalTransport, array('class' => 'form-control', 'readonly')) !!}
+							{!! Form::text('GrandTotalTransport', 'Rp '.number_format($GrandTotalTransport, 2, ',','.'), array('class' => 'form-control', 'readonly')) !!}
             </div>
           </div>
           <!-- Footer Box -->
@@ -203,7 +208,7 @@
             <!-- Print Button -->
             <a href="{{route('invoice.BAPisah', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Berita Acara</a>
             <a href="{{route('invoice.InvsPisah', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
-            @if($invoice->PPNT==0 && ($invoice->Times!=0 || $invoice->TimesKembali!=0))
+            @if($invoice->PPN==1 && $invoice->PPNT==0 && ($invoice->Times!=0 || $invoice->TimesKembali!=0))
               <a href="{{route('invoice.InvstPisah', $invoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Transport Invoice</a>
             @endif
             <!-- Submit Button -->

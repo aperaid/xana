@@ -46,7 +46,7 @@ class ReferenceController extends Controller
 	public function index()
 	{
 		if(Auth::user()->access == 'Admin'){
-			$reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id', 'po.Discount'])
+			$reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id'])
 			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->leftJoin('transaksi', 'pocustomer.Reference', '=', 'transaksi.Reference')
@@ -54,7 +54,7 @@ class ReferenceController extends Controller
 			->groupBy('pocustomer.Reference')
 			->get();
 		}else{
-			$reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id', 'po.Discount'])
+			$reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id'])
 			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->leftJoin('transaksi', 'pocustomer.Reference', '=', 'transaksi.Reference')
@@ -108,7 +108,8 @@ class ReferenceController extends Controller
 			'PCode' => $request['PCode'],
 			'PPN' => $request['PPN'],
 			'Transport' => str_replace(".","",substr($request->Transport, 3)),
-			'PPNT' => $request['PPNT'],
+			'Discount' => $request['Discount'],
+			//'PPNT' => $request['PPNT'],
 		]);
 
 		$history = new History;
@@ -421,6 +422,7 @@ class ReferenceController extends Controller
 		$reference->Tgl = $request->Tgl;
 		$reference->PCode = $request->PCode;
 		$reference->Transport = str_replace(".","",substr($request->Transport, 3));
+    $reference->Discount = $request->Discount;
 		$reference->save();
 		
 		$history = new History;

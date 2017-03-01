@@ -49,15 +49,6 @@
           </div>
         </div>
         <div class="form-group">
-          {!! Form::label('Discount', 'Discount(%)') !!}
-          <div class="input-group">
-            <div class="input-group-addon">
-              <i class="fa fa-calendar"></i>
-            </div>
-            {!! Form::number('Discount', null, array('id' => 'Discount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '15')) !!}
-          </div>
-        </div>
-        <div class="form-group">
           {!! Form::label('Catatan', 'Catatan') !!}
           {!! Form::textarea('Catatan', null, array('id' => 'Catatan', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Catatan', 'rows' => '5')) !!}
         </div>

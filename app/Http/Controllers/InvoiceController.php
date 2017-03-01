@@ -40,21 +40,22 @@ class InvoiceController extends Controller
 	}
 	
   public function getInvoiceSewa($id){
-    $parameter = Invoice::find($id);
+    $invoice = Invoice::find($id);
     
     $invoice = Invoice::select([
       'invoice.*',
       'pocustomer.id as pocusid',
       'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
       'pocustomer.PPNT',
       'project.Project',
       'customer.Company',
+			'customer.PPN',
     ])
     ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
     ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
     ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('invoice.Reference', $parameter->Reference)
-    ->where('invoice.Invoice', $parameter->Invoice)
+    ->where('invoice.Invoice', $invoice->Invoice)
     ->first();
     
     $pocode = Transaksi::where('transaksi.Reference', $invoice->Reference)
@@ -69,7 +70,6 @@ class InvoiceController extends Controller
       'transaksi.Barang',
       'transaksi.Amount',
       'transaksi.POCode',
-      'po.Discount',
 			DB::raw('SUM(periode.Quantity) as SumQuantity'),
       'periode.S',
       'periode.E',
@@ -79,11 +79,10 @@ class InvoiceController extends Controller
     ])
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
     ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
-    ->where('transaksi.Reference', $parameter->Reference)
+    ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
-    ->where('periode.Periode', $parameter->Periode)
+    ->where('periode.Periode', $invoice->Periode)
     //->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
@@ -106,9 +105,9 @@ class InvoiceController extends Controller
 		}
 
     $total = 0;
-    foreach($periodes as $key => $periode2){
-      $start = $periode2->S;
-      $end = $periode2->E;
+    foreach($periodes as $key => $periode){
+      $start = $periode->S;
+      $end = $periode->E;
 
       $start2 = str_replace('/', '-', $start);
       $end2 = str_replace('/', '-', $end);
@@ -124,30 +123,30 @@ class InvoiceController extends Controller
       
       $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode2->SumQuantity*($periode2->Amount-($periode2->Amount*$periode2->Discount/100)); 
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*$periode->Amount; 
       $total += $total2[$key];
     }
 
-		if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
+		
+		$Discount = $total*$invoice->podisc/100;
 
-    if($invoice->PPNT == 1)
-      $totals = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+		$Transport = $toss*($invoice->TimesKembali+$invoice->Times);
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
     else
-      $totals = number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
-
-    if($invoice->PPNT == 1)
-      $Pajak = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1), 2, ',','.');
-    else
-      $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
-
-		$Transport = number_format(($toss*$invoice->TimesKembali)+($toss*$invoice->Times), 2, ',','.');
-		$GrandTotalTransport = number_format(($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times), 2, ',','.');
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*($invoice->TimesKembali+$invoice->Times);
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount-$invoice->Discount-$invoice->Pembulatan;
 		
 		$tglterima = str_replace('/', '-', $invoice->TglTerima);
 		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
@@ -164,7 +163,8 @@ class InvoiceController extends Controller
       ->with('I', $I)
       ->with('toss', $toss)
       ->with('total', $total)
-      ->with('totals', $totals)
+      ->with('GrandTotal', $GrandTotal)
+      ->with('Discount', $Discount)
       ->with('Pajak', $Pajak)
       ->with('Transport', $Transport)
 			->with('GrandTotalTransport', $GrandTotalTransport)
@@ -178,12 +178,13 @@ class InvoiceController extends Controller
 	}
 	
 	public function getInvoiceSewaPisah($id){
-    $parameter = InvoicePisah::find($id);
+    $invoice = InvoicePisah::find($id);
     
     $invoice = InvoicePisah::select([
       'invoicepisah.*',
       'pocustomer.id as pocusid',
       'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
       'pocustomer.PPNT',
       'project.Project',
       'customer.Company',
@@ -191,7 +192,7 @@ class InvoiceController extends Controller
     ->leftJoin('pocustomer', 'invoicepisah.Reference', '=', 'pocustomer.Reference')
     ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
     ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('invoicepisah.Invoice', $parameter->Invoice)
+    ->where('invoicepisah.Invoice', $invoice->Invoice)
     ->first();
     
     $periodes = Periode::select([
@@ -200,7 +201,6 @@ class InvoiceController extends Controller
       'transaksi.Barang',
       'transaksi.Amount',
       'transaksi.POCode',
-      'po.Discount',
 			DB::raw('SUM(periode.Quantity) as SumQuantity'),
       'periode.S',
       'periode.E',
@@ -210,12 +210,11 @@ class InvoiceController extends Controller
     ])
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
     ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
-    ->where('transaksi.Reference', $parameter->Reference)
-		->where('po.POCode', $parameter->POCode)
+    ->where('transaksi.Reference', $invoice->Reference)
+		->where('transaksi.POCode', $invoice->POCode)
     ->where('transaksi.JS', 'Sewa')
-    ->where('periode.Periode', $parameter->Periode)
+    ->where('periode.Periode', $invoice->Periode)
     //->where('periode.Quantity', '!=' , 0)
     ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
     ->orderBy('periode.id', 'asc')
@@ -238,9 +237,9 @@ class InvoiceController extends Controller
 		}
 
     $total = 0;
-    foreach($periodes as $key => $periode2){
-      $start = $periode2->S;
-      $end = $periode2->E;
+    foreach($periodes as $key => $periode){
+      $start = $periode->S;
+      $end = $periode->E;
 
       $start2 = str_replace('/', '-', $start);
       $end2 = str_replace('/', '-', $end);
@@ -256,30 +255,30 @@ class InvoiceController extends Controller
       
       $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode2->SumQuantity*($periode2->Amount-($periode2->Amount*$periode2->Discount/100)); 
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*$periode->Amount;
       $total += $total2[$key];
     }
 
-		if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
 
-    if($invoice->PPNT == 1)
-      $totals = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
-    else
-      $totals = number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    $Discount = $total*$invoice->podisc/100;
 
-    if($invoice->PPNT == 1)
-      $Pajak = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1), 2, ',','.');
-    else
-      $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
+		$Transport = $toss*($invoice->TimesKembali+$invoice->Times);
 
-		$Transport = number_format(($toss*$invoice->TimesKembali)+($toss*$invoice->Times), 2, ',','.');
-		$GrandTotalTransport = number_format(($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times), 2, ',','.');
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
+    else
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*($invoice->TimesKembali+$invoice->Times);
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount-$invoice->Discount-$invoice->Pembulatan;
 		
 		$tglterima = str_replace('/', '-', $invoice->TglTerima);
 		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
@@ -295,7 +294,8 @@ class InvoiceController extends Controller
       ->with('I', $I)
       ->with('toss', $toss)
       ->with('total', $total)
-      ->with('totals', $totals)
+      ->with('GrandTotal', $GrandTotal)
+      ->with('Discount', $Discount)
       ->with('Pajak', $Pajak)
       ->with('Transport', $Transport)
 			->with('GrandTotalTransport', $GrandTotalTransport)
@@ -311,13 +311,9 @@ class InvoiceController extends Controller
   public function postInvoiceSewa(Request $request, $id)
   {
     $invoice = Invoice::find($id);
-    
-    $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
-    
-    $invoice->id = $id;
 		$invoice->Times = $request->Times;
 		$invoice->TimesKembali = $request->TimesKembali;
-    $invoice->Discount = $request->Discount;
+    $invoice->Discount = str_replace(".","",substr($request->Discount, 3));
 		$invoice->TglTerima = $request->TglTerima;
 		$invoice->Termin = $request->Termin;
     $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
@@ -333,11 +329,12 @@ class InvoiceController extends Controller
 		foreach ($invoicepisahs as $key => $invoicepisah)
     {
 			$invoicepisah = InvoicePisah::find($invoicepisahs[$key]);
-			//$invoicepisah->Discount = $invoice->Discount;
 			$invoicepisah->Times = 0;
 			$invoicepisah->TimesKembali = 0;
 			$invoicepisah->TglTerima = $invoice->TglTerima;
 			$invoicepisah->Termin = $invoice->Termin;
+			//$invoicepisah->Discount = str_replace(".","",substr($invoice->Discount, 3));
+			//$invoicepisah->Pembulatan = str_replace(".","",substr($invoice->Pembulatan, 3));
 			$invoicepisah->save();
 		}
 		InvoicePisah::where('id', $invoicepisahs)->update(['Times' => $invoice->Times, 'TimesKembali' => $invoice->TimesKembali]);
@@ -355,11 +352,9 @@ class InvoiceController extends Controller
 	public function postInvoiceSewaPisah(Request $request, $id)
   {
     $invoicepisah = InvoicePisah::find($id);
-    
-    $invoicepisah->id = $id;
 		$invoicepisah->Times = $request->Times;
 		$invoicepisah->TimesKembali = $request->TimesKembali;
-    $invoicepisah->Discount = $request->Discount;
+    $invoicepisah->Discount = str_replace(".","",substr($request->Discount, 3));
 		$invoicepisah->TglTerima = $request->TglTerima;
 		$invoicepisah->Termin = $request->Termin;
     $invoicepisah->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
@@ -377,11 +372,12 @@ class InvoiceController extends Controller
 		->get();
     
     $invoice = Invoice::find($invoice->id);
-		//$invoice->Discount = $invoicepisah->Discount;
 		$invoice->Times = $totaltimes->sum('Times');
 		$invoice->TimesKembali = $totaltimes->sum('TimesKembali');
 		$invoice->TglTerima = $invoicepisah->TglTerima;
 		$invoice->Termin = $invoicepisah->Termin;
+    //$invoicepisah->Discount = str_replace(".","",substr($request->Discount, 3));
+    //$invoicepisah->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
 		$invoice->save();
     
     $history = new History;
@@ -421,11 +417,9 @@ class InvoiceController extends Controller
       'periode.S',
       'periode.E',
       DB::raw('SUM(periode.Quantity) as SumQuantity'),
-      'po.POCode'
     ])
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
 		->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
@@ -437,9 +431,9 @@ class InvoiceController extends Controller
     
     $firststart = $periodes->pluck('S');
     
-    foreach($periodes as $key => $periode2){
-      $start = $periode2->S;
-      $end = $periode2->E;
+    foreach($periodes as $key => $periode){
+      $start = $periode->S;
+      $end = $periode->E;
 
       $start2 = str_replace('/', '-', $start);
       $end2 = str_replace('/', '-', $end);
@@ -489,7 +483,10 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\Public\Documents\BA_", $user);
+		if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\BA\BA_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\BA\BA_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
@@ -520,7 +517,7 @@ class InvoiceController extends Controller
       'periode.S',
       'periode.E',
       DB::raw('SUM(periode.Quantity) as SumQuantity'),
-      'po.POCode'
+      'transaksi.POCode'
     ])
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
@@ -537,9 +534,9 @@ class InvoiceController extends Controller
     
     $firststart = $periodes->pluck('S');
     
-    foreach($periodes as $key => $periode2){
-      $start = $periode2->S;
-      $end = $periode2->E;
+    foreach($periodes as $key => $periode){
+      $start = $periode->S;
+      $end = $periode->E;
 
       $start2 = str_replace('/', '-', $start);
       $end2 = str_replace('/', '-', $end);
@@ -589,7 +586,10 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\Public\Documents\BA_", $user);
+    if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\BA\BA_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\BA\BA_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
@@ -658,7 +658,9 @@ class InvoiceController extends Controller
     
     $invoice = Invoice::select([
       'invoice.*',
-      'pocustomer.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
       'project.*',
       'customer.*',
     ])
@@ -679,13 +681,10 @@ class InvoiceController extends Controller
       'transaksi.Amount',
       'periode.S',
       'periode.E',
-      DB::raw('SUM(periode.Quantity) as SumQuantity'),
-      'po.POCode',
-      'po.Discount'
+      DB::raw('SUM(periode.Quantity) as SumQuantity')
     ])
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
 		->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
@@ -715,36 +714,30 @@ class InvoiceController extends Controller
       
       $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*($periode->Amount-($periode->Amount*$periode->Discount/100));
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*$periode->Amount;
       $total += $total2[$key];
     }
 
-		if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
     
-    if($invoice->PPNT == 1)
-      $totals = (($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
-    else
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
-    
-    if($invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)))*$invoice->Discount/100), 0, ',','.');
-    else
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->Discount/100), 0, ',','.');
-    
-    if($invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
+    $Discount = $total*$invoice->podisc/100;
 
-		$Transport = number_format(($toss*$invoice->TimesKembali)+($toss*$invoice->Times), 0, ',','.');
-    $firststart = $periodes->pluck('S');
-    $Quantity = $periodes->sum('SumQuantity');
+		$Transport = $toss*($invoice->TimesKembali+$invoice->Times);
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
+    else
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*($invoice->TimesKembali+$invoice->Times);
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount;
     
     if($invoice->PPN==1)
       $document = $phpWord->loadTemplate(public_path('/template/Invsp.docx'));
@@ -757,17 +750,18 @@ class InvoiceController extends Controller
     $document->setValue('PCode', ''.$invoice->PCode.'');
     $document->setValue('Project', ''.$invoice->Project.'');
     $document->setValue('Invoice', ''.$invoice->Invoice.'');
-    $document->setValue('S', ''.$firststart[0].'');
+    $document->setValue('S', ''.$periodes->first()->S.'');
     $document->setValue('E', ''.$end.'');
     $document->setValue('DueDate', ''.$duedate.'');
     $document->setValue('POCode', ''.$pocode->POCode.'');
-    $document->setValue('Quantity', ''.$Quantity.'');
+    $document->setValue('Quantity', ''.$periodes->sum('SumQuantity').'');
     $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
-    $document->setValue('Discount', ''.$Discount.'');
-    $document->setValue('Transport', ''.$Transport.'');
-    $document->setValue('PPN', ''.$PPN.'');
-    $document->setValue('Totals', ''.number_format($totals, 0, ',','.').'');
-    $document->setValue('Terbilang', ''.$this->terbilang(round($totals)).' Rupiah'.'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($Transport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
 
     foreach ($periodes as $key => $periode)
     {
@@ -780,7 +774,7 @@ class InvoiceController extends Controller
       $document->setValue('I'.$key, ''.$I[$key].'');
       $document->setValue('Quantity'.$key, ''.$periode->SumQuantity.'');
       $document->setValue('Sat'.$key, 'PCS');
-      $document->setValue('Price'.$key, ''.number_format($periode->Amount-($periode->Amount*$periode->Discount/100), 0, ',', '.').'');
+      $document->setValue('Price'.$key, ''.number_format($periode->Amount, 0, ',', '.').'');
       $document->setValue('Total'.$key, ''.number_format($total2[$key], 0, ',', '.').'');
     }
     
@@ -798,13 +792,16 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\Public\Documents\Invs_", $user);
+		if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\INV\INV_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\INV\INV_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Server Public Documents file name Invs_'.$download);
+    Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
     return redirect()->route('invoice.showsewa', $id);
   }
 	
@@ -815,7 +812,9 @@ class InvoiceController extends Controller
     
     $invoice = InvoicePisah::select([
       'invoicepisah.*',
-      'pocustomer.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
       'project.*',
       'customer.*',
     ])
@@ -831,8 +830,7 @@ class InvoiceController extends Controller
       'periode.S',
       'periode.E',
       DB::raw('SUM(periode.Quantity) as SumQuantity'),
-      'po.POCode',
-      'po.Discount'
+      'transaksi.POCode',
     ])
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
@@ -867,36 +865,30 @@ class InvoiceController extends Controller
       
       $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*($periode->Amount-($periode->Amount*$periode->Discount/100));
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*$periode->Amount;
       $total += $total2[$key];
     }
 
-		if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
     
-    if($invoice->PPNT == 1)
-      $totals = (($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))-(((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
-    else
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
-    
-    if($invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times)))*$invoice->Discount/100), 0, ',','.');
-    else
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->Discount/100), 0, ',','.');
-    
-    if($invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
+    $Discount = $total*$invoice->podisc/100;
 
-		$Transport = number_format(($toss*$invoice->TimesKembali)+($toss*$invoice->Times), 0, ',','.');
-    $firststart = $periodes->pluck('S');
-    $Quantity = $periodes->sum('SumQuantity');
+		$Transport = $toss*($invoice->TimesKembali+$invoice->Times);
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
+    else
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*($invoice->TimesKembali+$invoice->Times);
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount;
     
     if($invoice->PPN==1)
       $document = $phpWord->loadTemplate(public_path('/template/Invsp.docx'));
@@ -909,17 +901,18 @@ class InvoiceController extends Controller
     $document->setValue('PCode', ''.$invoice->PCode.'');
     $document->setValue('Project', ''.$invoice->Project.'');
     $document->setValue('Invoice', ''.$invoice->Invoice.'');
-    $document->setValue('S', ''.$firststart[0].'');
+    $document->setValue('S', ''.$periodes->first()->S.'');
     $document->setValue('E', ''.$end.'');
     $document->setValue('DueDate', ''.$duedate.'');
     $document->setValue('POCode', ''.$periodes->first()->POCode.'');
-    $document->setValue('Quantity', ''.$Quantity.'');
+    $document->setValue('Quantity', ''.$periodes->sum('SumQuantity').'');
     $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
-    $document->setValue('Discount', ''.$Discount.'');
-    $document->setValue('Transport', ''.$Transport.'');
-    $document->setValue('PPN', ''.$PPN.'');
-    $document->setValue('Totals', ''.number_format($totals, 0, ',','.').'');
-    $document->setValue('Terbilang', ''.$this->terbilang(round($totals)).' Rupiah'.'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($Transport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
 
     foreach ($periodes as $key => $periode)
     {
@@ -932,7 +925,7 @@ class InvoiceController extends Controller
       $document->setValue('I'.$key, ''.$I[$key].'');
       $document->setValue('Quantity'.$key, ''.$periode->SumQuantity.'');
       $document->setValue('Sat'.$key, 'PCS');
-      $document->setValue('Price'.$key, ''.number_format($periode->Amount-($periode->Amount*$periode->Discount/100), 0, ',', '.').'');
+      $document->setValue('Price'.$key, ''.number_format($periode->Amount, 0, ',', '.').'');
       $document->setValue('Total'.$key, ''.number_format($total2[$key], 0, ',', '.').'');
     }
     
@@ -950,13 +943,16 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\Public\Documents\Invs_", $user);
+    if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\INV\INV_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\INV\INV_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Server Public Documents file name Invs_'.$download);
+    Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
     return redirect()->route('invoice.showsewapisah', $id);
   }
   
@@ -967,7 +963,9 @@ class InvoiceController extends Controller
     
     $invoice = Invoice::select([
       'invoice.*',
-      'pocustomer.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
       'project.*',
       'customer.*',
     ])
@@ -989,12 +987,9 @@ class InvoiceController extends Controller
       'periode.S',
       'periode.E',
       DB::raw('SUM(periode.Quantity) as SumQuantity'),
-      'po.POCode',
-      'po.Discount'
     ])
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
 		->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
@@ -1024,37 +1019,30 @@ class InvoiceController extends Controller
       
       $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*($periode->Amount-($periode->Amount*$periode->Discount/100));
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*$periode->Amount;
       //$total += $total2[$key];
     }
     
-    if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
-    
-    if($invoice->PPNT == 1)
-      $totals = (($total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times))-(((($total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
-    else
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
-    
-    if($invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->TimesKembali)))*$invoice->Discount/100), 0, ',','.');
-    else
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->TimesKembali))*$invoice->Discount/100), 0, ',','.');
-    
-    if($invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
+		
+    $Discount = $total*$invoice->podisc/100;
 
-		$GrandTotalTransport = number_format(($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times), 0, ',','.');
-    
-    $firststart = $periodes->pluck('S');
-    $Quantity = $periodes->sum('SumQuantity');
+		$Transport = $toss*($invoice->TimesKembali+$invoice->Times);
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
+    else
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*($invoice->TimesKembali+$invoice->Times);
+		
+		$GrandTotal = $total+$GrandTotalTransport+$Pajak-$Discount;
     
     $document = $phpWord->loadTemplate(public_path('/template/Invst.docx'));
     
@@ -1064,17 +1052,18 @@ class InvoiceController extends Controller
     $document->setValue('PCode', ''.$invoice->PCode.'');
     $document->setValue('Project', ''.$invoice->Project.'');
     $document->setValue('Invoice', ''.$invoice->Invoice.'');
-    $document->setValue('S', ''.$firststart[0].'');
+    $document->setValue('S', ''.$periodes->first()->S.'');
     $document->setValue('E', ''.$end.'');
     $document->setValue('DueDate', ''.$duedate.'');
     $document->setValue('POCode', ''.$pocode->POCode.'');
-    $document->setValue('Quantity', ''.$Quantity.'');
-    $document->setValue('Total', ''.number_format(0, 0, ',','.').'');
-    $document->setValue('Discount', ''.$Discount.'');
-    $document->setValue('Transport', ''.$GrandTotalTransport.'');
-    $document->setValue('PPN', ''.$PPN.'');
-    $document->setValue('Totals', ''.number_format($totals, 0, ',','.').'');
-    $document->setValue('Terbilang', ''.$this->terbilang(round($totals)).' Rupiah'.'');
+    $document->setValue('Quantity', ''.$periodes->sum('SumQuantity').'');
+    $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($GrandTotalTransport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
 
     foreach ($periodes as $key => $periode)
     {
@@ -1087,7 +1076,7 @@ class InvoiceController extends Controller
       $document->setValue('I'.$key, ''.$I[$key].'');
       $document->setValue('Quantity'.$key, ''.'0'.'');
       $document->setValue('Sat'.$key, 'PCS');
-      $document->setValue('Price'.$key, ''.number_format($periode->Amount-($periode->Amount*$periode->Discount/100), 0, ',', '.').'');
+      $document->setValue('Price'.$key, ''.number_format($periode->Amount, 0, ',', '.').'');
       $document->setValue('Total'.$key, ''.'0'.'');
     }
     
@@ -1105,13 +1094,13 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\Public\Documents\Invst_", $user);
+		$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\INV\INVT_");
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Server Public Documents file name Invst_'.$download);
+    Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
     return redirect()->route('invoice.showsewa', $id);
   }
 	
@@ -1122,7 +1111,9 @@ class InvoiceController extends Controller
     
     $invoice = InvoicePisah::select([
       'invoicepisah.*',
-      'pocustomer.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
       'project.*',
       'customer.*',
     ])
@@ -1138,8 +1129,7 @@ class InvoiceController extends Controller
       'periode.S',
       'periode.E',
       DB::raw('SUM(periode.Quantity) as SumQuantity'),
-      'po.POCode',
-      'po.Discount'
+      'transaksi.POCode',
     ])
     ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
@@ -1174,37 +1164,30 @@ class InvoiceController extends Controller
       
       $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*($periode->Amount-($periode->Amount*$periode->Discount/100));
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*$periode->Amount;
       //$total += $total2[$key];
     }
     
-    if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+    if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
     
-    if($invoice->PPNT == 1)
-      $totals = (($total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times))-(((($total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
-    else
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
-    
-    if($invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->TimesKembali)+($toss*$invoice->TimesKembali)))*$invoice->Discount/100), 0, ',','.');
-    else
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->TimesKembali)+($toss*$invoice->TimesKembali))*$invoice->Discount/100), 0, ',','.');
-    
-    if($invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->TimesKembali)+($toss*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
+    $Discount = $total*$invoice->podisc/100;
 
-		$GrandTotalTransport = number_format(($toss2*$invoice->TimesKembali)+($toss2*$invoice->Times), 0, ',','.');
-    
-    $firststart = $periodes->pluck('S');
-    $Quantity = $periodes->sum('SumQuantity');
+		$Transport = $toss*($invoice->TimesKembali+$invoice->Times);
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
+    else
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*($invoice->TimesKembali+$invoice->Times);
+		
+		$GrandTotal = $total+$GrandTotalTransport+$Pajak-$Discount;
     
     $document = $phpWord->loadTemplate(public_path('/template/Invst.docx'));
     
@@ -1214,17 +1197,18 @@ class InvoiceController extends Controller
     $document->setValue('PCode', ''.$invoice->PCode.'');
     $document->setValue('Project', ''.$invoice->Project.'');
     $document->setValue('Invoice', ''.$invoice->Invoice.'');
-    $document->setValue('S', ''.$firststart[0].'');
+    $document->setValue('S', ''.$periodes->first()->S.'');
     $document->setValue('E', ''.$end.'');
     $document->setValue('DueDate', ''.$duedate.'');
     $document->setValue('POCode', ''.$periodes->first()->POCode.'');
-    $document->setValue('Quantity', ''.$Quantity.'');
-    $document->setValue('Total', ''.number_format(0, 0, ',','.').'');
-    $document->setValue('Discount', ''.$Discount.'');
-    $document->setValue('Transport', ''.$GrandTotalTransport.'');
-    $document->setValue('PPN', ''.$PPN.'');
-    $document->setValue('Totals', ''.number_format($totals, 0, ',','.').'');
-    $document->setValue('Terbilang', ''.$this->terbilang(round($totals)).' Rupiah'.'');
+    $document->setValue('Quantity', ''.$periodes->sum('SumQuantity').'');
+    $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($GrandTotalTransport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
 
     foreach ($periodes as $key => $periode)
     {
@@ -1237,7 +1221,7 @@ class InvoiceController extends Controller
       $document->setValue('I'.$key, ''.$I[$key].'');
       $document->setValue('Quantity'.$key, ''.'0'.'');
       $document->setValue('Sat'.$key, 'PCS');
-      $document->setValue('Price'.$key, ''.number_format($periode->Amount-($periode->Amount*$periode->Discount/100), 0, ',', '.').'');
+      $document->setValue('Price'.$key, ''.number_format($periode->Amount, 0, ',', '.').'');
       $document->setValue('Total'.$key, ''.'0'.'');
     }
     
@@ -1255,23 +1239,24 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\Public\Documents\Invst_", $user);
+		$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\INV\INVT_");
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Server Public Documents file name Invst_'.$download);
+    Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
     return redirect()->route('invoice.showsewapisah', $id);
   }
 
   public function getInvoiceJual($id)
   {
-    $parameter = Invoice::find($id);
+    $invoice = Invoice::find($id);
     
     $invoice = Invoice::select([
       'invoice.*',
       'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
       'pocustomer.PPNT',
       'project.Project',
       'customer.Company',
@@ -1279,8 +1264,7 @@ class InvoiceController extends Controller
     ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
     ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
     ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('invoice.Reference', $parameter->Reference)
-    ->where('invoice.Invoice', $parameter->Invoice)
+    ->where('invoice.Invoice', $invoice->Invoice)
     ->first();
     
     $pocode = Transaksi::where('transaksi.Reference', $invoice->Reference)
@@ -1290,50 +1274,51 @@ class InvoiceController extends Controller
     ->first();
     
     $transaksis = Transaksi::select([
+			'inventory.Type',
       'isisjkirim.QTertanda',
       'sjkirim.SJKir',
       'sjkirim.Tgl',
-      'po.Discount',
       'transaksi.Purchase',
       'transaksi.Barang',
       'transaksi.Amount',
-      'transaksi.POCode',
     ])
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
-    ->rightJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
+    ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
+    ->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
     ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
-    ->where('transaksi.Reference', $parameter->Reference)
+    ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Jual')
+		//->where('isisjkirim.QTertanda', '!=' , 0)
+    ->orderBy('isisjkirim.id', 'asc')
     ->get();
     
     $total = 0;
     $x=0;
-    foreach($transaksis as $transaksi2){
-      $total2[] = $transaksi2->QTertanda * ($transaksi2->Amount-$transaksi2->Amount*$transaksi2->Discount/100); 
+    foreach($transaksis as $transaksi){
+      $total2[] = $transaksi->QTertanda*$transaksi->Amount;
       $total += $total2[$x];
       $x++;
     }
 		
-		if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
     
-    if($invoice->PPNT == 1)
-      $totals = "Rp. ".number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
-    else
-      $totals = "Rp. ".number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    $Discount = $total*$invoice->podisc/100;
 
-    if($invoice->PPNT == 1)
-      $Pajak = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1), 2, ',','.');
+		$Transport = $toss*$invoice->Times;
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
     else
-      $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
-    
-    $Transport = number_format($toss*$invoice->Times, 2, ',','.');
-		$GrandTotalTransport = number_format($toss2*$invoice->Times, 2, ',','.');
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*$invoice->Times;
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount-$invoice->Discount-$invoice->Pembulatan;
 		
 		$tglterima = str_replace('/', '-', $invoice->TglTerima);
 		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
@@ -1345,7 +1330,8 @@ class InvoiceController extends Controller
       ->with('transaksis', $transaksis)
       ->with('pocode', $pocode)
       ->with('total', $total)
-      ->with('totals', $totals)
+      ->with('GrandTotal', $GrandTotal)
+      ->with('Discount', $Discount)
       ->with('Transport', $Transport)
 			->with('GrandTotalTransport', $GrandTotalTransport)
 			->with('duedate', $duedate)
@@ -1360,11 +1346,12 @@ class InvoiceController extends Controller
 	
 	public function getInvoiceJualPisah($id)
   {
-    $parameter = InvoicePisah::find($id);
+    $invoice = InvoicePisah::find($id);
     
     $invoice = InvoicePisah::select([
       'invoicepisah.*',
       'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
       'pocustomer.PPNT',
       'project.Project',
       'customer.Company',
@@ -1372,56 +1359,58 @@ class InvoiceController extends Controller
     ->leftJoin('pocustomer', 'invoicepisah.Reference', '=', 'pocustomer.Reference')
     ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
     ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('invoicepisah.Invoice', $parameter->Invoice)
+    ->where('invoicepisah.Invoice', $invoice->Invoice)
     ->first();
     
     $transaksis = Transaksi::select([
+			'inventory.Type',
       'isisjkirim.QTertanda',
       'sjkirim.SJKir',
       'sjkirim.Tgl',
-			'po.POCode',
-      'po.Discount',
+			'transaksi.POCode',
       'transaksi.Purchase',
       'transaksi.Barang',
       'transaksi.Amount',
       'transaksi.POCode',
     ])
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
-    ->rightJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
+    ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
+    ->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
     ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
-    ->where('transaksi.Reference', $parameter->Reference)
-		->where('po.POCode', $parameter->POCode)
+    ->where('transaksi.Reference', $invoice->Reference)
+		->where('transaksi.POCode', $invoice->POCode)
     ->where('transaksi.JS', 'Jual')
+		//->where('isisjkirim.QTertanda', '!=' , 0)
+    ->orderBy('isisjkirim.id', 'asc')
     ->get();
     
     $total = 0;
     $x=0;
-    foreach($transaksis as $transaksi2){
-      $total2[] = $transaksi2->QTertanda * ($transaksi2->Amount-$transaksi2->Amount*$transaksi2->Discount/100); 
+    foreach($transaksis as $transaksi){
+      $total2[] = $transaksi->QTertanda*$transaksi->Amount;
       $total += $total2[$x];
       $x++;
     }
 		
-		if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
     
-    if($invoice->PPNT == 1)
-      $totals = "Rp. ".number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
-    else
-      $totals = "Rp. ".number_format(($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
+    $Discount = $total*$invoice->podisc/100;
 
-    if($invoice->PPNT == 1)
-      $Pajak = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1), 2, ',','.');
+		$Transport = $toss*$invoice->Times;
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
     else
-      $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
-    
-    $Transport = number_format($toss*$invoice->Times, 2, ',','.');
-		$GrandTotalTransport = number_format($toss2*$invoice->Times, 2, ',','.');
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*$invoice->Times;
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount-$invoice->Discount-$invoice->Pembulatan;
 		
 		$tglterima = str_replace('/', '-', $invoice->TglTerima);
 		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
@@ -1432,7 +1421,8 @@ class InvoiceController extends Controller
       ->with('invoice', $invoice)
       ->with('transaksis', $transaksis)
       ->with('total', $total)
-      ->with('totals', $totals)
+      ->with('GrandTotal', $GrandTotal)
+      ->with('Discount', $Discount)
       ->with('Transport', $Transport)
 			->with('GrandTotalTransport', $GrandTotalTransport)
 			->with('duedate', $duedate)
@@ -1448,12 +1438,8 @@ class InvoiceController extends Controller
   public function postInvoiceJual(Request $request, $id)
   {
     $invoice = Invoice::find($id);
-    
-    $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
-    
-    $invoice->id = $id;
 		$invoice->Times = $request->Times;
-    $invoice->Discount = $request->Discount;
+    $invoice->Discount = str_replace(".","",substr($request->Discount, 3));
 		$invoice->TglTerima = $request->TglTerima;
 		$invoice->Termin = $request->Termin;
     $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
@@ -1488,10 +1474,8 @@ class InvoiceController extends Controller
 	public function postInvoiceJualPisah(Request $request, $id)
   {
     $invoicepisah = InvoicePisah::find($id);
-    
-    $invoicepisah->id = $id;
 		$invoicepisah->Times = $request->Times;
-    $invoicepisah->Discount = $request->Discount;
+    $invoicepisah->Discount = str_replace(".","",substr($request->Discount, 3));
 		$invoicepisah->TglTerima = $request->TglTerima;
 		$invoicepisah->Termin = $request->Termin;
     $invoicepisah->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
@@ -1530,7 +1514,9 @@ class InvoiceController extends Controller
     
     $invoice = Invoice::select([
       'invoice.*',
-      'pocustomer.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
       'project.*',
       'customer.*',
     ])
@@ -1551,49 +1537,45 @@ class InvoiceController extends Controller
       'isisjkirim.QTertanda',
       'sjkirim.SJKir',
       'sjkirim.Tgl',
-      'po.Discount',
       'transaksi.*',
     ])
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
     ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
-    ->rightJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
+    ->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
     ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Jual')
+		//->where('isisjkirim.QTertanda', '!=' , 0)
+    ->orderBy('isisjkirim.id', 'asc')
     ->get();
 
     $total = 0;
     $x=0;
     foreach($transaksis as $transaksi){
-      $total2[] = $transaksi->QTertanda * ($transaksi->Amount-$transaksi->Amount*$transaksi->Discount/100); 
+      $total2[] = $transaksi->QTertanda*$transaksi->Amount;
       $total += $total2[$x];
       $x++;
     }
     
-		if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
     
-    if($invoice->PPNT == 1)
-      $totals = (($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
+    $Discount = $total*$invoice->podisc/100;
+
+		$Transport = $toss*$invoice->Times;
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
     else
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
-    
-    if($invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100), 0, ',','.');
-    else
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100), 0, ',','.');
-    
-    if($invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
 		
-    $Transport = number_format($toss*$invoice->Times, 0, ',','.');
+		$GrandTotalTransport = $toss2*$invoice->Times;
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount;
     
     if($invoice->PPN==1)
       $document = $phpWord->loadTemplate(public_path('/template/Invjp.docx'));
@@ -1609,11 +1591,12 @@ class InvoiceController extends Controller
     $document->setValue('Tgl', ''.$transaksis->first()->Tgl.'');
     $document->setValue('POCode', ''.$pocode->POCode.'');
     $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
-    $document->setValue('Discount', ''.$Discount.'');
-    $document->setValue('Transport', ''.$Transport.'');
-    $document->setValue('PPN', ''.$PPN.'');
-    $document->setValue('Totals', ''.number_format($totals, 0, ',','.').'');
-    $document->setValue('Terbilang', ''.$this->terbilang(round($totals)).' Rupiah'.'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($Transport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
 
     foreach ($transaksis as $key => $transaksi)
     {
@@ -1623,7 +1606,7 @@ class InvoiceController extends Controller
       $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
       $document->setValue('Quantity'.$key, ''.$transaksi->QTertanda.'');
       $document->setValue('Sat'.$key, 'PCS');
-      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount-$transaksi->Amount*$transaksi->Discount/100, 0, ',', '.').'');
+      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount, 0, ',', '.').'');
       $document->setValue('Total'.$key, ''.number_format($total2[$key], 0, ',', '.').'');
     }
     
@@ -1638,13 +1621,16 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\Public\Documents\Invj_", $user);
+    if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\JUAL\INV\INV_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\JUAL\INV\INV_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Server Public Documents file name Invj_'.$download);
+    Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
     return redirect()->route('invoice.showjual', $id);
   }
 	
@@ -1655,7 +1641,9 @@ class InvoiceController extends Controller
     
     $invoice = InvoicePisah::select([
       'invoicepisah.*',
-      'pocustomer.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
       'project.*',
       'customer.*',
     ])
@@ -1670,50 +1658,46 @@ class InvoiceController extends Controller
       'isisjkirim.QTertanda',
       'sjkirim.SJKir',
       'sjkirim.Tgl',
-      'po.Discount',
       'transaksi.*',
     ])
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
     ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
-    ->rightJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
+    ->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
     ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
-		->where('po.POCode', $invoice->POCode)
+		->where('transaksi.POCode', $invoice->POCode)
     ->where('transaksi.JS', 'Jual')
+		//->where('isisjkirim.QTertanda', '!=' , 0)
+    ->orderBy('isisjkirim.id', 'asc')
     ->get();
 
     $total = 0;
     $x=0;
     foreach($transaksis as $transaksi){
-      $total2[] = $transaksi->QTertanda * ($transaksi->Amount-$transaksi->Amount*$transaksi->Discount/100); 
+      $total2[] = $transaksi->QTertanda*$transaksi->Amount;
       $total += $total2[$x];
       $x++;
     }
     
-		if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
     
-    if($invoice->PPNT == 1)
-      $totals = (($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times))-(((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
+    $Discount = $total*$invoice->podisc/100;
+
+		$Transport = $toss*$invoice->Times;
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
     else
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
-    
-    if($invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100), 0, ',','.');
-    else
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100), 0, ',','.');
-    
-    if($invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
 		
-    $Transport = number_format($toss*$invoice->Times, 0, ',','.');
+		$GrandTotalTransport = $toss2*$invoice->Times;
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount;
     
     if($invoice->PPN==1)
       $document = $phpWord->loadTemplate(public_path('/template/Invjp.docx'));
@@ -1729,11 +1713,12 @@ class InvoiceController extends Controller
     $document->setValue('Tgl', ''.$transaksis->first()->Tgl.'');
     $document->setValue('POCode', ''.$transaksis->first()->POCode.'');
     $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
-    $document->setValue('Discount', ''.$Discount.'');
-    $document->setValue('Transport', ''.$Transport.'');
-    $document->setValue('PPN', ''.$PPN.'');
-    $document->setValue('Totals', ''.number_format($totals, 0, ',','.').'');
-    $document->setValue('Terbilang', ''.$this->terbilang(round($totals)).' Rupiah'.'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($Transport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
 
     foreach ($transaksis as $key => $transaksi)
     {
@@ -1743,7 +1728,7 @@ class InvoiceController extends Controller
       $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
       $document->setValue('Quantity'.$key, ''.$transaksi->QTertanda.'');
       $document->setValue('Sat'.$key, 'PCS');
-      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount-$transaksi->Amount*$transaksi->Discount/100, 0, ',', '.').'');
+      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount, 0, ',', '.').'');
       $document->setValue('Total'.$key, ''.number_format($total2[$key], 0, ',', '.').'');
     }
     
@@ -1758,13 +1743,16 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\Public\Documents\Invj_", $user);
+    if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\JUAL\INV\INV_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\JUAL\INV\INV_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Server Public Documents file name Invj_'.$download);
+    Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
     return redirect()->route('invoice.showjualpisah', $id);
   }
   
@@ -1775,7 +1763,9 @@ class InvoiceController extends Controller
     
     $invoice = Invoice::select([
       'invoice.*',
-      'pocustomer.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
       'project.*',
       'customer.*',
     ])
@@ -1796,49 +1786,45 @@ class InvoiceController extends Controller
       'isisjkirim.QTertanda',
       'sjkirim.SJKir',
       'sjkirim.Tgl',
-      'po.Discount',
       'transaksi.*',
     ])
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
     ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
-    ->rightJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
+    ->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
     ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Jual')
+		//->where('isisjkirim.QTertanda', '!=' , 0)
+    ->orderBy('isisjkirim.id', 'asc')
     ->get();
 
     $total = 0;
     $x=0;
     foreach($transaksis as $transaksi){
-      $total2[] = $transaksi->QTertanda * ($transaksi->Amount-$transaksi->Amount*$transaksi->Discount/100); 
+      $total2[] = $transaksi->QTertanda*$transaksi->Amount;
       //$total += $total2[$x];
       $x++;
     }
     
-    if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+    if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
     
-    if($invoice->PPNT == 1)
-      $totals = (($total+($toss2*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss2*$invoice->Times))-(((($total+($toss2*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss2*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
+    $Discount = $total*$invoice->podisc/100;
+
+		$Transport = $toss*$invoice->Times;
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
     else
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss2*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss2*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
-    
-    if($invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100), 0, ',','.');
-    else
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100), 0, ',','.');
-    
-    if($invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
-    
-    $GrandTotalTransport = number_format($toss2*$invoice->Times, 0, ',','.');
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*$invoice->Times;
+		
+		$GrandTotal = $total+$GrandTotalTransport+$Pajak-$Discount;
 		
     $document = $phpWord->loadTemplate(public_path('/template/Invjt.docx'));
     
@@ -1850,12 +1836,13 @@ class InvoiceController extends Controller
     $document->setValue('Invoice', ''.$invoice->Invoice.'');
     $document->setValue('Tgl', ''.$transaksis->first()->Tgl.'');
     $document->setValue('POCode', ''.$pocode->POCode.'');
-    $document->setValue('Total', ''.number_format(0, 0, ',','.').'');
-    $document->setValue('Discount', ''.$Discount.'');
-    $document->setValue('Transport', ''.$GrandTotalTransport.'');
-    $document->setValue('PPN', ''.$PPN.'');
-    $document->setValue('Totals', ''.number_format($totals, 0, ',','.').'');
-    $document->setValue('Terbilang', ''.$this->terbilang(round($totals)).' Rupiah'.'');
+    $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($GrandTotalTransport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
 
     foreach ($transaksis as $key => $transaksi)
     {
@@ -1865,7 +1852,7 @@ class InvoiceController extends Controller
       $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
       $document->setValue('Quantity'.$key, ''.'0'.'');
       $document->setValue('Sat'.$key, 'PCS');
-      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount-$transaksi->Amount*$transaksi->Discount/100, 0, ',', '.').'');
+      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount, 0, ',', '.').'');
       $document->setValue('Total'.$key, ''.'0'.'');
     }
     
@@ -1880,13 +1867,13 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\Public\Documents\Invjt_", $user);
+    $path = sprintf("C:\Users\Public\Documents\PPN\JUAL\INV\INVT_");
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Server Public Documents file name Invjt_'.$download);
+    Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
     return redirect()->route('invoice.showjual', $id);
   }
 	
@@ -1897,7 +1884,9 @@ class InvoiceController extends Controller
     
     $invoice = InvoicePisah::select([
       'invoicepisah.*',
-      'pocustomer.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
       'project.*',
       'customer.*',
     ])
@@ -1912,50 +1901,46 @@ class InvoiceController extends Controller
       'isisjkirim.QTertanda',
       'sjkirim.SJKir',
       'sjkirim.Tgl',
-      'po.Discount',
       'transaksi.*',
     ])
-    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
     ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
-    ->rightJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
+    ->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
     ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
-		->where('po.POCode', $invoice->POCode)
+		->where('transaksi.POCode', $invoice->POCode)
     ->where('transaksi.JS', 'Jual')
+		//->where('isisjkirim.QTertanda', '!=' , 0)
+    ->orderBy('isisjkirim.id', 'asc')
     ->get();
 
     $total = 0;
     $x=0;
     foreach($transaksis as $transaksi){
-      $total2[] = $transaksi->QTertanda * ($transaksi->Amount-$transaksi->Amount*$transaksi->Discount/100); 
+      $total2[] = $transaksi->QTertanda*$transaksi->Amount; 
       //$total += $total2[$x];
       $x++;
     }
     
-    if($invoice->PPNT == 1){
-			$toss = $invoice->Transport;
-			$toss2 = 0;
-		}else{
+    if($invoice->PPN == 1 && $invoice->PPNT==0){
 			$toss = 0;
 			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
 		}
     
-    if($invoice->PPNT == 1)
-      $totals = (($total+($toss2*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss2*$invoice->Times))-(((($total+($toss2*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss2*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
+    $Discount = $total*$invoice->podisc/100;
+
+		$Transport = $toss*$invoice->Times;
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
     else
-      $totals = ($total*$invoice->PPN*0.1)+$total+($toss2*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($toss2*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
-    
-    if($invoice->PPNT == 1)
-      $Discount = number_format((((($total+($toss*$invoice->Times))*$invoice->PPN*0.1)+($total+($toss*$invoice->Times)))*$invoice->Discount/100), 0, ',','.');
-    else
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($toss*$invoice->Times))*$invoice->Discount/100), 0, ',','.');
-    
-    if($invoice->PPNT == 1)
-      $PPN = number_format((($total+($toss*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
-    
-    $GrandTotalTransport = number_format($toss2*$invoice->Times, 0, ',','.');
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*$invoice->Times;
+		
+		$GrandTotal = $total+$GrandTotalTransport+$Pajak-$Discount;
 		
     $document = $phpWord->loadTemplate(public_path('/template/Invjt.docx'));
     
@@ -1967,12 +1952,13 @@ class InvoiceController extends Controller
     $document->setValue('Invoice', ''.$invoice->Invoice.'');
     $document->setValue('Tgl', ''.$transaksis->first()->Tgl.'');
     $document->setValue('POCode', ''.$transaksis->first()->POCode.'');
-    $document->setValue('Total', ''.number_format(0, 0, ',','.').'');
-    $document->setValue('Discount', ''.$Discount.'');
-    $document->setValue('Transport', ''.$GrandTotalTransport.'');
-    $document->setValue('PPN', ''.$PPN.'');
-    $document->setValue('Totals', ''.number_format($totals, 0, ',','.').'');
-    $document->setValue('Terbilang', ''.$this->terbilang(round($totals)).' Rupiah'.'');
+    $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($GrandTotalTransport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
 
     foreach ($transaksis as $key => $transaksi)
     {
@@ -1982,7 +1968,7 @@ class InvoiceController extends Controller
       $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
       $document->setValue('Quantity'.$key, ''.'0'.'');
       $document->setValue('Sat'.$key, 'PCS');
-      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount-$transaksi->Amount*$transaksi->Discount/100, 0, ',', '.').'');
+      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount, 0, ',', '.').'');
       $document->setValue('Total'.$key, ''.'0'.'');
     }
     
@@ -1997,18 +1983,18 @@ class InvoiceController extends Controller
     }
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\Public\Documents\Invjt_", $user);
+		$path = sprintf("C:\Users\Public\Documents\PPN\JUAL\INV\INVT_");
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
     $document->saveAs($path.$download);
     
-    Session::flash('message', 'Downloaded to Server Public Documents file name Invjt_'.$download);
+    Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
     return redirect()->route('invoice.showjualpisah', $id);
   }
   
   public function getInvoiceClaim($id){
-    $parameter = Invoice::find($id);
+    $invoice = Invoice::find($id);
     
     $invoice = Invoice::select([
       'invoice.*',
@@ -2018,54 +2004,42 @@ class InvoiceController extends Controller
     ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
     ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
     ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('invoice.Reference', $parameter->Reference)
-    ->where('invoice.Invoice', $parameter->Invoice)
+    ->where('invoice.Invoice', $invoice->Invoice)
     ->first();
     
-    $pocode = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
-    ->where('transaksi.Reference', $invoice->Reference)
+    $pocode = Transaksi::where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
-    ->groupBy('po.POCode')
-    ->orderBy('po.id', 'desc')
+    ->groupBy('transaksi.POCode')
+    ->orderBy('transaksi.id', 'desc')
     ->first();
     
     $transaksis = TransaksiClaim::select([
       'isisjkirim.SJKir',
       'transaksiclaim.*',
-      'transaksi.Reference',
       'transaksi.Barang',
       'transaksi.QSisaKem',
-      'project.Project',
-      'customer.*',
     ])
     ->leftJoin('isisjkirim', 'transaksiclaim.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
     ->leftJoin('transaksi', 'transaksiclaim.Purchase', '=', 'transaksi.Purchase')
-    ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
-    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('transaksi.Reference', $parameter->Reference)
-    ->where('transaksiclaim.Periode', $parameter->Periode)
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksiclaim.Periode', $invoice->Periode)
     ->groupBy('transaksiclaim.Claim', 'transaksiclaim.Tgl', 'transaksiclaim.Claim')
     ->orderBy('transaksiclaim.id', 'asc')
     ->get();
 
     $total = 0;
     $x=0;
-    foreach($transaksis as $transaksi2){
-      $total2[] = $transaksi2->QClaim * $transaksi2->Amount; 
+    foreach($transaksis as $transaksi){
+      $total2[] = $transaksi->QClaim * $transaksi->Amount; 
       $total += $total2[$x];
       $x++;
     }
-    
-    if($invoice->PPNT == 1)
-      $totals = number_format((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1)+($total+($invoice->Transport*$invoice->Times))-(((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1)+($total+($invoice->Transport*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
-    else
-      $totals = number_format(($total*$invoice->PPN*0.1)+$total+($invoice->Transport*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($invoice->Transport*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan, 2, ',','.');
-    
-    if($invoice->PPNT == 1)
-      $Pajak = number_format((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else
-      $Pajak = number_format(($total*$invoice->PPN*0.1), 2, ',','.');
+		
+		$Discount = $total*$transaksis->first()->Discount/100;
+		
+		$Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotal = $total+$Pajak-$Discount-$invoice->Discount-$invoice->Pembulatan;
     
 		$tglterima = str_replace('/', '-', $invoice->TglTerima);
 		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
@@ -2078,7 +2052,8 @@ class InvoiceController extends Controller
       ->with('transaksis', $transaksis)
       ->with('total', $total)
       ->with('total2', $total2)
-      ->with('totals', $totals)
+      ->with('GrandTotal', $GrandTotal)
+      ->with('Discount', $Discount)
 			->with('duedate', $duedate)
       ->with('Pajak', $Pajak)
       ->with('top_menu_sel', 'menu_invoice')
@@ -2089,33 +2064,186 @@ class InvoiceController extends Controller
 	}
   
   public function postInvoiceClaim(Request $request, $id)
-    {
-    	$invoice = Invoice::find($id);
-      
-      $input = Input::all();
-      
-      $invoice->id = $id;
-      //$invoice->PPN = $request->PPN;
-    	$invoice->Discount = $request->Discount;
-			$invoice->TglTerima = $request->TglTerima;
-			$invoice->Termin = $request->Termin;
-      $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
-      $invoice->Catatan = $request->Catatan;
-    	$invoice->save();
+	{
+		$invoice = Invoice::find($id);
+		$invoice->Discount = str_replace(".","",substr($request->Discount, 3));
+		$invoice->TglTerima = $request->TglTerima;
+		$invoice->Termin = $request->Termin;
+		$invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
+		$invoice->Catatan = $request->Catatan;
+		$invoice->save();
 
-      $history = new History;
-      $history->User = Auth::user()->name;
-      $history->History = 'Update invoice on Invoice '.$request['Invoice'];
-      $history->save();
+		$history = new History;
+		$history->User = Auth::user()->name;
+		$history->History = 'Update invoice on Invoice '.$request['Invoice'];
+		$history->save();
+		
+		Session::flash('message', 'Update is successful!');
+		
+		return redirect()->route('invoice.showclaim', $id);
+	}
+    
+	public function getInvc($id)
+  {
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    $invoice = Invoice::find($id);
+    
+    $invoice = Invoice::select([
+      'invoice.*',
+      'project.*',
+      'customer.*',
+    ])
+    ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoice.Reference', $invoice->Reference)
+    ->where('invoice.Invoice', $invoice->Invoice)
+    ->first();
+    
+    /*$sjkirim = IsiSJKirim::leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+    ->leftJoin('transaksiclaim', 'transaksi.Purchase', '=', 'transaksiclaim.Purchase')
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksiclaim.Periode', $invoice->Periode)
+    ->where('JS', 'Sewa')
+    ->orderBy('isisjkirim.id', 'asc')
+    ->first();*/
+    
+    $pocode = Transaksi::where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Sewa')
+    ->groupBy('transaksi.POCode')
+    ->orderBy('transaksi.id', 'desc')
+    ->first();
+    
+    /*$periode = Periode::where('Reference', $invoice->Reference)
+    ->where('Periode', $invoice->Periode)
+    ->where('Deletes', 'Kembali')
+    ->orderBy('periode.id', 'desc')
+    ->first();
+    if(isset($periode->SJKem))
+      $periode=$periode->SJKem;
+    else
+      $periode='';*/
+    
+    $transaksis = TransaksiClaim::select([
+      'isisjkirim.SJKir',
+      'transaksiclaim.*',
+      'periode.S',
+      'periode.E',
+      'transaksi.Barang',
+      'transaksi.QSisaKem',
+    ])
+    ->leftJoin('isisjkirim', 'transaksiclaim.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+    ->leftJoin('transaksi', 'transaksiclaim.Purchase', '=', 'transaksi.Purchase')
+    ->leftJoin('periode', 'isisjkirim.IsiSJKir', '=', 'periode.IsiSJKir')
+    ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksiclaim.Periode', $invoice->Periode)
+    ->groupBy('transaksiclaim.Claim', 'transaksiclaim.Tgl', 'transaksiclaim.Claim')
+    ->orderBy('transaksiclaim.id', 'asc')
+    ->get();
+
+    $total = 0;
+    $x=0;
+    foreach($transaksis as $key => $transaksi){
+      $start = $transaksi->S;
+      $end = $transaksi->E;
+
+      $start2 = str_replace('/', '-', $start);
+      $end2 = str_replace('/', '-', $end);
+      $start3[] = strtotime($start2);
+      $end3[] = strtotime($end2);
+
+      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
+
+      $Days = str_replace('/', ',', $start);
+      $M = substr($Days, 3, -5);
+      $Y = substr($Days, 6);
+      $Days2[] = cal_days_in_month(CAL_GREGORIAN, $M, $Y);
       
-      Session::flash('message', 'Update is successful!');
+      $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
       
-    	return redirect()->route('invoice.showclaim', $id);
+      $total2[] = $transaksi->QClaim * $transaksi->Amount; 
+      $total += $total2[$x];
+      $x++;
     }
 
-    public function index()
+    $Discount = $total*$transaksis->first()->Discount/100;
+		
+		$Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotal = $total+$Pajak-$Discount-$invoice->Discount-$invoice->Pembulatan;
+    
+    if($invoice->PPN==1)
+      $document = $phpWord->loadTemplate(public_path('/template/Invcp.docx'));
+    else
+      $document = $phpWord->loadTemplate(public_path('/template/Invcnp.docx'));
+    
+    $tglclaim = str_replace('/', '-', $invoice->Tgl);
+    $duedate = date('d/m/Y', strtotime($tglclaim."+4 days"));
+    
+    $document->setValue('Company', ''.$invoice->Company.'');
+    $document->setValue('CompAlamat', ''.$invoice->CompAlamat.'');
+    $document->setValue('CompPhone', ''.$invoice->CompPhone.'');
+    $document->setValue('PCode', ''.$invoice->PCode.'');
+    $document->setValue('Project', ''.$invoice->Project.'');
+    $document->setValue('SJKir', ''.$transaksis->first()->SJKir.'');
+    $document->setValue('Invoice', ''.$invoice->Invoice.'');
+    $document->setValue('Tgl', ''.$invoice->Tgl.'');
+    $document->setValue('DueDate', ''.$duedate.'');
+    $document->setValue('POCode', ''.$pocode->POCode.'');
+    $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+		$document->setValue('Disc', ''.$transaksis->first()->Discount.'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
+
+    foreach ($transaksis as $key => $transaksi)
     {
-			
+      $key2 = $key+1;
+      $document->setValue('Key'.$key, ''.$key2.'');
+      $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
+      $document->setValue('S'.$key, ''.$transaksi->S.'');
+      $document->setValue('E'.$key, ''.$transaksi->E.'');
+      $document->setValue('SE'.$key, ''.$SE[$key].'');
+      $document->setValue('I'.$key, ''.$I[$key].'');
+      $document->setValue('Quantity'.$key, ''.$transaksi->QClaim.'');
+      $document->setValue('Sat'.$key, 'PCS');
+      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount, 0, ',', '.').'');
+      $document->setValue('Total'.$key, ''.number_format($total2[$key], 0, ',', '.').'');
+    }
+    
+    for($x=0;$x<20;$x++){
+      $document->setValue('Key'.$x, '');
+      $document->setValue('Barang'.$x, '');
+      $document->setValue('S'.$x, '');
+      $document->setValue('E'.$x, '');
+      $document->setValue('SE'.$x, '');
+      $document->setValue('I'.$x, '');
+      $document->setValue('Quantity'.$x, '');
+      $document->setValue('Sat'.$x, '');
+      $document->setValue('Price'.$x, '');
+      $document->setValue('Total'.$x, '');
+    }
+    
+    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+    if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\CLAIM\INV\INV_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\CLAIM\INV\INV_", $user);
+    $clear = str_replace("/","_",$invoice->Invoice);
+    $download = sprintf('%s.docx', $clear);
+    
+    $document->saveAs($path.$download);
+    
+    Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
+    return redirect()->route('invoice.showclaim', $id);
+  }
+
+	public function index()
+	{
 		if(Auth::user()->access == 'Admin'){
 			$invoices = Invoice::select([
 					'invoice.*',
@@ -2209,7 +2337,7 @@ class InvoiceController extends Controller
 			->groupBy('invoicepisah.Reference', 'invoicepisah.POCode', 'invoicepisah.Periode')
 			->get();
 		}
-    
+		
 		if(Auth::user()->access == 'Admin'){
 			$invoicej = Invoice::select([
 					'invoice.*',
@@ -2299,7 +2427,7 @@ class InvoiceController extends Controller
 			->groupBy('invoicepisah.Reference', 'invoicepisah.Periode')
 			->get();
 		}
-    
+		
 		if(Auth::user()->access == 'Admin'){
 			$invoicec = Invoice::select([
 				'invoice.*',
@@ -2310,7 +2438,7 @@ class InvoiceController extends Controller
 			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->where('JSC', 'Claim')
-			->groupBy('invoice.Periode')
+			->groupBy('invoice.Periode', 'invoice.Reference')
 			->get();
 		}else{
 			$invoicec = Invoice::select([
@@ -2323,192 +2451,24 @@ class InvoiceController extends Controller
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->where('JSC', 'Claim')
 			->where('customer.PPN', $this->PPNNONPPN)
-			->groupBy('invoice.Periode')
+			->groupBy('invoice.Periode', 'invoice.Reference')
 			->get();
 		}
 
-    if(in_array("index", $this->access)){
-      return view('pages.invoice.indexs')
-      ->with('url', 'invoice')
-      ->with('invoicess', $invoices)
+		if(in_array("index", $this->access)){
+			return view('pages.invoice.indexs')
+			->with('url', 'invoice')
+			->with('invoicess', $invoices)
 			->with('invoicesps', $invoicesp)
-      ->with('invoicejs', $invoicej)
+			->with('invoicejs', $invoicej)
 			->with('invoicejps', $invoicejp)
-      ->with('invoicecs', $invoicec)
-      ->with('top_menu_sel', 'menu_invoice')
-      ->with('page_title', 'Invoice')
-      ->with('page_description', 'Index');
-    }else
-      return redirect()->back();
-    }
-    
-    public function getInvc($id)
-  {
-    $phpWord = new \PhpOffice\PhpWord\PhpWord();
-    $invoice = Invoice::find($id);
-    
-    $invoice = Invoice::select([
-      'invoice.*',
-      'project.*',
-      'customer.*',
-    ])
-    ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
-    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('invoice.Reference', $invoice->Reference)
-    ->where('invoice.Invoice', $invoice->Invoice)
-    ->first();
-    
-    $sjkirim = IsiSJKirim::leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
-    ->leftJoin('transaksiclaim', 'transaksi.Purchase', '=', 'transaksiclaim.Purchase')
-    ->where('transaksi.Reference', $invoice->Reference)
-    ->where('transaksiclaim.Periode', $invoice->Periode)
-    ->where('JS', 'Sewa')
-    ->orderBy('isisjkirim.id', 'asc')
-    ->first();
-    
-    $pocode = PO::leftJoin('transaksi', 'po.POCode', '=', 'transaksi.POCode')
-    ->where('transaksi.Reference', $invoice->Reference)
-    ->where('transaksi.JS', 'Sewa')
-    ->groupBy('po.POCode')
-    ->orderBy('po.id', 'desc')
-    ->first();
-    
-    /*$periode = Periode::where('Reference', $invoice->Reference)
-    ->where('Periode', $invoice->Periode)
-    ->where('Deletes', 'Kembali')
-    ->orderBy('periode.id', 'desc')
-    ->first();
-    if(isset($periode->SJKem))
-      $periode=$periode->SJKem;
-    else
-      $periode='';*/
-    
-    $transaksis = TransaksiClaim::select([
-      'isisjkirim.SJKir',
-      'transaksiclaim.*',
-      'periode.S',
-      'periode.E',
-      'transaksi.Reference',
-      'transaksi.Barang',
-      'transaksi.QSisaKem',
-      'project.Project',
-      'customer.*',
-    ])
-    ->leftJoin('isisjkirim', 'transaksiclaim.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
-    ->leftJoin('transaksi', 'transaksiclaim.Purchase', '=', 'transaksi.Purchase')
-    ->leftJoin('periode', 'isisjkirim.IsiSJKir', '=', 'periode.IsiSJKir')
-    ->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
-    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
-    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-    ->where('transaksi.Reference', $invoice->Reference)
-    ->where('transaksiclaim.Periode', $invoice->Periode)
-    ->groupBy('transaksiclaim.Claim', 'transaksiclaim.Tgl', 'transaksiclaim.Claim')
-    ->orderBy('transaksiclaim.id', 'asc')
-    ->get();
-
-    $total = 0;
-    $x=0;
-    foreach($transaksis as $key => $transaksi){
-      $start = $transaksi->S;
-      $end = $transaksi->E;
-
-      $start2 = str_replace('/', '-', $start);
-      $end2 = str_replace('/', '-', $end);
-      $start3[] = strtotime($start2);
-      $end3[] = strtotime($end2);
-
-      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
-
-      $Days = str_replace('/', ',', $start);
-      $M = substr($Days, 3, -5);
-      $Y = substr($Days, 6);
-      $Days2[] = cal_days_in_month(CAL_GREGORIAN, $M, $Y);
-      
-      $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
-      
-      $total2[] = $transaksi->QClaim * $transaksi->Amount; 
-      $total += $total2[$x];
-      $x++;
-    }
-    
-    if($invoice->PPNT == 1)
-      $totals = (($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1)+($total+($invoice->Transport*$invoice->Times))-(((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1)+($total+($invoice->Transport*$invoice->Times)))*$invoice->Discount/100)-$invoice->Pembulatan;
-    else
-      $totals = ($total*$invoice->PPN*0.1)+$total+($invoice->Transport*$invoice->Times)-((($total*$invoice->PPN*0.1)+$total+($invoice->Transport*$invoice->Times))*$invoice->Discount/100)-$invoice->Pembulatan;
-    
-    if($invoice->PPNT == 1)
-      $Discount = number_format((((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1)+($total+($invoice->Transport*$invoice->Times)))*$invoice->Discount/100), 0, ',','.');
-    else
-      $Discount = number_format(((($total*$invoice->PPN*0.1)+$total+($invoice->Transport*$invoice->Times))*$invoice->Discount/100), 0, ',','.');
-    
-    if($invoice->PPNT == 1)
-      $PPN = number_format((($total+($invoice->Transport*$invoice->Times))*$invoice->PPN*0.1), 0, ',','.');
-    else
-      $PPN = number_format(($total*$invoice->PPN*0.1), 0, ',','.');
-    
-    if($invoice->PPN==1)
-      $document = $phpWord->loadTemplate(public_path('/template/Invcp.docx'));
-    else
-      $document = $phpWord->loadTemplate(public_path('/template/Invcnp.docx'));
-    
-    $tglclaim = str_replace('/', '-', $invoice->Tgl);
-    $duedate = date('d/m/Y', strtotime($tglclaim."+4 days"));
-    
-    $document->setValue('Company', ''.$invoice->Company.'');
-    $document->setValue('CompAlamat', ''.$invoice->CompAlamat.'');
-    $document->setValue('CompPhone', ''.$invoice->CompPhone.'');
-    $document->setValue('PCode', ''.$invoice->PCode.'');
-    $document->setValue('Project', ''.$invoice->Project.'');
-    $document->setValue('SJKir', ''.$sjkirim->SJKir.'');
-    $document->setValue('Invoice', ''.$invoice->Invoice.'');
-    $document->setValue('Tgl', ''.$invoice->Tgl.'');
-    $document->setValue('DueDate', ''.$duedate.'');
-    $document->setValue('POCode', ''.$pocode->POCode.'');
-    $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
-    $document->setValue('Discount', ''.$Discount.'');
-    $document->setValue('PPN', ''.$PPN.'');
-    $document->setValue('Totals', ''.number_format($totals, 0, ',','.').'');
-    $document->setValue('Terbilang', ''.$this->terbilang(round($totals)).' Rupiah'.'');
-
-    foreach ($transaksis as $key => $transaksi)
-    {
-      $key2 = $key+1;
-      $document->setValue('Key'.$key, ''.$key2.'');
-      $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
-      $document->setValue('S'.$key, ''.$transaksi->S.'');
-      $document->setValue('E'.$key, ''.$transaksi->E.'');
-      $document->setValue('SE'.$key, ''.$SE[$key].'');
-      $document->setValue('I'.$key, ''.$I[$key].'');
-      $document->setValue('Quantity'.$key, ''.$transaksi->QClaim.'');
-      $document->setValue('Sat'.$key, 'PCS');
-      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount-($transaksi->Amount*$transaksi->Discount/100), 0, ',', '.').'');
-      $document->setValue('Total'.$key, ''.number_format($total2[$key], 0, ',', '.').'');
-    }
-    
-    for($x=0;$x<20;$x++){
-      $document->setValue('Key'.$x, '');
-      $document->setValue('Barang'.$x, '');
-      $document->setValue('S'.$x, '');
-      $document->setValue('E'.$x, '');
-      $document->setValue('SE'.$x, '');
-      $document->setValue('I'.$x, '');
-      $document->setValue('Quantity'.$x, '');
-      $document->setValue('Sat'.$x, '');
-      $document->setValue('Price'.$x, '');
-      $document->setValue('Total'.$x, '');
-    }
-    
-    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-    $path = sprintf("C:\Users\Public\Documents\Invc_", $user);
-    $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
-    
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name Invc_'.$download);
-    return redirect()->route('invoice.showclaim', $id);
-  }
+			->with('invoicecs', $invoicec)
+			->with('top_menu_sel', 'menu_invoice')
+			->with('page_title', 'Invoice')
+			->with('page_description', 'Index');
+		}else
+			return redirect()->back();
+	}
 
 	public function postLunas(Request $request)
 	{

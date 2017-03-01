@@ -19,9 +19,11 @@ class CreateTransaksiclaimTable extends Migration
         $table->string('Tgl');
         $table->integer('QClaim');
         $table->integer('Amount');
+				$table->integer('Discount');
         $table->integer('Purchase');
         $table->integer('Periode');
         $table->integer('IsiSJKir');
+				$table->string('Reference');
       });
     }
 
