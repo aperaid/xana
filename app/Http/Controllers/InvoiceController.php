@@ -443,8 +443,6 @@ class InvoiceController extends Controller
       $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
     }
     $Quantity = $periodes->sum('SumQuantity');
-    $sjkirs = IsiSJKirim::leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')->where('transaksi.Reference', $invoice->Reference)->where('JS', 'Sewa')->pluck('SJKir')->toArray();
-    $SJKir = join(', ', $sjkirs);
     
     $document = $phpWord->loadTemplate(public_path('/template/BA.docx'));
     
@@ -454,7 +452,6 @@ class InvoiceController extends Controller
     $document->setValue('PCode', ''.$invoice->PCode.'');
     $document->setValue('Project', ''.$invoice->Project.'');
     $document->setValue('Invoice', ''.$invoice->Invoice.'');
-    $document->setValue('SJKir', ''.$SJKir.'');
     $document->setValue('S', ''.$firststart[0].'');
     $document->setValue('E', ''.$end.'');
     $document->setValue('Quantity', ''.$Quantity.'');
@@ -546,8 +543,6 @@ class InvoiceController extends Controller
       $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
     }
     $Quantity = $periodes->sum('SumQuantity');
-    $sjkirs = IsiSJKirim::leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')->where('transaksi.Reference', $invoice->Reference)->where('JS', 'Sewa')->pluck('SJKir')->toArray();
-    $SJKir = join(', ', $sjkirs);
     
     $document = $phpWord->loadTemplate(public_path('/template/BA.docx'));
     
@@ -557,7 +552,6 @@ class InvoiceController extends Controller
     $document->setValue('PCode', ''.$invoice->PCode.'');
     $document->setValue('Project', ''.$invoice->Project.'');
     $document->setValue('Invoice', ''.$invoice->Invoice.'');
-    $document->setValue('SJKir', ''.$SJKir.'');
     $document->setValue('S', ''.$firststart[0].'');
     $document->setValue('E', ''.$end.'');
     $document->setValue('Quantity', ''.$Quantity.'');
@@ -2082,6 +2076,95 @@ class InvoiceController extends Controller
 		
 		return redirect()->route('invoice.showclaim', $id);
 	}
+	
+	public function getBAC($id)
+  {
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    $invoice = Invoice::find($id);
+    
+    $invoice = Invoice::select([
+      'invoice.*',
+      'project.*',
+      'customer.*',
+    ])
+    ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoice.Invoice', $invoice->Invoice)
+    ->first();
+    
+    $pocode = Transaksi::where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Sewa')
+    ->groupBy('transaksi.POCode')
+    ->orderBy('transaksi.id', 'desc')
+    ->first();
+    
+    $transaksis = TransaksiClaim::select([
+      'isisjkirim.SJKir',
+      'transaksiclaim.*',
+      'transaksi.Barang',
+      'transaksi.QSisaKem',
+    ])
+    ->leftJoin('isisjkirim', 'transaksiclaim.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+    ->leftJoin('transaksi', 'transaksiclaim.Purchase', '=', 'transaksi.Purchase')
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksiclaim.Periode', $invoice->Periode)
+    ->groupBy('transaksiclaim.Claim', 'transaksiclaim.Tgl', 'transaksiclaim.Claim')
+    ->orderBy('transaksiclaim.id', 'asc')
+    ->get();
+
+    $Quantity = $transaksis->sum('QClaim');
+		$splittgl = explode('/', $transaksis->first()->Tgl);
+		if($splittgl[1]==1)$month = 'Januari';else if($splittgl[1]==2)$month = 'Febuari';else if($splittgl[1]==3)$month = 'Maret';else if($splittgl[1]==4)$month = 'April';else if($splittgl[1]==5)$month = 'Mei';else if($splittgl[1]==6)$month = 'Juni';else if($splittgl[1]==7)$month = 'Juli';else if($splittgl[1]==8)$month = 'Agustus';else if($splittgl[1]==9)$month = 'September';else if($splittgl[1]==10)$month = 'Oktober';else if($splittgl[1]==11)$month = 'November';else if($splittgl[1]==12)$month = 'Desember';
+		$Tanggal = $splittgl[0].' '.$month.' '.$splittgl[2];
+    
+    $document = $phpWord->loadTemplate(public_path('/template/BAC.docx'));
+    
+    $document->setValue('Company', ''.$invoice->Company.'');
+    $document->setValue('CompAlamat', ''.$invoice->CompAlamat.'');
+    $document->setValue('CompPhone', ''.$invoice->CompPhone.'');
+    $document->setValue('PCode', ''.$invoice->PCode.'');
+    $document->setValue('Project', ''.$invoice->Project.'');
+    $document->setValue('Invoice', ''.$invoice->Invoice.'');
+    $document->setValue('Tgl', ''.$transaksis->first()->Tgl.'');
+		$document->setValue('Tanggal', ''.$Tanggal.'');
+    $document->setValue('Quantity', ''.$Quantity.'');
+
+    foreach ($transaksis as $key => $transaksi)
+    {
+      $key2 = $key+1;
+      $document->setValue('Key'.$key, ''.$key2.'');
+      $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
+      //$document->setValue('S'.$key, ''.$transaksi->S.'');
+      //$document->setValue('E'.$key, ''.$transaksi->E.'');
+      //$document->setValue('SE'.$key, ''.$SE[$key].'');
+      $document->setValue('Quantity'.$key, ''.$transaksi->QClaim.'');
+      $document->setValue('Sat'.$key, 'PCS');
+    }
+    
+    for($x=0;$x<20;$x++){
+      $document->setValue('Key'.$x, '');
+      $document->setValue('Barang'.$x, '');
+      $document->setValue('S'.$x, '');
+      $document->setValue('E'.$x, '');
+      $document->setValue('SE'.$x, '');
+      $document->setValue('Quantity'.$x, '');
+      $document->setValue('Sat'.$x, '');
+    }
+    
+    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+		if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\CLAIM\BA\BAC_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\CLAIM\BA\BAC_", $user);
+    $clear = str_replace("/","_",$invoice->Invoice);
+    $download = sprintf('%s.docx', $clear);
+    
+    $document->saveAs($path.$download);
+    
+    Session::flash('message', 'Downloaded to Server Public Documents file name BAC_'.$download);
+    return redirect()->route('invoice.showclaim', $id);
+  }
     
 	public function getInvc($id)
   {
@@ -2205,10 +2288,10 @@ class InvoiceController extends Controller
       $key2 = $key+1;
       $document->setValue('Key'.$key, ''.$key2.'');
       $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
-      $document->setValue('S'.$key, ''.$transaksi->S.'');
-      $document->setValue('E'.$key, ''.$transaksi->E.'');
-      $document->setValue('SE'.$key, ''.$SE[$key].'');
-      $document->setValue('I'.$key, ''.$I[$key].'');
+      //$document->setValue('S'.$key, ''.$transaksi->S.'');
+      //$document->setValue('E'.$key, ''.$transaksi->E.'');
+      //$document->setValue('SE'.$key, ''.$SE[$key].'');
+      //$document->setValue('I'.$key, ''.$I[$key].'');
       $document->setValue('Quantity'.$key, ''.$transaksi->QClaim.'');
       $document->setValue('Sat'.$key, 'PCS');
       $document->setValue('Price'.$key, ''.number_format($transaksi->Amount, 0, ',', '.').'');

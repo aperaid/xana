@@ -800,7 +800,7 @@ class SJKembaliController extends Controller
 		}
 		
 		$user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
-		$path = sprintf("C:\Users\Public\Documents\SPB_", $user);
+		$path = sprintf("C:\Users\Public\Documents\SPB\SPB_", $user);
 		$clear = str_replace("/","_",$transaksi->Invoice);
 		$download = sprintf('%s.docx', $clear);
 		

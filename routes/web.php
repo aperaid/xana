@@ -79,13 +79,14 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('invoice/BAPisah/{id}', ['as' => 'invoice.BAPisah', 'uses' => 'InvoiceController@getBAPisah']);
   Route::get('invoice/Invs/{id}', ['as' => 'invoice.Invs', 'uses' => 'InvoiceController@getInvs']);
 	Route::get('invoice/InvsPisah/{id}', ['as' => 'invoice.InvsPisah', 'uses' => 'InvoiceController@getInvsPisah']);
-  Route::get('invoice/Invj/{id}', ['as' => 'invoice.Invj', 'uses' => 'InvoiceController@getInvj']);
-	Route::get('invoice/InvjPisah/{id}', ['as' => 'invoice.InvjPisah', 'uses' => 'InvoiceController@getInvjPisah']);
-  Route::get('invoice/Invc/{id}', ['as' => 'invoice.Invc', 'uses' => 'InvoiceController@getInvc']);
   Route::get('invoice/Invst/{id}', ['as' => 'invoice.Invst', 'uses' => 'InvoiceController@getInvst']);
   Route::get('invoice/InvstPisah/{id}', ['as' => 'invoice.InvstPisah', 'uses' => 'InvoiceController@getInvstPisah']);
+  Route::get('invoice/Invj/{id}', ['as' => 'invoice.Invj', 'uses' => 'InvoiceController@getInvj']);
+	Route::get('invoice/InvjPisah/{id}', ['as' => 'invoice.InvjPisah', 'uses' => 'InvoiceController@getInvjPisah']);
   Route::get('invoice/Invjt/{id}', ['as' => 'invoice.Invjt', 'uses' => 'InvoiceController@getInvjt']);
 	Route::get('invoice/InvjtPisah/{id}', ['as' => 'invoice.InvjtPisah', 'uses' => 'InvoiceController@getInvjtPisah']);
+  Route::get('invoice/BAC/{id}', ['as' => 'invoice.BAC', 'uses' => 'InvoiceController@getBAC']);
+  Route::get('invoice/Invc/{id}', ['as' => 'invoice.Invc', 'uses' => 'InvoiceController@getInvc']);
 
   Route::resource('invoice', 'InvoiceController');
 
