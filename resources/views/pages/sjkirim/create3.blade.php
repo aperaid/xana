@@ -42,7 +42,7 @@
               <td>{!! Form::select('Warehouse[]', ['Kumbang'=>'Kumbang', 'BulakSereh'=>'Bulak Sereh', 'Legok'=>'Legok', 'CitraGarden'=>'Citra Garden'], null, ['class' => 'form-control Warehouse']) !!}</td>
               <td>{!! Form::number('Stock[]', $transaksi->Kumbang, ['class' => 'form-control Stock', 'readonly']) !!}</td>
               <td>{!! Form::text('QSisaKirInsert[]', $transaksi->QSisaKirInsert, array('class' => 'form-control', 'readonly')) !!}</td>
-              <td><input name="QKirim[]" type="number" class="form-control QKirim" placeholder="1000" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $transaksi->QSisaKirInsert }})" value="{{ $transaksi->QSisaKirInsert }}" required></td>
+              <td><input name="QKirim[]" type="number" class="form-control QKirim" placeholder="1000" autocomplete="off" onkeyup="this.value = minmax(this.value, 1, {{ $transaksi->QSisaKirInsert }})" value="{{ $transaksi->QSisaKirInsert }}" required></td>
 							<td>{!! Form::text('POCode[]', $transaksi->POCode, array('class' => 'form-control', 'readonly')) !!}</td>
             </tr>
             @endforeach
@@ -95,7 +95,7 @@
 function minmax(value, min, max) 
 {
 	if(parseInt(value) < min || isNaN(value)) 
-    return 0; 
+    return 1; 
   if(parseInt(value) > max) 
     return parseInt(max); 
   else return value;

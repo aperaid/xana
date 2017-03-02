@@ -13,6 +13,7 @@ use App\Invoice;
 use App\InvoicePisah;
 use App\TransaksiClaim;
 use App\TransaksiHilang;
+use App\TransaksiExchange;
 use App\Reference;
 use App\SJKirim;
 use App\IsiSJKirim;
@@ -702,6 +703,8 @@ class TransaksiController extends Controller
 		->orderBy('periode.id', 'desc')
 		->pluck('periode.maxid');
 		
+		$last_exchangeid = TransaksiExchange::max('id')+0;
+		
 		$isisjkirims = IsiSJKirim::select([
 			'isisjkirim.*',
 			DB::raw('SUM(isisjkirim.QSisaKem) AS SumQSisaKem'),
@@ -730,6 +733,7 @@ class TransaksiController extends Controller
 			->with('invoice', $invoice)
 			->with('claim', $claim)
 			->with('isisjkirims', $isisjkirims)
+			->with('last_exchangeid', $last_exchangeid)
 			->with('top_menu_sel', 'menu_transaksi')
 			->with('page_title', 'Transaksi Claim')
 			->with('page_description', 'Item');
@@ -796,6 +800,8 @@ class TransaksiController extends Controller
 		])
 		->first();
 		
+		$last_claim = TransaksiClaim::max('Claim')+1;
+		
 		$periodes = Periode::whereIn('periode.id', $maxperiodeid)
 		->where('periode.Reference', $Reference)
 		->orderBy('periode.id', 'asc')
@@ -819,7 +825,7 @@ class TransaksiController extends Controller
 			$periode->IsiSJKir = $isisjkir[$key];
 			$periode->Reference = $Reference;
 			$periode->Purchase = $purchase[$key];
-			$periode->Claim = $input['claim'][$key];
+			$periode->Claim = $last_claim+$key;
 			$periode->Deletes = 'Claim';
 			$periode->save();
 		}
@@ -854,6 +860,21 @@ class TransaksiController extends Controller
 			//$claim->PPN = $input['PPN'];
 			$claim->save();
 		}
+		$forgetexchange = $request->exchangeid[0];
+		if($forgetexchange){
+			$exchanges = $input['exchangeid'];
+			foreach ($exchanges as $key => $exchange)
+			{
+				$exchange = new TransaksiExchange;
+				$exchange->id = $input['exchangeid'][$key];
+				$exchange->BExchange = $input['BExchange'][$key];
+				$exchange->QExchange = $input['QExchange'][$key];
+				$exchange->PExchange = str_replace(".","",substr($input['PExchange'][$key], 3));
+				$exchange->Reference = $Reference;
+				$exchange->Periode = $input['Periode'];
+				$exchange->save();
+			}
+		}
 		
 		DB::select('CALL insert_claim2');
 		
@@ -865,6 +886,8 @@ class TransaksiController extends Controller
 		Session::forget('Tgl');
 		Session::forget('Discount');
 		Session::forget('Reference');
+		
+		Session::flash('message', 'Create claim with invoice '.$projectcode."/".$request->Periode."CL/".substr($Tgl, 3, -5).substr($Tgl, 6)."/BDN".' is successful');
 		
 		return redirect()->route('transaksi.index');
 	}

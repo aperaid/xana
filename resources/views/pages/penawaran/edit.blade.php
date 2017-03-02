@@ -160,8 +160,8 @@ $(function() {
     });
     
     $(document).on('keyup', '.Quantity', function(){
-      if(parseInt($(this).closest('tr').find(".Quantity").val()) < 0)
-        $(this).closest('tr').find(".Quantity").val(0);
+      if(parseInt($(this).closest('tr').find(".Quantity").val()) < 1)
+        $(this).closest('tr').find(".Quantity").val(1);
       /*if(parseInt($(this).closest('tr').find(".Quantity").val()) > $(this).closest('tr').find(".Stock").val())
         $(this).closest('tr').find(".Quantity").val($(this).closest('tr').find(".Stock").val());
       else
@@ -229,8 +229,8 @@ $(function() {
         });
         
         $(document).on('keyup', '.Quantity', function(){
-          if(parseInt($(this).closest('tr').find(".Quantity").val()) < 0)
-            $(this).closest('tr').find(".Quantity").val(0);
+          if(parseInt($(this).closest('tr').find(".Quantity").val()) < 1)
+            $(this).closest('tr').find(".Quantity").val(1);
           /*if(parseInt($(this).closest('tr').find(".Quantity").val()) > $(this).closest('tr').find(".Stock").val())
             $(this).closest('tr').find(".Quantity").val($(this).closest('tr').find(".Stock").val());
           else

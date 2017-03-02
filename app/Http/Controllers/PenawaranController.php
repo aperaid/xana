@@ -62,16 +62,7 @@ class PenawaranController extends Controller
   
   public function create()
   {
-    $penawaran = Penawaran::select([
-      DB::raw('MAX(penawaran.id) AS maxid')
-    ])
-    ->first();
-    
-    if($penawaran -> maxid == 0){
-      $maxid = 0;
-    }else{
-      $maxid = $penawaran -> maxid;
-    }
+    $last_penawaranid = Penawaran::max('id')+0;
 
     $inventory = Inventory::all();
     
@@ -82,7 +73,7 @@ class PenawaranController extends Controller
     if(in_array("create", $this->access)){
       return view('pages.penawaran.create')
       ->with('url', 'penawaran')
-      ->with('maxid', $maxid)
+      ->with('last_penawaranid', $last_penawaranid)
       ->with('inventory', $inventory)
       //->with(compact('warehouse'))
       ->with('top_menu_sel', 'menu_penawaran')

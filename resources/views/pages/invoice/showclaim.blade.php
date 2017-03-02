@@ -76,6 +76,29 @@
               @endforeach
             </tbody>
           </table>
+					@if($exchanges->count('id')>0)
+						<hr>
+						<table id="datatables" class="table table-bordered table-striped table-responsive">
+							<thead>
+								<tr>
+									<th>Barang Exchange</th>
+									<th>QExchange</th>
+									<th>Price/Unit</th>
+									<th>Jumlah</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach($exchanges as $key => $exchange)
+								<tr>
+									<td>{{$exchange->BExchange}}</td>
+									<td>{{$exchange->QExchange}}</td>
+									<td>Rp {{ number_format($exchange->PExchange, 2, ',', '.') }}</td>
+									<td>Rp {{ number_format($exchange->QExchange*$exchange->PExchange, 2, ',', '.') }}</td>
+								</tr>
+								@endforeach
+							</tbody>
+						</table>
+					@endif
 					<hr>
           <!-- Total -->
 					<div class="form-group">

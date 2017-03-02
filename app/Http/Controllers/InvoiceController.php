@@ -13,6 +13,7 @@ use App\Transaksi;
 use App\SJKirim;
 use App\IsiSJKirim;
 use App\TransaksiClaim;
+use App\TransaksiExchange;
 use App\PO;
 use App\History;
 use Session;
@@ -2020,6 +2021,10 @@ class InvoiceController extends Controller
     ->groupBy('transaksiclaim.Claim', 'transaksiclaim.Tgl', 'transaksiclaim.Claim')
     ->orderBy('transaksiclaim.id', 'asc')
     ->get();
+		
+		$exchanges = TransaksiExchange::where('transaksiexchange.Reference', $invoice->Reference)
+    ->where('transaksiexchange.Periode', $invoice->Periode)
+    ->get();
 
     $total = 0;
     $x=0;
@@ -2029,10 +2034,19 @@ class InvoiceController extends Controller
       $x++;
     }
 		
+		$extotal = 0;
+    $x=0;
+    foreach($exchanges as $exchange){
+      $extotal2[] = $exchange->QExchange * $exchange->PExchange; 
+      $extotal += $extotal2[$x];
+      $x++;
+    }
+		
 		$Discount = $total*$transaksis->first()->Discount/100;
 		
 		$Pajak = ($total-$Discount)*$invoice->PPN*0.1;
 		
+		$total = $total - $extotal;
 		$GrandTotal = $total+$Pajak-$Discount-$invoice->Discount-$invoice->Pembulatan;
     
 		$tglterima = str_replace('/', '-', $invoice->TglTerima);
@@ -2044,6 +2058,7 @@ class InvoiceController extends Controller
       ->with('invoice', $invoice)
       ->with('pocode', $pocode)
       ->with('transaksis', $transaksis)
+      ->with('exchanges', $exchanges)
       ->with('total', $total)
       ->with('total2', $total2)
       ->with('GrandTotal', $GrandTotal)
@@ -2226,7 +2241,11 @@ class InvoiceController extends Controller
     ->groupBy('transaksiclaim.Claim', 'transaksiclaim.Tgl', 'transaksiclaim.Claim')
     ->orderBy('transaksiclaim.id', 'asc')
     ->get();
-
+		
+		$exchanges = TransaksiExchange::where('transaksiexchange.Reference', $invoice->Reference)
+    ->where('transaksiexchange.Periode', $invoice->Periode)
+    ->get();
+		
     $total = 0;
     $x=0;
     foreach($transaksis as $key => $transaksi){
@@ -2251,11 +2270,20 @@ class InvoiceController extends Controller
       $total += $total2[$x];
       $x++;
     }
+		
+		$extotal = 0;
+    $x=0;
+    foreach($exchanges as $exchange){
+      $extotal2[] = $exchange->QExchange * $exchange->PExchange; 
+      $extotal += $extotal2[$x];
+      $x++;
+    }
 
     $Discount = $total*$transaksis->first()->Discount/100;
 		
 		$Pajak = ($total-$Discount)*$invoice->PPN*0.1;
 		
+		$total = $total - $extotal;
 		$GrandTotal = $total+$Pajak-$Discount-$invoice->Discount-$invoice->Pembulatan;
     
     if($invoice->PPN==1)

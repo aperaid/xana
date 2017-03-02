@@ -34,7 +34,7 @@
               <td>{!! Form::text('Barang[]', $isisjkembali->Barang, ['class' => 'form-control', 'autocomplete' => 'off', 'readonly']) !!}</td>
               <td>{!! Form::select('Warehouse[]', ['Kumbang'=>'Kumbang', 'BulakSereh'=>'Bulak Sereh', 'Legok'=>'Legok', 'CitraGarden'=>'Citra Garden'], $isisjkembali->Warehouse, ['class' => 'form-control']) !!}</td>
               <td>{!! Form::text('QSisaKem[]', $isisjkembali->QSisaKem, ['class' => 'form-control', 'readonly']) !!}</td>
-              <td><input name="QTertanda[]" type="number" class="form-control" autocomplete="off" onkeyup="this.value = minmax(this.value, 0, {{ $isisjkembali->QSisaKem }})" value="{{ $isisjkembali->SumQTertanda }}" required></td>
+              <td><input name="QTertanda[]" type="number" class="form-control" autocomplete="off" onkeyup="this.value = minmax(this.value, 1, {{ $isisjkembali->QSisaKem }})" value="{{ $isisjkembali->SumQTertanda }}" required></td>
 						</tr>
 						@endforeach
 					</tbody>
@@ -97,7 +97,7 @@ $(function() {
 function minmax(value, min, max) 
 {
 	if(parseInt(value) < min || isNaN(value)) 
-        return 0; 
+        return 1; 
     if(parseInt(value) > max) 
         return parseInt(max); 
     else return value;

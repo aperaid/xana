@@ -101,7 +101,7 @@ $(function() {
 		var max_fields      = 10; //maximum input boxes allowed
 		
 		var x = 0; //initial text box count
-		var y = {{ $maxid }};
+		var y = {{ $last_penawaranid }};
     //Every time Add CF button is clicked:
 		$("#addCF").click(function(){
 			if(x < max_fields){ //max input box allowed
@@ -165,8 +165,8 @@ $(function() {
         });
         
         $(document).on('keyup', '.Quantity', function(){
-          if(parseInt($(this).closest('tr').find(".Quantity").val()) < 0)
-            $(this).closest('tr').find(".Quantity").val(0);
+          if(parseInt($(this).closest('tr').find(".Quantity").val()) < 1)
+            $(this).closest('tr').find(".Quantity").val(1);
           /*if(parseInt($(this).closest('tr').find(".Quantity").val()) > $(this).closest('tr').find(".Stock").val())
             $(this).closest('tr').find(".Quantity").val($(this).closest('tr').find(".Stock").val());
           else
