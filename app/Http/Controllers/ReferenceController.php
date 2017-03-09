@@ -28,24 +28,17 @@ class ReferenceController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='CUSTINVPPN'||Auth::user()->access=='CUSTINVNONPPN'))
-				$this->access = array("index", "create", "show", "edit");
-			else if(Auth::check()&&(Auth::user()->access=='POINVPPN'||Auth::user()->access=='POINVNONPPN'))
+			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "create", "show", "edit");
 			else
 				$this->access = array("");
-			
-			if(Auth::user()->access=='POINVPPN'||Auth::user()->access=='CUSTINVPPN')
-				$this->PPNNONPPN = 1;
-			else if(Auth::user()->access=='POINVNONPPN'||Auth::user()->access=='CUSTINVNONPPN')
-				$this->PPNNONPPN = 0;
     return $next($request);
     });
 	}
 	
 	public function index()
 	{
-		if(Auth::user()->access == 'Admin'){
+		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
 			$reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id'])
 			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
@@ -59,7 +52,7 @@ class ReferenceController extends Controller
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->leftJoin('transaksi', 'pocustomer.Reference', '=', 'transaksi.Reference')
 			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
-			->where('PPN', $this->PPNNONPPN)
+			->where('PPN', 1)
 			->groupBy('pocustomer.Reference')
 			->get();
 		}

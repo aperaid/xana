@@ -391,7 +391,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showsewapisah', $id);
   }
   
-  public function getBA($id)
+  public function getBAS($id)
   {
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = Invoice::find($id);
@@ -445,7 +445,7 @@ class InvoiceController extends Controller
     }
     $Quantity = $periodes->sum('SumQuantity');
     
-    $document = $phpWord->loadTemplate(public_path('/template/BA.docx'));
+    $document = $phpWord->loadTemplate(public_path('/template/BAS.docx'));
     
     $document->setValue('Company', ''.$invoice->Company.'');
     $document->setValue('CompAlamat', ''.$invoice->CompAlamat.'');
@@ -482,9 +482,9 @@ class InvoiceController extends Controller
     
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
 		if($invoice->PPN==1)
-			$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\BA\BA_", $user);
+			$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\BA\BAS_", $user);
 		else
-			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\BA\BA_", $user);
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\BA\BAS_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
     $download = sprintf('%s.docx', $clear);
     
@@ -1500,6 +1500,93 @@ class InvoiceController extends Controller
     Session::flash('message', 'Update is successful!');
     
     return redirect()->route('invoice.showjualpisah', $id);
+  }
+	
+	public function getBAJ($id)
+  {
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    $invoice = Invoice::find($id);
+    
+    $invoice = Invoice::select([
+      'invoice.*',
+      'project.*',
+      'customer.*',
+    ])
+    ->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoice.Invoice', $invoice->Invoice)
+    ->first();
+    
+    $pocode = Transaksi::where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Jual')
+    ->groupBy('transaksi.POCode')
+    ->orderBy('transaksi.id', 'desc')
+    ->first();
+    
+    $transaksis = Transaksi::select([
+			'inventory.Type',
+      'isisjkirim.QTertanda',
+      'sjkirim.SJKir',
+      'sjkirim.Tgl',
+      'transaksi.Purchase',
+      'transaksi.Barang',
+      'transaksi.Amount',
+    ])
+    ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
+    ->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
+    ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Jual')
+		//->where('isisjkirim.QTertanda', '!=' , 0)
+    ->orderBy('isisjkirim.id', 'asc')
+    ->get();
+
+    $Quantity = $transaksis->sum('QTertanda');
+    
+    $document = $phpWord->loadTemplate(public_path('/template/BAJ.docx'));
+    
+    $document->setValue('Company', ''.$invoice->Company.'');
+    $document->setValue('CompAlamat', ''.$invoice->CompAlamat.'');
+    $document->setValue('CompPhone', ''.$invoice->CompPhone.'');
+    $document->setValue('PCode', ''.$invoice->PCode.'');
+    $document->setValue('Project', ''.$invoice->Project.'');
+    $document->setValue('Invoice', ''.$invoice->Invoice.'');
+    $document->setValue('Tgl', ''.$transaksis->first()->Tgl.'');
+    $document->setValue('Quantity', ''.$Quantity.'');
+    $document->setValue('PEO', ''.$pocode->POCode.'');
+
+    foreach ($transaksis as $key => $transaksi)
+    {
+      $key2 = $key+1;
+      $document->setValue('Key'.$key, ''.$key2.'');
+      $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
+      $document->setValue('Quantity'.$key, ''.$transaksi->QTertanda.'');
+      $document->setValue('Sat'.$key, 'PCS');
+    }
+    
+    for($x=0;$x<20;$x++){
+      $document->setValue('Key'.$x, '');
+      $document->setValue('Barang'.$x, '');
+      $document->setValue('S'.$x, '');
+      $document->setValue('E'.$x, '');
+      $document->setValue('SE'.$x, '');
+      $document->setValue('Quantity'.$x, '');
+      $document->setValue('Sat'.$x, '');
+    }
+    
+    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+		if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\JUAL\BA\BAJ_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\JUAL\BA\BAJ_", $user);
+    $clear = str_replace("/","_",$invoice->Invoice);
+    $download = sprintf('%s.docx', $clear);
+    
+    $document->saveAs($path.$download);
+    
+    Session::flash('message', 'Downloaded to Server Public Documents file name BAJ_'.$download);
+    return redirect()->route('invoice.showjual', $id);
   }
   
   public function getInvj($id)

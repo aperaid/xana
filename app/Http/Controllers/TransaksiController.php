@@ -30,17 +30,10 @@ class TransaksiController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='CUSTINVPPN'||Auth::user()->access=='CUSTINVNONPPN'))
-				$this->access = array("index", "claimcreate", "claimcreate2", "claimcreate3");
-			else if(Auth::check()&&(Auth::user()->access=='POINVPPN'||Auth::user()->access=='POINVNONPPN'))
+			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "claimcreate", "claimcreate2", "claimcreate3");
 			else
 				$this->access = array("");
-			
-			if(Auth::user()->access=='POINVPPN'||Auth::user()->access=='CUSTINVPPN')
-				$this->PPNNONPPN = 1;
-			else if(Auth::user()->access=='POINVNONPPN'||Auth::user()->access=='CUSTINVNONPPN')
-				$this->PPNNONPPN = 0;
     return $next($request);
     });
 	}
@@ -57,7 +50,7 @@ class TransaksiController extends Controller
 		->groupBy('periode.IsiSJKir')
 		->orderBy('periode.id', 'asc');
 		
-		if(Auth::user()->access == 'Admin'){
+		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
 			$transaksis = Periode::select([
 				'invoice.id AS invoiceid',
 				'invoice.Invoice',
@@ -122,7 +115,7 @@ class TransaksiController extends Controller
 				$join->on('per.IsiSJKir', '=', 'periode.IsiSJKir');
 			})
 			->where('invoice.JSC', 'Sewa')
-			->where('customer.PPN', $this->PPNNONPPN)
+			->where('customer.PPN', 1)
 			->where(function($query){
 				$query->where('periode.Deletes', "Sewa")
 				->orWhere('periode.Deletes', "Extend");
@@ -131,7 +124,7 @@ class TransaksiController extends Controller
 			->get();
 		}
 		
-		if(Auth::user()->access == 'Admin'){
+		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
 			$transaksij = Periode::select([
 				'invoice.id',
 				'invoice.Invoice',
@@ -170,7 +163,7 @@ class TransaksiController extends Controller
 				->on('invoice.Periode', '=', 'periode.Periode');
 			})
 			->where('invoice.JSC', 'Jual')
-			->where('customer.PPN', $this->PPNNONPPN)
+			->where('customer.PPN', 1)
 			->where('periode.Deletes', 'Jual')
 			->groupBy('periode.Reference', 'periode.Periode')
 			->get();
@@ -190,7 +183,7 @@ class TransaksiController extends Controller
 		])
 		->whereRaw('periode.Deletes = "Sewa" OR periode.Deletes = "Extend"');
 		
-		if(Auth::user()->access == 'Admin'){
+		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
 			$transaksic = TransaksiClaim::select([
 				'periodeclaim',
 				'periodeextend',
@@ -260,7 +253,7 @@ class TransaksiController extends Controller
 				$join->on('T2.Reference', '=', 'periode.Reference');
 			})
 			->where('invoice.JSC', 'Claim')
-			->where('customer.PPN', $this->PPNNONPPN)
+			->where('customer.PPN', 1)
 			->groupBy('transaksiclaim.Periode')
 			->orderBy('transaksiclaim.id', 'asc')
 			->get();

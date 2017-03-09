@@ -16,7 +16,7 @@ class InventoryController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'))
+			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'))
 				$this->access = array("viewinventory", "adjustinventory", "editadjustinventory", "transferinventory", "registerinventory", "removeinventory");
 			else
 				$this->access = array("");

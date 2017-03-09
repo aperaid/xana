@@ -26,17 +26,10 @@ class SJKirimController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='CUSTINVPPN'||Auth::user()->access=='CUSTINVNONPPN'))
-				$this->access = array("index", "create", "create2", "create3", "show", "edit", "qtertanda");
-			else if(Auth::check()&&(Auth::user()->access=='POINVPPN'||Auth::user()->access=='POINVNONPPN'))
+			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "create", "create2", "create3", "show", "edit", "qtertanda");
 			else
 				$this->access = array("");
-			
-			if(Auth::user()->access=='POINVPPN'||Auth::user()->access=='CUSTINVPPN')
-				$this->PPNNONPPN = 1;
-			else if(Auth::user()->access=='POINVNONPPN'||Auth::user()->access=='CUSTINVNONPPN')
-				$this->PPNNONPPN = 0;
     return $next($request);
     });
 	}
@@ -49,7 +42,7 @@ class SJKirimController extends Controller
 			])
 			->groupBy('isisjkirim.SJKir');
 			
-		if(Auth::user()->access == 'Admin'){
+		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
 			$sjkirim = SJKirim::select([
 				'qttd',
 				'sjkirim.*',
@@ -77,7 +70,7 @@ class SJKirimController extends Controller
 			->leftJoin(DB::raw(sprintf( '(%s) AS T1', $sum->toSql() )), function($join){
 					$join->on('T1.SJKir', '=', 'sjkirim.SJKir');
 				})
-			->where('PPN', $this->PPNNONPPN)
+			->where('PPN', 1)
 			->orderBy('sjkirim.id', 'asc')
 			->get();
 		}

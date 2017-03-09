@@ -393,7 +393,7 @@
           <div class="form-group">
             {!! Form::label('PPNT', 'PPN Transport', ['class' => 'col-lg-3']) !!}
 						<div class="input-group">
-              @if($detail->PPN == 1 && (Auth::user()->access == 'Admin' || Auth::user()->access == 'POINVPPN' || Auth::user()->access == 'CUSTINVPPN'))
+              @if($detail->PPN == 1 && (Auth::user()->access == 'Admin'||Auth::user()->access == 'SuperAdmin' || Auth::user()->access == 'Purchasing' || Auth::user()->access == 'SuperPurchasing'))
 								{!! Form::checkbox('PPNT', 1, $detail->PPNT, ['id' => 'PPNT', 'class' => 'minimal']) !!}
 							@else
 								{!! Form::checkbox('PPNT', 1, null, ['id' => 'PPNT', 'class' => 'minimal', 'disabled']) !!}

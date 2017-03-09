@@ -7,9 +7,11 @@ use App\Reference;
 use App\PO;
 use App\Transaksi;
 use App\SJKirim;
+use App\SJKembali;
 use App\IsiSJKirim;
 use App\Periode;
 use App\Invoice;
+use App\InvoicePisah;
 use App\TransaksiClaim;
 
 class PenjualanTableSeeder extends Seeder
@@ -27,9 +29,11 @@ class PenjualanTableSeeder extends Seeder
 		PO::truncate();
 		Transaksi::truncate();
 		SJKirim::truncate();
+		SJKembali::truncate();
 		IsiSJKirim::truncate();
 		Periode::truncate();
 		Invoice::truncate();
+		InvoicePisah::truncate();
 		TransaksiClaim::truncate();
     Customer::insert([
       ['id'=>'1','CCode'=>'BCA','PPN'=>'1','Company'=>'PT. BANK CENTRAL ASIA','Customer'=>'Thomas Chandra','CompAlamat' => 'Jl. M.H Thamrin No.1', 'CompZip'=>'12260', 'CompKota'=>'Jakarta', 'CompPhone'=>'021-123456', 'CompEmail'=>'bankbca@bca.co.id', 'CustPhone'=>'021-123456', 'CustEmail'=>'customer@bca.co.id', 'Fax'=>'021-123456', 'NPWP'=>'1234567890'],
@@ -62,6 +66,9 @@ class PenjualanTableSeeder extends Seeder
     ]);
 		Invoice::insert([
       ['id'=>'1','Invoice'=>'BCA01/1/032017/BDN','JSC'=>'Sewa','Tgl'=>'01/03/2017','Reference' => '00001/260117','Periode' => '1','PPN' => '1','Discount' => '0', 'Lunas' => '0', 'Count' => '1', 'Termin' => '0', 'Times' => '1', 'TimesKembali' => '0', 'Pembulatan' => '0']
+    ]);
+		InvoicePisah::insert([
+      ['id'=>'1','Invoice'=>'BCA01/1/032017/BDN','JSC'=>'Sewa','Tgl'=>'01/03/2017','Reference' => '00001/260117','Periode' => '1','PPN' => '1','Discount' => '0', 'Lunas' => '0', 'Count' => '1', 'Termin' => '0', 'Times' => '1', 'TimesKembali' => '0', 'Pembulatan' => '0', 'POCode' => 'BCA01/00001', 'Abjad' => '1']
     ]);
   }
 }

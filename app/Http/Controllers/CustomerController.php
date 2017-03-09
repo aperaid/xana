@@ -17,25 +17,20 @@ class CustomerController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='CUSTINVPPN'||Auth::user()->access=='CUSTINVNONPPN'))
+			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "create", "show", "edit");
 			else
 				$this->access = array("");
-			
-		if(Auth::user()->access=='POINVPPN'||Auth::user()->access=='CUSTINVPPN')
-				$this->PPNNONPPN = 1;
-			else if(Auth::user()->access=='POINVNONPPN'||Auth::user()->access=='CUSTINVNONPPN')
-				$this->PPNNONPPN = 0;
     return $next($request);
     });
 	}
 	
 	public function index()
 	{
-		if(Auth::user()->access == 'Admin'){
+		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
 			$customer = Customer::all();
 		}else{
-			$customer = Customer::where('PPN', $this->PPNNONPPN)
+			$customer = Customer::where('PPN', 1)
 			->get();
 		}
 		

@@ -23,7 +23,7 @@
               {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
             </div>
           </div>
-					@if(Auth::user()->access == 'Admin')
+					@if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access == 'SuperPurchasing')
 						<div class="form-group">
 							{!! Form::label('PPN', 'PPN', ['class' => "col-md-2 control-label"]) !!}
 							<div class="col-md-4">
@@ -32,10 +32,8 @@
 								{!! Form::label('PPN', 'PPN 10%') !!}
 							</div>
 						</div>
-					@elseif(Auth::user()->access == 'POINVPPN' || Auth::user()->access == 'CUSTINVPPN')
+					@else
 						{!! Form::hidden('PPN', 1) !!}
-					@elseif(Auth::user()->access == 'POINVNONPPN' || Auth::user()->access == 'CUSTINVNONPPN')
-						{!! Form::hidden('PPN', 0) !!}
 					@endif
           <div class="form-group">
             {!! Form::label('Company', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
