@@ -91,6 +91,8 @@ Route::group(['middleware' => 'auth'], function () {
 
   Route::resource('invoice', 'InvoiceController');
 
+	Route::get('inventory/stockproject', ['as' => 'inventory.stockproject', 'uses' => 'InventoryController@getInventoryProject']);
+	Route::get('inventory/viewstockproject/{id}', ['as' => 'inventory.viewstockproject', 'uses' => 'InventoryController@getViewInventoryProject']);
   Route::get('inventory/viewinventory', ['as' => 'inventory.viewinventory', 'uses' => 'InventoryController@getView']);
   Route::get('inventory/adjustinventory', ['as' => 'inventory.adjustinventory', 'uses' => 'InventoryController@getAdjustment']);
   Route::get('inventory/editadjustinventory/{id}', ['as' => 'inventory.editadjustinventory', 'uses' => 'InventoryController@getEditAdjustment']);

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Reference;
+use App\Transaksi;
 use App\Inventory;
 use App\History;
 use Session;
@@ -16,12 +18,65 @@ class InventoryController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'))
-				$this->access = array("viewinventory", "adjustinventory", "editadjustinventory", "transferinventory", "registerinventory", "removeinventory");
+			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='StorageManager'||Auth::user()->access=='SuperStorageManager'))
+				$this->access = array("viewstockproject", "stockproject", "viewinventory", "adjustinventory", "editadjustinventory", "transferinventory", "registerinventory", "removeinventory");
 			else
 				$this->access = array("");
     return $next($request);
     });
+	}
+	
+	public function getInventoryProject()
+	{
+		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperStorageManager'){
+			$project = Reference::leftJoin('project', 'pocustomer.PCode', 'project.PCode')
+			->groupBy('project.id')
+			->get();
+		}else{
+			$project = Reference::leftJoin('project', 'pocustomer.PCode', 'project.PCode')
+			->where('PPN', 1)
+			->groupBy('project.id')
+			->get();
+		}
+
+		if(in_array("stockproject", $this->access)){
+			return view('pages.inventory.stockproject')
+			->with('url', 'stockproject')
+			->with('project', $project)
+			->with('top_menu_sel', 'menu_stockproject')
+			->with('page_title', 'Stock/Project')
+			->with('page_description', 'Index');
+		}else
+			return redirect()->back();
+	}
+	
+	public function getViewInventoryProject($id)
+	{
+		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperStorageManager'){
+			$transaksis = Transaksi::leftJoin('pocustomer', 'transaksi.Reference', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', 'customer.CCode')
+			->where('project.id', $id)
+			->get();
+		}else{
+			$transaksis = Transaksi::leftJoin('project', 'transaksi.PCode', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', 'customer.CCode')
+			->where('project.id', $id)
+			->where('PPN', 1)
+			->get();
+		}
+		$transaksi = $transaksis -> first();
+
+		if(in_array("viewstockproject", $this->access)){
+			return view('pages.inventory.viewstockproject')
+			->with('url', 'viewstockproject')
+			->with('transaksis', $transaksis)
+			->with('transaksi', $transaksi)
+			->with('top_menu_sel', 'menu_stockproject')
+			->with('page_title', 'View Stock/Project')
+			->with('page_description', 'View');
+		}else
+			return redirect()->back();
 	}
 	
   public function getView()
