@@ -1,6 +1,6 @@
 @extends('layouts.xana.layout')
 @section('title')
-	View Stock Project
+	View Inventory di Proyek
 @stop
 
 @section('content')
@@ -8,7 +8,7 @@
   <div class="row">
     <div class="col-xs-12">
       <h2 class="page-header">
-        <i class="fa fa-globe"></i> View Stock Project | {{ $transaksi->PCode }}
+        <i class="fa fa-globe"></i> Inventory/Project | {{ $transaksi->PCode }}
         <small class="pull-right">Date: {{ $transaksi -> Tgl }}</small>
       </h2>
     </div>

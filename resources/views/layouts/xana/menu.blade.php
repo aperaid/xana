@@ -44,7 +44,7 @@
         <i class="fa fa-angle-left pull-right"></i>
       </a>
       <ul class="treeview-menu">
-				<li @if ($top_menu_sel=="menu_stockproject") class="active" @endif ><a href="{{route('inventory.stockproject')}}"><i class="fa fa-folder-open-o"></i> <span>Stok/Proyek</span></a></li>
+				<li @if ($top_menu_sel=="menu_stockproject") class="active" @endif ><a href="{{route('inventory.stockproject')}}"><i class="fa fa-folder-open-o"></i> <span>Inventory di Proyek</span></a></li>
         <li @if ($top_menu_sel=="menu_view") class="active" @endif ><a href="{{route('inventory.viewinventory')}}"><i class="fa fa-folder-open-o"></i> <span>Lihat Stok</span></a></li>
         <li @if ($top_menu_sel=="menu_adjustment") class="active" @endif ><a href="{{route('inventory.adjustinventory')}}"><i class="fa fa-database"></i> <span>Penyesuaian Stok</span></a></li>
         <li @if ($top_menu_sel=="menu_transfer") class="active" @endif ><a href="{{route('inventory.transferinventory')}}"><i class="fa fa-exchange"></i> <span>Transfer Antar Gudang</span></a></li>

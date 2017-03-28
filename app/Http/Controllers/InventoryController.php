@@ -44,7 +44,7 @@ class InventoryController extends Controller
 			->with('url', 'stockproject')
 			->with('project', $project)
 			->with('top_menu_sel', 'menu_stockproject')
-			->with('page_title', 'Stock/Project')
+			->with('page_title', 'Inventory di Proyek')
 			->with('page_description', 'Index');
 		}else
 			return redirect()->back();
@@ -73,7 +73,7 @@ class InventoryController extends Controller
 			->with('transaksis', $transaksis)
 			->with('transaksi', $transaksi)
 			->with('top_menu_sel', 'menu_stockproject')
-			->with('page_title', 'View Stock/Project')
+			->with('page_title', 'Inventory di Proyek')
 			->with('page_description', 'View');
 		}else
 			return redirect()->back();

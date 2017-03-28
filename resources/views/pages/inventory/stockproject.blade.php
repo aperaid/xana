@@ -1,6 +1,6 @@
 @extends('layouts.xana.layout')
 @section('title')
-	Stock Project
+	Inventory di Proyek
 @stop
 
 @section('content')
