@@ -171,33 +171,6 @@ class InvoiceController extends Controller
       return redirect()->back();
 	}
 	
-  public function postInvoiceSewa(Request $request, $id)
-  {
-    $invoice = Invoice::find($id);
-    
-    $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
-    
-    $invoice->id = $id;
-    $invoice->PPN = $request->PPN;
-		$invoice->Times = $request->Times;
-		$invoice->TimesKembali = $request->TimesKembali;
-    $invoice->Discount = $request->Discount;
-		$invoice->TglTerima = $request->TglTerima;
-		$invoice->Termin = $request->Termin;
-    $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
-    $invoice->Catatan = $request->Catatan;
-    $invoice->save();
-    
-    $history = new History;
-    $history->User = Auth::user()->name;
-    $history->History = 'Update invoice on Invoice '.$request['Invoice'];
-    $history->save();
-
-    Session::flash('message', 'Update is successful!');
-    
-    return redirect()->route('invoice.showsewa', $id);
-  }
-	
 	public function getInvoiceSewaPisah($id){
     $parameter = InvoicePisah::find($id);
     
@@ -337,9 +310,9 @@ class InvoiceController extends Controller
       return redirect()->back();
 	}
 	
-	public function postInvoiceSewaPisah(Request $request, $id)
+  public function postInvoiceSewa(Request $request, $id)
   {
-    $invoice = InvoicePisah::find($id);
+    $invoice = Invoice::find($id);
     
     $POCode = Transaksi::where('transaksi.Reference', $invoice->Reference)->pluck('POCode');
     
@@ -353,6 +326,61 @@ class InvoiceController extends Controller
     $invoice->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
     $invoice->Catatan = $request->Catatan;
     $invoice->save();
+		
+		$invoicepisahs = InvoicePisah::where('Reference', $invoice->Reference)
+		->where('Periode', $invoice->Periode)
+		->where('JSC', 'Sewa')
+		->get();
+    
+		$invoicepisahs = $invoicepisahs->pluck('id');
+		foreach ($invoicepisahs as $key => $invoicepisah)
+    {
+			$invoicepisah = InvoicePisah::find($invoicepisahs[$key]);
+			$invoicepisah->PPN = $invoice->PPN;
+			//$invoicepisah->Discount = $invoice->Discount;
+			$invoicepisah->TglTerima = $invoice->TglTerima;
+			$invoicepisah->Termin = $invoice->Termin;
+			$invoicepisah->save();
+		}
+    
+    $history = new History;
+    $history->User = Auth::user()->name;
+    $history->History = 'Update invoice on Invoice '.$request['Invoice'];
+    $history->save();
+
+    Session::flash('message', 'Update is successful!');
+    
+    return redirect()->route('invoice.showsewa', $id);
+  }
+	
+	public function postInvoiceSewaPisah(Request $request, $id)
+  {
+    $invoicepisah = InvoicePisah::find($id);
+    
+    $POCode = Transaksi::where('transaksi.Reference', $invoicepisah->Reference)->pluck('POCode');
+    
+    $invoicepisah->id = $id;
+    $invoicepisah->PPN = $request->PPN;
+		$invoicepisah->Times = $request->Times;
+		$invoicepisah->TimesKembali = $request->TimesKembali;
+    $invoicepisah->Discount = $request->Discount;
+		$invoicepisah->TglTerima = $request->TglTerima;
+		$invoicepisah->Termin = $request->Termin;
+    $invoicepisah->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
+    $invoicepisah->Catatan = $request->Catatan;
+    $invoicepisah->save();
+		
+		$invoice = Invoice::where('Reference', $invoicepisah->Reference)
+		->where('Periode', $invoicepisah->Periode)
+		->where('JSC', 'Sewa')
+		->first();
+    
+    $invoice = Invoice::find($invoice->id);
+		$invoice->PPN = $invoicepisah->PPN;
+		//$invoice->Discount = $invoicepisah->Discount;
+		$invoice->TglTerima = $invoicepisah->TglTerima;
+		$invoice->Termin = $invoicepisah->Termin;
+		$invoice->save();
     
     $history = new History;
     $history->User = Auth::user()->name;
