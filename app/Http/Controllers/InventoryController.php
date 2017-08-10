@@ -131,6 +131,7 @@ class InventoryController extends Controller
   {
     $adjust = Inventory::find($id);
 
+		$adjust->Barang = $request->Barang;
     $adjust->JualPrice = str_replace(".","",substr($request->JualPrice, 3));
     $adjust->Price = str_replace(".","",substr($request->Price, 3));
     $adjust->Kumbang = $request->Kumbang;

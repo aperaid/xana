@@ -46,8 +46,8 @@
       <ul class="treeview-menu">
 				<li @if ($top_menu_sel=="menu_stockproject") class="active" @endif ><a href="{{route('inventory.stockproject')}}"><i class="fa fa-folder-open-o"></i> <span>Inventory di Proyek</span></a></li>
         <li @if ($top_menu_sel=="menu_view") class="active" @endif ><a href="{{route('inventory.viewinventory')}}"><i class="fa fa-folder-open-o"></i> <span>Lihat Stok</span></a></li>
-        <li @if ($top_menu_sel=="menu_adjustment") class="active" @endif ><a href="{{route('inventory.adjustinventory')}}"><i class="fa fa-database"></i> <span>Penyesuaian Stok</span></a></li>
-        <li @if ($top_menu_sel=="menu_transfer") class="active" @endif ><a href="{{route('inventory.transferinventory')}}"><i class="fa fa-exchange"></i> <span>Transfer Antar Gudang</span></a></li>
+        <li @if ($top_menu_sel=="menu_adjustment") class="active" @endif ><a href="{{route('inventory.adjustinventory')}}"><i class="fa fa-database"></i> <span>Edit Stok</span></a></li>
+        <!--<li @if ($top_menu_sel=="menu_transfer") class="active" @endif ><a href="{{route('inventory.transferinventory')}}"><i class="fa fa-exchange"></i> <span>Transfer Antar Gudang</span></a></li>-->
         <li @if ($top_menu_sel=="menu_register") class="active" @endif ><a href="{{route('inventory.registerinventory')}}"><i class="fa fa-cubes"></i> <span>Daftar Barang</span></a></li>
         <li @if ($top_menu_sel=="menu_remove") class="active" @endif ><a href="{{route('inventory.removeinventory')}}"><i class="fa fa-trash"></i> <span>Hapus Barang</span></a></li>
         <!--<li @if ($top_menu_sel=="menu_registerwarehouse") class="active" @endif ><a href="{{route('customer.index')}}"><i class="fa fa-industry"></i> <span>Daftar Gudang</span></a></li>-->

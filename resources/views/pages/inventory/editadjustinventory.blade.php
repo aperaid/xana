@@ -23,7 +23,7 @@
             </div>
             {!! Form::label('Barang', 'Barang', ['class' => "col-sm-1 control-label"]) !!}
             <div class="col-sm-5">
-              {!! Form::text('Barang', $adjust->Barang, array('class' => 'form-control', 'readonly')) !!}
+              {!! Form::text('Barang', $adjust->Barang, array('class' => 'form-control', 'autocomplete' => 'off')) !!}
             </div>
           </div>
           <div class="form-group">
