@@ -297,7 +297,7 @@ $("#customerprojectform").submit(function(event){
 });
 
 $(function() {
-	var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompleteccode.php");?>;
+	var availableTags = <?php include ("/var/www/html/xana/app/Includes/autocompleteccode.php");?>;
 	$( "#CCode" ).autocomplete({
 		source: availableTags,
 		autoFocus: true,
@@ -306,7 +306,7 @@ $(function() {
 });
 
 $(function() {
-	var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletepcode.php");?>;
+	var availableTags = <?php include ("/var/www/html/xana/app/Includes/autocompletepcode.php");?>;
 	$( "#PCode" ).autocomplete({
 		source: availableTags,
 		autoFocus: true

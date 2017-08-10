@@ -2,7 +2,7 @@
 
 error_reporting(E_ALL^E_NOTICE);
 
-$mysqli = new mysqli('localhost', 'root', '', 'xana');
+$mysqli = new mysqli('localhost', 'xana', 'password', 'xana');
 $text = $mysqli->real_escape_string($_GET['term']);
 
 $query = "SELECT CCode FROM customer WHERE CCode LIKE '%$text%' ORDER BY CCode ASC";

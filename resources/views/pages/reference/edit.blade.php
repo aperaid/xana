@@ -75,7 +75,7 @@ $('#Tgl').datepicker({
 }); 
 
 $(function() {
-	var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompleteccode.php");?>;
+	var availableTags = <?php include ("/var/www/html/xana/app/Includes/autocompleteccode.php");?>;
 	$( "#tx_insertproject_CCode" ).autocomplete({
 		source: availableTags,
 	autoFocus: true
@@ -88,7 +88,7 @@ function capital() {
 }
 
 $(function() {
-	var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletepcode.php");?>;
+	var availableTags = <?php include ("/var/www/html/xana/app/Includes/autocompletepcode.php");?>;
 	$( "#PCode" ).autocomplete({
 		source: availableTags,
 		autoFocus: true

@@ -110,7 +110,7 @@ $(document).ready(function(){
 	
 	$(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 		
-	var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletebarang.php");?>;
+	var availableTags = <?php include ("/var/www/html/xana/app/Includes/autocompletebarang.php");?>;
 	$( ".Barang" ).autocomplete({
 		source: availableTags,
 		autoFocus: true
@@ -179,7 +179,7 @@ $(document).ready(function(){
 			
 			$(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 		
-			var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompletebarang.php");?>;
+			var availableTags = <?php include ("/var/www/html/xana/app/Includes/autocompletebarang.php");?>;
 			$( ".Barang" ).autocomplete({
 				source: availableTags,
 				autoFocus: true

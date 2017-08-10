@@ -82,7 +82,7 @@
 </script>
 <script>
   $(function() {
-    var availableTags = <?php include ("C:/wamp64/www/xana/app/Includes/autocompleteccode.php");?>;
+    var availableTags = <?php include ("/var/www/html/xana/app/Includes/autocompleteccode.php");?>;
     $( "#CCode" ).autocomplete({
       source: availableTags,
       autoFocus: true

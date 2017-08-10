@@ -43,7 +43,7 @@ class HomeController extends Controller
 			->get();
 			
 			$periodes = Periode::whereRaw('DATE(DATE_FORMAT(STR_TO_DATE(E, "%d/%m/%Y"), "%Y-%m-%d")) <= DATE_ADD(CURDATE(), INTERVAL +1 DAY)')
-			->whereRaw('Periode IN (select max(Periode) from Periode group by Reference)')
+			->whereRaw('Periode IN (select max(Periode) from periode group by Reference)')
 			->groupBy('Reference')
 			->get();
 			
