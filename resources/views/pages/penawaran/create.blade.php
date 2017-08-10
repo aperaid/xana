@@ -111,7 +111,15 @@ $(function() {
       
         $(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
       
-        var availableTags = <?php include ("/var/www/html/xana/app/Includes/autocompletebarang.php");?>;
+        var availableTags = 
+				<?php 
+					if(env('APP_VM')==0)
+						$path = "C:/wamp64/www";
+					else if(env('APP_VM')==1)
+						$path = "/var/www/html";
+					include ($path."/xana/app/Includes/autocompletebarang.php");
+				?>;
+				
         $( ".Barang" ).autocomplete({
           source: availableTags,
           autoFocus: true
@@ -187,7 +195,14 @@ $(function() {
 </script>
 <script>
   $(function() {
-    var availableTags = <?php include ("/var/www/html/xana/app/Includes/autocompletepcode.php");?>;
+    var availableTags = 
+		<?php 
+			if(env('APP_VM')==0)
+				$path = "C:/wamp64/www";
+			else if(env('APP_VM')==1)
+				$path = "/var/www/html";
+			include ($path."/xana/app/Includes/autocompletepcode.php");
+		?>;
     $( "#PCode" ).autocomplete({
       source: availableTags,
       autoFocus: true

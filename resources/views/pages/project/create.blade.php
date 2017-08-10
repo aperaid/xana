@@ -84,7 +84,15 @@
 </script>
 <script>
   $(function() {
-    var availableTags = <?php include ("/var/www/html/xana/app/Includes/autocompleteccode.php");?>;
+		var availableTags = 
+		<?php 
+			if(env('APP_VM')==0)
+				$path = "C:/wamp64/www";
+			else if(env('APP_VM')==1)
+				$path = "/var/www/html";
+			include ($path."/xana/app/Includes/autocompleteccode.php");
+		?>;
+
     $( "#CCode" ).autocomplete({
       source: availableTags,
       autoFocus: true

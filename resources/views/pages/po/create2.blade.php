@@ -35,7 +35,14 @@
 @section('script')
 <script>
   $(function() {
-    var availableTags = <?php include ("/var/www/html/xana/app/Includes/autocompletepenawaran.php");?>;
+    var availableTags = 
+		<?php 
+			if(env('APP_VM')==0)
+				$path = "C:/wamp64/www";
+			else if(env('APP_VM')==1)
+				$path = "/var/www/html";
+			include ($path."/xana/app/Includes/autocompletepenawaran.php");
+		?>;
     $( "#Penawaran" ).autocomplete({
       source: availableTags,
       autoFocus: true
