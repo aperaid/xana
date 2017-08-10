@@ -297,6 +297,7 @@ $("#customerprojectform").submit(function(event){
 });
 
 $(function() {
+	var availableTags = 
 	<?php 
 		if(env('APP_VM')==0)
 			$path = "C:/wamp64/www";
@@ -312,6 +313,7 @@ $(function() {
 });
 
 $(function() {
+	var availableTags = 
 	<?php 
 		if(env('APP_VM')==0)
 			$path = "C:/wamp64/www";

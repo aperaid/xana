@@ -53,7 +53,7 @@
         <!--<li @if ($top_menu_sel=="menu_registerwarehouse") class="active" @endif ><a href="{{route('customer.index')}}"><i class="fa fa-industry"></i> <span>Daftar Gudang</span></a></li>-->
       </ul>
     </li>
-    <li class="treeview <?php if (0) { ?> active <?php } ?>">
+    <!--<li class="treeview <?php if (0) { ?> active <?php } ?>">
       <a href="#">
         <i class="fa fa-gears "></i>
         <span>Manufaktur</span>
@@ -79,7 +79,7 @@
         <span>Buku Besar</span>
         <i class="fa fa-angle-left pull-right"></i>
       </a>
-    </li>
+    </li>-->
   </ul>
 </section>
 <!-- /.sidebar -->

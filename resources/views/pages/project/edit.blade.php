@@ -30,7 +30,7 @@
             </div>
 						{!! Form::label('Sales', 'Sales', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
-              {!! Form::text('Sales', $project->Sales, array('class' => 'form-control', 'id' => 'Sales', 'placeholder' => 'Sales', 'autocomplete' => 'off', 'required')) !!}
+              {!! Form::text('Sales', $project->Sales, array('class' => 'form-control', 'id' => 'Sales', 'placeholder' => 'Sales', 'autocomplete' => 'off')) !!}
             </div>
           </div>
           <div class="form-group">
@@ -82,6 +82,7 @@
 </script>
 <script>
   $(function() {
+		var availableTags = 
     <?php 
 			if(env('APP_VM')==0)
 				$path = "C:/wamp64/www";

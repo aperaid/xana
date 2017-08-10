@@ -112,6 +112,7 @@ $(document).ready(function(){
 	
 	$(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 		
+	var availableTags = 
 	<?php 
 		if(env('APP_VM')==0)
 			$path = "C:/wamp64/www";
@@ -187,6 +188,7 @@ $(document).ready(function(){
 	
 			$(".Amount").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
 		
+			var availableTags = 
 			<?php 
 				if(env('APP_VM')==0)
 					$path = "C:/wamp64/www";
