@@ -33,7 +33,9 @@ class InventoryController extends Controller
 			->groupBy('project.id')
 			->get();
 		}else{
-			$project = Reference::leftJoin('project', 'pocustomer.PCode', 'project.PCode')
+			$project = Reference::select('project.Project', 'pocustomer.*')
+			->leftJoin('project', 'pocustomer.PCode', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', 'customer.CCode')
 			->where('PPN', 1)
 			->groupBy('project.id')
 			->get();
@@ -59,7 +61,8 @@ class InventoryController extends Controller
 			->where('project.id', $id)
 			->get();
 		}else{
-			$transaksis = Transaksi::leftJoin('project', 'transaksi.PCode', 'project.PCode')
+			$transaksis = Transaksi::leftJoin('pocustomer', 'transaksi.Reference', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', 'customer.CCode')
 			->where('project.id', $id)
 			->where('PPN', 1)

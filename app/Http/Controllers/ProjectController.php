@@ -31,7 +31,8 @@ class ProjectController extends Controller
 		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
 			$project = Project::all();
 		}else{
-			$project = Project::leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			$project = Project::select('customer.CCode', 'project.*')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->where('PPN', 1)
 			->get();
 		}
@@ -97,6 +98,8 @@ class ProjectController extends Controller
 				$checkproj = 0;
 			else
 				$checkproj = 1;
+			
+		echo $project->PCode;
 			
 		$checkpen = Penawaran::where('PCode', $project->PCode)->count();
 			if($checkpen==0)
