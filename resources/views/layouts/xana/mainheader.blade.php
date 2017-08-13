@@ -19,7 +19,7 @@
 						
 						<!-- User image -->
 						<li class="user-header">
-							<img src="{{ asset('/img/'. Auth::user()->id .'.jpg') }}" class="img-circle" alt="User Image">
+							<img src="{{ URL::to('/img/'.Auth::user()->id.'.jpg') }}" class="img-circle" alt="User Image">
 							<p>
 								{{ Auth::user()->name }}
 								<small>{{ Auth::user()->access }}</small>
