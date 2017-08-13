@@ -17,7 +17,7 @@ class CustomerController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
+			if(Auth::check()&&(Auth::user()->access=='SuperAdmin'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "create", "show", "edit");
 			else
 				$this->access = array("");
@@ -25,15 +25,17 @@ class CustomerController extends Controller
     });
 	}
 	
-	public function index()
-	{
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+	public function index(){
+		if(Auth::user()->access == 'SuperAdmin'){
 			$customer = Customer::all();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$customer = Customer::where('PPN', 1)
 			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$customer = Customer::where('PPN', 0)
+			->get();
 		}
-		
+	
 		if(in_array("index", $this->access)){
 			return view('pages.customer.indexs')
 			->with('url', 'customer')
@@ -45,8 +47,7 @@ class CustomerController extends Controller
 			return redirect()->back();
 	}
 
-	public function create()
-	{
+	public function create(){
 		$customer = Customer::select([
 			DB::raw('MAX(customer.id) AS maxid')
 		])
@@ -63,24 +64,21 @@ class CustomerController extends Controller
 			return redirect()->back();
 	}
 
-	public function store(Request $request)
-	{
+	public function store(Request $request){
 
 		//$product = new Product;
 		//$product->name = $request->name;
 		//$product->price = $request->price;
 		//$product->save();
+		
+		//Validation
+		$this->validate($request, [
+			'CCode'=>'required|unique:customer',
+			'Company'=>'required'
+		]);
 
 		$inputs = $request->all();
-
-		//return $inputs;
-
-		$is_exist = Customer::where('CCode', $request->CCode)->first();
-		if(isset($is_exist->CCode)){
-			return redirect()->route('customer.create')->with('error', 'Customer with CCode '.strtoupper($request->CCode).' is already exist!');
-		}else{
-			$customer = Customer::Create($inputs);
-		}
+		$customer = Customer::Create($inputs);
 		
 		$history = new History;
 		$history->User = Auth::user()->name;
@@ -90,8 +88,7 @@ class CustomerController extends Controller
 		return redirect()->route('customer.index');
 	}
 
-	public function show($id)
-	{
+	public function show($id){
 		$customer = Customer::find($id);
 		
 		$checkcust = Project::where('CCode', $customer->CCode)->count();
@@ -112,8 +109,7 @@ class CustomerController extends Controller
 			return redirect()->back();
 	}
 
-	public function edit($id)
-	{
+	public function edit($id){
 		$customer = Customer::find($id);
 
 		if(in_array("edit", $this->access)){
@@ -127,8 +123,13 @@ class CustomerController extends Controller
 			return redirect()->back();
 	}
 
-	public function update(Request $request, $id)
-	{
+	public function update(Request $request, $id){
+		//Validation
+		$this->validate($request, [
+			'CCode'=>'required|unique:customer,id,'.$request->id.',id',
+			'Company'=>'required'
+		]);
+		
 		$customer = Customer::find($id);
 
 		$customer->CCode = $request->CCode;
@@ -159,8 +160,7 @@ class CustomerController extends Controller
 		return redirect()->route('customer.show', $id);
 	}
 
-	public function destroy(Request $request, $id)
-	{
+	public function destroy(Request $request, $id){
 		Customer::destroy($id);
 		DB::statement('ALTER TABLE customer auto_increment = 1;');
 		

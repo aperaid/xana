@@ -14,7 +14,7 @@ class UserTableSeeder extends Seeder
   {
     User::truncate();
     User::insert([
-      ['name'=>'Apera','email'=>'admin','password'=>Hash::make('admin'),'access'=>'Admin' ,'created_at' => \Carbon\Carbon::now()->toDateTimeString(),'updated_at' => \Carbon\Carbon::now()->toDateTimeString()],
+      ['name'=>'Company','email'=>'admin','password'=>Hash::make('admin'),'access'=>'SuperAdmin' ,'created_at' => \Carbon\Carbon::now()->toDateTimeString(),'updated_at' => \Carbon\Carbon::now()->toDateTimeString()],
     ]);
   }
 }

@@ -20,10 +20,10 @@
           <div class="form-group">
             {!! Form::label('CCode', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5')) !!}
             </div>
           </div>
-					@if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access == 'SuperPurchasing')
+					@if(Auth::user()->access == 'SuperAdmin')
 						<div class="form-group">
 							{!! Form::label('PPN', 'PPN', ['class' => "col-md-2 control-label"]) !!}
 							<div class="col-md-4">
@@ -32,13 +32,15 @@
 								{!! Form::label('PPN', 'PPN 10%') !!}
 							</div>
 						</div>
-					@else
+					@elseif(Auth::user()->access == 'PPNAdmin')
 						{!! Form::hidden('PPN', 1) !!}
+					@elseif(Auth::user()->access == 'NonPPNAdmin')
+						{!! Form::hidden('PPN', 0) !!}
 					@endif
           <div class="form-group">
             {!! Form::label('Company', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
-              {!! Form::text('Company', null, array('class' => 'form-control', 'id' => 'Company', 'placeholder' => 'PT. COMPANY', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
+              {!! Form::text('Company', null, array('class' => 'form-control', 'id' => 'Company', 'placeholder' => 'PT. COMPANY', 'autocomplete' => 'off', 'onKeyUp' => 'capital()')) !!}
             </div>
             {!! Form::label('NPWP', 'NPWP', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">

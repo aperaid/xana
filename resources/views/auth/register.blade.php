@@ -71,13 +71,13 @@
 
                             <div class="col-md-6">
                                 <select name="access" id="access" class="form-control" autofocus>
-                                  <option value="PajakAdmin">Pajak Admin</option>
-																	<option value="NonPajakAdmin">Non Pajak Admin</option>
 																	<option value="SuperAdmin">Super Admin</option>
-                                  <option value="Purchasing">Purchasing</option>
+                                  <option value="PPNAdmin">PPN Admin</option>
+																	<option value="NonPPNAdmin">Non PPN Admin</option>
+                                  <!--<option value="Purchasing">Purchasing</option>
                                   <option value="SuperPurchasing">SuperPurchasing</option>
                                   <option value="StorageManager">StorageManager</option>
-																	<option value="SuperStorageManager">SuperStorageManager</option>
+																	<option value="SuperStorageManager">SuperStorageManager</option>-->
                                 </select>
 
                                 @if ($errors->has('access'))
