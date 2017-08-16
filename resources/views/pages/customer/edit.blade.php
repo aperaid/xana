@@ -4,9 +4,8 @@
 @stop
 
 @section('content')
-{!! Form::model($customer, [
-  'method' => 'patch',
-  'route' => ['customer.update', $customer->id]
+{!! Form::open([
+  'route' => 'customer.update'
 ]) !!}
 <div class="row">
   <div class="col-md-12">
@@ -17,6 +16,7 @@
       <!-- box-header -->
 	    <div class="box-body with-border">
         <div class="form-horizontal">
+					<input type="hidden" name="id" id="id" value="{{$customer->id}}">
           <div class="form-group">
             {!! Form::label('CCode', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">

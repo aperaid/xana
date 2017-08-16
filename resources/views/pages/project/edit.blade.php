@@ -26,7 +26,7 @@
           <div class="form-group">
             {!! Form::label('Project', 'Project Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
-              {!! Form::text('Project', $project->Project, array('class' => 'form-control', 'id' => 'Project', 'placeholder' => 'Project Name', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'required')) !!}
+              {!! Form::text('Project', $project->Project, array('class' => 'form-control', 'id' => 'Project', 'placeholder' => 'Project Name', 'autocomplete' => 'off', 'onKeyUp' => 'capital()')) !!}
             </div>
 						{!! Form::label('Sales', 'Sales', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
@@ -50,7 +50,7 @@
           <div class="form-group">
             {!! Form::label('CCode', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('CCode', $project->CCode, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+              {!! Form::text('CCode', $project->CCode, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5')) !!}
             </div>
           </div>
         </div>

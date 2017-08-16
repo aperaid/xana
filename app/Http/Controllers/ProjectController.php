@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Project;
@@ -18,7 +19,7 @@ class ProjectController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
+			if(Auth::check()&&(Auth::user()->access=='Administrator'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "create", "show", "edit");
 			else
 				$this->access = array("");
@@ -26,35 +27,38 @@ class ProjectController extends Controller
     });
 	}
 	
-	public function index()
-	{
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+	public function index(){
+		if(Auth::user()->access == 'Administrator'){
 			$project = Project::all();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$project = Project::select('customer.CCode', 'project.*')
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->where('PPN', 1)
 			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$project = Project::select('customer.CCode', 'project.*')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('PPN', 0)
+			->get();
 		}
 
-	if(in_array("index", $this->access)){
-		return view('pages.project.indexs')
-		->with('url', 'project')
-		->with('project', $project)
-		->with('top_menu_sel', 'menu_project')
-		->with('page_title', 'Project')
-		->with('page_description', 'Index');
-	}else
-		return redirect()->back();
-	
+		if(in_array("index", $this->access)){
+			return view('pages.project.indexs')
+			->with('url', 'project')
+			->with('project', $project)
+			->with('top_menu_sel', 'menu_project')
+			->with('page_title', 'Project')
+			->with('page_description', 'Index');
+		}else
+			return redirect()->back();
 	}
 
-	public function create()
-	{
+	public function create(){
 		$project = Project::select([
 			DB::raw('MAX(project.id) AS maxid')
 		])
 		->first();
+		
 		if(in_array("create", $this->access)){
 			return view('pages.project.create')
 			->with('url', 'project')
@@ -66,30 +70,35 @@ class ProjectController extends Controller
 			return redirect()->back();
 	}
 
-	public function store(Request $request)
-	{
+	public function store(Request $request){
+		//Validation
+		$this->validate($request, [
+			'PCode' => 'required|unique:project',
+			'Project'=>'required',
+			'Sales'=>'required',
+			'CCode'=>'required'
+		], [
+			'PCode.required' => 'The Project Code field is required.',
+			'PCode.unique' => 'The Project Code has already been taken.',
+			'Project.required' => 'The Project Name field is required.',
+			'Sales.required' => 'The Sales field is required.',
+			'CCode.required' => 'The Company Code field is required.',
+		]);
 		
 		$inputs = $request->all();
-
-		$is_exist = Project::where('PCode', $request->PCode)->first();
-		if(isset($is_exist->PCode)){
-			return redirect()->route('project.create')->with('error', 'Project with PCode '.strtoupper($request->PCode).' is already exist!');
-		}else{
-			$project = Project::Create($inputs);
-		}
-		
+		$project = Project::Create($inputs);
+	
 		$history = new History;
 		$history->User = Auth::user()->name;
 		$history->History = 'Create Project on PCode '.$request['PCode'];
 		$history->save();
-
-		return redirect()->route('project.index');
+		
+		return redirect()->route('project.show', $request->id);
 	}
 
-	public function show($id)
-	{
-		$project = Project::leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-		->select('project.id as proid', 'project.*', 'customer.*')
+	public function show($id){
+		$project = Project::select('project.id as proid', 'project.*', 'customer.*')
+		->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 		->where('project.id', $id)
 		->first();
 		
@@ -120,8 +129,7 @@ class ProjectController extends Controller
 			return redirect()->back();
 	}
 
-	public function edit($id)
-	{
+	public function edit($id){
 		$project = Project::find($id);
 
 		if(in_array("edit", $this->access)){
@@ -135,10 +143,22 @@ class ProjectController extends Controller
 			return redirect()->back();
 	}
 
-	public function update(Request $request, $id)
-	{
+	public function update(Request $request, $id){
+		//Validation
+		$this->validate($request, [
+			'PCode' => 'required|unique:project,PCode,'.$request->PCode.',PCode',
+			'Project'=>'required',
+			'Sales'=>'required',
+			'CCode'=>'required'
+		], [
+			'PCode.required' => 'The Project Code field is required.',
+			'PCode.unique' => 'The Project Code has already been taken.',
+			'Project.required' => 'The Project Name field is required.',
+			'Sales.required' => 'The Sales field is required.',
+			'CCode.required' => 'The Company Code field is required.',
+		]);
+		
 		$project = Project::find($id);
-
 		$project->PCode = $request->PCode;
 		$project->Project = $request->Project;
 		$project->Sales = $request->Sales;
@@ -156,18 +176,15 @@ class ProjectController extends Controller
 		return redirect()->route('project.show', $id);
 	}
 
-	public function destroy(Request $request, $id)
-	{
-		Project::destroy($id);
+	public function DeleteProject(Request $request){
+		Project::destroy($request->id);
 		DB::statement('ALTER TABLE project auto_increment = 1;');
 		
 		$history = new History;
 		$history->User = Auth::user()->name;
-		$history->History = 'Delete Project on PCode '.$request['PCode'];
+		$history->History = 'Delete Project on PCode '.$request->PCode;
 		$history->save();
 		
-		Session::flash('message', 'Delete is successful!');
-
-		return redirect()->route('project.index');
+		Session::flash('message', 'Project with PCode '.$request->PCode.' is deleted');
 	}
 }

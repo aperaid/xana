@@ -23,7 +23,7 @@
               {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5')) !!}
             </div>
           </div>
-					@if(Auth::user()->access == 'SuperAdmin')
+					@if(Auth::user()->access == 'Administrator')
 						<div class="form-group">
 							{!! Form::label('PPN', 'PPN', ['class' => "col-md-2 control-label"]) !!}
 							<div class="col-md-4">

@@ -71,7 +71,7 @@
 
                             <div class="col-md-6">
                                 <select name="access" id="access" class="form-control" autofocus>
-																	<option value="SuperAdmin">Super Admin</option>
+																	<option value="Administrator">Administrator</option>
                                   <option value="PPNAdmin">PPN Admin</option>
 																	<option value="NonPPNAdmin">Non PPN Admin</option>
                                   <!--<option value="Purchasing">Purchasing</option>

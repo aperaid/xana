@@ -5,7 +5,14 @@ error_reporting(E_ALL^E_NOTICE);
 $mysqli = new mysqli('localhost', 'xana', 'password', 'xana');
 $text = $mysqli->real_escape_string($_GET['term']);
 
-$query = "SELECT CCode FROM customer WHERE CCode LIKE '%$text%' ORDER BY CCode ASC";
+if(Auth::user()->access=='Administrator'){
+	$query = "SELECT CCode FROM customer WHERE CCode LIKE '%$text%' ORDER BY CCode ASC";
+}else if(Auth::user()->access=='PPNAdmin'){
+	$query = "SELECT CCode FROM customer WHERE CCode LIKE '%$text%' AND PPN = 1 ORDER BY CCode ASC";
+}else if(Auth::user()->access=='NonPPNAdmin'){
+	$query = "SELECT CCode FROM customer WHERE CCode LIKE '%$text%' AND PPN = 0 ORDER BY CCode ASC";
+}
+	
 $result = $mysqli->query($query);
 $json = '[';
 $first = true;

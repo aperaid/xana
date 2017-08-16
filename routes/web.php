@@ -17,17 +17,26 @@
 
 Auth::routes();
 
-Route::get('home', 'HomeController@index');
+Route::get('home', 'HomeController@index')->name('home');
 
 Route::group(['middleware' => 'auth'], function () {
 
-  Route::resource('customer', 'CustomerController');
+	Route::get('/customer', 'CustomerController@index')->name('customer.index');
+	Route::get('/customer/show/{id?}', 'CustomerController@ShowCustomer')->name('customer.show');
+	Route::get('/customer/create', 'CustomerController@CreateCustomer')->name('customer.create');
+	Route::post('/customer/store', 'CustomerController@StoreCustomer')->name('customer.store');
+	Route::get('/customer/edit/{id?}', 'CustomerController@EditCustomer')->name('customer.edit');
+	Route::post('/customer/update', 'CustomerController@UpdateCustomer')->name('customer.update');
+	Route::post('/customer/delete', 'CustomerController@DeleteCustomer')->name('customer.destroy');
 
   Route::resource('project', 'ProjectController');
+	Route::post('/project/delete', 'ProjectController@DeleteProject')->name('project.destroy');
   
   Route::resource('penawaran', 'PenawaranController');
+	Route::post('/penawaran/delete', 'PenawaranController@DeletePenawaran')->name('penawaran.destroy');
 
   Route::resource('reference', 'ReferenceController');
+	Route::post('/reference/delete', 'ReferenceController@DeleteReference')->name('reference.destroy');
   Route::post('/reference/customerproject', 'ReferenceController@StoreCustomerProject');
 	Route::post('/reference/transportinvoice', 'ReferenceController@EditTransportInvoice');
 

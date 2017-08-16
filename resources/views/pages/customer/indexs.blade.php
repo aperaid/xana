@@ -64,7 +64,7 @@
 		
 		$('#datatables tbody').on('click', 'tr', function () {
 			var data = table.row( this ).data();
-			window.open("customer/"+ data[0],"_self");
+			window.open("customer/show/"+ data[0],"_self");
 		});
 	});
 </script>

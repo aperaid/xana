@@ -18,7 +18,7 @@ class PenawaranController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
+			if(Auth::check()&&(Auth::user()->access=='Administrator'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "create", "show", "edit");
 			else
 				$this->access = array("");
@@ -26,19 +26,26 @@ class PenawaranController extends Controller
     });
 	}
 	
-  public function index()
-  {
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+  public function index(){
+		if(Auth::user()->access == 'Administrator'){
 			$penawarans = Penawaran::select('penawaran.*', 'project.PCode')
 			->leftJoin('project', 'penawaran.PCode', '=', 'project.PCode')
 			->groupBy('penawaran.Penawaran')
 			->orderBy('id', 'asc')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$penawarans = Penawaran::select('penawaran.*', 'project.PCode', 'customer.PPN')
 			->leftJoin('project', 'penawaran.PCode', '=', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->where('PPN', 1)
+			->groupBy('penawaran.Penawaran')
+			->orderBy('id', 'asc')
+			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$penawarans = Penawaran::select('penawaran.*', 'project.PCode', 'customer.PPN')
+			->leftJoin('project', 'penawaran.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('PPN', 0)
 			->groupBy('penawaran.Penawaran')
 			->orderBy('id', 'asc')
 			->get();
@@ -55,8 +62,7 @@ class PenawaranController extends Controller
       return redirect()->back();
   }
   
-  public function create()
-  {
+  public function create(){
     $last_penawaranid = Penawaran::max('id')+0;
 
     $inventory = Inventory::all();
@@ -78,45 +84,51 @@ class PenawaranController extends Controller
       return redirect()->back();
   }
 
-  public function store(Request $request)
-  {
+  public function store(Request $request){
+		//Validation
+		$this->validate($request, [
+			'Penawaran'=>'required|unique:penawaran',
+			'Tgl'=>'required',
+			'PCode'=>'required'
+		], [
+			'Penawaran.required' => 'The Penawaran Code field is required.',
+			'Penawaran.unique' => 'The Penawaran Code has already been taken.',
+			'Tgl.required' => 'The Date field is required.',
+			'PCode.required' => 'The Project Code field is required.'
+		]);
+		
     $input = Input::all();
 		$forgetpenawaran = $request->penawaranid[0];
-		if($forgetpenawaran==null){
-			return redirect()->route('penawaran.create')->with('error', 'Please add item first!');
+		$penawarans = $input['penawaranid'];
+		$is_exist = Penawaran::where('Penawaran', $request->Penawaran)->first();
+		if(isset($is_exist->Penawaran)){
+			return redirect()->route('penawaran.create')->with('error', 'Penawaran with Penawaran Code '.$request->Penawaran.' is already exist!');
 		}else{
-			$penawarans = $input['penawaranid'];
-			$is_exist = Penawaran::where('Penawaran', $request->Penawaran)->first();
-			if(isset($is_exist->Penawaran)){
-				return redirect()->route('penawaran.create')->with('error', 'Penawaran with Penawaran Code '.$request->Penawaran.' is already exist!');
-			}else{
-				foreach ($penawarans as $key => $penawaran)
-				{
-					$penawaran = new Penawaran;
-					$penawaran->id = $input['penawaranid'][$key];
-					$penawaran->Penawaran = $input['Penawaran'];
-					$penawaran->Tgl = $input['Tgl'];
-					$penawaran->Barang = $input['Barang'][$key];
-					$penawaran->JS = $input['JS'][$key];
-					$penawaran->Quantity = $input['Quantity'][$key];
-					$penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
-					$penawaran->PCode = $input['PCode'];
-					$penawaran->ICode = $input['ICode'][$key];
-					$penawaran->save();
-				}
+			foreach ($penawarans as $key => $penawaran)
+			{
+				$penawaran = new Penawaran;
+				$penawaran->id = $input['penawaranid'][$key];
+				$penawaran->Penawaran = $input['Penawaran'];
+				$penawaran->Tgl = $input['Tgl'];
+				$penawaran->Barang = $input['Barang'][$key];
+				$penawaran->JS = $input['JS'][$key];
+				$penawaran->Quantity = $input['Quantity'][$key];
+				$penawaran->Amount = str_replace(".","",substr($input['Amount'][$key], 3));
+				$penawaran->PCode = $input['PCode'];
+				$penawaran->ICode = $input['ICode'][$key];
+				$penawaran->save();
 			}
-			
-			$history = new History;
-			$history->User = Auth::user()->name;
-			$history->History = 'Create Penawaran on Penawaran '.$request['Penawaran'];
-			$history->save();
-			
-			return redirect()->route('penawaran.index');
 		}
+		
+		$history = new History;
+		$history->User = Auth::user()->name;
+		$history->History = 'Create Penawaran on Penawaran '.$request['Penawaran'];
+		$history->save();
+		
+		return redirect()->route('penawaran.show', $request->penawaranid);
   }
 
-  public function show($id)
-  {
+  public function show($id){
     $penawaran = Penawaran::find($id);
     $penawarans = Penawaran::where('penawaran.Penawaran', $penawaran -> Penawaran)
     ->orderBy('id', 'asc')
@@ -134,8 +146,7 @@ class PenawaranController extends Controller
       return redirect()->back();
   }
 
-  public function edit($id)
-  {
+  public function edit($id){
     $penawaran = Penawaran::find($id);
     $penawarans = Penawaran::select('penawaran.*', 'inventory.Type')
     ->leftJoin('inventory', 'penawaran.ICode', '=', 'inventory.Code')
@@ -162,8 +173,19 @@ class PenawaranController extends Controller
       return redirect()->back();
   }
 
-  public function update(Request $request, $id)
-  {
+  public function update(Request $request, $id){
+		//Validation
+		$this->validate($request, [
+			'Penawaran'=>'required|unique:penawaran,Penawaran,'.$request->OldPenawaran.',Penawaran',
+			'Tgl'=>'required',
+			'PCode'=>'required'
+		], [
+			'Penawaran.required' => 'The Penawaran Code field is required.',
+			'Penawaran.unique' => 'The Penawaran Code has already been taken.',
+			'Tgl.required' => 'The Date field is required.',
+			'PCode.required' => 'The Project Code field is required.'
+		]);
+		
     $penawaran = Penawaran::find($id);
 
     Penawaran::where('Penawaran', $penawaran->Penawaran)->delete();
@@ -194,9 +216,8 @@ class PenawaranController extends Controller
     return redirect()->route('penawaran.show', $id);
   }
 
-  public function destroy(Request $request, $id)
-  {
-    $penawaran = Penawaran::find($id);
+  public function DeletePenawaran(Request $request){
+    $penawaran = Penawaran::find($request->id);
     $penawarans = Penawaran::where('penawaran.Penawaran', $penawaran->Penawaran);
     $penawaranid = $penawarans->pluck('id');
     
@@ -205,11 +226,9 @@ class PenawaranController extends Controller
     
     $history = new History;
     $history->User = Auth::user()->name;
-    $history->History = 'Delete Penawaran on Penawaran '.$request['penawaran->Penawaran'];
+    $history->History = 'Delete Penawaran on Penawaran Code '.$request->Penawaran;
     $history->save();
     
-    Session::flash('message', 'Delete is successful!');
-
-    return redirect()->route('penawaran.index');
+    Session::flash('message', 'Penawaran with Penawaran Code '.$request->Penawaran.' is deleted');
   }
 }

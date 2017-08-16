@@ -17,7 +17,7 @@ class CustomerController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='SuperAdmin'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
+			if(Auth::check()&&(Auth::user()->access=='Administrator'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "create", "show", "edit");
 			else
 				$this->access = array("");
@@ -26,7 +26,7 @@ class CustomerController extends Controller
 	}
 	
 	public function index(){
-		if(Auth::user()->access == 'SuperAdmin'){
+		if(Auth::user()->access == 'Administrator'){
 			$customer = Customer::all();
 		}else if(Auth::user()->access == 'PPNAdmin'){
 			$customer = Customer::where('PPN', 1)
@@ -47,7 +47,7 @@ class CustomerController extends Controller
 			return redirect()->back();
 	}
 
-	public function create(){
+	public function CreateCustomer(){
 		$customer = Customer::select([
 			DB::raw('MAX(customer.id) AS maxid')
 		])
@@ -64,17 +64,15 @@ class CustomerController extends Controller
 			return redirect()->back();
 	}
 
-	public function store(Request $request){
-
-		//$product = new Product;
-		//$product->name = $request->name;
-		//$product->price = $request->price;
-		//$product->save();
-		
+	public function StoreCustomer(Request $request){
 		//Validation
 		$this->validate($request, [
 			'CCode'=>'required|unique:customer',
 			'Company'=>'required'
+		], [
+			'CCode.required' => 'The Company Code field is required.',
+			'CCode.unique' => 'The Company Code has already been taken.',
+			'Company.required' => 'The Company Name field is required.'
 		]);
 
 		$inputs = $request->all();
@@ -85,10 +83,10 @@ class CustomerController extends Controller
 		$history->History = 'Create customer on CCode number '.$request['CCode'];
 		$history->save();
 
-		return redirect()->route('customer.index');
+		return redirect()->route('customer.show', $request->id);
 	}
 
-	public function show($id){
+	public function ShowCustomer($id){
 		$customer = Customer::find($id);
 		
 		$checkcust = Project::where('CCode', $customer->CCode)->count();
@@ -109,7 +107,7 @@ class CustomerController extends Controller
 			return redirect()->back();
 	}
 
-	public function edit($id){
+	public function EditCustomer($id){
 		$customer = Customer::find($id);
 
 		if(in_array("edit", $this->access)){
@@ -123,14 +121,18 @@ class CustomerController extends Controller
 			return redirect()->back();
 	}
 
-	public function update(Request $request, $id){
+	public function UpdateCustomer(Request $request){
 		//Validation
 		$this->validate($request, [
-			'CCode'=>'required|unique:customer,id,'.$request->id.',id',
+			'CCode'=>'required|unique:customer,CCode,'.$request->CCode.',CCode',
 			'Company'=>'required'
+		], [
+			'CCode.required' => 'The Company Code field is required.',
+			'CCode.unique' => 'The Company Code has already been taken.',
+			'Company.required' => 'The Company Name field is required.'
 		]);
 		
-		$customer = Customer::find($id);
+		$customer = Customer::find($request->id);
 
 		$customer->CCode = $request->CCode;
 		$customer->Company = $request->Company;
@@ -157,20 +159,18 @@ class CustomerController extends Controller
 		$history->History = 'Update customer on CCode number '.$request['CCode'];
 		$history->save();
 
-		return redirect()->route('customer.show', $id);
+		return redirect()->route('customer.show', $request->id);
 	}
 
-	public function destroy(Request $request, $id){
-		Customer::destroy($id);
+	public function DeleteCustomer(Request $request){
+		Customer::destroy($request->id);
 		DB::statement('ALTER TABLE customer auto_increment = 1;');
 		
 		$history = new History;
 		$history->User = Auth::user()->name;
-		$history->History = 'Delete customer on CCode number '.$request['CCode'];
+		$history->History = 'Delete customer on CCode number '.$request->CCode;
 		$history->save();
 		
-		Session::flash('message', 'Delete is successful!');
-
-		return redirect()->route('customer.index');
+		Session::flash('message', 'Customer with CCode '.$request->CCode.' is deleted');
 	}
 }

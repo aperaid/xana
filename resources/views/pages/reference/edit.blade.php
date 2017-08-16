@@ -27,12 +27,12 @@
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
             </div>
-            {!! Form::text('Tgl', $reference->Tgl, ['class' => 'form-control', 'id' => 'Tgl', 'autocomplete' => 'off', 'required']) !!}
+            {!! Form::text('Tgl', $reference->Tgl, ['class' => 'form-control', 'id' => 'Tgl', 'autocomplete' => 'off']) !!}
           </div>
         </div>
         <div class="form-group">
           {!! Form::label('Transport', 'Transport') !!}
-          {!! Form::text('Transport', 'Rp ' . number_format( $reference -> Transport, 0,',', '.' ), array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Transport Fee', 'required')) !!}
+          {!! Form::text('Transport', 'Rp ' . number_format( $reference -> Transport, 0,',', '.' ), array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Transport Fee')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Discount', 'Discount(%)') !!}
@@ -45,7 +45,7 @@
         </div>
         <div class="form-group">
           {!! Form::label('PCode', 'Project Code') !!}
-          {!! Form::text('PCode', $reference->PCode, ['class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required']) !!}
+          {!! Form::text('PCode', $reference->PCode, ['class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5']) !!}
           <p class="help-block">Enter the beginning of the Project Code, then pick from the dropdown</p>
         </div>
       </div>

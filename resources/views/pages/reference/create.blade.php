@@ -26,21 +26,16 @@
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
             </div>
-            {!! Form::text('Tgl', null, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'required')) !!}
+            {!! Form::text('Tgl', null, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off')) !!}
           </div>
         </div>
         <div class="form-group">
           {!! Form::label('Transport', 'Transport') !!}
-          {!! Form::text('Transport', null, array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 100.000', 'required')) !!}
+          {!! Form::text('Transport', 'Rp 0', array('id' => 'Transport', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => 'Rp. 100.000')) !!}
         </div>
 				<div class="form-group">
 					{!! Form::label('Discount', 'Discount(%)') !!}
-          <div class="input-group">
-            <div class="input-group-addon">
-              <i class="fa fa-calendar"></i>
-            </div>
-            {!! Form::number('Discount', null, array('id' => 'Discount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '15')) !!}
-          </div>
+					{!! Form::number('Discount', null, array('id' => 'Discount', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '15')) !!}
 				</div>
         <!--<div class="form-group">
         @if(Auth::user()->access == 'Admin')
@@ -57,7 +52,7 @@
         </div>-->
         <div class="form-group">
           {!! Form::label('PCode', 'Project Code') !!}
-          {!! Form::text('PCode', null, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'maxlength' => '5', 'style' => 'text-transform: uppercase', 'required')) !!}
+          {!! Form::text('PCode', null, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'maxlength' => '5', 'style' => 'text-transform: uppercase')) !!}
           <p class="help-block">Enter the beginning of the Project Code, then pick from the dropdown</p>
         </div>
       </div>

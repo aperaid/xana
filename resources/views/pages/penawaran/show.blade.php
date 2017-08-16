@@ -4,18 +4,14 @@
 @stop
 
 @section('content')
-	{!! Form::open([
-	'method' => 'delete',
-	'route' => ['penawaran.destroy', $penawaran->id]
-	]) !!}
-
 <div class="row">
   <div class="col-xs-12">
     <div class="box box-primary">
       <div class="box-body">
+				<input type="hidden" name="id" id="id" value="{{$penawaran->id}}">
         <a href="{{route('penawaran.index')}}"><button type="button" class="btn btn-default pull-left">Back</button></a>
         <a href="{{route('penawaran.edit', $penawaran -> id )}}"><button type="button" class="btn btn-primary pull-right">Edit</button></a>
-        <button type="submit" class="btn btn-danger pull-right" style="margin-right: 5px;" onclick="return confirm('Delete Penawaran?')">Delete</button>
+        <button type="button" id="delete" class="btn btn-danger pull-right" style="margin-right: 5px;">Delete</button>
       </div>
       <!-- box-body -->
     </div>
@@ -34,7 +30,7 @@
       <div class="box-body">
         <div class="form-group">
           {!! Form::label('Penawaran', 'Penawaran Code') !!}
-          {!! Form::text('Penawaran', $penawaran -> Penawaran, array('class' => 'form-control', 'readonly')) !!}
+          <input type="text" id="Penawaran" value="{{$penawaran->Penawaran}}" class="form-control" readonly>
         </div>
         <div class="form-group">
           {!! Form::label('Tgl', 'Date') !!}
@@ -90,6 +86,44 @@
     <!-- col -->
 </div>
 <!-- row -->
+@stop
 
-{!! Form::close() !!}
+<div class="modal fade" id="deletemodal">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <!-- form start -->
+      <form id="deleteform" name="deleteform" class="form-horizontal">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Delete</h4>
+        </div>
+        <div class="modal-body">
+          <label class="text-default" data-toggle="modal"><h4> Are you sure you want to delete this Penawaran? (Delete Permanently)</h4></label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger pull-right">Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section('script')
+<script>
+//When delete button is clicked
+$("#delete").click(function(){
+  //Toggle the modal
+  $('#deletemodal').modal('toggle');
+});
+
+//When delete form is submitted
+$("#deleteform").submit(function(event){
+  $.post("delete", { "_token": "{{ csrf_token() }}", id: $("#id").val(), Penawaran: $("#Penawaran").val() }, function(data){})
+  .done(function(data){
+		window.location.replace("../penawaran");
+  });
+});
+</script>
 @stop

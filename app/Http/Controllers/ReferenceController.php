@@ -28,7 +28,7 @@ class ReferenceController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
+			if(Auth::check()&&(Auth::user()->access=='Administrator'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "create", "show", "edit");
 			else
 				$this->access = array("");
@@ -36,9 +36,8 @@ class ReferenceController extends Controller
     });
 	}
 	
-	public function index()
-	{
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+	public function index(){
+		if(Auth::user()->access == 'Administrator'){
 			$reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id'])
 			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
@@ -46,13 +45,22 @@ class ReferenceController extends Controller
 			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
 			->groupBy('pocustomer.Reference')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id'])
 			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->leftJoin('transaksi', 'pocustomer.Reference', '=', 'transaksi.Reference')
 			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
 			->where('PPN', 1)
+			->groupBy('pocustomer.Reference')
+			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$reference = Reference::select([DB::raw('SUM(transaksi.Amount*transaksi.Quantity) AS Price'), 'pocustomer.*', 'project.*', 'customer.*', 'pocustomer.id as Id'])
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->leftJoin('transaksi', 'pocustomer.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->where('PPN', 0)
 			->groupBy('pocustomer.Reference')
 			->get();
 		}
@@ -68,8 +76,7 @@ class ReferenceController extends Controller
       return redirect()->back();
 	}
 
-	public function create()
-	{
+	public function create(){
 		$reference = Reference::select([
 			DB::raw('MAX(pocustomer.id) AS maxid')
 		])
@@ -90,9 +97,15 @@ class ReferenceController extends Controller
 			return redirect()->back();
 	}
 
-	public function store(Request $request)
-	{
-		$inputs = $request->all();
+	public function store(Request $request){
+		//Validation
+		$this->validate($request, [
+			'Tgl'=>'required',
+			'PCode'=>'required'
+		], [
+			'Tgl.required' => 'The Date field is required.',
+			'PCode.required' => 'The Project Code field is required.'
+		]);
 		
 		$Reference = Reference::Create([
 			'id' => $request['id'],
@@ -113,8 +126,7 @@ class ReferenceController extends Controller
 		return redirect()->route('reference.show', $request['id']);
 	}
 	
-	public function StoreCustomerProject(Request $request)
-	{
+	public function StoreCustomerProject(Request $request){
 		if($request['CCode2']!=''){
 			$this->validate($request, [
 				'Company'=>'required'
@@ -165,8 +177,7 @@ class ReferenceController extends Controller
 		$history->save();
 	}
 	
-	public function EditTransportInvoice(Request $request)
-	{
+	public function EditTransportInvoice(Request $request){
 		$reference = Reference::find($request->editreferenceid);
 
 		$reference->PPNT = $request->PPNT;
@@ -176,11 +187,10 @@ class ReferenceController extends Controller
 		$request->session()->flash('message', 'Edit Success');
 	}
 
-	public function show($id)
-	{
-		$detail = Reference::leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+	public function show($id){
+		$detail = Reference::select('pocustomer.id as pocusid', 'pocustomer.*', 'project.*', 'customer.*')
+		->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
 		->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
-		->select('pocustomer.id as pocusid', 'pocustomer.*', 'project.*', 'customer.*')
 		->where('pocustomer.id', $id)
 		->first();
 		
@@ -392,8 +402,7 @@ class ReferenceController extends Controller
 			return redirect()->back();
 	}
 
-	public function edit($id)
-	{
+	public function edit($id){
 		$reference = Reference::find($id);
 
 		if(in_array("edit", $this->access)){
@@ -407,8 +416,16 @@ class ReferenceController extends Controller
 			return redirect()->back();
 	}
 
-	public function update(Request $request, $id)
-	{
+	public function update(Request $request, $id){
+		//Validation
+		$this->validate($request, [
+			'Tgl'=>'required',
+			'PCode'=>'required'
+		], [
+			'Tgl.required' => 'The Date field is required.',
+			'PCode.required' => 'The Project Code field is required.'
+		]);
+		
 		$reference = Reference::find($id);
 
 		$reference->Reference = $request->Reference;
@@ -426,9 +443,8 @@ class ReferenceController extends Controller
 		return redirect()->route('reference.show', $id);
 	}
 
-	public function destroy(Request $request, $id)
-	{
-		$reference = Reference::find($id);
+	public function DeleteReference(Request $request){
+		$reference = Reference::find($request->id);
 		
 		$transaksi = Transaksi::where('transaksi.Reference', $reference->Reference);
 		$transaksiid = $transaksi->pluck('id');
@@ -449,7 +465,7 @@ class ReferenceController extends Controller
 		PO::whereIn('id', $poid)->delete();
 		DB::statement('ALTER TABLE po auto_increment = 1;');
 		
-		Reference::destroy($id);
+		Reference::destroy($request->id);
 		DB::statement('ALTER TABLE pocustomer auto_increment = 1;');
 		
 		$history = new History;
@@ -457,8 +473,6 @@ class ReferenceController extends Controller
 		$history->History = 'Delete Reference on Reference '.$reference->Reference;
 		$history->save();
 
-		Session::flash('message', 'Delete is successful!');
-
-		return redirect()->route('reference.index');
+		Session::flash('message', 'Reference with Reference Code '.$reference->Reference.' is deleted');
 	}
 }
