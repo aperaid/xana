@@ -112,6 +112,13 @@ Route::group(['middleware' => 'auth'], function () {
   Route::get('inventory/removeinventory', ['as' => 'inventory.removeinventory', 'uses' => 'InventoryController@remove']);
   Route::get('inventory/getremoveinventory/{id}', ['as' => 'inventory.getremoveinventory', 'uses' => 'InventoryController@getRemove']);
   Route::post('inventory/postremoveinventory/{id}', ['as' => 'inventory.postremoveinventory', 'uses' => 'InventoryController@postRemove']);
+	
+	Route::get('/user/{id?}', 'UserController@Users');
+	Route::post('/user/edit', 'UserController@EditUsers');
+	Route::post('/user/password', 'UserController@PasswordUsers');
+	Route::post('/user/delete', 'UserController@DeleteUsers');
+	Route::get('/add/user', 'UserController@AddUsers');
+	Route::post('/add/user', 'UserController@NewUsers');
 
   Route::post('barang/', ['as' => 'barang/', 'uses' => 'BarangController@postQuantityAmount']);
 });

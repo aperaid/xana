@@ -53,6 +53,17 @@
         <!--<li @if ($top_menu_sel=="menu_registerwarehouse") class="active" @endif ><a href="{{route('customer.index')}}"><i class="fa fa-industry"></i> <span>Daftar Gudang</span></a></li>-->
       </ul>
     </li>
+		<li class="treeview @if ($top_menu_sel=="user_view" || $top_menu_sel=="user_add") active @endif">
+			<a href="#">Users
+				<span class="pull-right-container">
+					<i class="fa fa-angle-left pull-right"></i>
+				</span>
+			</a>
+			<ul class="treeview-menu">
+				<li @if ($top_menu_sel=="user_view") class="active" @endif><a href="/user">View Users</a></li>
+				<li @if ($top_menu_sel=="user_add") class="active" @endif><a href="/add/user">Add Users</a></li>
+			</ul>
+		</li>
     <!--<li class="treeview <?php if (0) { ?> active <?php } ?>">
       <a href="#">
         <i class="fa fa-gears "></i>
