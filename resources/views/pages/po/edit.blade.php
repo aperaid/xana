@@ -34,6 +34,7 @@
       </div>
       <div class="box-body">
         {!! Form::hidden('poid', $po->id) !!}
+        {!! Form::hidden('OldPOCode', $po->POCode) !!}
         {!! Form::hidden('Reference', $transaksis ->first() -> Reference) !!}
         <div class="form-group">
           {!! Form::label('POCode', 'Nomor PO') !!}

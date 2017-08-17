@@ -91,17 +91,17 @@
           <div class="form-group">
             {!! Form::label('PCode2', 'Project Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('PCode2', null, array('class' => 'form-control', 'id' => 'PCode2', 'placeholder' => 'PRO01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '6', 'required')) !!}
+              {!! Form::text('PCode2', null, array('class' => 'form-control', 'id' => 'PCode2', 'placeholder' => 'PRO01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '6')) !!}
             </div>
           </div>
           <div class="form-group">
             {!! Form::label('Project', 'Project Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
-              {!! Form::text('Project', null, array('class' => 'form-control', 'id' => 'Project', 'placeholder' => 'Project Name', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'required')) !!}
+              {!! Form::text('Project', null, array('class' => 'form-control', 'id' => 'Project', 'placeholder' => 'Project Name', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase')) !!}
             </div>
 						{!! Form::label('Sales', 'Sales', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
-              {!! Form::text('Sales', null, array('class' => 'form-control', 'id' => 'Sales', 'placeholder' => 'Sales', 'autocomplete' => 'off', 'required')) !!}
+              {!! Form::text('Sales', null, array('class' => 'form-control', 'id' => 'Sales', 'placeholder' => 'Sales', 'autocomplete' => 'off')) !!}
             </div>
           </div>
           <div class="form-group">
@@ -121,7 +121,7 @@
           <div class="form-group">
             {!! Form::label('CCode', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '5', 'required')) !!}
+              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '5')) !!}
             </div>
           </div>
         </div>
@@ -141,6 +141,20 @@
               {!! Form::text('CCode2', null, array('class' => 'form-control', 'id' => 'CCode2', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase', 'maxlength' => '5')) !!}
             </div>
           </div>
+					@if(Auth::user()->access == 'Administrator')
+						<div class="form-group">
+							{!! Form::label('PPN', 'PPN', ['class' => "col-md-2 control-label"]) !!}
+							<div class="col-md-4">
+								{!! Form::hidden('PPN', 0) !!}
+								{!! Form::checkbox('PPN', 1, null, ['id' => 'PPN', 'class' => 'minimal']) !!}
+								{!! Form::label('PPN', 'PPN 10%') !!}
+							</div>
+						</div>
+					@elseif(Auth::user()->access == 'PPNAdmin')
+						{!! Form::text('PPN', 1, ['id' => 'PPN']) !!}
+					@elseif(Auth::user()->access == 'NonPPNAdmin')
+						{!! Form::hidden('PPN', 0, ['id' => 'PPN']) !!}
+					@endif
           <div class="form-group">
             {!! Form::label('Company', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
@@ -264,7 +278,7 @@ $("#customerproject").click(function(){
 //When customer form is submitted
 $("#customerprojectform").submit(function(event){
   $(".loading").show();
-  $.post( "customerproject",{ "_token": "{{ csrf_token() }}", projectid: $("#projectid").val(), PCode: $("#PCode2").val(), Project: $("#Project").val(), Sales: $("#Sales").val(), ProjAlamat: $("#ProjAlamat").val(), ProjZip: $("#ProjZip").val(), ProjKota: $("#ProjKota").val(), CCode2: $("#CCode2").val(),customerid: $("#customerid").val(), CCode: $("#CCode").val(), Company: $("#Company").val(), Customer: $("#Customer").val(), CompAlamat:$("#CompAlamat").val(), CompZip: $("#CompZip").val(), CompKota: $("#CompKota").val(), CompPhone: $("#CompPhone").val(), CompEmail: $("#CompEmail").val(), CustPhone: $("#CustPhone").val(), CustEmail: $("#CustEmail").val(), Fax: $("#Fax").val(), NPWP: $("#NPWP").val() }, function( data ) {})
+  $.post( "customerproject",{ "_token": "{{ csrf_token() }}", projectid: $("#projectid").val(), PCode: $("#PCode2").val(), Project: $("#Project").val(), Sales: $("#Sales").val(), ProjAlamat: $("#ProjAlamat").val(), ProjZip: $("#ProjZip").val(), ProjKota: $("#ProjKota").val(), CCode2: $("#CCode2").val(), PPN: $("#PPN").val(),customerid: $("#customerid").val(), CCode: $("#CCode").val(), Company: $("#Company").val(), Customer: $("#Customer").val(), CompAlamat:$("#CompAlamat").val(), CompZip: $("#CompZip").val(), CompKota: $("#CompKota").val(), CompPhone: $("#CompPhone").val(), CompEmail: $("#CompEmail").val(), CustPhone: $("#CustPhone").val(), CustEmail: $("#CustEmail").val(), Fax: $("#Fax").val(), NPWP: $("#NPWP").val() }, function( data ) {})
   .done(function(data){
     location.reload();
     $('#customerprojectmodal').modal('toggle');

@@ -36,8 +36,8 @@
         {!! Form::hidden('poid', $last_po+1) !!}
         {!! Form::hidden('Reference', $reference -> Reference) !!}
         <div class="form-group">
-          {!! Form::label('POCode', 'Nomor PO') !!}
-          {!! Form::text('POCode', null, array('id' => 'POCode', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input PO Number', 'required')) !!}
+          {!! Form::label('POCode', 'PO Code') !!}
+          {!! Form::text('POCode', null, array('id' => 'POCode', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input PO Number')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Tgl', 'Date') !!}
@@ -45,7 +45,7 @@
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
             </div>
-            {!! Form::text('Tgl', null, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '31/12/2000', 'required')) !!}
+            {!! Form::text('Tgl', null, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '31/12/2000')) !!}
           </div>
         </div>
         <div class="form-group">

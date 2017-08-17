@@ -16,7 +16,7 @@
       <div class="box-body">
         <div class="form-group">
           {!! Form::label('Penawaran', 'Penawaran Code') !!}
-          {!! Form::text('Penawaran', null, array('id' => 'Penawaran', 'class' => 'form-control', 'onKeyUp' => 'capital()', 'required')) !!}
+          {!! Form::text('Penawaran', null, array('id' => 'Penawaran', 'class' => 'form-control', 'onKeyUp' => 'capital()')) !!}
         </div>
         <div class="box-footer">
           <a href="{{route('reference.show', $id )}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>

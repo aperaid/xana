@@ -34,7 +34,7 @@
 				<input type="hidden" name="OldPenawaran" value="{{$maxpenawaran->Penawaran}}">
         <div class="form-group">
           {!! Form::label('Penawaran', 'Penawaran Code') !!}
-          {!! Form::text('Penawaran', $maxpenawaran -> Penawaran, array('id' => 'Penawaran', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input Penawaran')) !!}
+          {!! Form::text('Penawaran', $maxpenawaran -> Penawaran, array('id' => 'Penawaran', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input Penawaran', 'required')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Tgl', 'Date') !!}
@@ -42,12 +42,12 @@
             <div class="input-group-addon">
               <i class="fa fa-calendar"></i>
             </div>
-            {!! Form::text('Tgl', $maxpenawaran->Tgl, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '31/12/2000')) !!}
+            {!! Form::text('Tgl', $maxpenawaran->Tgl, array('id' => 'Tgl', 'class' => 'form-control', 'autocomplete' => 'off', 'placeholder' => '31/12/2000', 'required')) !!}
           </div>
         </div>
         <div class="form-group">
           {!! Form::label('Project Code', 'Project Code') !!}
-          {!! Form::text('PCode', $maxpenawaran -> PCode, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5')) !!}
+          {!! Form::text('PCode', $maxpenawaran -> PCode, array('class' => 'form-control', 'id' => 'PCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
           <p class="help-block">Enter the beginning of the Project Code, then pick from the dropdown</p>
         </div>
       </div>

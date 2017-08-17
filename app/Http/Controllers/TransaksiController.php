@@ -30,7 +30,7 @@ class TransaksiController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
+			if(Auth::check()&&(Auth::user()->access=='Administrator'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "claimcreate", "claimcreate2", "claimcreate3");
 			else
 				$this->access = array("");
@@ -38,8 +38,7 @@ class TransaksiController extends Controller
     });
 	}
 	
-	public function index()
-	{
+	public function index(){
 		$maxid = Periode::select([
 			'periode.Reference',
 			'periode.IsiSJKir',
@@ -273,8 +272,7 @@ class TransaksiController extends Controller
 			return redirect()->back();
 	}
 	
-	public function Extend(Request $request)
-	{
+	public function Extend(Request $request){
 		$invoice = Invoice::find($request->id);
 		$last_invoice = Invoice::max('id')+1;
 		
@@ -398,8 +396,7 @@ class TransaksiController extends Controller
 		return redirect()->route('transaksi.index');
 	}
 	
-	public function ExtendDelete(Request $request)
-	{
+	public function ExtendDelete(Request $request){
 		$invoice = Invoice::find($request->id);
 
 		Periode::where('Reference', $invoice->Reference)->where('Periode', $invoice->Periode)->where('Deletes', 'Extend')->delete();
@@ -423,8 +420,7 @@ class TransaksiController extends Controller
 		return redirect()->route('transaksi.index');
 	}
 	
-	public function Hilang(Request $request)
-	{
+	public function Hilang(Request $request){
 		if($request->sjtype=='Kirim'){
 			$SJ = SJKirim::find($request->id);
 		
@@ -505,8 +501,7 @@ class TransaksiController extends Controller
 		}
 	}
 	
-	public function CancelHilang(Request $request)
-	{
+	public function CancelHilang(Request $request){
 		if($request->sjtype=='Kirim'){
 			$sjkirim = SJKirim::where('SJKir', $request->SJKir)->first();
 			
@@ -566,8 +561,7 @@ class TransaksiController extends Controller
 		}
 	}
 	
-	public function getClaim($id)
-	{
+	public function getClaim($id){
 		$reference = Reference::find($id);
 		
 		$maxperiode = Periode::select([DB::raw('max(periode.Periode) as maxperiode')])
@@ -602,8 +596,7 @@ class TransaksiController extends Controller
 			return redirect()->back();
 	}
 	
-	public function getClaim2(Request $request, $id)
-	{
+	public function getClaim2(Request $request, $id){
 		Session::put('Tgl', $request->Tgl);
 		Session::put('Discount', $request->Discount);
 		Session::put('Reference', $request->Reference);
@@ -665,8 +658,7 @@ class TransaksiController extends Controller
 			return redirect()->back();
 	}
 	
-	public function getClaim3(Request $request, $id)
-	{
+	public function getClaim3(Request $request, $id){
 		$input = Input::only('checkbox');
 		$purchases = $input['checkbox'];
 		foreach ($purchases as $key => $purchases)
@@ -734,8 +726,7 @@ class TransaksiController extends Controller
 			return redirect()->back();
 	}
 
-	public function postClaim(Request $request)
-	{
+	public function postClaim(Request $request){
 		$Tgl = Session::get('Tgl');
 		$Discount = Session::get('Discount');
 		$Reference = Session::get('Reference');
@@ -885,8 +876,7 @@ class TransaksiController extends Controller
 		return redirect()->route('transaksi.index');
 	}
 	
-	public function ClaimDelete(Request $request)
-	{
+	public function ClaimDelete(Request $request){
 		$invoice = Invoice::find($request->id);
 		
 		$periodes = Periode::select([

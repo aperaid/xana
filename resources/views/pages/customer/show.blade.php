@@ -237,7 +237,7 @@ $("#delete").click(function(){
 $("#deleteform").submit(function(event){
   $.post("../delete", { "_token": "{{ csrf_token() }}", id: $("#id").val(), CCode: $("#CCode").val() }, function(data){})
   .done(function(data){
-		window.location.replace("../");
+		window.location.replace("/customer");
   });
 });
 </script>

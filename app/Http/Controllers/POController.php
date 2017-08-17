@@ -26,7 +26,7 @@ class POController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
+			if(Auth::check()&&(Auth::user()->access=='Administrator'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("create", "create2", "create3", "show", "edit");
 			else
 				$this->access = array("");
@@ -34,8 +34,7 @@ class POController extends Controller
     });
 	}
 	
-  public function create()
-  {
+  public function create(){
     $last_transaksi = Transaksi::max('id');
     
     if($last_transaksi == 0){
@@ -73,8 +72,7 @@ class POController extends Controller
         return redirect()->back();
   }
   
-  public function getCreate2($id)
-  {
+  public function getCreate2($id){
 		if(in_array("create2", $this->access)){
 			return view('pages.po.create2')
 			->with('url', 'po')
@@ -86,8 +84,14 @@ class POController extends Controller
 			return redirect()->back();
   }
   
-  public function getCreate3(Request $request, $id)
-  {
+  public function getCreate3(Request $request, $id){
+		//Validation
+		$this->validate($request, [
+			'Penawaran'=>'required'
+		], [
+			'Penawaran.required' => 'The Penawaran Code field is required.'
+		]);
+		
     $penawaran = $request->Penawaran;
     
     $last_transaksi = Transaksi::max('id');
@@ -127,8 +131,17 @@ class POController extends Controller
       return redirect()->back();
   }
 
-  public function store(Request $request)
-  {
+  public function store(Request $request){
+		//Validation
+		$this->validate($request, [
+			'POCode'=>'required|unique:po',
+			'Tgl'=>'required'
+		], [
+			'POCode.required' => 'The PO Code field is required.',
+			'POCode.unique' => 'The PO Code has already been taken.',
+			'Tgl.required' => 'The Date field is required.'
+		]);
+		
     $reference = Reference::find(Input::get('id'));
 		$forgettransaksi = $request->Purchase[0];
 		if($forgettransaksi==null){
@@ -295,8 +308,7 @@ class POController extends Controller
 		}
   }
 
-  public function show($id)
-  {
+  public function show($id){
     $po = PO::find($id);
     $transaksi = Transaksi::where('transaksi.POCode', $po -> POCode)
     ->get();
@@ -331,8 +343,7 @@ class POController extends Controller
       return redirect()->back();
   }
 
-  public function edit($id)
-  {
+  public function edit($id){
     $po = PO::find($id);
 		
 		$transaksi = Transaksi::where('POCode', $po->POCode)->first();
@@ -393,8 +404,17 @@ class POController extends Controller
       return redirect()->back();
   }
 
-  public function update(Request $request, $id)
-  {
+  public function update(Request $request, $id){
+		//Validation
+		$this->validate($request, [
+			'POCode'=>'required|unique:po,POCode,'.$request->OldPOCode.',POCode',
+			'Tgl'=>'required'
+		], [
+			'POCode.required' => 'The PO Code field is required.',
+			'POCode.unique' => 'The PO Code has already been taken.',
+			'Tgl.required' => 'The Date field is required.'
+		]);
+		
     $po = PO::find($id);
     $transaksi = Transaksi::where('transaksi.POCode', $request -> POCode);
 		
@@ -584,8 +604,7 @@ class POController extends Controller
     return redirect()->route('po.show', $id);
   }
 
-  public function destroy(Request $request, $id)
-  {
+  public function destroy(Request $request, $id){
     $po = PO::find($id);
     $transaksi = Transaksi::where('transaksi.POCode', $po->POCode);
     $transaksiid = $transaksi->pluck('id');

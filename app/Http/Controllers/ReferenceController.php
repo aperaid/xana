@@ -127,49 +127,60 @@ class ReferenceController extends Controller
 	}
 	
 	public function StoreCustomerProject(Request $request){
+		//Validation
+		$this->validate($request, [
+			'PCode'=>'required|unique:project',
+			'Project'=>'required',
+			'Sales'=>'required',
+			'CCode'=>'required'
+		], [
+			'PCode.required' => 'The Project Code field is required.',
+			'PCode.unique' => 'The Project Code has already been taken.',
+			'Project.required' => 'The Project Name field is required.',
+			'Sales.required' => 'The Sales field is required.',
+			'CCode.required' => 'The Company Code field is required.'
+		]);
+		
 		if($request['CCode2']!=''){
+			//Validation
 			$this->validate($request, [
+				'CCode2'=>'unique:customer,CCode',
 				'Company'=>'required'
+			], [
+				'CCode2.unique' => 'The Company Code has already been taken.',
+				'Company.required' => 'The Company Name field is required.'
 			]);
-			$is_exist = Customer::where('CCode', $request->CCode2)->first();
-			if(isset($is_exist->CCode)){
-				$request->session()->flash('error', 'Customer with CCode '.strtoupper($request->CCode).' is already exist!');
-			}else{
-				$customer = Customer::Create([
-					'id' => $request['customerid'],
-					'CCode' => strtoupper($request['CCode2']),
-					'Company' => strtoupper($request['Company']),
-					'Customer' => strtoupper($request['Customer']),
-					'CompAlamat' => $request['CompAlamat'],
-					'CompZip' => $request['CompZip'],
-					'CompKota' => $request['CompKota'],
-					'CompPhone' => $request['CompPhone'],
-					'CompEmail' => $request['CompEmail'],
-					'CustPhone' => $request['CustPhone'],
-					'CustEmail' => $request['CustEmail'],
-					'Fax' => $request['Fax'],
-					'NPWP' => $request['NPWP'],
-				]);
-				$request->session()->flash('message', 'Customer and Project has been successfully added with PCode '. strtoupper($request['PCode']));
-			}
-		}
-
-		$is_exist = Project::where('PCode', $request->PCode)->first();
-		if(isset($is_exist->PCode)){
-			$request->session()->flash('error', 'Project with PCode '.strtoupper($request->PCode).' is already exist!');
-		}else{
-			$project = Project::Create([
-				'id' => $request['projectid'],
-				'PCode' => strtoupper($request['PCode']),
-				'Project' => strtoupper($request['Project']),
-				'Sales' => $request['Sales'],
-				'ProjAlamat' => $request['ProjAlamat'],
-				'ProjZip' => $request['ProjZip'],
-				'ProjKota' => $request['ProjKota'],
-				'CCode' => strtoupper($request['CCode']),
+			
+			$customer = Customer::Create([
+				'id' => $request['customerid'],
+				'CCode' => strtoupper($request['CCode2']),
+				'PPN' => $request['PPN'],
+				'Company' => strtoupper($request['Company']),
+				'Customer' => strtoupper($request['Customer']),
+				'CompAlamat' => $request['CompAlamat'],
+				'CompZip' => $request['CompZip'],
+				'CompKota' => $request['CompKota'],
+				'CompPhone' => $request['CompPhone'],
+				'CompEmail' => $request['CompEmail'],
+				'CustPhone' => $request['CustPhone'],
+				'CustEmail' => $request['CustEmail'],
+				'Fax' => $request['Fax'],
+				'NPWP' => $request['NPWP'],
 			]);
-			$request->session()->flash('message', 'Project has been successfully added with PCode '. strtoupper($request['PCode']));
+			$request->session()->flash('message', 'Customer and Project has been successfully added with PCode '. strtoupper($request['PCode']));
 		}
+		
+		$project = Project::Create([
+			'id' => $request['projectid'],
+			'PCode' => strtoupper($request['PCode']),
+			'Project' => strtoupper($request['Project']),
+			'Sales' => $request['Sales'],
+			'ProjAlamat' => $request['ProjAlamat'],
+			'ProjZip' => $request['ProjZip'],
+			'ProjKota' => $request['ProjKota'],
+			'CCode' => strtoupper($request['CCode']),
+		]);
+		$request->session()->flash('message', 'Project has been successfully added with PCode '. strtoupper($request['PCode']));
 		
 		$history = new History;
 		$history->User = Auth::user()->name;
