@@ -18,7 +18,7 @@ class InventoryController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='StorageManager'||Auth::user()->access=='SuperStorageManager'))
+			if(Auth::check()&&(Auth::user()->access=='Administrator'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='StorageManager'||Auth::user()->access=='SuperStorageManager'))
 				$this->access = array("viewstockproject", "stockproject", "viewinventory", "adjustinventory", "editadjustinventory", "transferinventory", "registerinventory", "removeinventory");
 			else
 				$this->access = array("");
@@ -26,8 +26,7 @@ class InventoryController extends Controller
     });
 	}
 	
-	public function getInventoryProject()
-	{
+	public function getInventoryProject(){
 		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperStorageManager'){
 			$project = Reference::leftJoin('project', 'pocustomer.PCode', 'project.PCode')
 			->groupBy('project.id')
@@ -52,8 +51,7 @@ class InventoryController extends Controller
 			return redirect()->back();
 	}
 	
-	public function getViewInventoryProject($id)
-	{
+	public function getViewInventoryProject($id){
 		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperStorageManager'){
 			$transaksis = Transaksi::leftJoin('pocustomer', 'transaksi.Reference', 'pocustomer.Reference')
 			->leftJoin('project', 'pocustomer.PCode', 'project.PCode')
@@ -82,8 +80,7 @@ class InventoryController extends Controller
 			return redirect()->back();
 	}
 	
-  public function getView()
-  {
+  public function getView(){
     $inventory = Inventory::all();
 
 		if(in_array("viewinventory", $this->access)){
@@ -97,8 +94,7 @@ class InventoryController extends Controller
 			return redirect()->back();
   }
   
-  public function getAdjustment()
-  {
+  public function getAdjustment(){
     $adjust = Inventory::all();
 
 		if(in_array("adjustinventory", $this->access)){
@@ -112,8 +108,7 @@ class InventoryController extends Controller
 			return redirect()->back();
   }
 
-  public function getEditAdjustment($id)
-  {
+  public function getEditAdjustment($id){
     $adjust = Inventory::find($id);
 
 		if(in_array("editadjustinventory", $this->access)){
@@ -127,8 +122,7 @@ class InventoryController extends Controller
 			return redirect()->back();
   }
 
-  public function postEditAdjustment(Request $request, $id)
-  {
+  public function postEditAdjustment(Request $request, $id){
     $adjust = Inventory::find($id);
 
 		$adjust->Barang = $request->Barang;
@@ -148,8 +142,7 @@ class InventoryController extends Controller
     return redirect()->route('inventory.adjustinventory');
   }
   
-  public function getTransfer()
-  {
+  public function getTransfer(){
     $transfer = Inventory::orderby('id', 'desc')
     ->first();
 		
@@ -164,8 +157,7 @@ class InventoryController extends Controller
 			return redirect()->back();
   }
   
-  public function getRegister()
-  {
+  public function getRegister(){
     $register = Inventory::orderby('id', 'desc')
     ->first();
     
@@ -180,8 +172,7 @@ class InventoryController extends Controller
 			return redirect()->back();
   }
 
-  public function postRegister(Request $request)
-  {
+  public function postRegister(Request $request){
     $maxinventory = Inventory::select([
       'inventory.*',
       DB::raw('MAX(inventory.id) AS maxid')
@@ -230,8 +221,7 @@ class InventoryController extends Controller
     return redirect()->route('inventory.viewinventory');
   }
   
-  public function remove()
-  {
+  public function remove(){
     $removes = Inventory::groupBy('Barang')
     ->get();
 
@@ -246,14 +236,12 @@ class InventoryController extends Controller
 			return redirect()->back();
   }
   
-  public function getRemove($id)
-    {
-      return view('pages.inventory.getremoveinventory')
-      ->with('id', $id);
-    }
+  public function getRemove($id){
+		return view('pages.inventory.getremoveinventory')
+		->with('id', $id);
+	}
   
-  public function postRemove($id)
-  {
+  public function postRemove($id){
     $inventory = Inventory::find($id);
     
     Inventory::where('Barang', $inventory->Barang)->delete();

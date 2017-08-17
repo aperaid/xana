@@ -25,7 +25,7 @@ class InvoiceController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
+			if(Auth::check()&&(Auth::user()->access=='Administrator'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("showsewa", "showsewapisah", "showjual", "showjualpisah", "showclaim", "index");
 			else
 				$this->access = array("");
@@ -302,8 +302,7 @@ class InvoiceController extends Controller
       return redirect()->back();
 	}
 	
-  public function postInvoiceSewa(Request $request, $id)
-  {
+  public function postInvoiceSewa(Request $request, $id){
     $invoice = Invoice::find($id);
 		$invoice->Times = $request->Times;
 		$invoice->TimesKembali = $request->TimesKembali;
@@ -343,8 +342,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showsewa', $id);
   }
 	
-	public function postInvoiceSewaPisah(Request $request, $id)
-  {
+	public function postInvoiceSewaPisah(Request $request, $id){
     $invoicepisah = InvoicePisah::find($id);
 		$invoicepisah->Times = $request->Times;
 		$invoicepisah->TimesKembali = $request->TimesKembali;
@@ -384,8 +382,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showsewapisah', $id);
   }
   
-  public function getBAS($id)
-  {
+  public function getBAS($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = Invoice::find($id);
     
@@ -487,8 +484,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showsewa', $id);
   }
 	
-	public function getBAPisah($id)
-  {
+	public function getBAPisah($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = InvoicePisah::find($id);
     
@@ -587,7 +583,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showsewapisah', $id);
   }
   
-  function kekata($x) {
+  function kekata($x){
     $x = abs($x);
     $angka = array("", "satu", "dua", "tiga", "empat", "lima",
     "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
@@ -616,7 +612,7 @@ class InvoiceController extends Controller
     return $temp;
   }
 
-  function terbilang($x, $style=4) {
+  function terbilang($x, $style=4){
     if($x<0) {
       $hasil = "minus ". trim(kekata($x));
     } else {
@@ -639,8 +635,7 @@ class InvoiceController extends Controller
     return $hasil;
   }
   
-  public function getInvs($id)
-  {
+  public function getInvs($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = Invoice::find($id);
     
@@ -793,8 +788,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showsewa', $id);
   }
 	
-	public function getInvsPisah($id)
-  {
+	public function getInvsPisah($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = InvoicePisah::find($id);
     
@@ -944,8 +938,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showsewapisah', $id);
   }
   
-  public function getInvst($id)
-  {
+  public function getInvst($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = Invoice::find($id);
     
@@ -1092,8 +1085,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showsewa', $id);
   }
 	
-	public function getInvstPisah($id)
-  {
+	public function getInvstPisah($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = InvoicePisah::find($id);
     
@@ -1237,8 +1229,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showsewapisah', $id);
   }
 
-  public function getInvoiceJual($id)
-  {
+  public function getInvoiceJual($id){
     $invoice = Invoice::find($id);
     
     $invoice = Invoice::select([
@@ -1332,8 +1323,7 @@ class InvoiceController extends Controller
       return redirect()->back();
 	}
 	
-	public function getInvoiceJualPisah($id)
-  {
+	public function getInvoiceJualPisah($id){
     $invoice = InvoicePisah::find($id);
     
     $invoice = InvoicePisah::select([
@@ -1423,8 +1413,7 @@ class InvoiceController extends Controller
       return redirect()->back();
 	}
 	
-  public function postInvoiceJual(Request $request, $id)
-  {
+  public function postInvoiceJual(Request $request, $id){
     $invoice = Invoice::find($id);
 		$invoice->Times = $request->Times;
     $invoice->Discount = str_replace(".","",substr($request->Discount, 3));
@@ -1459,8 +1448,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showjual', $id);
   }
 	
-	public function postInvoiceJualPisah(Request $request, $id)
-  {
+	public function postInvoiceJualPisah(Request $request, $id){
     $invoicepisah = InvoicePisah::find($id);
 		$invoicepisah->Times = $request->Times;
     $invoicepisah->Discount = str_replace(".","",substr($request->Discount, 3));
@@ -1495,8 +1483,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showjualpisah', $id);
   }
 	
-	public function getBAJ($id)
-  {
+	public function getBAJ($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = Invoice::find($id);
     
@@ -1582,8 +1569,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showjual', $id);
   }
   
-  public function getInvj($id)
-  {
+  public function getInvj($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = Invoice::find($id);
     
@@ -1709,8 +1695,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showjual', $id);
   }
 	
-	public function getInvjPisah($id)
-  {
+	public function getInvjPisah($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = InvoicePisah::find($id);
     
@@ -1831,8 +1816,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showjualpisah', $id);
   }
   
-  public function getInvjt($id)
-  {
+  public function getInvjt($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = Invoice::find($id);
     
@@ -1952,8 +1936,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showjual', $id);
   }
 	
-	public function getInvjtPisah($id)
-  {
+	public function getInvjtPisah($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = InvoicePisah::find($id);
     
@@ -2152,8 +2135,7 @@ class InvoiceController extends Controller
       return redirect()->back();
 	}
   
-  public function postInvoiceClaim(Request $request, $id)
-	{
+  public function postInvoiceClaim(Request $request, $id){
 		$invoice = Invoice::find($id);
 		$invoice->Discount = str_replace(".","",substr($request->Discount, 3));
 		$invoice->TglTerima = $request->TglTerima;
@@ -2172,8 +2154,7 @@ class InvoiceController extends Controller
 		return redirect()->route('invoice.showclaim', $id);
 	}
 	
-	public function getBAC($id)
-  {
+	public function getBAC($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = Invoice::find($id);
     
@@ -2261,8 +2242,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showclaim', $id);
   }
     
-	public function getInvc($id)
-  {
+	public function getInvc($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
     $invoice = Invoice::find($id);
     
@@ -2433,8 +2413,7 @@ class InvoiceController extends Controller
     return redirect()->route('invoice.showclaim', $id);
   }
 
-	public function index()
-	{
+	public function index(){
 		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
 			$invoices = Invoice::select([
 					'invoice.*',
@@ -2661,8 +2640,7 @@ class InvoiceController extends Controller
 			return redirect()->back();
 	}
 
-	public function postLunas(Request $request)
-	{
+	public function postLunas(Request $request){
 		if($request->LunasType=='Gabung')
 			$invoice = Invoice::find($request->id);
 		else if($request->LunasType=='Pisah')

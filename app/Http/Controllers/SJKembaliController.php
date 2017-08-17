@@ -26,7 +26,7 @@ class SJKembaliController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
+			if(Auth::check()&&(Auth::user()->access=='Administrator'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "create", "create2", "create3", "show", "edit", "qterima");
 			else
 				$this->access = array("");
@@ -34,8 +34,7 @@ class SJKembaliController extends Controller
     });
 	}
 	
-	public function index()
-	{
+	public function index(){
 		$sum = IsiSJKembali::select([
 				'isisjkembali.SJKem',
 				DB::raw('sum(isisjkembali.QTertanda) AS qtrima')
@@ -86,8 +85,7 @@ class SJKembaliController extends Controller
 			return redirect()->back();
 	}
 
-	public function create()
-	{
+	public function create(){
 		$id = Input::get('id');
 		
 		$reference = Reference::where('pocustomer.id', $id)
@@ -134,8 +132,7 @@ class SJKembaliController extends Controller
 			return redirect()->back();
 	}
 
-	public function getCreate2(Request $request, $id)
-	{ 
+	public function getCreate2(Request $request, $id){ 
 		Session::put('SJKem', $request->SJKem);
 		Session::put('Tgl', $request->Tgl);
 		Session::put('Reference', $request->Reference);
@@ -200,8 +197,7 @@ class SJKembaliController extends Controller
 			return redirect()->back();
 	}
 	
-	public function getCreate3(Request $request, $id)
-	{
+	public function getCreate3(Request $request, $id){
 		$input = Input::only('checkbox');
 		$purchases = $input['checkbox'];
 		foreach ($purchases as $key => $purchase)
@@ -277,8 +273,7 @@ class SJKembaliController extends Controller
 			return redirect()->back();
 	}
 	
-	public function store(Request $request)
-	{
+	public function store(Request $request){
 		$SJKem = Session::get('SJKem');
 		$Tgl = Session::get('Tgl');
 		$Reference = Session::get('Reference');
@@ -406,8 +401,7 @@ class SJKembaliController extends Controller
 		return redirect()->route('sjkembali.show', $request['sjkembaliid']);
 	}
 
-	public function show($id)
-	{
+	public function show($id){
 		$sjkembali = SJKembali::select([
 			'sjkembali.*',
 		])
@@ -487,8 +481,7 @@ class SJKembaliController extends Controller
 			return redirect()->back();
 	}
 
-	public function edit($id)
-	{
+	public function edit($id){
 		$sjkembali = SJKembali::find($id);
 		
 		$maxperiode = Periode::where('Reference', $sjkembali->Reference)->max('Periode');
@@ -540,8 +533,7 @@ class SJKembaliController extends Controller
 			return redirect()->back();
 	}
 
-	public function update(Request $request, $id)
-	{
+	public function update(Request $request, $id){
 		$sjkembali = SJKembali::find($id);
 		
 		$isisjkembali = IsiSJKembali::where('isisjkembali.SJKem', $sjkembali->SJKem);
@@ -616,8 +608,7 @@ class SJKembaliController extends Controller
 		return redirect()->route('sjkembali.show', $id);
 	}
 
-	public function getQTerima($id)
-	{ 
+	public function getQTerima($id){ 
 		$sjkembali = SJKembali::find($id);
 		
 		$isisjkembalis = IsiSJKembali::select([
@@ -676,8 +667,7 @@ class SJKembaliController extends Controller
 			return redirect()->back();
 	}
 	
-	public function postQTerima(Request $request, $id)
-	{
+	public function postQTerima(Request $request, $id){
 		$sjkembali = SJKembali::find($id);
 		
 		$isisjkembali = IsiSJKembali::where('isisjkembali.SJKem', $sjkembali->SJKem);
@@ -744,8 +734,7 @@ class SJKembaliController extends Controller
 		return redirect()->route('sjkembali.show', $id);
 	}
 	
-	public function getSPB($id)
-	{
+	public function getSPB($id){
 		$phpWord = new \PhpOffice\PhpWord\PhpWord();
 		$reference = Reference::find($id);
 		
@@ -803,8 +792,7 @@ class SJKembaliController extends Controller
 		return redirect()->route('reference.show', $id);
 	}
 
-	public function destroy(Request $request, $id)
-	{
+	public function destroy(Request $request, $id){
 		$sjkembali = SJKembali::find($id);
 		
 		$periode = Periode::where('periode.SJKem', $sjkembali->SJKem);

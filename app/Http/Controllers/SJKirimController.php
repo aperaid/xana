@@ -26,7 +26,7 @@ class SJKirimController extends Controller
 	public function __construct()
 	{
 		$this->middleware(function ($request, $next){
-			if(Auth::check()&&(Auth::user()->access=='Admin'||Auth::user()->access=='SuperAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
+			if(Auth::check()&&(Auth::user()->access=='Administrator'||Auth::user()->access=='PPNAdmin'||Auth::user()->access=='NonPPNAdmin'||Auth::user()->access=='Purchasing'||Auth::user()->access=='SuperPurchasing'))
 				$this->access = array("index", "create", "create2", "create3", "show", "edit", "qtertanda");
 			else
 				$this->access = array("");
@@ -34,8 +34,7 @@ class SJKirimController extends Controller
     });
 	}
 	
-	public function index()
-	{
+	public function index(){
 		$sum = IsiSJKirim::select([
 				'isisjkirim.SJKir',
 				DB::raw('sum(isisjkirim.QTertanda) AS qttd')
@@ -86,8 +85,7 @@ class SJKirimController extends Controller
 			return redirect()->back();
 	}
 
-	public function create()
-	{
+	public function create(){
 		$reference = Reference::find(Input::get('id'));
 		
 		$maxperiode = Transaksi::leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
@@ -117,8 +115,7 @@ class SJKirimController extends Controller
 			return redirect()->back();
 	}
 	
-	public function getCreate2(Request $request, $id)
-	{ 
+	public function getCreate2(Request $request, $id){
 		Session::put('SJKir', $request->SJKir);
 		Session::put('Tgl', $request->Tgl);
 		Session::put('JS', $request->JS);
@@ -168,8 +165,7 @@ class SJKirimController extends Controller
 			return redirect()->back();
 	}
 	
-	public function getCreate3(Request $request, $id)
-	{
+	public function getCreate3(Request $request, $id){
 		$input = Input::only('checkbox');
 		$purchases = $input['checkbox'];
 		foreach ($purchases as $key => $purchases)
@@ -244,8 +240,7 @@ class SJKirimController extends Controller
 			return redirect()->back();
 	}
 	
-	public function store(Request $request)
-	{
+	public function store(Request $request){
 		$SJKir = Session::get('SJKir');
 		$Tgl = Session::get('Tgl');
 		$JS = Session::get('JS');
@@ -341,8 +336,7 @@ class SJKirimController extends Controller
 		return redirect()->route('sjkirim.show', $request['sjkirimid']);
 	}
 
-	public function show($id)
-	{
+	public function show($id){
 		$sjkirim = SJKirim::select([
 			'sjkirim.*',
 			'sjkirim.id as sjkirid', 
@@ -410,8 +404,7 @@ class SJKirimController extends Controller
 			return redirect()->back();
 	}
 
-	public function edit($id)
-	{
+	public function edit($id){
 		$sjkirim = SJKirim::find($id);
 		
 		$maxperiode = Transaksi::leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
@@ -454,8 +447,7 @@ class SJKirimController extends Controller
 			return redirect()->back();
 	}
 
-	public function update(Request $request, $id)
-	{
+	public function update(Request $request, $id){
 		$sjkirim = SJKirim::find($id);
 		$sjkirim->Tgl = $request['Tgl'];
 		$sjkirim->NoPolisi = $request['NoPolisi'];
@@ -540,8 +532,7 @@ class SJKirimController extends Controller
 		return redirect()->route('sjkirim.show', $id);
 	}
 	
-	public function getQTertanda($id)
-	{ 
+	public function getQTertanda($id){ 
 		$sjkirim = SJKirim::find($id);
 		
 		$parameter = IsiSJKirim::select([
@@ -600,8 +591,7 @@ class SJKirimController extends Controller
 			return redirect()->back();
 	}
 	
-	public function postQTertanda(Request $request, $id)
-	{
+	public function postQTertanda(Request $request, $id){
 		$sjkirim = SJKirim::find($id);
 		
 		$input = Input::all();
@@ -656,8 +646,7 @@ class SJKirimController extends Controller
 		return redirect()->route('sjkirim.show', $id);
 	}
 
-	public function getSJ($id)
-	{
+	public function getSJ($id){
 		$phpWord = new \PhpOffice\PhpWord\PhpWord();
 		$sjkirim = SJKirim::find($id);
 		$reference = Reference::leftJoin('project', 'pocustomer.PCode', 'project.PCode')
@@ -729,8 +718,7 @@ class SJKirimController extends Controller
 		return redirect()->route('sjkirim.show', $id);
 	}
 	
-	public function destroy(Request $request, $id)
-	{
+	public function destroy(Request $request, $id){
 		$sjkirim = SJKirim::find($id);
 		
 		$isisjkirim = IsiSJKirim::leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
