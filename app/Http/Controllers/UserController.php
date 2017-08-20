@@ -120,6 +120,10 @@ class UserController extends Controller
 					'password'=>'required',
 					'cpassword'=>'required',
 					'opassword'=>'required'
+				], [
+					'password.required' => 'The New Password field is required.',
+					'cpassword.required' => 'The Confirm Password field is required.',
+					'opassword.required' => 'The Old Password field is required.'
 				]);
 				$user = User::find($request->id);
 				if($request->password!=$request->cpassword){
@@ -146,10 +150,14 @@ class UserController extends Controller
 			if(in_array("edit", $this->access)){
 				//Validation
 				$this->validate($request, [
-					'id'=>'required',
 					'name'=>'required',
-					'email'=>'required',
+					'email'=>'required|unique:users,email,'.$request->oldemail.',email',
 					'access'=>'required'
+				], [
+					'name.required' => 'The Name field is required.',
+					'email.required' => 'The User Name field is required.',
+					'email.unique' => 'The User Name has already been taken.',
+					'access.required' => 'The Access field is required.'
 				]);
 				$user = User::find($request->id);
 				$history = new History;

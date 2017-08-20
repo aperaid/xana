@@ -48,6 +48,7 @@
         <h3 class="text-center email" id="email">-</h3>
         <p class="text-muted text-center name" id="name">-</p>
         <input type="hidden" id="userid" class="userid">
+				<input type="hidden" id="useremail" class="useremail">
         <ul class="list-group list-group-unbordered">
             <li class="list-group-item">
               <p class="fa fa-user-secret"></p><b> Reserved As</b> <a class="text-green pull-right access" id="access">-</a>
@@ -87,6 +88,7 @@
       <!-- form start -->
       <form id="editform" name="editform" class="form-horizontal">
         <input type="hidden" id="olduserid" name="olduserid">
+        <input type="hidden" id="oldemail" name="oldemail">
         <div class="box-body">
           <div id="message">
           </div>
@@ -267,6 +269,7 @@ function highlight(id) {
       $("#delete").prop("disabled", true);
       if(status == 'success'){
         $(".userid").val(data.id);
+        $(".useremail").val(data.email);
         $(".name").text(data.name);
         $(".email").text(data.email);
         $(".access").text(data.access);
@@ -295,6 +298,7 @@ $("#edit").click(function(){
   //Toggle the modal
   $('#editmodal').modal('toggle');
   $("#olduserid").val($("#userid").val());
+  $("#oldemail").val($("#useremail").val());
   $("#editname").val($("#name").text());
   $("#editemail").val($("#email").text());
   $("#editaccess").val($("#access").text());
@@ -302,7 +306,7 @@ $("#edit").click(function(){
 //When edit form is submitted
 $("#editform").submit(function(event){
   $(".loading").show();
-  $.post( "user/edit",{ "_token": "{{ csrf_token() }}", id: $("#olduserid").val(), name: $("#editname").val(), email: $("#editemail").val(), access: $("#editaccess").val()}, function( data ) {})
+  $.post( "user/edit",{ "_token": "{{ csrf_token() }}", id: $("#olduserid").val(), oldemail: $("#oldemail").val(), name: $("#editname").val(), email: $("#editemail").val(), access: $("#editaccess").val()}, function( data ) {})
   .done(function(data){
     location.reload();
     $('#editmodal').modal('toggle');
