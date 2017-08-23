@@ -149,10 +149,6 @@
 								{!! Form::label('PPN', 'PPN 10%') !!}
 							</div>
 						</div>
-					@elseif(Auth::user()->access == 'PPNAdmin')
-						{!! Form::text('PPN', 1, ['id' => 'PPN']) !!}
-					@elseif(Auth::user()->access == 'NonPPNAdmin')
-						{!! Form::hidden('PPN', 0, ['id' => 'PPN']) !!}
 					@endif
           <div class="form-group">
             {!! Form::label('Company', 'Company Name', ['class' => "col-md-2 control-label"]) !!}

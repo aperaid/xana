@@ -151,10 +151,17 @@ class ReferenceController extends Controller
 				'Company.required' => 'The Company Name field is required.'
 			]);
 			
-			if($request->PPN)
-				$PPN = $request->PPN;
-			else
+			if(Auth::user()->access=='Administrator'){
+				if($request->PPN){
+					$PPN = $request->PPN;
+				}else{
+					$PPN = 0;
+				}
+			}else if(Auth::user()->access=='PPNAdmin'){
+				$PPN = 1;
+			}else if(Auth::user()->access=='NonPPNAdmin'){
 				$PPN = 0;
+			}
 			
 			$customer = new Customer;
 			$customer->id = $request->id;
