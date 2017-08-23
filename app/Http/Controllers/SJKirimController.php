@@ -41,7 +41,7 @@ class SJKirimController extends Controller
 			])
 			->groupBy('isisjkirim.SJKir');
 			
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$sjkirim = SJKirim::select([
 				'qttd',
 				'sjkirim.*',
@@ -56,7 +56,7 @@ class SJKirimController extends Controller
 				})
 			->orderBy('sjkirim.id', 'asc')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$sjkirim = SJKirim::select([
 				'qttd',
 				'sjkirim.*',
@@ -70,6 +70,22 @@ class SJKirimController extends Controller
 					$join->on('T1.SJKir', '=', 'sjkirim.SJKir');
 				})
 			->where('PPN', 1)
+			->orderBy('sjkirim.id', 'asc')
+			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$sjkirim = SJKirim::select([
+				'qttd',
+				'sjkirim.*',
+				'project.Project',
+				'customer.Company',
+			])
+			->leftJoin('pocustomer', 'sjkirim.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->leftJoin(DB::raw(sprintf( '(%s) AS T1', $sum->toSql() )), function($join){
+					$join->on('T1.SJKir', '=', 'sjkirim.SJKir');
+				})
+			->where('PPN', 0)
 			->orderBy('sjkirim.id', 'asc')
 			->get();
 		}

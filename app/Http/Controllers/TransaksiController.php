@@ -49,7 +49,7 @@ class TransaksiController extends Controller
 		->groupBy('periode.IsiSJKir')
 		->orderBy('periode.id', 'asc');
 		
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$transaksis = Periode::select([
 				'invoice.id AS invoiceid',
 				'invoice.Invoice',
@@ -83,7 +83,7 @@ class TransaksiController extends Controller
 			->whereRaw('periode.Deletes = "Sewa" OR periode.Deletes = "Extend"')
 			->groupBy('invoice.Reference', 'invoice.Periode')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$transaksis = Periode::select([
 				'invoice.id AS invoiceid',
 				'invoice.Invoice',
@@ -121,9 +121,47 @@ class TransaksiController extends Controller
 			})
 			->groupBy('invoice.Reference', 'invoice.Periode')
 			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$transaksis = Periode::select([
+				'invoice.id AS invoiceid',
+				'invoice.Invoice',
+				'periode.id AS periodeid',
+				'periode.*',
+				'per.maxperiode',
+				'isisjkirim.SJKir',
+				DB::raw('SUM(isisjkirim.QKirim) AS SumQKirim'),
+				DB::raw('SUM(isisjkirim.QTertanda) AS SumQTertanda'),
+				'project.Project',
+				'customer.Customer',
+				'maxid',
+			])
+			->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+			->leftJoin('pocustomer', 'periode.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->leftJoin('invoice', function($join){
+				$join->on('invoice.Reference', '=', 'pocustomer.Reference')
+				->on('invoice.Periode', '=', 'periode.Periode');
+			})
+			->leftJoin(DB::raw(sprintf( '(%s) AS T1', $maxid->toSql() )), function($join){
+				$join->on('T1.Reference', '=', 'periode.Reference')
+				->on('T1.IsiSJKir', '=', 'periode.IsiSJKir');
+			})
+			->leftJoin(DB::raw('(select Reference, IsiSJKir, MAX(Periode) AS maxperiode from Periode group by Reference) AS per'), function($join){
+				$join->on('per.Reference', '=', 'periode.Reference');
+				$join->on('per.IsiSJKir', '=', 'periode.IsiSJKir');
+			})
+			->where('invoice.JSC', 'Sewa')
+			->where('customer.PPN', 0)
+			->where(function($query){
+				$query->where('periode.Deletes', "Sewa")
+				->orWhere('periode.Deletes', "Extend");
+			})
+			->groupBy('invoice.Reference', 'invoice.Periode')
+			->get();
 		}
 		
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$transaksij = Periode::select([
 				'invoice.id',
 				'invoice.Invoice',
@@ -144,7 +182,7 @@ class TransaksiController extends Controller
 			->where('periode.Deletes', 'Jual')
 			->groupBy('periode.Reference', 'periode.Periode')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$transaksij = Periode::select([
 				'invoice.id',
 				'invoice.Invoice',
@@ -166,6 +204,28 @@ class TransaksiController extends Controller
 			->where('periode.Deletes', 'Jual')
 			->groupBy('periode.Reference', 'periode.Periode')
 			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$transaksij = Periode::select([
+				'invoice.id',
+				'invoice.Invoice',
+				'pocustomer.Reference',
+				'project.Project',
+			])
+			->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+			->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+			->leftJoin('transaksi', 'sjkirim.Reference', '=', 'transaksi.Reference')
+			->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->leftJoin('invoice', function($join){
+				$join->on('invoice.Reference', '=', 'transaksi.Reference')
+				->on('invoice.Periode', '=', 'periode.Periode');
+			})
+			->where('invoice.JSC', 'Jual')
+			->where('customer.PPN', 0)
+			->where('periode.Deletes', 'Jual')
+			->groupBy('periode.Reference', 'periode.Periode')
+			->get();
 		}
 		
 		$T1 = Periode::select([
@@ -182,7 +242,7 @@ class TransaksiController extends Controller
 		])
 		->whereRaw('periode.Deletes = "Sewa" OR periode.Deletes = "Extend"');
 		
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$transaksic = TransaksiClaim::select([
 				'periodeclaim',
 				'periodeextend',
@@ -221,7 +281,7 @@ class TransaksiController extends Controller
 			->groupBy('transaksiclaim.Periode')
 			->orderBy('transaksiclaim.id', 'asc')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$transaksic = TransaksiClaim::select([
 				'periodeclaim',
 				'periodeextend',
@@ -253,6 +313,41 @@ class TransaksiController extends Controller
 			})
 			->where('invoice.JSC', 'Claim')
 			->where('customer.PPN', 1)
+			->groupBy('transaksiclaim.Periode')
+			->orderBy('transaksiclaim.id', 'asc')
+			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$transaksic = TransaksiClaim::select([
+				'periodeclaim',
+				'periodeextend',
+				'transaksiclaim.*',
+				'invoice.id AS invoiceid',
+				'invoice.Invoice',
+				'transaksi.Reference',
+				'transaksi.Barang',
+				'transaksi.QSisaKem',
+				'project.Project',
+				'customer.Customer',
+			])
+			->leftJoin('periode', 'transaksiclaim.Claim', '=', 'periode.Claim')
+			->leftJoin('transaksi', 'transaksiclaim.Purchase', '=', 'transaksi.Purchase')
+			->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->leftJoin('invoice', function($join){
+				$join->on('invoice.Reference', '=', 'transaksi.Reference')
+				->on('invoice.Periode', '=', 'transaksiclaim.Periode');
+			})
+			->leftJoin(DB::raw(sprintf( '(%s) AS T1', $T1->toSql() )), function($join){
+				$join->on('T1.Reference', '=', 'periode.Reference')
+				->on('T1.Claim', '=', 'transaksiclaim.Claim')
+				->on('T1.Periode', '=', 'transaksiclaim.Periode');
+			})
+			->leftJoin(DB::raw(sprintf( '(%s) AS T2', $T2->toSql() )), function($join){
+				$join->on('T2.Reference', '=', 'periode.Reference');
+			})
+			->where('invoice.JSC', 'Claim')
+			->where('customer.PPN', 0)
 			->groupBy('transaksiclaim.Periode')
 			->orderBy('transaksiclaim.id', 'asc')
 			->get();

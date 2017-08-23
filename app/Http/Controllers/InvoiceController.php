@@ -2414,7 +2414,7 @@ class InvoiceController extends Controller
   }
 
 	public function index(){
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$invoices = Invoice::select([
 					'invoice.*',
 					'project.Project',
@@ -2434,7 +2434,7 @@ class InvoiceController extends Controller
 				})
 			->groupBy('invoice.Reference', 'invoice.Periode')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$invoices = Invoice::select([
 					'invoice.*',
 					'project.Project',
@@ -2455,9 +2455,30 @@ class InvoiceController extends Controller
 			->where('customer.PPN', 1)
 			->groupBy('invoice.Reference', 'invoice.Periode')
 			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$invoices = Invoice::select([
+					'invoice.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Sewa')
+			->where('pocustomer.INVP', 0)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference')
+					->from('periode')
+					->whereRaw('invoice.Reference = periode.Reference')
+					->where('periode.Deletes', 'Sewa');
+				})
+			->where('customer.PPN', 0)
+			->groupBy('invoice.Reference', 'invoice.Periode')
+			->get();
 		}
 		
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$invoicesp = InvoicePisah::select([
 					'invoicepisah.*',
 					'project.Project',
@@ -2481,7 +2502,7 @@ class InvoiceController extends Controller
 				})
 			->groupBy('invoicepisah.Reference', 'invoicepisah.POCode', 'invoicepisah.Periode')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$invoicesp = InvoicePisah::select([
 					'invoicepisah.*',
 					'project.Project',
@@ -2506,9 +2527,34 @@ class InvoiceController extends Controller
 			->where('customer.PPN', 1)
 			->groupBy('invoicepisah.Reference', 'invoicepisah.POCode', 'invoicepisah.Periode')
 			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$invoicesp = InvoicePisah::select([
+					'invoicepisah.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('transaksi', 'invoicepisah.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Sewa')
+			->where('pocustomer.INVP', 1)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference', 'po.POCode')
+					->from('periode')
+					->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
+					->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+					->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
+					->where('periode.Deletes', 'Sewa');
+				})
+			->where('customer.PPN', 0)
+			->groupBy('invoicepisah.Reference', 'invoicepisah.POCode', 'invoicepisah.Periode')
+			->get();
 		}
 		
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$invoicej = Invoice::select([
 					'invoice.*',
 					'project.Project',
@@ -2528,7 +2574,7 @@ class InvoiceController extends Controller
 				})
 			->groupBy('invoice.Reference', 'invoice.Periode')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$invoicej = Invoice::select([
 					'invoice.*',
 					'project.Project',
@@ -2549,9 +2595,30 @@ class InvoiceController extends Controller
 			->where('customer.PPN', 1)
 			->groupBy('invoice.Reference', 'invoice.Periode')
 			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$invoicej = Invoice::select([
+					'invoice.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Jual')
+			//->where('pocustomer.INVP', 0)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference')
+					->from('periode')
+					->whereRaw('invoice.Reference = periode.Reference')
+					->where('periode.Deletes', 'Jual');
+				})
+			->where('customer.PPN', 0)
+			->groupBy('invoice.Reference', 'invoice.Periode')
+			->get();
 		}
 		
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$invoicejp = InvoicePisah::select([
 					'invoicepisah.*',
 					'project.Project',
@@ -2573,7 +2640,7 @@ class InvoiceController extends Controller
 				})
 			->groupBy('invoicepisah.Reference', 'invoicepisah.POCode', 'invoicepisah.Periode')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$invoicejp = InvoicePisah::select([
 					'invoicepisah.*',
 					'project.Project',
@@ -2596,9 +2663,32 @@ class InvoiceController extends Controller
 			->where('customer.PPN', 1)
 			->groupBy('invoicepisah.Reference', 'invoicepisah.Periode')
 			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$invoicejp = InvoicePisah::select([
+					'invoicepisah.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('pocustomer', 'invoicepisah.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Jual')
+			->where('pocustomer.INVP', 0)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference')
+					->from('periode')
+					->leftJoin('transaksi', 'periode.Purchase', '=', 'transaksi.Purchase')
+					->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+					->whereRaw('invoicepisah.Reference = periode.Reference AND invoicepisah.POCode = po.POCode')
+					->where('periode.Deletes', 'Jual');
+				})
+			->where('customer.PPN', 0)
+			->groupBy('invoicepisah.Reference', 'invoicepisah.Periode')
+			->get();
 		}
 		
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$invoicec = Invoice::select([
 				'invoice.*',
 				'project.Project',
@@ -2610,7 +2700,7 @@ class InvoiceController extends Controller
 			->where('JSC', 'Claim')
 			->groupBy('invoice.Periode', 'invoice.Reference')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$invoicec = Invoice::select([
 				'invoice.*',
 				'project.Project',
@@ -2621,6 +2711,19 @@ class InvoiceController extends Controller
 			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
 			->where('JSC', 'Claim')
 			->where('customer.PPN', 1)
+			->groupBy('invoice.Periode', 'invoice.Reference')
+			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$invoicec = Invoice::select([
+				'invoice.*',
+				'project.Project',
+				'customer.Company',
+			])
+			->leftJoin('pocustomer', 'invoice.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Claim')
+			->where('customer.PPN', 0)
 			->groupBy('invoice.Periode', 'invoice.Reference')
 			->get();
 		}

@@ -41,7 +41,7 @@ class SJKembaliController extends Controller
 			])
 			->groupBy('isisjkembali.SJKem');
 			
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperPurchasing'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$sjkembali = SJKembali::select([
 				'qtrima',
 				'sjkembali.*',
@@ -56,7 +56,7 @@ class SJKembaliController extends Controller
 				})
 			->orderBy('sjkembali.id', 'asc')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$sjkembali = SJKembali::select([
 				'qtrima',
 				'sjkembali.*',
@@ -70,6 +70,22 @@ class SJKembaliController extends Controller
 					$join->on('T1.SJKem', '=', 'sjkembali.SJKem');
 				})
 			->where('PPN', 1)
+			->orderBy('sjkembali.id', 'asc')
+			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$sjkembali = SJKembali::select([
+				'qtrima',
+				'sjkembali.*',
+				'project.Project',
+				'customer.Company',
+			])
+			->leftJoin('pocustomer', 'sjkembali.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->leftJoin(DB::raw(sprintf( '(%s) AS T1', $sum->toSql() )), function($join){
+					$join->on('T1.SJKem', '=', 'sjkembali.SJKem');
+				})
+			->where('PPN', 0)
 			->orderBy('sjkembali.id', 'asc')
 			->get();
 		}

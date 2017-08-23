@@ -83,7 +83,11 @@
                         <td>{{ $purchase -> POCode }}</td>
 												<td>{{ $purchase -> JS }}</td>
 												<td>{{ $purchase -> Barang }}</td>
-												<td>{{ $purchase -> Quantity }}</td>
+												@if($purchase -> QKirim)
+													<td>{{ $purchase -> QKirim .' / '. $purchase -> Quantity }}</td>
+												@else
+													<td>{{ 0 .' / '. $purchase -> Quantity }}</td>
+												@endif
                         <td>{{ $purchase -> Discount }}</td>
 												<td>Rp {{ number_format( $purchase -> Amount-$purchase -> Amount*$purchase -> Discount/100, 2,',', '.' ) }}</td>
                           @if ( $purchase -> JS == "Sewa" ) <!-- Kalau SEWA -->

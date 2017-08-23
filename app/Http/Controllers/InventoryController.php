@@ -27,15 +27,22 @@ class InventoryController extends Controller
 	}
 	
 	public function getInventoryProject(){
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperStorageManager'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperStorageManager'){
 			$project = Reference::leftJoin('project', 'pocustomer.PCode', 'project.PCode')
 			->groupBy('project.id')
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$project = Reference::select('project.Project', 'pocustomer.*')
 			->leftJoin('project', 'pocustomer.PCode', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', 'customer.CCode')
 			->where('PPN', 1)
+			->groupBy('project.id')
+			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$project = Reference::select('project.Project', 'pocustomer.*')
+			->leftJoin('project', 'pocustomer.PCode', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', 'customer.CCode')
+			->where('PPN', 0)
 			->groupBy('project.id')
 			->get();
 		}
@@ -52,18 +59,25 @@ class InventoryController extends Controller
 	}
 	
 	public function getViewInventoryProject($id){
-		if(Auth::user()->access == 'SuperAdmin'||Auth::user()->access=='SuperStorageManager'){
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperStorageManager'){
 			$transaksis = Transaksi::leftJoin('pocustomer', 'transaksi.Reference', 'pocustomer.Reference')
 			->leftJoin('project', 'pocustomer.PCode', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', 'customer.CCode')
 			->where('project.id', $id)
 			->get();
-		}else{
+		}else if(Auth::user()->access == 'PPNAdmin'){
 			$transaksis = Transaksi::leftJoin('pocustomer', 'transaksi.Reference', 'pocustomer.Reference')
 			->leftJoin('project', 'pocustomer.PCode', 'project.PCode')
 			->leftJoin('customer', 'project.CCode', 'customer.CCode')
 			->where('project.id', $id)
 			->where('PPN', 1)
+			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$transaksis = Transaksi::leftJoin('pocustomer', 'transaksi.Reference', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', 'customer.CCode')
+			->where('project.id', $id)
+			->where('PPN', 0)
 			->get();
 		}
 		$transaksi = $transaksis -> first();
