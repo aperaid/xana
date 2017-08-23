@@ -151,22 +151,28 @@ class ReferenceController extends Controller
 				'Company.required' => 'The Company Name field is required.'
 			]);
 			
-			$customer = Customer::Create([
-				'id' => $request['customerid'],
-				'CCode' => strtoupper($request['CCode2']),
-				'PPN' => $request['PPN'],
-				'Company' => strtoupper($request['Company']),
-				'Customer' => strtoupper($request['Customer']),
-				'CompAlamat' => $request['CompAlamat'],
-				'CompZip' => $request['CompZip'],
-				'CompKota' => $request['CompKota'],
-				'CompPhone' => $request['CompPhone'],
-				'CompEmail' => $request['CompEmail'],
-				'CustPhone' => $request['CustPhone'],
-				'CustEmail' => $request['CustEmail'],
-				'Fax' => $request['Fax'],
-				'NPWP' => $request['NPWP'],
-			]);
+			if($request->PPN)
+				$PPN = $request->PPN;
+			else
+				$PPN = 0;
+			
+			$customer = new Customer;
+			$customer->id = $request->id;
+			$customer->CCode = $request->CCode;
+			$customer->PPN = $PPN;
+			$customer->NPWP = $request->NPWP;
+			$customer->Company = $request->Company;
+			$customer->CompAlamat = $request->CompAlamat;
+			$customer->CompKota = $request->CompKota;
+			$customer->CompZip = $request->CompZip;
+			$customer->CompPhone = $request->CompPhone;
+			$customer->Fax = $request->Fax;
+			$customer->CompEmail = $request->CompEmail;
+			$customer->Customer = $request->Customer;
+			$customer->CustPhone = $request->CustPhone;
+			$customer->CustEmail = $request->CustEmail;
+			$customer->save();
+			
 			$request->session()->flash('message', 'Customer and Project has been successfully added with PCode '. strtoupper($request['PCode']));
 		}
 		

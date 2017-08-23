@@ -145,7 +145,6 @@
 						<div class="form-group">
 							{!! Form::label('PPN', 'PPN', ['class' => "col-md-2 control-label"]) !!}
 							<div class="col-md-4">
-								{!! Form::hidden('PPN', 0) !!}
 								{!! Form::checkbox('PPN', 1, null, ['id' => 'PPN', 'class' => 'minimal']) !!}
 								{!! Form::label('PPN', 'PPN 10%') !!}
 							</div>
@@ -278,7 +277,7 @@ $("#customerproject").click(function(){
 //When customer form is submitted
 $("#customerprojectform").submit(function(event){
   $(".loading").show();
-  $.post( "customerproject",{ "_token": "{{ csrf_token() }}", projectid: $("#projectid").val(), PCode: $("#PCode2").val(), Project: $("#Project").val(), Sales: $("#Sales").val(), ProjAlamat: $("#ProjAlamat").val(), ProjZip: $("#ProjZip").val(), ProjKota: $("#ProjKota").val(), CCode2: $("#CCode2").val(), PPN: $("#PPN").val(),customerid: $("#customerid").val(), CCode: $("#CCode").val(), Company: $("#Company").val(), Customer: $("#Customer").val(), CompAlamat:$("#CompAlamat").val(), CompZip: $("#CompZip").val(), CompKota: $("#CompKota").val(), CompPhone: $("#CompPhone").val(), CompEmail: $("#CompEmail").val(), CustPhone: $("#CustPhone").val(), CustEmail: $("#CustEmail").val(), Fax: $("#Fax").val(), NPWP: $("#NPWP").val() }, function( data ) {})
+  $.post( "customerproject",{ "_token": "{{ csrf_token() }}", projectid: $("#projectid").val(), PCode: $("#PCode2").val(), Project: $("#Project").val(), Sales: $("#Sales").val(), ProjAlamat: $("#ProjAlamat").val(), ProjZip: $("#ProjZip").val(), ProjKota: $("#ProjKota").val(), CCode2: $("#CCode2").val(), PPN: $("#PPN:checked").val(),customerid: $("#customerid").val(), CCode: $("#CCode").val(), Company: $("#Company").val(), Customer: $("#Customer").val(), CompAlamat:$("#CompAlamat").val(), CompZip: $("#CompZip").val(), CompKota: $("#CompKota").val(), CompPhone: $("#CompPhone").val(), CompEmail: $("#CompEmail").val(), CustPhone: $("#CustPhone").val(), CustEmail: $("#CustEmail").val(), Fax: $("#Fax").val(), NPWP: $("#NPWP").val() }, function( data ) {})
   .done(function(data){
     location.reload();
     $('#customerprojectmodal').modal('toggle');
