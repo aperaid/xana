@@ -205,10 +205,12 @@ class ReferenceController extends Controller
 		->where('pocustomer.id', $id)
 		->first();
 		
-		$purchase = Transaksi::leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+		$purchase = Transaksi::select('*', DB::raw('sum(isisjkirim.QKirim) as QKirim'))
+		->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
 		->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
 		->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
 		->where('transaksi.reference', $detail -> Reference)
+		->groupBy('transaksi.purchase')
 		->get();
 		
 		$sjkircheck = 0;
