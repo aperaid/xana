@@ -800,12 +800,21 @@ class SJKembaliController extends Controller
 		$user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
 		$path = sprintf("C:\Users\Public\Documents\SPB\SPB_", $user);
 		$clear = str_replace("/","_",$transaksi->Invoice);
-		$download = sprintf('%s.docx', $clear);
+		$download = sprintf('SPB_%s.docx', $clear);
 		
-		$document->saveAs($path.$download);
+		//save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
 		
-		Session::flash('message', 'Downloaded to Server Public Documents file name SPB_'.$download);
-		return redirect()->route('reference.show', $id);
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name SPB_'.$download);
+		//return redirect()->route('reference.show', $id);
 	}
 
 	public function destroy(Request $request, $id){

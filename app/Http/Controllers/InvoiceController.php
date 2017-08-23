@@ -476,12 +476,21 @@ class InvoiceController extends Controller
 		else
 			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\BA\BAS_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('BAS_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name BA_'.$download);
-    return redirect()->route('invoice.showsewa', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name BAS_'.$download);
+    //return redirect()->route('invoice.showsewa', $id);
   }
 	
 	public function getBAPisah($id){
@@ -575,12 +584,21 @@ class InvoiceController extends Controller
 		else
 			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\BA\BA_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('BA_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name BA_'.$download);
-    return redirect()->route('invoice.showsewapisah', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name BA_'.$download);
+    //return redirect()->route('invoice.showsewapisah', $id);
   }
   
   function kekata($x){
@@ -780,12 +798,21 @@ class InvoiceController extends Controller
 		else
 			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\INV\INV_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('INV_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
-    return redirect()->route('invoice.showsewa', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
+    //return redirect()->route('invoice.showsewa', $id);
   }
 	
 	public function getInvsPisah($id){
@@ -930,12 +957,21 @@ class InvoiceController extends Controller
 		else
 			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\INV\INV_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('INV_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
-    return redirect()->route('invoice.showsewapisah', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
+    //return redirect()->route('invoice.showsewapisah', $id);
   }
   
   public function getInvst($id){
@@ -1077,12 +1113,21 @@ class InvoiceController extends Controller
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
 		$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\INV\INVT_");
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('INVT_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
-    return redirect()->route('invoice.showsewa', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
+    //return redirect()->route('invoice.showsewa', $id);
   }
 	
 	public function getInvstPisah($id){
@@ -1221,12 +1266,21 @@ class InvoiceController extends Controller
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
 		$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\INV\INVT_");
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('INVT_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
-    return redirect()->route('invoice.showsewapisah', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
+    //return redirect()->route('invoice.showsewapisah', $id);
   }
 
   public function getInvoiceJual($id){
@@ -1561,12 +1615,21 @@ class InvoiceController extends Controller
 		else
 			$path = sprintf("C:\Users\Public\Documents\NON PPN\JUAL\BA\BAJ_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('BAJ_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name BAJ_'.$download);
-    return redirect()->route('invoice.showjual', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name BAJ_'.$download);
+    //return redirect()->route('invoice.showjual', $id);
   }
   
   public function getInvj($id){
@@ -1687,12 +1750,21 @@ class InvoiceController extends Controller
 		else
 			$path = sprintf("C:\Users\Public\Documents\NON PPN\JUAL\INV\INV_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('INV_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
-    return redirect()->route('invoice.showjual', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
+    //return redirect()->route('invoice.showjual', $id);
   }
 	
 	public function getInvjPisah($id){
@@ -1808,12 +1880,21 @@ class InvoiceController extends Controller
 		else
 			$path = sprintf("C:\Users\Public\Documents\NON PPN\JUAL\INV\INV_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('INV_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
-    return redirect()->route('invoice.showjualpisah', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
+    //return redirect()->route('invoice.showjualpisah', $id);
   }
   
   public function getInvjt($id){
@@ -1928,12 +2009,21 @@ class InvoiceController extends Controller
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
     $path = sprintf("C:\Users\Public\Documents\PPN\JUAL\INV\INVT_");
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('INVT_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
-    return redirect()->route('invoice.showjual', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
+    //return redirect()->route('invoice.showjual', $id);
   }
 	
 	public function getInvjtPisah($id){
@@ -2043,12 +2133,21 @@ class InvoiceController extends Controller
     $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
 		$path = sprintf("C:\Users\Public\Documents\PPN\JUAL\INV\INVT_");
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('INVT_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
-    return redirect()->route('invoice.showjualpisah', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
+    //return redirect()->route('invoice.showjualpisah', $id);
   }
   
   public function getInvoiceClaim($id){
@@ -2234,12 +2333,21 @@ class InvoiceController extends Controller
 		else
 			$path = sprintf("C:\Users\Public\Documents\NON PPN\CLAIM\BA\BAC_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('BAC_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name BAC_'.$download);
-    return redirect()->route('invoice.showclaim', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name BAC_'.$download);
+    //return redirect()->route('invoice.showclaim', $id);
   }
     
 	public function getInvc($id){
@@ -2405,12 +2513,21 @@ class InvoiceController extends Controller
 		else
 			$path = sprintf("C:\Users\Public\Documents\NON PPN\CLAIM\INV\INV_", $user);
     $clear = str_replace("/","_",$invoice->Invoice);
-    $download = sprintf('%s.docx', $clear);
+    $download = sprintf('INV_%s.docx', $clear);
     
-    $document->saveAs($path.$download);
-    
-    Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
-    return redirect()->route('invoice.showclaim', $id);
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
+    //return redirect()->route('invoice.showclaim', $id);
   }
 
 	public function index(){
