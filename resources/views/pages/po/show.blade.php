@@ -14,7 +14,8 @@
     <div class="box box-primary">
       <div class="box-body">
         <a href="{{route('reference.show', $id -> id )}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
-        <a href="{{route('po.edit', $po -> id )}}"><button type="button" class="btn btn-primary pull-right" @if ($pocheck == 1) disabled @endif >Edit</button></a>
+        <!--<a href="{{route('po.edit', $po -> id )}}"><button type="button" class="btn btn-primary pull-right" @if ($pocheck == 1) disabled @endif >Edit</button></a>-->
+				<a href="{{route('po.edit', $po -> id )}}"><button type="button" class="btn btn-primary pull-right">Edit</button></a>
         <button type="submit" class="btn btn-danger pull-right" style="margin-right: 5px;" @if($pocheck == 1) disabled @endif onclick="return confirm('Delete PO?')">Delete</button>
       </div>
       <!-- /.box-body -->

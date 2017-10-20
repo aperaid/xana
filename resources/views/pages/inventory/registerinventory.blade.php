@@ -72,18 +72,31 @@
 
 @section('script')
 <script>
-  function capital() {
-    var x = document.getElementById("Code");
-    x.value = x.value.toUpperCase();
-    var x = document.getElementById("Barang");
-    x.value = x.value.toUpperCase();
-  }
-</script>
-<script>
-  $(document).ready(function(){
-		//Mask Price
-		$("#Price").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
-    $("#JualPrice").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
-	});
+function capital() {
+	var x = document.getElementById("Code");
+	x.value = x.value.toUpperCase();
+	var x = document.getElementById("Barang");
+	x.value = x.value.toUpperCase();
+}
+	
+$(document).ready(function(){
+	//Mask Price
+	$("#Price").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+	$("#JualPrice").maskMoney({prefix:'Rp ', allowZero: true, allowNegative: false, thousands:'.', decimal:',', affixesStay: true, precision: 0});
+});
+	
+var availableTags = 
+<?php 
+	if(env('APP_VM')==0)
+		$path = "C:/wamp64/www";
+	else if(env('APP_VM')==1)
+		$path = "/var/www/html";
+	include ($path."/xana/app/Includes/autocompletebarang.php");
+?>;
+
+$( "#Barang" ).autocomplete({
+	source: availableTags,
+	autoFocus: true
+});
 </script>
 @stop

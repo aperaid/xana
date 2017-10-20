@@ -10,8 +10,10 @@
       <ul class="nav nav-tabs">
         <li class="active"><a href="#sewa_tab" data-toggle="tab">Sewa</a></li>
 				<li><a href="#sewa_pisah_tab" data-toggle="tab">Sewa Pisah</a></li>
+				<li><a href="#sewa_kirim_tab" data-toggle="tab">Sewa Kirim</a></li>
         <li><a href="#jual_tab" data-toggle="tab">Jual</a></li>
 				<!--<li><a href="#jual_pisah_tab" data-toggle="tab">Jual Pisah</a></li>-->
+				<li><a href="#jual_kirim_tab" data-toggle="tab">Jual Kirim</a></li>
         <li><a href="#claim_tab" data-toggle="tab">Claim</a></li>
       </ul>
       <div class="tab-content">
@@ -107,6 +109,52 @@
             </tbody>
           </table>
         </div>
+				<div class="tab-pane" id="sewa_kirim_tab">
+          <table id="datatablessk" class="table table-hover table-bordered">
+            <thead>
+              <tr>
+                <th hidden>id</th>
+                <th>No. Invoice</th>
+                <th>Project</th>
+                <th>Periode</th>
+                <th>Company</th>
+                <th>Due Date</th>
+                <th>Reference</th>
+                <th>Status</th>
+								<th hidden>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($invoicesks as $invoicesk)
+              <tr>
+                <td hidden>{{$invoicesk->id}}</td>
+                <td>{{$invoicesk->Invoice}}</td>
+                <td>{{$invoicesk->Project}}</td>
+                <td>{{$invoicesk->Periode}}</td>
+                <td>{{$invoicesk->Company}}</td>
+                <td>
+									@if($invoicesk->TglTerima!='')
+										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoicesk->TglTerima)."+".$invoicesk->Termin." days"))}}
+									@else
+										Fill Tgl Surat Terima
+									@endif
+								</td>
+                <td>{{$invoicesk->Reference}}</td>
+                <td width="10%">
+									@if($invoicesk->TglTerima=='')
+										<button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button>
+                  @elseif($invoicesk->Lunas==0)
+                    <button type="button" class="btn btn-block btn-danger lunas">Belum Lunas</button>
+                  @else
+                    <button type="button" class="btn btn-block btn-success lunas">Lunas</button>
+                  @endif
+                </td>
+								<td hidden>Pisah</td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
         <div class="tab-pane" id="jual_tab">
           <table id="datatablesj" class="table table-hover table-bordered">
             <thead>
@@ -184,6 +232,52 @@
 									@if($invoicejp->TglTerima=='')
 										<button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button>
                   @elseif($invoicejp->Lunas==0)
+                    <button type="button" class="btn btn-block btn-danger lunas">Belum Lunas</button>
+                  @else
+                    <button type="button" class="btn btn-block btn-success lunas">Lunas</button>
+                  @endif
+                </td>
+								<td hidden>Pisah</td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+				<div class="tab-pane" id="jual_kirim_tab">
+          <table id="datatablesjk" class="table table-hover table-bordered">
+            <thead>
+              <tr>
+                <th hidden>id</th>
+                <th>No. Invoice</th>
+                <th>Project</th>
+                <th>Periode</th>
+                <th>Company</th>
+                <th>Due Date</th>
+                <th>Reference</th>
+                <th>Status</th>
+								<th hidden>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($invoicejks as $invoicejk)
+              <tr>
+                <td hidden>{{$invoicejk->id}}</td>
+                <td>{{$invoicejk->Invoice}}</td>
+                <td>{{$invoicejk->Project}}</td>
+                <td>{{$invoicejk->Periode}}</td>
+                <td>{{$invoicejk->Company}}</td>
+                <td>
+									@if($invoicejk->TglTerima!='')
+										{{date('d/m/Y', strtotime(str_replace('/', '-', $invoicejk->TglTerima)."+".$invoicejk->Termin." days"))}}
+									@else
+										Fill Tgl Surat Terima
+									@endif
+								</td>
+                <td>{{$invoicejk->Reference}}</td>
+                <td width="10%">
+									@if($invoicejk->TglTerima=='')
+										<button type="button" class="btn btn-block btn-danger" disabled>Belum Lunas</button>
+                  @elseif($invoicejk->Lunas==0)
                     <button type="button" class="btn btn-block btn-danger lunas">Belum Lunas</button>
                   @else
                     <button type="button" class="btn btn-block btn-success lunas">Lunas</button>
@@ -292,9 +386,30 @@ $(document).ready(function () {
 		else
 			window.open("invoice/showsewapisah/" + data2[0],"_self");
 	});
+	
+	// Invoice Sewa Kirim
+	var table3 = $("#datatablessk").DataTable({
+		"processing": true,
+		"order": [0, "desc"],
+		"columnDefs":[
+			{
+				"targets": [0],
+				"visible": true,
+				"searchable": false
+			},
+		],
+	});
+		
+	$('#datatablessk tbody').on('click', 'td', function () {
+		var data3 = table3.row( $(this).closest('tr') ).data();
+		if ($(this).index() == 7)
+			return;
+		else
+			window.open("invoice/showsewakirim/" + data3[0],"_self");
+	});
 
 	// Invoice Jual
-	var table3 = $("#datatablesj").DataTable({
+	var table4 = $("#datatablesj").DataTable({
 		"processing": true,
 		"order": [0, "desc"],
 		"columnDefs":[
@@ -307,15 +422,15 @@ $(document).ready(function () {
 	});
 		
 	$('#datatablesj tbody').on('click', 'td', function () {
-		var data3 = table3.row( $(this).closest('tr') ).data();
+		var data4 = table4.row( $(this).closest('tr') ).data();
 		if ($(this).index() == 6)
 			return;
 		else
-			window.open("invoice/showjual/"+ data3[0],"_self");
+			window.open("invoice/showjual/"+ data4[0],"_self");
 	});
 	
 	// Invoice Jual Pisah
-	var table4 = $("#datatablesjp").DataTable({
+	var table5 = $("#datatablesjp").DataTable({
 		"processing": true,
 		"order": [0, "desc"],
 		"columnDefs":[
@@ -328,15 +443,36 @@ $(document).ready(function () {
 	});
 		
 	$('#datatablesjp tbody').on('click', 'td', function () {
-		var data4 = table4.row( $(this).closest('tr') ).data();
+		var data5 = table5.row( $(this).closest('tr') ).data();
 		if ($(this).index() == 6)
 			return;
 		else
-			window.open("invoice/showjualpisah/"+ data4[0],"_self");
+			window.open("invoice/showjualpisah/"+ data5[0],"_self");
+	});
+	
+	// Invoice Jual Kirim
+	var table6 = $("#datatablesjk").DataTable({
+		"processing": true,
+		"order": [0, "desc"],
+		"columnDefs":[
+			{
+				"targets": [0],
+				"visible": true,
+				"searchable": false
+			},
+		],
+	});
+		
+	$('#datatablesjk tbody').on('click', 'td', function () {
+		var data6 = table6.row( $(this).closest('tr') ).data();
+		if ($(this).index() == 7)
+			return;
+		else
+			window.open("invoice/showjualkirim/" + data6[0],"_self");
 	});
 
 	//Invoice Claim
-	var table5 = $("#datatablesc").DataTable({
+	var table7 = $("#datatablesc").DataTable({
 		"processing": true,
     "order": [0, "desc"],
 		"columnDefs":[
@@ -349,11 +485,11 @@ $(document).ready(function () {
 	});
 		
 	$('#datatablesc tbody').on('click', 'td', function () {
-		var data5 = table5.row( $(this).closest('tr') ).data();
+		var data7 = table7.row( $(this).closest('tr') ).data();
 		if ($(this).index() == 6)
 			return;
 		else
-			window.open("invoice/showclaim/"+ data5[0],"_self");
+			window.open("invoice/showclaim/"+ data7[0],"_self");
 	});
 });
 

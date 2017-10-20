@@ -75,7 +75,7 @@ class TransaksiController extends Controller
 				$join->on('T1.Reference', '=', 'periode.Reference')
 				->on('T1.IsiSJKir', '=', 'periode.IsiSJKir');
 			})
-			->leftJoin(DB::raw('(select Reference, IsiSJKir, MAX(Periode) AS maxperiode from Periode group by Reference) AS per'), function($join){
+			->leftJoin(DB::raw('(select Reference, IsiSJKir, MAX(Periode) AS maxperiode from periode group by Reference) AS per'), function($join){
 				$join->on('per.Reference', '=', 'periode.Reference');
 				$join->on('per.IsiSJKir', '=', 'periode.IsiSJKir');
 			})
@@ -109,7 +109,7 @@ class TransaksiController extends Controller
 				$join->on('T1.Reference', '=', 'periode.Reference')
 				->on('T1.IsiSJKir', '=', 'periode.IsiSJKir');
 			})
-			->leftJoin(DB::raw('(select Reference, IsiSJKir, MAX(Periode) AS maxperiode from Periode group by Reference) AS per'), function($join){
+			->leftJoin(DB::raw('(select Reference, IsiSJKir, MAX(Periode) AS maxperiode from periode group by Reference) AS per'), function($join){
 				$join->on('per.Reference', '=', 'periode.Reference');
 				$join->on('per.IsiSJKir', '=', 'periode.IsiSJKir');
 			})
@@ -147,7 +147,7 @@ class TransaksiController extends Controller
 				$join->on('T1.Reference', '=', 'periode.Reference')
 				->on('T1.IsiSJKir', '=', 'periode.IsiSJKir');
 			})
-			->leftJoin(DB::raw('(select Reference, IsiSJKir, MAX(Periode) AS maxperiode from Periode group by Reference) AS per'), function($join){
+			->leftJoin(DB::raw('(select Reference, IsiSJKir, MAX(Periode) AS maxperiode from periode group by Reference) AS per'), function($join){
 				$join->on('per.Reference', '=', 'periode.Reference');
 				$join->on('per.IsiSJKir', '=', 'periode.IsiSJKir');
 			})
@@ -273,7 +273,7 @@ class TransaksiController extends Controller
 			->leftJoin(DB::raw(sprintf( '(%s) AS T2', $T2->toSql() )), function($join){
 				$join->on('T2.Reference', '=', 'periode.Reference');
 			})
-			->leftJoin(DB::raw('(select Reference, IsiSJKir, MAX(Periode) AS maxperiode from Periode group by Reference) AS per'), function($join){
+			->leftJoin(DB::raw('(select Reference, IsiSJKir, MAX(Periode) AS maxperiode from periode group by Reference) AS per'), function($join){
 				$join->on('per.Reference', '=', 'periode.Reference');
 				$join->on('per.IsiSJKir', '=', 'periode.IsiSJKir');
 			})

@@ -54,11 +54,11 @@
       </ul>
     </li>
 		<li class="treeview @if ($top_menu_sel=="user_view" || $top_menu_sel=="user_add") active @endif">
-			<a href="#">Users
-				<span class="pull-right-container">
-					<i class="fa fa-angle-left pull-right"></i>
-				</span>
-			</a>
+			<a href="#">
+        <i class="fa fa-user"></i>
+        <span>Users</span>
+        <i class="fa fa-angle-left pull-right"></i>
+      </a>
 			<ul class="treeview-menu">
 				<li @if ($top_menu_sel=="user_view") class="active" @endif><a href="/user">View Users</a></li>
 				<li @if ($top_menu_sel=="user_add") class="active" @endif><a href="/add/user">Add Users</a></li>

@@ -83,8 +83,8 @@
                         <td>{{ $purchase -> POCode }}</td>
 												<td>{{ $purchase -> JS }}</td>
 												<td>{{ $purchase -> Barang }}</td>
-												@if($purchase -> QKirim)
-													<td>{{ $purchase -> QKirim .' / '. $purchase -> Quantity }}</td>
+												@if($purchase -> QTertanda)
+													<td>{{ $purchase -> QTertanda .' / '. $purchase -> Quantity }}</td>
 												@else
 													<td>{{ 0 .' / '. $purchase -> Quantity }}</td>
 												@endif
@@ -167,7 +167,8 @@
 									<a href="{{route('sjkembali.create', 'id='.$detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-warning pull-right" @endif>SJ Kembali</button></a>
 									<a href="{{route('transaksi.claimcreate', $detail->pocusid)}}">	<button type="button" style="margin-right: 5px;" @if ( $sjkemcheck == 0 ) class="btn btn-default pull-right" disabled @else class="btn btn-info pull-right" @endif>Claim</button></a>
 									<button type="button" id="editinv" style="margin-right: 5px;" class="btn btn-info pull-right"> Edit Invoice</button>
-									<a href="{{route('reference.edit', $detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right" @endif>Edit</button></a>
+									<!--<a href="{{route('reference.edit', $detail->pocusid)}}"><button type="button" style="margin-right: 5px;" @if ( $pocheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-primary pull-right" @endif>Edit</button></a>-->
+									<a href="{{route('reference.edit', $detail->pocusid)}}"><button type="button" style="margin-right: 5px;" class="btn btn-primary pull-right">Edit</button></a>
 									<a href="{{route('po.create', 'id=' .$detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert PO</button></a>
                   <a href="{{route('po.create2', $detail -> pocusid)}}"><button type="button" style="margin-right: 5px;" class="btn btn-success pull-right">Insert Penawaran PO</button></a>
 									<button type="button" style="margin-right: 5px;" id="delete" @if ( $delcheck == 1 )	class="btn btn-default pull-right" disabled	@else	class="btn btn-danger pull-right"	@endif>Delete</button>
@@ -405,8 +406,7 @@
           <div class="form-group">
             {!! Form::label('INVP', 'Split Invoice', ['class' => 'col-lg-3']) !!}
 						<div class="input-group">
-							{!! Form::checkbox('INVP', 1, $detail->INVP, ['id' => 'INVP', 'class' => 'minimal']) !!}
-							{!! Form::label('INVP', 'Split Invoice based on PO') !!}
+							{!! Form::select('INVP', array('0'=>'None', '1'=>'Split Invoice based on PO', '2'=>'Split Invoice based on SJKirim'), $detail->INVP, array('id'=> 'INVP', 'class'=>'form-control')) !!}
 						</div>
           </div>
         </div>
@@ -579,7 +579,7 @@ $("#editinv").click(function(){
 //When edit form is submitted
 $("#editform").submit(function(event){
   $(".loading").show();
-  $.post( "transportinvoice",{ "_token": "{{ csrf_token() }}", editreferenceid: $("#editreferenceid").val(), PPN: $("#PPN:checked").val(), PPNT: $("#PPNT:checked").val(), INVP: $("#INVP:checked").val()}, function( data ) {})
+  $.post( "transportinvoice",{ "_token": "{{ csrf_token() }}", editreferenceid: $("#editreferenceid").val(), PPN: $("#PPN:checked").val(), PPNT: $("#PPNT:checked").val(), INVP: $("#INVP").val()}, function( data ) {})
   .done(function(data){
     location.reload();
     $('#editmodal').modal('toggle');

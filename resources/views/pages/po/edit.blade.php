@@ -95,7 +95,7 @@ $(function() {
 	  format: "dd/mm/yyyy",
 	  todayHighlight: true,
 	  autoclose: true,
-	  startDate: '{{$min}}',
+	  //startDate: '{{$min}}',
   }); 
 }); 
 

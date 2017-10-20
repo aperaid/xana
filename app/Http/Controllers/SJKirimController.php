@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Customer;
 use App\PO;
 use App\Periode;
 use App\SJKirim;
@@ -15,6 +16,7 @@ use App\Transaksi;
 use App\TransaksiHilang;
 use App\History;
 use App\Invoice;
+use App\InvoiceKirim;
 use App\InvoicePisah;
 use App\Inventory;
 use Session;
@@ -338,6 +340,64 @@ class SJKirimController extends Controller
 			->first();
 			$data->update([$warehouse => $data->$warehouse - $input['QKirim'][$key]]);
 		}
+		
+		//insert to invoice based on sj kirim
+		//get last periode if exist
+		$maxperiode = Periode::where('Reference', $Reference)
+		->max('Periode');
+		if(isset($maxperiode))
+			$periode = $maxperiode;
+		else
+			$periode = 1;
+		
+		//get first count for periode that start from 1 after new year if exist
+		$firstcount = Invoice::where('Reference', $Reference)
+		->where('Periode', $maxperiode)
+		->first();
+		if(isset($firstcount))
+			$count = $firstcount->Count;
+		else
+			$count = 1;
+		
+		//get termin if exist
+		$firsttermin = Invoice::where('Reference', $Reference)
+		->first();
+		if(isset($firsttermin))
+			$termin = $firsttermin->Termin;
+		else
+			$termin = 0;
+		
+		$PPN = Customer::leftJoin('project', 'customer.CCode', '=', 'project.CCode')
+		->leftJoin('pocustomer', 'project.PCode', '=', 'pocustomer.PCode')
+		->where('Reference', $Reference)
+		->first()->PPN;
+		
+		$abjad = InvoiceKirim::where('Reference', $Reference)->max('Abjad');
+		if($abjad==0)
+			$x = 1;
+		else
+			$x = $abjad+1;
+		if($x==1)$y='';else if($x==2)$y='A';else if($x==3)$y='B';else if($x==4)$y='C';else if($x==5)$y='D';else if($x==6)$y='E';else if($x==7)$y='F';else if($x==8)$y='G';else if($x==9)$y='H';else if($x==10)$y='I';else if($x==11)$y='J';else if($x==12)$y='K';else if($x==13)$y='L';else if($x==14)$y='M';else if($x==15)$y='N';else if($x==16)$y='O';else if($x==17)$y='P';else if($x==18)$y='Q';else if($x==19)$y='R';else if($x==20)$y='S';else if($x==21)$y='T';else if($x==22)$y='U';else if($x==23)$y='V';else if($x==24)$y='W';else if($x==25)$y='X';else if($x==26)$y='Y';else if($x==27)$y='Z';
+
+		$last_invoicekirim = InvoiceKirim::max('id')+1;
+		$invoicekirim = new InvoiceKirim;
+		$invoicekirim->id = $last_invoicekirim;
+		if($JS=="Sewa"){
+			$invoicekirim->Invoice = $SJKir.$y."/".$count."/".substr($Tgl, 3, -5).substr($Tgl, 6)."/BDN";
+		}else{
+			$invoicekirim->Invoice = $SJKir.$y."/".substr($Tgl, 3, -5)."/".substr($Tgl, 6);
+		}
+		$invoicekirim->JSC = $JS;
+		$invoicekirim->Tgl = $Tgl;
+		$invoicekirim->Reference = $Reference;
+		$invoicekirim->Periode = $input['Periode'];
+		$invoicekirim->PPN = $PPN;
+		$invoicekirim->Count = $count;
+		$invoicekirim->Termin = $termin;
+		$invoicekirim->Times = 1;
+		$invoicekirim->SJKir = $SJKir;
+		$invoicekirim->Abjad = $x;
+		$invoicekirim->save();
 		
 		$history = new History;
 		$history->User = Auth::user()->name;

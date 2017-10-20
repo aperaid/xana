@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Invoice;
 use App\InvoicePisah;
+use App\InvoiceKirim;
 use App\Periode;
 use App\Transaksi;
 use App\SJKirim;
@@ -302,6 +303,137 @@ class InvoiceController extends Controller
       return redirect()->back();
 	}
 	
+	public function getInvoiceSewaKirim($id){
+    $invoice = InvoiceKirim::find($id);
+    
+    $invoice = InvoiceKirim::select([
+      'invoicekirim.*',
+      'pocustomer.id as pocusid',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
+      'project.Project',
+      'customer.Company',
+    ])
+    ->leftJoin('pocustomer', 'invoicekirim.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoicekirim.Invoice', $invoice->Invoice)
+    ->first();
+    
+    $periodes = Periode::select([
+      'sjkirim.SJKir',
+      'transaksi.Purchase',
+      'transaksi.Barang',
+      'transaksi.Amount',
+      'transaksi.POCode',
+			DB::raw('SUM(periode.Quantity) as SumQuantity'),
+      'periode.S',
+      'periode.E',
+      'periode.SJKem',
+      'periode.Deletes',
+      'periode.Periode',
+    ])
+    ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+    ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+    ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+		->where('isisjkirim.SJKir', $invoice->SJKir)
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Sewa')
+    ->where('periode.Periode', $invoice->Periode)
+    //->where('periode.Quantity', '!=' , 0)
+    ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
+    ->orderBy('periode.id', 'asc')
+    ->get();
+		
+    $sjkemcheck = 0;
+    $kemexist = Transaksi::where('transaksi.Reference', $invoice -> Reference)
+    ->count();
+    $kemfound = Transaksi::selectRaw('SUM(QSisaKem) as kemfound')
+    ->where('transaksi.Reference', $invoice -> Reference)
+    ->first();
+    if($kemexist == 0){
+      $sjkemcheck = 0;
+    }else{
+      if($kemfound -> kemfound == 0){
+				$sjkemcheck = 0;
+			}else{
+				$sjkemcheck = 1;
+			}
+		}
+
+    $total = 0;
+    foreach($periodes as $key => $periode){
+      $start = $periode->S;
+      $end = $periode->E;
+
+      $start2 = str_replace('/', '-', $start);
+      $end2 = str_replace('/', '-', $end);
+      $start3[] = strtotime($start2);
+      $end3[] = strtotime($end2);
+
+      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
+
+      $Days = str_replace('/', ',', $start);
+      $M = substr($Days, 3, -5);
+      $Y = substr($Days, 6);
+      $Days2[] = cal_days_in_month(CAL_GREGORIAN, $M, $Y);
+      
+      $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
+      
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*$periode->Amount;
+      $total += $total2[$key];
+    }
+
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
+			$toss = 0;
+			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
+		}
+
+    $Discount = $total*$invoice->podisc/100;
+
+		$Transport = $toss*($invoice->TimesKembali+$invoice->Times);
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
+    else
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*($invoice->TimesKembali+$invoice->Times);
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount-$invoice->Discount-$invoice->Pembulatan;
+		
+		$tglterima = str_replace('/', '-', $invoice->TglTerima);
+		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
+    
+    if(in_array("showsewapisah", $this->access)){
+      return view('pages.invoice.showsewakirim')
+      ->with('url', 'invoice')
+      ->with('invoice', $invoice)
+      ->with('periodes', $periodes)
+      ->with('sjkemcheck', $sjkemcheck)
+			->with('SE', $SE)
+      ->with('Days2', $Days2)
+      ->with('I', $I)
+      ->with('toss', $toss)
+      ->with('total', $total)
+      ->with('GrandTotal', $GrandTotal)
+      ->with('Discount', $Discount)
+      ->with('Pajak', $Pajak)
+      ->with('Transport', $Transport)
+			->with('GrandTotalTransport', $GrandTotalTransport)
+			->with('duedate', $duedate)
+			->with('total2', $total2)
+      ->with('top_menu_sel', 'menu_invoice')
+      ->with('page_title', 'Invoice Sewa Kirim')
+      ->with('page_description', 'View');
+    }else
+      return redirect()->back();
+	}
+	
   public function postInvoiceSewa(Request $request, $id){
     $invoice = Invoice::find($id);
 		$invoice->Times = $request->Times;
@@ -380,6 +512,46 @@ class InvoiceController extends Controller
     Session::flash('message', 'Update is successful!');
     
     return redirect()->route('invoice.showsewapisah', $id);
+  }
+	
+	public function postInvoiceSewaKirim(Request $request, $id){
+    $invoicekirim = InvoiceKirim::find($id);
+		$invoicekirim->Times = $request->Times;
+		$invoicekirim->TimesKembali = $request->TimesKembali;
+    $invoicekirim->Discount = str_replace(".","",substr($request->Discount, 3));
+		$invoicekirim->TglTerima = $request->TglTerima;
+		$invoicekirim->Termin = $request->Termin;
+    $invoicekirim->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
+    $invoicekirim->Catatan = $request->Catatan;
+    $invoicekirim->save();
+		
+		$invoice = Invoice::where('Reference', $invoicekirim->Reference)
+		->where('Periode', $invoicekirim->Periode)
+		->where('JSC', 'Sewa')
+		->first();
+		
+		$totaltimes = InvoiceKirim::where('Reference', $invoicekirim->Reference)
+		->where('Periode', $invoicekirim->Periode)
+		->where('JSC', 'Sewa')
+		->get();
+    
+    $invoice = Invoice::find($invoice->id);
+		$invoice->Times = $totaltimes->sum('Times');
+		$invoice->TimesKembali = $totaltimes->sum('TimesKembali');
+		$invoice->TglTerima = $invoicekirim->TglTerima;
+		$invoice->Termin = $invoicekirim->Termin;
+    //$invoicekirim->Discount = str_replace(".","",substr($request->Discount, 3));
+    //$invoicekirim->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
+		$invoice->save();
+    
+    $history = new History;
+    $history->User = Auth::user()->name;
+    $history->History = 'Update invoice on Invoice Kirim '.$request['Invoice'];
+    $history->save();
+
+    Session::flash('message', 'Update is successful!');
+    
+    return redirect()->route('invoice.showsewakirim', $id);
   }
   
   public function getBAS($id){
@@ -543,7 +715,115 @@ class InvoiceController extends Controller
     }
     $Quantity = $periodes->sum('SumQuantity');
     
-    $document = $phpWord->loadTemplate(public_path('/template/BA.docx'));
+    $document = $phpWord->loadTemplate(public_path('/template/BAS.docx'));
+    
+    $document->setValue('Company', ''.$invoice->Company.'');
+    $document->setValue('CompAlamat', ''.$invoice->CompAlamat.'');
+    $document->setValue('CompPhone', ''.$invoice->CompPhone.'');
+    $document->setValue('PCode', ''.$invoice->PCode.'');
+    $document->setValue('Project', ''.$invoice->Project.'');
+    $document->setValue('Invoice', ''.$invoice->Invoice.'');
+    $document->setValue('S', ''.$firststart[0].'');
+    $document->setValue('E', ''.$end.'');
+    $document->setValue('Quantity', ''.$Quantity.'');
+    $document->setValue('PEO', ''.$periodes->first()->POCode.'');
+
+    foreach ($periodes as $key => $periodes)
+    {
+      $key2 = $key+1;
+      $document->setValue('Key'.$key, ''.$key2.'');
+      $document->setValue('Barang'.$key, ''.$periodes->Barang.'');
+      $document->setValue('S'.$key, ''.$periodes->S.'');
+      $document->setValue('E'.$key, ''.$periodes->E.'');
+      $document->setValue('SE'.$key, ''.$SE[$key].'');
+      $document->setValue('Quantity'.$key, ''.$periodes->SumQuantity.'');
+      $document->setValue('Sat'.$key, 'PCS');
+    }
+    
+    for($x=0;$x<20;$x++){
+      $document->setValue('Key'.$x, '');
+      $document->setValue('Barang'.$x, '');
+      $document->setValue('S'.$x, '');
+      $document->setValue('E'.$x, '');
+      $document->setValue('SE'.$x, '');
+      $document->setValue('Quantity'.$x, '');
+      $document->setValue('Sat'.$x, '');
+    }
+    
+    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+    if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\BA\BA_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\BA\BA_", $user);
+    $clear = str_replace("/","_",$invoice->Invoice);
+    $download = sprintf('BA_%s.docx', $clear);
+    
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name BA_'.$download);
+    //return redirect()->route('invoice.showsewapisah', $id);
+  }
+	
+	public function getBAKirim($id){
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    $invoice = InvoiceKirim::find($id);
+    
+    $invoice = InvoiceKirim::select([
+      'invoicekirim.*',
+      'project.*',
+      'customer.*',
+    ])
+    ->leftJoin('pocustomer', 'invoicekirim.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoicekirim.Invoice', $invoice->Invoice)
+    ->first();
+		
+    $periodes = Periode::select([
+      'transaksi.Barang',
+      'periode.S',
+      'periode.E',
+      DB::raw('SUM(periode.Quantity) as SumQuantity'),
+      'transaksi.POCode'
+    ])
+    ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+    ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+    ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+    ->where('isisjkirim.SJKir', $invoice->SJKir)
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', $invoice->JSC)
+    ->where('periode.Periode', $invoice->Periode)
+    //->where('periode.Quantity', '!=' , 0)
+    ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
+    ->orderBy('periode.id', 'asc')
+    ->get();
+    
+    $firststart = $periodes->pluck('S');
+    
+    foreach($periodes as $key => $periode){
+      $start = $periode->S;
+      $end = $periode->E;
+
+      $start2 = str_replace('/', '-', $start);
+      $end2 = str_replace('/', '-', $end);
+      $start3[] = strtotime($start2);
+      $end3[] = strtotime($end2);
+
+      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
+    }
+    $Quantity = $periodes->sum('SumQuantity');
+    
+    $document = $phpWord->loadTemplate(public_path('/template/BAS.docx'));
     
     $document->setValue('Company', ''.$invoice->Company.'');
     $document->setValue('CompAlamat', ''.$invoice->CompAlamat.'');
@@ -847,6 +1127,165 @@ class InvoiceController extends Controller
 		->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
 		->where('po.POCode', $invoice->POCode)
+    ->where('transaksi.JS', 'Sewa')
+    ->where('periode.Periode', $invoice->Periode)
+    //->where('periode.Quantity', '!=' , 0)
+    ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
+    ->orderBy('periode.id', 'asc')
+    ->get();
+    
+    $total = 0;
+    foreach($periodes as $key => $periode){
+      $start = $periode->S;
+      $end = $periode->E;
+
+      $start2 = str_replace('/', '-', $start);
+      $end2 = str_replace('/', '-', $end);
+      $start3[] = strtotime($start2);
+      $end3[] = strtotime($end2);
+
+      $duedate = date('d/m/Y', strtotime($end2."+4 days"));
+      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
+
+      $Days = str_replace('/', ',', $start);
+      $M = substr($Days, 3, -5);
+      $Y = substr($Days, 6);
+      $Days2[] = cal_days_in_month(CAL_GREGORIAN, $M, $Y);
+      
+      $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
+      
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*$periode->Amount;
+      $total += $total2[$key];
+    }
+
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
+			$toss = 0;
+			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
+		}
+    
+    $Discount = $total*$invoice->podisc/100;
+
+		$Transport = $toss*($invoice->TimesKembali+$invoice->Times);
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
+    else
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*($invoice->TimesKembali+$invoice->Times);
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount;
+    
+    if($invoice->PPN==1)
+      $document = $phpWord->loadTemplate(public_path('/template/Invsp.docx'));
+    else
+      $document = $phpWord->loadTemplate(public_path('/template/Invsnp.docx'));
+    
+    $document->setValue('Company', ''.$invoice->Company.'');
+    $document->setValue('CompAlamat', ''.$invoice->CompAlamat.'');
+    $document->setValue('CompPhone', ''.$invoice->CompPhone.'');
+    $document->setValue('PCode', ''.$invoice->PCode.'');
+    $document->setValue('Project', ''.$invoice->Project.'');
+    $document->setValue('Invoice', ''.$invoice->Invoice.'');
+    $document->setValue('S', ''.$periodes->first()->S.'');
+    $document->setValue('E', ''.$end.'');
+    $document->setValue('DueDate', ''.$duedate.'');
+    $document->setValue('POCode', ''.$periodes->first()->POCode.'');
+    $document->setValue('Quantity', ''.$periodes->sum('SumQuantity').'');
+    $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($Transport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
+
+    foreach ($periodes as $key => $periode)
+    {
+      $key2 = $key+1;
+      $document->setValue('Key'.$key, ''.$key2.'');
+      $document->setValue('Barang'.$key, ''.$periode->Barang.'');
+      $document->setValue('S'.$key, ''.$periode->S.'');
+      $document->setValue('E'.$key, ''.$periode->E.'');
+      $document->setValue('SE'.$key, ''.$SE[$key].'');
+      $document->setValue('I'.$key, ''.$I[$key].'');
+      $document->setValue('Quantity'.$key, ''.$periode->SumQuantity.'');
+      $document->setValue('Sat'.$key, 'PCS');
+      $document->setValue('Price'.$key, ''.number_format($periode->Amount, 0, ',', '.').'');
+      $document->setValue('Total'.$key, ''.number_format($total2[$key], 0, ',', '.').'');
+    }
+    
+    for($x=0;$x<20;$x++){
+      $document->setValue('Key'.$x, '');
+      $document->setValue('Barang'.$x, '');
+      $document->setValue('S'.$x, '');
+      $document->setValue('E'.$x, '');
+      $document->setValue('SE'.$x, '');
+      $document->setValue('I'.$x, '');
+      $document->setValue('Quantity'.$x, '');
+      $document->setValue('Sat'.$x, '');
+      $document->setValue('Price'.$x, '');
+      $document->setValue('Total'.$x, '');
+    }
+    
+    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+    if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\INV\INV_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\SEWA\INV\INV_", $user);
+    $clear = str_replace("/","_",$invoice->Invoice);
+    $download = sprintf('INV_%s.docx', $clear);
+    
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
+    //return redirect()->route('invoice.showsewapisah', $id);
+  }
+	
+	public function getInvsKirim($id){
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    $invoice = InvoiceKirim::find($id);
+    
+    $invoice = InvoiceKirim::select([
+      'invoicekirim.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
+      'project.*',
+      'customer.*',
+    ])
+    ->leftJoin('pocustomer', 'invoicekirim.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoicekirim.Invoice', $invoice->Invoice)
+    ->first();
+    
+    $periodes = Periode::select([
+      'transaksi.Barang',
+      'transaksi.Amount',
+      'periode.S',
+      'periode.E',
+      DB::raw('SUM(periode.Quantity) as SumQuantity'),
+      'transaksi.POCode',
+    ])
+    ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+    ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+		->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+		->where('isisjkirim.SJKir', $invoice->SJKir)
+    ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Sewa')
     ->where('periode.Periode', $invoice->Periode)
     //->where('periode.Quantity', '!=' , 0)
@@ -1282,6 +1721,159 @@ class InvoiceController extends Controller
 		//Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
     //return redirect()->route('invoice.showsewapisah', $id);
   }
+	
+	public function getInvstKirim($id){
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    $invoice = InvoiceKirim::find($id);
+    
+    $invoice = InvoiceKirim::select([
+      'invoicekirim.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
+      'project.*',
+      'customer.*',
+    ])
+    ->leftJoin('pocustomer', 'invoicekirim.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoicekirim.Invoice', $invoice->Invoice)
+    ->first();
+    
+    $periodes = Periode::select([
+      'transaksi.Barang',
+      'transaksi.Amount',
+      'periode.S',
+      'periode.E',
+      DB::raw('SUM(periode.Quantity) as SumQuantity'),
+      'transaksi.POCode',
+    ])
+    ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+    ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+    ->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+		->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+		->where('isisjkirim.SJKir', $invoice->SJKir)
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Sewa')
+    ->where('periode.Periode', $invoice->Periode)
+    //->where('periode.Quantity', '!=' , 0)
+    ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
+    ->orderBy('periode.id', 'asc')
+    ->get();
+    
+    $total = 0;
+    foreach($periodes as $key => $periode){
+      $start = $periode->S;
+      $end = $periode->E;
+
+      $start2 = str_replace('/', '-', $start);
+      $end2 = str_replace('/', '-', $end);
+      $start3[] = strtotime($start2);
+      $end3[] = strtotime($end2);
+
+      $duedate = date('d/m/Y', strtotime($end2."+4 days"));
+      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
+
+      $Days = str_replace('/', ',', $start);
+      $M = substr($Days, 3, -5);
+      $Y = substr($Days, 6);
+      $Days2[] = cal_days_in_month(CAL_GREGORIAN, $M, $Y);
+      
+      $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
+      
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*$periode->Amount;
+      //$total += $total2[$key];
+    }
+    
+    if($invoice->PPN == 1 && $invoice->PPNT==0){
+			$toss = 0;
+			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
+		}
+    
+    $Discount = $total*$invoice->podisc/100;
+
+		$Transport = $toss*($invoice->TimesKembali+$invoice->Times);
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
+    else
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*($invoice->TimesKembali+$invoice->Times);
+		
+		$GrandTotal = $total+$GrandTotalTransport+$Pajak-$Discount;
+    
+    $document = $phpWord->loadTemplate(public_path('/template/Invst.docx'));
+    
+    $document->setValue('Company', ''.$invoice->Company.'');
+    $document->setValue('CompAlamat', ''.$invoice->CompAlamat.'');
+    $document->setValue('CompPhone', ''.$invoice->CompPhone.'');
+    $document->setValue('PCode', ''.$invoice->PCode.'');
+    $document->setValue('Project', ''.$invoice->Project.'');
+    $document->setValue('Invoice', ''.$invoice->Invoice.'');
+    $document->setValue('S', ''.$periodes->first()->S.'');
+    $document->setValue('E', ''.$end.'');
+    $document->setValue('DueDate', ''.$duedate.'');
+    $document->setValue('POCode', ''.$periodes->first()->POCode.'');
+    $document->setValue('Quantity', ''.$periodes->sum('SumQuantity').'');
+    $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($GrandTotalTransport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
+
+    foreach ($periodes as $key => $periode)
+    {
+      $key2 = $key+1;
+      $document->setValue('Key'.$key, ''.$key2.'');
+      $document->setValue('Barang'.$key, ''.$periode->Barang.'');
+      $document->setValue('S'.$key, ''.$periode->S.'');
+      $document->setValue('E'.$key, ''.$periode->E.'');
+      $document->setValue('SE'.$key, ''.$SE[$key].'');
+      $document->setValue('I'.$key, ''.$I[$key].'');
+      $document->setValue('Quantity'.$key, ''.'0'.'');
+      $document->setValue('Sat'.$key, 'PCS');
+      $document->setValue('Price'.$key, ''.number_format($periode->Amount, 0, ',', '.').'');
+      $document->setValue('Total'.$key, ''.'0'.'');
+    }
+    
+    for($x=0;$x<20;$x++){
+      $document->setValue('Key'.$x, '');
+      $document->setValue('Barang'.$x, '');
+      $document->setValue('S'.$x, '');
+      $document->setValue('E'.$x, '');
+      $document->setValue('SE'.$x, '');
+      $document->setValue('I'.$x, '');
+      $document->setValue('Quantity'.$x, '');
+      $document->setValue('Sat'.$x, '');
+      $document->setValue('Price'.$x, '');
+      $document->setValue('Total'.$x, '');
+    }
+    
+    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+		$path = sprintf("C:\Users\Public\Documents\PPN\SEWA\INV\INVT_");
+    $clear = str_replace("/","_",$invoice->Invoice);
+    $download = sprintf('INVT_%s.docx', $clear);
+    
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
+    //return redirect()->route('invoice.showsewapisah', $id);
+  }
 
   public function getInvoiceJual($id){
     $invoice = Invoice::find($id);
@@ -1467,6 +2059,137 @@ class InvoiceController extends Controller
       return redirect()->back();
 	}
 	
+	public function getInvoiceJualKirim($id){
+    $invoice = InvoiceKirim::find($id);
+    
+    $invoice = InvoiceKirim::select([
+      'invoicekirim.*',
+      'pocustomer.id as pocusid',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
+      'project.Project',
+      'customer.Company',
+    ])
+    ->leftJoin('pocustomer', 'invoicekirim.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoicekirim.Invoice', $invoice->Invoice)
+    ->first();
+    
+    $periodes = Periode::select([
+      'sjkirim.SJKir',
+      'transaksi.Purchase',
+      'transaksi.Barang',
+      'transaksi.Amount',
+      'transaksi.POCode',
+			DB::raw('SUM(periode.Quantity) as SumQuantity'),
+      'periode.S',
+      'periode.E',
+      'periode.SJKem',
+      'periode.Deletes',
+      'periode.Periode',
+    ])
+    ->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+    ->leftJoin('transaksi', 'isisjkirim.Purchase', '=', 'transaksi.Purchase')
+    ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+		->where('isisjkirim.SJKir', $invoice->SJKir)
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Jual')
+    ->where('periode.Periode', $invoice->Periode)
+    //->where('periode.Quantity', '!=' , 0)
+    ->groupBy('transaksi.ICode', 'sjkirim.SJKir', 'periode.S', 'periode.Deletes')
+    ->orderBy('periode.id', 'asc')
+    ->get();
+		
+    $sjkemcheck = 0;
+    $kemexist = Transaksi::where('transaksi.Reference', $invoice -> Reference)
+    ->count();
+    $kemfound = Transaksi::selectRaw('SUM(QSisaKem) as kemfound')
+    ->where('transaksi.Reference', $invoice -> Reference)
+    ->first();
+    if($kemexist == 0){
+      $sjkemcheck = 0;
+    }else{
+      if($kemfound -> kemfound == 0){
+				$sjkemcheck = 0;
+			}else{
+				$sjkemcheck = 1;
+			}
+		}
+
+    $total = 0;
+    foreach($periodes as $key => $periode){
+      $start = $periode->S;
+      $end = $periode->E;
+
+      $start2 = str_replace('/', '-', $start);
+      $end2 = str_replace('/', '-', $end);
+      $start3[] = strtotime($start2);
+      $end3[] = strtotime($end2);
+
+      $SE[] = round((($end3[$key] - $start3[$key]) / 86400),1)+1;
+
+      $Days = str_replace('/', ',', $start);
+      $M = substr($Days, 3, -5);
+      $Y = substr($Days, 6);
+      $Days2[] = cal_days_in_month(CAL_GREGORIAN, $M, $Y);
+      
+      $I[] = round(((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key], 4);
+      
+      $total2[] = ((($end3[$key] - $start3[$key]) / 86400)+1)/$Days2[$key]*$periode->SumQuantity*$periode->Amount;
+      $total += $total2[$key];
+    }
+
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
+			$toss = 0;
+			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
+		}
+
+    $Discount = $total*$invoice->podisc/100;
+
+		$Transport = $toss*($invoice->TimesKembali+$invoice->Times);
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
+    else
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*($invoice->TimesKembali+$invoice->Times);
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount-$invoice->Discount-$invoice->Pembulatan;
+		
+		$tglterima = str_replace('/', '-', $invoice->TglTerima);
+		$duedate = date('d/m/Y', strtotime($tglterima."+".$invoice->Termin." days"));
+    
+    if(in_array("showsewapisah", $this->access)){
+      return view('pages.invoice.showjualkirim')
+      ->with('url', 'invoice')
+      ->with('invoice', $invoice)
+      ->with('periodes', $periodes)
+      ->with('sjkemcheck', $sjkemcheck)
+			->with('SE', $SE)
+      ->with('Days2', $Days2)
+      ->with('I', $I)
+      ->with('toss', $toss)
+      ->with('total', $total)
+      ->with('GrandTotal', $GrandTotal)
+      ->with('Discount', $Discount)
+      ->with('Pajak', $Pajak)
+      ->with('Transport', $Transport)
+			->with('GrandTotalTransport', $GrandTotalTransport)
+			->with('duedate', $duedate)
+			->with('total2', $total2)
+      ->with('top_menu_sel', 'menu_invoice')
+      ->with('page_title', 'Invoice Jual Kirim')
+      ->with('page_description', 'View');
+    }else
+      return redirect()->back();
+	}
+	
   public function postInvoiceJual(Request $request, $id){
     $invoice = Invoice::find($id);
 		$invoice->Times = $request->Times;
@@ -1535,6 +2258,46 @@ class InvoiceController extends Controller
     Session::flash('message', 'Update is successful!');
     
     return redirect()->route('invoice.showjualpisah', $id);
+  }
+	
+	public function postInvoiceJualKirim(Request $request, $id){
+    $invoicekirim = InvoiceKirim::find($id);
+		$invoicekirim->Times = $request->Times;
+		$invoicekirim->TimesKembali = $request->TimesKembali;
+    $invoicekirim->Discount = str_replace(".","",substr($request->Discount, 3));
+		$invoicekirim->TglTerima = $request->TglTerima;
+		$invoicekirim->Termin = $request->Termin;
+    $invoicekirim->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
+    $invoicekirim->Catatan = $request->Catatan;
+    $invoicekirim->save();
+		
+		$invoice = Invoice::where('Reference', $invoicekirim->Reference)
+		->where('Periode', $invoicekirim->Periode)
+		->where('JSC', 'Jual')
+		->first();
+		
+		$totaltimes = InvoiceKirim::where('Reference', $invoicekirim->Reference)
+		->where('Periode', $invoicekirim->Periode)
+		->where('JSC', 'Jual')
+		->get();
+    
+    $invoice = Invoice::find($invoice->id);
+		$invoice->Times = $totaltimes->sum('Times');
+		$invoice->TimesKembali = $totaltimes->sum('TimesKembali');
+		$invoice->TglTerima = $invoicekirim->TglTerima;
+		$invoice->Termin = $invoicekirim->Termin;
+    //$invoicekirim->Discount = str_replace(".","",substr($request->Discount, 3));
+    //$invoicekirim->Pembulatan = str_replace(".","",substr($request->Pembulatan, 3));
+		$invoice->save();
+    
+    $history = new History;
+    $history->User = Auth::user()->name;
+    $history->History = 'Update invoice on Invoice Kirim '.$request['Invoice'];
+    $history->save();
+
+    Session::flash('message', 'Update is successful!');
+    
+    return redirect()->route('invoice.showjualkirim', $id);
   }
 	
 	public function getBAJ($id){
@@ -1896,6 +2659,136 @@ class InvoiceController extends Controller
 		//Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
     //return redirect()->route('invoice.showjualpisah', $id);
   }
+	
+	public function getInvjKirim($id){
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    $invoice = InvoiceKirim::find($id);
+    
+    $invoice = InvoiceKirim::select([
+      'invoicekirim.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
+      'project.*',
+      'customer.*',
+    ])
+    ->leftJoin('pocustomer', 'invoicekirim.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoicekirim.Invoice', $invoice->Invoice)
+    ->first();
+    
+    $transaksis = Transaksi::select([
+      'inventory.Type',
+      'isisjkirim.QTertanda',
+      'sjkirim.SJKir',
+      'sjkirim.Tgl',
+      'transaksi.*',
+    ])
+    ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
+    ->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
+    ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+		->where('isisjkirim.SJKir', $invoice->SJKir)
+    ->where('transaksi.Reference', $invoice->Reference)
+    ->where('transaksi.JS', 'Jual')
+		//->where('isisjkirim.QTertanda', '!=' , 0)
+    ->orderBy('isisjkirim.id', 'asc')
+    ->get();
+
+    $total = 0;
+    $x=0;
+    foreach($transaksis as $transaksi){
+      $total2[] = $transaksi->QTertanda*$transaksi->Amount;
+      $total += $total2[$x];
+      $x++;
+    }
+    
+		if($invoice->PPN == 1 && $invoice->PPNT==0){
+			$toss = 0;
+			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
+		}
+    
+    $Discount = $total*$invoice->podisc/100;
+
+		$Transport = $toss*$invoice->Times;
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
+    else
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*$invoice->Times;
+		
+		$GrandTotal = $total+$Transport+$Pajak-$Discount;
+    
+    if($invoice->PPN==1)
+      $document = $phpWord->loadTemplate(public_path('/template/Invjp.docx'));
+    else
+      $document = $phpWord->loadTemplate(public_path('/template/Invjnp.docx'));
+    
+    $document->setValue('Company', ''.$invoice->Company.'');
+    $document->setValue('CompAlamat', ''.$invoice->CompAlamat.'');
+    $document->setValue('CompPhone', ''.$invoice->CompPhone.'');
+    $document->setValue('PCode', ''.$invoice->PCode.'');
+    $document->setValue('Project', ''.$invoice->Project.'');
+    $document->setValue('Invoice', ''.$invoice->Invoice.'');
+    $document->setValue('Tgl', ''.$transaksis->first()->Tgl.'');
+    $document->setValue('POCode', ''.$transaksis->first()->POCode.'');
+    $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($Transport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
+
+    foreach ($transaksis as $key => $transaksi)
+    {
+      $key2 = $key+1;
+      $document->setValue('Key'.$key, ''.$key2.'');
+      $document->setValue('Type'.$key, ''.$transaksi->Type.'');
+      $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
+      $document->setValue('Quantity'.$key, ''.$transaksi->QTertanda.'');
+      $document->setValue('Sat'.$key, 'PCS');
+      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount, 0, ',', '.').'');
+      $document->setValue('Total'.$key, ''.number_format($total2[$key], 0, ',', '.').'');
+    }
+    
+    for($x=0;$x<20;$x++){
+      $document->setValue('Key'.$x, '');
+      $document->setValue('Type'.$x, '');
+      $document->setValue('Barang'.$x, '');
+      $document->setValue('Quantity'.$x, '');
+      $document->setValue('Sat'.$x, '');
+      $document->setValue('Price'.$x, '');
+      $document->setValue('Total'.$x, '');
+    }
+    
+    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+    if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\JUAL\INV\INV_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\JUAL\INV\INV_", $user);
+    $clear = str_replace("/","_",$invoice->Invoice);
+    $download = sprintf('INV_%s.docx', $clear);
+    
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
+    //return redirect()->route('invoice.showjualpisah', $id);
+  }
   
   public function getInvjt($id){
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
@@ -2056,6 +2949,130 @@ class InvoiceController extends Controller
     ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
     ->where('transaksi.Reference', $invoice->Reference)
 		->where('transaksi.POCode', $invoice->POCode)
+    ->where('transaksi.JS', 'Jual')
+		//->where('isisjkirim.QTertanda', '!=' , 0)
+    ->orderBy('isisjkirim.id', 'asc')
+    ->get();
+
+    $total = 0;
+    $x=0;
+    foreach($transaksis as $transaksi){
+      $total2[] = $transaksi->QTertanda*$transaksi->Amount; 
+      //$total += $total2[$x];
+      $x++;
+    }
+    
+    if($invoice->PPN == 1 && $invoice->PPNT==0){
+			$toss = 0;
+			$toss2 = $invoice->Transport;
+		}else{
+			$toss = $invoice->Transport;
+			$toss2 = 0;
+		}
+    
+    $Discount = $total*$invoice->podisc/100;
+
+		$Transport = $toss*$invoice->Times;
+
+    if($invoice->PPN == 1 && $invoice->PPNT==0)
+      $Pajak = ($total-$Discount+$Transport)*$invoice->PPN*0.1;
+    else
+      $Pajak = ($total-$Discount)*$invoice->PPN*0.1;
+		
+		$GrandTotalTransport = $toss2*$invoice->Times;
+		
+		$GrandTotal = $total+$GrandTotalTransport+$Pajak-$Discount;
+		
+    $document = $phpWord->loadTemplate(public_path('/template/Invjt.docx'));
+    
+    $document->setValue('Company', ''.$invoice->Company.'');
+    $document->setValue('CompAlamat', ''.$invoice->CompAlamat.'');
+    $document->setValue('CompPhone', ''.$invoice->CompPhone.'');
+    $document->setValue('PCode', ''.$invoice->PCode.'');
+    $document->setValue('Project', ''.$invoice->Project.'');
+    $document->setValue('Invoice', ''.$invoice->Invoice.'');
+    $document->setValue('Tgl', ''.$transaksis->first()->Tgl.'');
+    $document->setValue('POCode', ''.$transaksis->first()->POCode.'');
+    $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
+    $document->setValue('Disc', ''.$invoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($GrandTotalTransport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
+
+    foreach ($transaksis as $key => $transaksi)
+    {
+      $key2 = $key+1;
+      $document->setValue('Key'.$key, ''.$key2.'');
+      $document->setValue('Type'.$key, ''.$transaksi->Type.'');
+      $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
+      $document->setValue('Quantity'.$key, ''.'0'.'');
+      $document->setValue('Sat'.$key, 'PCS');
+      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount, 0, ',', '.').'');
+      $document->setValue('Total'.$key, ''.'0'.'');
+    }
+    
+    for($x=0;$x<20;$x++){
+      $document->setValue('Key'.$x, '');
+      $document->setValue('Type'.$x, '');
+      $document->setValue('Barang'.$x, '');
+      $document->setValue('Quantity'.$x, '');
+      $document->setValue('Sat'.$x, '');
+      $document->setValue('Price'.$x, '');
+      $document->setValue('Total'.$x, '');
+    }
+    
+    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+		$path = sprintf("C:\Users\Public\Documents\PPN\JUAL\INV\INVT_");
+    $clear = str_replace("/","_",$invoice->Invoice);
+    $download = sprintf('INVT_%s.docx', $clear);
+    
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INVT_'.$download);
+    //return redirect()->route('invoice.showjualpisah', $id);
+  }
+	
+	public function getInvjtKirim($id){
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    $invoice = InvoiceKirim::find($id);
+    
+    $invoice = InvoiceKirim::select([
+      'invoicekirim.*',
+      'pocustomer.Transport',
+      'pocustomer.Discount as podisc',
+      'pocustomer.PPNT',
+      'project.*',
+      'customer.*',
+    ])
+    ->leftJoin('pocustomer', 'invoicekirim.Reference', '=', 'pocustomer.Reference')
+    ->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+    ->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+    ->where('invoicekirim.Invoice', $invoice->Invoice)
+    ->first();
+    
+    $transaksis = Transaksi::select([
+      'inventory.Type',
+      'isisjkirim.QTertanda',
+      'sjkirim.SJKir',
+      'sjkirim.Tgl',
+      'transaksi.*',
+    ])
+    ->leftJoin('inventory', 'transaksi.ICode', '=', 'inventory.Code')
+    ->leftJoin('isisjkirim', 'transaksi.Purchase', '=', 'isisjkirim.Purchase')
+    ->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+		->where('isisjkirim.SJKir', $invoice->SJKir)
+    ->where('transaksi.Reference', $invoice->Reference)
     ->where('transaksi.JS', 'Jual')
 		//->where('isisjkirim.QTertanda', '!=' , 0)
     ->orderBy('isisjkirim.id', 'asc')
@@ -2672,6 +3689,82 @@ class InvoiceController extends Controller
 		}
 		
 		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
+			$invoicesk = InvoiceKirim::select([
+					'invoicekirim.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('transaksi', 'invoicekirim.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Sewa')
+			->where('pocustomer.INVP', 2)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference', 'sjkirim.SJKir', 'isisjkirim.IsiSJKir')
+					->from('periode')
+					->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+					->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+					->whereRaw('invoicekirim.Reference = periode.Reference AND invoicekirim.SJKir = sjkirim.SJKir')
+					->where('periode.Deletes', 'Sewa');
+				})
+			->groupBy('invoicekirim.Reference', 'invoicekirim.SJKir', 'invoicekirim.Periode')
+			->get();
+		}else if(Auth::user()->access == 'PPNAdmin'){
+			$invoicesk = InvoiceKirim::select([
+					'invoicekirim.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('transaksi', 'invoicekirim.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Sewa')
+			->where('pocustomer.INVP', 2)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference', 'sjkirim.SJKir', 'isisjkirim.IsiSJKir')
+					->from('periode')
+					->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+					->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+					->whereRaw('invoicekirim.Reference = periode.Reference AND invoicekirim.SJKir = sjkirim.SJKir')
+					->where('periode.Deletes', 'Sewa');
+				})
+			->where('customer.PPN', 1)
+			->groupBy('invoicekirim.Reference', 'invoicekirim.SJKir', 'invoicekirim.Periode')
+			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$invoicesk = InvoiceKirim::select([
+					'invoicekirim.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('transaksi', 'invoicekirim.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Sewa')
+			->where('pocustomer.INVP', 2)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference', 'sjkirim.SJKir', 'isisjkirim.IsiSJKir')
+					->from('periode')
+					->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+					->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+					->whereRaw('invoicekirim.Reference = periode.Reference AND invoicekirim.SJKir = sjkirim.SJKir')
+					->where('periode.Deletes', 'Sewa');
+				})
+			->where('customer.PPN', 0)
+			->groupBy('invoicekirim.Reference', 'invoicekirim.SJKir', 'invoicekirim.Periode')
+			->get();
+		}
+		
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$invoicej = Invoice::select([
 					'invoice.*',
 					'project.Project',
@@ -2806,6 +3899,82 @@ class InvoiceController extends Controller
 		}
 		
 		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
+			$invoicejk = InvoiceKirim::select([
+					'invoicekirim.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('transaksi', 'invoicekirim.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Jual')
+			->where('pocustomer.INVP', 2)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference', 'sjkirim.SJKir', 'isisjkirim.IsiSJKir')
+					->from('periode')
+					->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+					->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+					->whereRaw('invoicekirim.Reference = periode.Reference AND invoicekirim.SJKir = sjkirim.SJKir')
+					->where('periode.Deletes', 'Jual');
+				})
+			->groupBy('invoicekirim.Reference', 'invoicekirim.SJKir', 'invoicekirim.Periode')
+			->get();
+		}else if(Auth::user()->access == 'PPNAdmin'){
+			$invoicejk = InvoiceKirim::select([
+					'invoicekirim.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('transaksi', 'invoicekirim.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Jual')
+			->where('pocustomer.INVP', 2)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference', 'sjkirim.SJKir', 'isisjkirim.IsiSJKir')
+					->from('periode')
+					->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+					->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+					->whereRaw('invoicekirim.Reference = periode.Reference AND invoicekirim.SJKir = sjkirim.SJKir')
+					->where('periode.Deletes', 'Jual');
+				})
+			->where('customer.PPN', 1)
+			->groupBy('invoicekirim.Reference', 'invoicekirim.SJKir', 'invoicekirim.Periode')
+			->get();
+		}else if(Auth::user()->access == 'NonPPNAdmin'){
+			$invoicejk = InvoiceKirim::select([
+					'invoicekirim.*',
+					'project.Project',
+					'customer.Company',
+				])
+			->leftJoin('transaksi', 'invoicekirim.Reference', '=', 'transaksi.Reference')
+			->leftJoin('po', 'transaksi.POCode', '=', 'po.POCode')
+			->leftJoin('pocustomer', 'transaksi.Reference', '=', 'pocustomer.Reference')
+			->leftJoin('project', 'pocustomer.PCode', '=', 'project.PCode')
+			->leftJoin('customer', 'project.CCode', '=', 'customer.CCode')
+			->where('JSC', 'Jual')
+			->where('pocustomer.INVP', 2)
+			->whereExists(function($query)
+				{
+					$query->select('periode.Reference', 'sjkirim.SJKir', 'isisjkirim.IsiSJKir')
+					->from('periode')
+					->leftJoin('isisjkirim', 'periode.IsiSJKir', '=', 'isisjkirim.IsiSJKir')
+					->leftJoin('sjkirim', 'isisjkirim.SJKir', '=', 'sjkirim.SJKir')
+					->whereRaw('invoicekirim.Reference = periode.Reference AND invoicekirim.SJKir = sjkirim.SJKir')
+					->where('periode.Deletes', 'Jual');
+				})
+			->where('customer.PPN', 0)
+			->groupBy('invoicekirim.Reference', 'invoicekirim.SJKir', 'invoicekirim.Periode')
+			->get();
+		}
+		
+		if(Auth::user()->access == 'Administrator'||Auth::user()->access=='SuperPurchasing'){
 			$invoicec = Invoice::select([
 				'invoice.*',
 				'project.Project',
@@ -2850,8 +4019,10 @@ class InvoiceController extends Controller
 			->with('url', 'invoice')
 			->with('invoicess', $invoices)
 			->with('invoicesps', $invoicesp)
+			->with('invoicesks', $invoicesk)
 			->with('invoicejs', $invoicej)
 			->with('invoicejps', $invoicejp)
+			->with('invoicejks', $invoicejk)
 			->with('invoicecs', $invoicec)
 			->with('top_menu_sel', 'menu_invoice')
 			->with('page_title', 'Invoice')

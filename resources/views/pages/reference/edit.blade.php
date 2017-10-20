@@ -70,8 +70,8 @@ $('#Tgl').datepicker({
 	format: "dd/mm/yyyy",
 	todayHighlight: true,
 	autoclose: true,
-	startDate: '-7d',
-	endDate: '+7d'
+	//startDate: '-7d',
+	//endDate: '+7d'
 }); 
 
 $(function() {
