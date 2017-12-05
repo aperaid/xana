@@ -23,7 +23,7 @@
         <li @if ($top_menu_sel=="menu_invoice") class="active" @endif ><a href="{{route('invoice.index')}}"><i class="fa fa-list-alt"></i> <span>Invoice</span></a></li>
       </ul>
     </li>
-    <li class="treeview <?php if (0) { ?> active <?php } ?>">
+    <!--<li class="treeview <?php if (0) { ?> active <?php } ?>">
       <a href="#">
         <i class="fa fa-cart-plus"></i>
         <span>Pembelian</span>
@@ -36,7 +36,7 @@
         <li <?php if (0){ ?> class="active" <?php } ?>><a href="{{route('customer.index')}}"><i class="fa fa-history"></i> <span>Retur</span></a></li>
         <li <?php if (0){ ?> class="active" <?php } ?>><a href="{{route('customer.index')}}"><i class="fa fa-list-alt"></i> <span>Invoice</span></a></li>
       </ul>
-    </li>
+    </li>-->
     <li class="treeview @if ($top_menu_sel=="menu_stockproject" ||  $top_menu_sel=="menu_view" ||  $top_menu_sel=="menu_adjustment" || $top_menu_sel=="menu_transfer" || $top_menu_sel=="menu_register" || $top_menu_sel=="menu_remove") active @endif ">
       <a href="#">
         <i class="fa fa-archive"></i>
