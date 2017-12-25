@@ -1,6 +1,6 @@
 @extends('layouts.xana.layout')
 @section('title')
-	Adjust Inventory
+	All Penerimaan
 @stop
 
 @section('content')
@@ -12,24 +12,18 @@
           <thead>
             <tr>
               <th>Id</th>
-              <th>Code</th>
-              <th>Barang</th>
-							@if(env('APP_TYPE')=='Jual')
-								<th>Kategori</th>
-							@endif
-              <th>Hapus</th>
+              <th>Terima Code</th>
+              <th width="10%">Date</th>
+              <th width="20%">Supplier Company</th>
             </tr>
           </thead>
           <tbody>
-            @foreach($removes as $remove)
+            @foreach($penerimaans as $penerimaan)
             <tr>
-              <td>{{$remove->id}}</td>
-              <td width="10%">{{substr($remove->Code, 0, -1)}}</td>
-              <td>{{$remove->Barang}}</td>
-							@if(env('APP_TYPE')=='Jual')
-								<td>{{$remove->Type}}</td>
-							@endif
-              <td width="10%"><a href="{{route('inventory.getremoveinventory', $remove->id)}}"><button class="btn btn-block btn-danger btn-sm" onclick="return confirm('Delete Inventory?')">Delete</button></a></td>
+              <td>{{$penerimaan->id}}</td>
+              <td>{{$penerimaan->TerimaCode}}</td>
+              <td>{{$penerimaan->Tgl}}</td>
+              <td>{{$penerimaan->Company}}</td>
             </tr>
             @endforeach
           </tbody>
@@ -46,7 +40,7 @@
 
 @section('script')
 <script>
-  $(document).ready(function () {
+	$(document).ready(function () {
 		var table = $("#datatables").DataTable({
       "processing": true,
       "scrollY": "100%",
@@ -55,9 +49,14 @@
           "targets": [0],
           "visible": false,
           "searchable": false
-        },
+        }
       ],
-      "order": [[0, "asc"]]
+      "order": [[0, "desc"]]
+		});
+		
+		$('#datatables tbody').on('click', 'tr', function () {
+			var data = table.row( this ).data();
+			window.open("penerimaan/"+ data[0],"_self");
 		});
 	});
 </script>

@@ -23,20 +23,21 @@
         <li @if ($top_menu_sel=="menu_invoice") class="active" @endif ><a href="{{route('invoice.index')}}"><i class="fa fa-list-alt"></i> <span>Invoice</span></a></li>
       </ul>
     </li>
-    <!--<li class="treeview <?php if (0) { ?> active <?php } ?>">
+    <li class="treeview @if ($top_menu_sel=="menu_supplier" || $top_menu_sel=="menu_permintaan" || $top_menu_sel=="menu_pemesanan" || $top_menu_sel=="menu_penerimaan" ||  $top_menu_sel=="menu_retur" || $top_menu_sel=="menu_invoice2") active @endif ">
       <a href="#">
         <i class="fa fa-cart-plus"></i>
         <span>Pembelian</span>
         <i class="fa fa-angle-left pull-right"></i>
       </a>
       <ul class="treeview-menu">
-        <li <?php if (0){ ?> class="active" <?php } ?>><a href="{{route('customer.index')}}"><i class="fa fa-envelope-o"></i> <span>Permintaan</span></a></li>
-        <li <?php if (0){ ?> class="active" <?php } ?>><a href="{{route('customer.index')}}"><i class="fa fa-file-text-o"></i> <span>PO</span></a></li>
-        <li <?php if (0){ ?> class="active" <?php } ?>><a href="{{route('customer.index')}}"><i class="fa fa-automobile"></i> <span>Penerimaan</span></a></li>
-        <li <?php if (0){ ?> class="active" <?php } ?>><a href="{{route('customer.index')}}"><i class="fa fa-history"></i> <span>Retur</span></a></li>
-        <li <?php if (0){ ?> class="active" <?php } ?>><a href="{{route('customer.index')}}"><i class="fa fa-list-alt"></i> <span>Invoice</span></a></li>
+				<li @if ($top_menu_sel=="menu_supplier") class="active" @endif ><a href="{{route('supplier.index')}}"><i class="fa fa-users"></i> <span>Supplier</span></a></li>
+				<li @if ($top_menu_sel=="menu_permintaan") class="active" @endif ><a href="{{route('permintaan.index')}}"><i class="fa fa-envelope-o"></i> <span>Permintaan</span></a></li>
+        <li @if ($top_menu_sel=="menu_pemesanan") class="active" @endif ><a href="{{route('pemesanan.index')}}"><i class="fa fa-file-text-o"></i> <span>Pemesanan</span></a></li>
+        <li @if ($top_menu_sel=="menu_penerimaan") class="active" @endif ><a href="{{route('penerimaan.index')}}"><i class="fa fa-automobile"></i> <span>Penerimaan</span></a></li>
+        <li @if ($top_menu_sel=="menu_retur") class="active" @endif ><a href="{{route('retur.index')}}"><i class="fa fa-history"></i> <span>Retur</span></a></li>
+        <li @if ($top_menu_sel=="menu_invoice2") class="active" @endif ><a href="{{route('customer.index')}}"><i class="fa fa-list-alt"></i> <span>Invoice</span></a></li>
       </ul>
-    </li>-->
+    </li>
     <li class="treeview @if ($top_menu_sel=="menu_stockproject" ||  $top_menu_sel=="menu_view" ||  $top_menu_sel=="menu_adjustment" || $top_menu_sel=="menu_transfer" || $top_menu_sel=="menu_register" || $top_menu_sel=="menu_remove") active @endif ">
       <a href="#">
         <i class="fa fa-archive"></i>
@@ -44,7 +45,9 @@
         <i class="fa fa-angle-left pull-right"></i>
       </a>
       <ul class="treeview-menu">
-				<li @if ($top_menu_sel=="menu_stockproject") class="active" @endif ><a href="{{route('inventory.stockproject')}}"><i class="fa fa-folder-open-o"></i> <span>Inventory di Proyek</span></a></li>
+				@if(env('APP_TYPE')=='Sewa')
+					<li @if ($top_menu_sel=="menu_stockproject") class="active" @endif ><a href="{{route('inventory.stockproject')}}"><i class="fa fa-folder-open-o"></i> <span>Inventory di Proyek</span></a></li>
+				@endif
         <li @if ($top_menu_sel=="menu_view") class="active" @endif ><a href="{{route('inventory.viewinventory')}}"><i class="fa fa-folder-open-o"></i> <span>Lihat Stok</span></a></li>
         <li @if ($top_menu_sel=="menu_adjustment") class="active" @endif ><a href="{{route('inventory.adjustinventory')}}"><i class="fa fa-database"></i> <span>Edit Stok</span></a></li>
         <!--<li @if ($top_menu_sel=="menu_transfer") class="active" @endif ><a href="{{route('inventory.transferinventory')}}"><i class="fa fa-exchange"></i> <span>Transfer Antar Gudang</span></a></li>-->

@@ -21,4 +21,14 @@ class BarangController extends Controller
       
       return $json->toJson();
     }
+		
+	public function postPurchaseAmount(Request $request)
+	{
+		$json = Inventory::select('inventory.Type', 'inventory.Code', 'inventory.BeliPrice', 'inventory.Warehouse')
+		->where('inventory.id', $request->id)
+		->where('inventory.Barang', $request->namabarang)
+		->first();
+		
+		return $json->toJson();
+	}
 }

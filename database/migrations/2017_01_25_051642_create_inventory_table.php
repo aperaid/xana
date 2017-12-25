@@ -17,13 +17,15 @@ class CreateInventoryTable extends Migration
         $table->increments('id');
         $table->string('Code')->unique();
         $table->string('Barang');
+        $table->integer('BeliPrice');
         $table->integer('JualPrice');
-        $table->integer('Price');
-        $table->string('Type');
+        $table->integer('Price')->default(0);
+        $table->string('Type')->nullable();
         $table->integer('Kumbang')->default(0);
         $table->integer('BulakSereh')->default(0);
         $table->integer('Legok')->default(0);
         $table->integer('CitraGarden')->default(0);
+        $table->integer('Warehouse')->default(0);
       });
     }
 

@@ -1,6 +1,10 @@
 @extends('layouts.xana.layout')
 @section('title')
-	Adjust Inventory
+	All Supplier
+@stop
+
+@section('button')
+	<large><a href="{{route('supplier.create')}}"><button class="btn btn-success btn-sm">Create</button></a></large>
 @stop
 
 @section('content')
@@ -12,24 +16,16 @@
           <thead>
             <tr>
               <th>Id</th>
-              <th>Code</th>
-              <th>Barang</th>
-							@if(env('APP_TYPE')=='Jual')
-								<th>Kategori</th>
-							@endif
-              <th>Hapus</th>
+              <th>Supplier Code</th>
+              <th>Company Name</th>
             </tr>
           </thead>
           <tbody>
-            @foreach($removes as $remove)
+            @foreach($suppliers as $supplier)
             <tr>
-              <td>{{$remove->id}}</td>
-              <td width="10%">{{substr($remove->Code, 0, -1)}}</td>
-              <td>{{$remove->Barang}}</td>
-							@if(env('APP_TYPE')=='Jual')
-								<td>{{$remove->Type}}</td>
-							@endif
-              <td width="10%"><a href="{{route('inventory.getremoveinventory', $remove->id)}}"><button class="btn btn-block btn-danger btn-sm" onclick="return confirm('Delete Inventory?')">Delete</button></a></td>
+              <td width="5%">{{$supplier->id}}</td>
+              <td>{{$supplier->SCode}}</td>
+              <td>{{$supplier->Company}}</td>
             </tr>
             @endforeach
           </tbody>
@@ -46,7 +42,7 @@
 
 @section('script')
 <script>
-  $(document).ready(function () {
+	$(document).ready(function () {
 		var table = $("#datatables").DataTable({
       "processing": true,
       "scrollY": "100%",
@@ -55,9 +51,14 @@
           "targets": [0],
           "visible": false,
           "searchable": false
-        },
+        }
       ],
-      "order": [[0, "asc"]]
+      "order": [[0, "desc"]]
+		});
+		
+		$('#datatables tbody').on('click', 'tr', function () {
+			var data = table.row( this ).data();
+			window.open("supplier/show/"+ data[0],"_self");
 		});
 	});
 </script>

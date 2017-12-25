@@ -128,6 +128,37 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('/user/delete', 'UserController@DeleteUsers');
 	Route::get('/add/user', 'UserController@AddUsers');
 	Route::post('/add/user', 'UserController@NewUsers');
+	
+	Route::get('/supplier', 'SupplierController@index')->name('supplier.index');
+	Route::get('/supplier/show/{id?}', 'SupplierController@ShowSupplier')->name('supplier.show');
+	Route::get('/supplier/create', 'SupplierController@CreateSupplier')->name('supplier.create');
+	Route::post('/supplier/store', 'SupplierController@StoreSupplier')->name('supplier.store');
+	Route::get('/supplier/edit/{id?}', 'SupplierController@EditSupplier')->name('supplier.edit');
+	Route::post('/supplier/update', 'SupplierController@UpdateSupplier')->name('supplier.update');
+	Route::post('/supplier/delete', 'SupplierController@DeleteSupplier')->name('supplier.destroy');
+	
+	Route::resource('permintaan', 'PermintaanController');
+	Route::post('/permintaan/delete', 'PermintaanController@DeletePermintaan')->name('permintaan.destroy');
 
-  Route::post('barang/', ['as' => 'barang/', 'uses' => 'BarangController@postQuantityAmount']);
+	Route::resource('pemesanan', 'PemesananController');
+	Route::post('/pemesanan/delete', 'PemesananController@DeletePemesanan')->name('pemesanan.destroy');
+	
+  Route::resource('penerimaan', 'PenerimaanController');
+	Route::post('/penerimaan/delete', 'PenerimaanController@DeletePenerimaan')->name('penerimaan.destroy');
+	
+  Route::resource('retur', 'ReturController');
+	Route::post('/retur/delete', 'ReturController@DeleteRetur')->name('retur.destroy');
+/*
+ * item info
+ */
+Route::post('barang/', ['as' => 'barang/', 'uses' => 'BarangController@postQuantityAmount']);
+Route::post('barang/beli/', ['as' => 'barang/beli', 'uses' => 'BarangController@postPurchaseAmount']);
+//Route::get('/barang/beli/{id}', 'BarangController@postPurchaseAmount');
+	
+/*
+ * dropdown
+ */
+Route::post('/dropdown/icodelist/{name}', 'DropdownController@ICodeList');
+Route::post('/dropdown/inventorylist/{name}', 'DropdownController@InventoryList');
+Route::post('/dropdown/supplierlist/{name}', 'DropdownController@SupplierList');
 });

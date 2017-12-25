@@ -1,11 +1,11 @@
 @extends('layouts.xana.layout')
 @section('title')
-	Create Customer
+	Create Supplier
 @stop
 
 @section('content')
 {!! Form::open([
-  'route' => 'customer.store'
+  'route' => 'supplier.store'
 ]) !!}
 <div class="row">
   <div class="col-md-12">
@@ -16,27 +16,13 @@
       <!-- box-header -->
       <div class="box-body with-border">
         <div class="form-horizontal">
-          {!! Form::hidden('id', $customer->maxid+1) !!}
+          {!! Form::hidden('id', $supplier->maxid+1) !!}
           <div class="form-group">
-            {!! Form::label('CCode', 'Customer Code', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('SCode', 'Supplier Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
-              {!! Form::text('CCode', null, array('class' => 'form-control', 'id' => 'CCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5')) !!}
+              {!! Form::text('SCode', null, array('class' => 'form-control', 'id' => 'SCode', 'placeholder' => 'COM01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5')) !!}
             </div>
           </div>
-					@if(Auth::user()->access == 'Administrator')
-						<div class="form-group">
-							{!! Form::label('PPN', 'PPN', ['class' => "col-md-2 control-label"]) !!}
-							<div class="col-md-4">
-								{!! Form::hidden('PPN', 0) !!}
-								{!! Form::checkbox('PPN', 1, null, ['id' => 'PPN', 'class' => 'minimal']) !!}
-								{!! Form::label('PPN', 'PPN 10%') !!}
-							</div>
-						</div>
-					@elseif(Auth::user()->access == 'PPNAdmin')
-						{!! Form::hidden('PPN', 1) !!}
-					@elseif(Auth::user()->access == 'NonPPNAdmin')
-						{!! Form::hidden('PPN', 0) !!}
-					@endif
           <div class="form-group">
             {!! Form::label('Company', 'Company Name', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
@@ -92,101 +78,101 @@
             </div>
           </div>
           <div class="box-header">
-            <h3 class="box-title">Customer 1 Detail</h3>
+            <h3 class="box-title">Supplier 1 Detail</h3>
           </div>
           <hr>
           <div class="form-group">
-            {!! Form::label('Customer', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('Supplier', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-user"></i>
                 </div>
-                {!! Form::text('Customer', null, array('class' => 'form-control', 'placeholder' => 'CP Name', 'autocomplete' => 'off')) !!}
+                {!! Form::text('Supplier', null, array('class' => 'form-control', 'placeholder' => 'CP Name', 'autocomplete' => 'off')) !!}
               </div>
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('CustPhone', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('SupPhone', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-2">
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-phone"></i>
                 </div>
-                {!! Form::text('CustPhone', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
+                {!! Form::text('SupPhone', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
               </div>
             </div>
-            {!! Form::label('CustEmail', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('SupEmail', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
-                {!! Form::text('CustEmail', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id', 'autocomplete' => 'off')) !!}
+                {!! Form::text('SupEmail', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id', 'autocomplete' => 'off')) !!}
               </div>
             </div>
           </div>
           <div class="box-header">
-            <h3 class="box-title">Customer 2 Detail</h3>
+            <h3 class="box-title">Supplier 2 Detail</h3>
           </div>
           <hr>
           <div class="form-group">
-            {!! Form::label('Customer2', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('Supplier2', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-user"></i>
                 </div>
-                {!! Form::text('Customer2', null, array('class' => 'form-control', 'placeholder' => 'CP Name', 'autocomplete' => 'off')) !!}
+                {!! Form::text('Supplier2', null, array('class' => 'form-control', 'placeholder' => 'CP Name', 'autocomplete' => 'off')) !!}
               </div>
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('CustPhone2', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('SupPhone2', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-2">
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-phone"></i>
                 </div>
-                {!! Form::text('CustPhone2', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
+                {!! Form::text('SupPhone2', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
               </div>
             </div>
-            {!! Form::label('CustEmail2', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('SupEmail2', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
-                {!! Form::text('CustEmail2', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id', 'autocomplete' => 'off')) !!}
+                {!! Form::text('SupEmail2', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id', 'autocomplete' => 'off')) !!}
               </div>
             </div>
           </div>
           <div class="box-header">
-            <h3 class="box-title">Customer 3 Detail</h3>
+            <h3 class="box-title">Supplier 3 Detail</h3>
           </div>
           <hr>
           <div class="form-group">
-            {!! Form::label('Customer3', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('Supplier3', 'Contact Person', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-6">
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-user"></i>
                 </div>
-                {!! Form::text('Customer3', null, array('class' => 'form-control', 'placeholder' => 'CP Name', 'autocomplete' => 'off')) !!}
+                {!! Form::text('Supplier3', null, array('class' => 'form-control', 'placeholder' => 'CP Name', 'autocomplete' => 'off')) !!}
               </div>
             </div>
           </div>
           <div class="form-group">
-            {!! Form::label('CustPhone3', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('SupPhone3', 'Phone CP', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-2">
               <div class="input-group">
                 <div class="input-group-addon">
                   <i class="fa fa-phone"></i>
                 </div>
-                {!! Form::text('CustPhone3', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
+                {!! Form::text('SupPhone3', null, array('class' => 'form-control', 'placeholder' => '021-123456', 'autocomplete' => 'off')) !!}
               </div>
             </div>
-            {!! Form::label('CustEmail3', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
+            {!! Form::label('SupEmail3', 'Email CP', ['class' => "col-md-1 control-label"]) !!}
             <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
-                {!! Form::text('CustEmail3', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id', 'autocomplete' => 'off')) !!}
+                {!! Form::text('SupEmail3', null, array('class' => 'form-control', 'placeholder' => 'person@email.co.id', 'autocomplete' => 'off')) !!}
               </div>
             </div>
           </div>
@@ -195,7 +181,7 @@
       <!-- box body -->
       <div class="box-footer">
       	{!! Form::submit('Create',  array('class' => 'btn btn-info pull-right')) !!}
-      	<a href="{{route('customer.index')}}"><button type="button" class="btn btn-default pull-Left">Cancel</button></a>
+      	<a href="{{route('supplier.index')}}"><button type="button" class="btn btn-default pull-Left">Cancel</button></a>
       </div>
       <!-- footer -->
     </div>
@@ -210,7 +196,7 @@
 @section('script')
 <script>
 function capital() {
-	var x = document.getElementById("CCode");
+	var x = document.getElementById("SCode");
 	x.value = x.value.toUpperCase();
 	var x = document.getElementById("Company");
 	x.value = x.value.toUpperCase();

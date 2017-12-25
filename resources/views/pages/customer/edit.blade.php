@@ -18,7 +18,7 @@
         <div class="form-horizontal">
 					<input type="hidden" name="id" id="id" value="{{$customer->id}}">
           <div class="form-group">
-            {!! Form::label('CCode', 'Company Code', ['class' => "col-md-2 control-label"]) !!}
+            {!! Form::label('CCode', 'Customer Code', ['class' => "col-md-2 control-label"]) !!}
             <div class="col-md-4">
               {!! Form::text('CCode', $customer->CCode, array('class' => 'form-control', 'id' => 'CCode', 'readonly')) !!}
             </div>

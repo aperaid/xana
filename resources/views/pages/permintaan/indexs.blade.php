@@ -1,6 +1,10 @@
 @extends('layouts.xana.layout')
 @section('title')
-	Adjust Inventory
+	All Permintaan
+@stop
+
+@section('button')
+	<large><a href="{{route('permintaan.create')}}"><button class="btn btn-success btn-sm">Create</button></a></large>
 @stop
 
 @section('content')
@@ -12,24 +16,18 @@
           <thead>
             <tr>
               <th>Id</th>
-              <th>Code</th>
-              <th>Barang</th>
-							@if(env('APP_TYPE')=='Jual')
-								<th>Kategori</th>
-							@endif
-              <th>Hapus</th>
+              <th>Minta Code</th>
+              <th>Date</th>
+              <th>SCode</th>
             </tr>
           </thead>
           <tbody>
-            @foreach($removes as $remove)
+            @foreach($permintaans as $permintaan)
             <tr>
-              <td>{{$remove->id}}</td>
-              <td width="10%">{{substr($remove->Code, 0, -1)}}</td>
-              <td>{{$remove->Barang}}</td>
-							@if(env('APP_TYPE')=='Jual')
-								<td>{{$remove->Type}}</td>
-							@endif
-              <td width="10%"><a href="{{route('inventory.getremoveinventory', $remove->id)}}"><button class="btn btn-block btn-danger btn-sm" onclick="return confirm('Delete Inventory?')">Delete</button></a></td>
+              <td>{{$permintaan->id}}</td>
+              <td>{{$permintaan->MintaCode}}</td>
+              <td>{{$permintaan->Tgl}}</td>
+              <td>{{$permintaan->SCode}}</td>
             </tr>
             @endforeach
           </tbody>
@@ -46,7 +44,7 @@
 
 @section('script')
 <script>
-  $(document).ready(function () {
+	$(document).ready(function () {
 		var table = $("#datatables").DataTable({
       "processing": true,
       "scrollY": "100%",
@@ -55,9 +53,14 @@
           "targets": [0],
           "visible": false,
           "searchable": false
-        },
+        }
       ],
-      "order": [[0, "asc"]]
+      "order": [[0, "desc"]]
+		});
+		
+		$('#datatables tbody').on('click', 'tr', function () {
+			var data = table.row( this ).data();
+			window.open("permintaan/"+ data[0],"_self");
 		});
 	});
 </script>

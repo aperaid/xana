@@ -14,14 +14,14 @@
       <div class="box-body">
         <a href="{{route('penawaran.index')}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
         {!! Form::submit('Insert',  array('class' => 'btn btn-success pull-right')) !!}
-        </div>
-        <!-- box-body -->
-      </div>
-      <!-- box -->
-    </div>
-    <!-- col -->
-  </div>
-  <!-- row -->
+			</div>
+			<!-- box-body -->
+		</div>
+		<!-- box -->
+	</div>
+	<!-- col -->
+</div>
+<!-- row -->
   
 <!-- CONTENT ROW -->
 <div class="row">

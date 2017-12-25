@@ -139,13 +139,20 @@ class InventoryController extends Controller
   public function postEditAdjustment(Request $request, $id){
     $adjust = Inventory::find($id);
 
+		$adjust->Code = $request->Code;
 		$adjust->Barang = $request->Barang;
+    $adjust->BeliPrice = str_replace(".","",substr($request->BeliPrice, 3));
     $adjust->JualPrice = str_replace(".","",substr($request->JualPrice, 3));
-    $adjust->Price = str_replace(".","",substr($request->Price, 3));
-    $adjust->Kumbang = $request->Kumbang;
-    $adjust->BulakSereh = $request->BulakSereh;
-    $adjust->Legok = $request->Legok;
-    $adjust->CitraGarden = $request->CitraGarden;
+		if(env('APP_TYPE')=='Sewa'){
+			$adjust->Price = str_replace(".","",substr($request->Price, 3));
+			$adjust->Kumbang = $request->Kumbang;
+			$adjust->BulakSereh = $request->BulakSereh;
+			$adjust->Legok = $request->Legok;
+			$adjust->CitraGarden = $request->CitraGarden;
+		}else{
+			$adjust->Type = $request->Type;
+			$adjust->Warehouse = $request->Warehouse;
+		}
     $adjust->save();
     
     $history = new History;
@@ -172,13 +179,9 @@ class InventoryController extends Controller
   }
   
   public function getRegister(){
-    $register = Inventory::orderby('id', 'desc')
-    ->first();
-    
 		if(in_array("registerinventory", $this->access)){
 			return view('pages.inventory.registerinventory')
 			->with('url', 'registerinventory')
-			->with('register', $register)
 			->with('top_menu_sel', 'menu_register')
 			->with('page_title', 'Register Inventory')
 			->with('page_description', 'Create');
@@ -187,40 +190,55 @@ class InventoryController extends Controller
   }
 
   public function postRegister(Request $request){
-    $maxinventory = Inventory::select([
-      'inventory.*',
-      DB::raw('MAX(inventory.id) AS maxid')
-    ])
-    ->first();
+    $maxinventory = Inventory::max('id')+1;
     
     $input = $request->all();
-    $type = array("NEW", "SECOND");
-    $code = array($input['Code']."B", $input['Code']."L");
-    $kumbang = array($input['Kumbang'], 0);
-    $bulaksereh = array($input['BulakSereh'], 0);
-    $legok = array($input['Legok'], 0);
-    $citragarden = array($input['CitraGarden'], 0);
+		if(env('APP_TYPE')=='Sewa'){
+			$type = array("NEW", "SECOND");
+			$code = array($input['Code']."B", $input['Code']."L");
+			$kumbang = array($input['Kumbang'], 0);
+			$bulaksereh = array($input['BulakSereh'], 0);
+			$legok = array($input['Legok'], 0);
+			$citragarden = array($input['CitraGarden'], 0);
+		}
     
-    $is_exist = Inventory::where('Code', $request->Code.'B')->first();
+		if(env('APP_TYPE')=='Sewa')
+			$is_exist = Inventory::where('Code', $request->Code.'B')->first();
+		else
+			$is_exist = Inventory::where('Code', $request->Code)->first();
     if(isset($is_exist->Code)){
       return redirect()->route('inventory.registerinventory')->with('error', 'Inventory with Code '.strtoupper($request->Code).' is already exist!');
     }else{
-      $inventories = $type;
-      foreach ($inventories as $key => $inventory)
-      {
-        $inventory = new Inventory;
-        $inventory->id = $maxinventory->maxid+$key+1;
-        $inventory->Code = $code[$key];
-        $inventory->Barang = $input['Barang'];
-        $inventory->JualPrice = str_replace(".","",substr($request->JualPrice, 3));
-        $inventory->Price = str_replace(".","",substr($request->Price, 3));
-        $inventory->Type = $type[$key];
-        $inventory->Kumbang = $kumbang;
-        $inventory->BulakSereh = $bulaksereh;
-        $inventory->Legok = $legok;
-        $inventory->CitraGarden = $citragarden;
-        $inventory->save();
-      }
+			$last_id = Inventory::max('id') + 1;
+			if(env('APP_TYPE')=='Sewa'){
+				$inventories = $type;
+				foreach ($inventories as $key => $inventory)
+				{
+					$inventory = new Inventory;
+					$inventory->id = $last_id+$key;
+					$inventory->Code = $code[$key];
+					$inventory->Barang = $input['Barang'];
+					$inventory->BeliPrice = str_replace(".","",substr($request->BeliPrice, 3));
+					$inventory->JualPrice = str_replace(".","",substr($request->JualPrice, 3));
+					$inventory->Price = str_replace(".","",substr($request->Price, 3));
+					$inventory->Type = $type[$key];
+					$inventory->Kumbang = $kumbang[$key];
+					$inventory->BulakSereh = $bulaksereh[$key];
+					$inventory->Legok = $legok[$key];
+					$inventory->CitraGarden = $citragarden[$key];
+					$inventory->save();
+				}
+			}else{
+				$inventory = new Inventory;
+				$inventory->id = $last_id;
+				$inventory->Code = $input['Code'];
+				$inventory->Barang = $input['Barang'];
+				$inventory->BeliPrice = str_replace(".","",substr($request->BeliPrice, 3));
+				$inventory->JualPrice = str_replace(".","",substr($request->JualPrice, 3));
+				$inventory->Type = $input['Type'];
+				$inventory->Warehouse = $input['Warehouse'];
+				$inventory->save();
+			}
     }
     
     /*$inputs['JualPrice'] = str_replace(".","",substr($request->JualPrice, 3));
@@ -236,8 +254,12 @@ class InventoryController extends Controller
   }
   
   public function remove(){
-    $removes = Inventory::groupBy('Barang')
-    ->get();
+		if(env('APP_TYPE')=='Sewa'){
+			$removes = Inventory::groupBy('Barang')
+			->get();
+		}else{
+			$removes = Inventory::all();
+		}
 
 		if(in_array("removeinventory", $this->access)){
 			return view('pages.inventory.removeinventory')
@@ -258,7 +280,11 @@ class InventoryController extends Controller
   public function postRemove($id){
     $inventory = Inventory::find($id);
     
-    Inventory::where('Barang', $inventory->Barang)->delete();
+		if(env('APP_TYPE')=='Sewa'){
+			Inventory::where('Barang', $inventory->Barang)->delete();
+		}else{
+			$inventory->delete();
+		}
 		DB::statement('ALTER TABLE inventory auto_increment = 1;');
     
     return redirect()->route('inventory.removeinventory');

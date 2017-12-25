@@ -11,10 +11,17 @@
         <table id="datatables" class="table table-hover table-bordered">
           <thead>
             <tr>
-              <th>Id</th>
-              <th>Code</th>
-              <th>Barang</th>
-              <th>Type</th>
+							@if(env('APP_TYPE')=='Sewa')
+								<th>Id</th>
+								<th>Code</th>
+								<th>Barang</th>
+								<th>Type</th>
+							@else
+								<th>Id</th>
+								<th>Code</th>
+								<th>Barang</th>
+								<th>Kategori</th>
+							@endif
             </tr>
           </thead>
           <tbody>
