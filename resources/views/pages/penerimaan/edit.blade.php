@@ -31,10 +31,9 @@
         <h3 class="box-title">Penerimaan Detail</h3>
       </div>
       <div class="box-body">
-				<input type="hidden" name="OldTerima" value="{{$penerimaan->TerimaCode}}">
         <div class="form-group">
           {!! Form::label('TerimaCode', 'Terima Code') !!}
-          {!! Form::text('TerimaCode', $penerimaan->TerimaCode, array('id' => 'TerimaCode', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input Code', 'required')) !!}
+          {!! Form::text('TerimaCode', $penerimaan->TerimaCode, array('id' => 'TerimaCode', 'class' => 'form-control', 'readonly')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Tgl', 'Date') !!}
@@ -123,10 +122,5 @@ $(document).ready(function(){
 			$(this).closest('tr').find("#QTerima").val(0);
 	});
 });
-
-function capital() {
-	var x = document.getElementById("TerimaCode");
-	x.value = x.value.toUpperCase();
-}
 </script>
 @stop

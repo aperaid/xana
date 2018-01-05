@@ -65,18 +65,20 @@ class ReturController extends Controller
   public function store(Request $request){
 		//Validation
 		$this->validate($request, [
-			'ReturCode'=>'required|unique:retur',
 			'Tgl'=>'required',
 			'PesanCode'=>'required'
 		], [
-			'ReturCode.required' => 'The Retur Code field is required.',
-			'ReturCode.unique' => 'The Retur Code has already been taken.',
 			'Tgl.required' => 'The Date field is required.',
 			'PesanCode.required' => 'The Pesan Code field is required.'
 		]);
 		
+		$date = explode('/', $request->Tgl);
+		$pesancode = explode('/', $request->PesanCode);
+		
+		$returcode = 'RETUR/'.$pesancode[1].'/'.$date[2].$date[1].$date[0].'/'.$pesancode[3];
+		
 		$retur = new Retur;
-		$retur->ReturCode = $request->ReturCode;
+		$retur->ReturCode = $returcode;
 		$retur->Tgl = $request->Tgl;
 		$retur->Transport = str_replace(".","",substr($request->Transport, 3));
 		$retur->PesanCode = $request->PesanCode;
@@ -87,16 +89,16 @@ class ReturController extends Controller
 		{
 			$pemesanan = PemesananList::find($request->Id[$key]);
 			$pemesanan->QRetur = $request->QRetur[$key];
-			$pemesanan->ReturCode = $request->ReturCode;
+			$pemesanan->ReturCode = $returcode;
 			$pemesanan->save();
 		}
 		
 		$history = new History;
 		$history->User = Auth::user()->name;
-		$history->History = 'Create Retur on Code '.$request['ReturCode'];
+		$history->History = 'Create Retur on Code '.$returcode;
 		$history->save();
 		
-		return redirect()->route('retur.show', $retur->id)->with('message', 'Retur with Code '.$retur->ReturCode.' is  created');
+		return redirect()->route('retur.show', $retur->id)->with('message', 'Retur with Code '.$returcode.' is  created');
   }
 
   public function show($id){
@@ -126,7 +128,7 @@ class ReturController extends Controller
 		->leftJoin('pemesanan', 'retur.PesanCode', 'pemesanan.PesanCode')
 		->where('retur.id', $id)
 		->first();
-    $pemesananlists = PemesananList::select('pemesananlist.QRetur', 'pemesananlist.ICode', 'inventory.*')
+    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.QRetur', 'pemesananlist.ICode', 'inventory.Barang', 'inventory.Type')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
 		->where('pemesananlist.ReturCode', $retur->ReturCode)
     ->get();
@@ -146,18 +148,14 @@ class ReturController extends Controller
   public function update(Request $request, $id){
 		//Validation
 		$this->validate($request, [
-			'ReturCode'=>'required|unique:retur,ReturCode,'.$request->OldRetur.',ReturCode',
 			'Tgl'=>'required',
 			'Transport'=>'required'
 		], [
-			'ReturCode.required' => 'The Retur Code field is required.',
-			'ReturCode.unique' => 'The Retur Code has already been taken.',
 			'Tgl.required' => 'The Date field is required.',
 			'Transport.required' => 'The Transport field is required.'
 		]);
     
 		$retur = Retur::find($id);
-		$retur->ReturCode = $request->ReturCode;
 		$retur->Tgl = $request->Tgl;
 		$retur->Transport = str_replace(".","",substr($request->Transport, 3));
 		$retur->PesanCode = $request->PesanCode;
@@ -168,7 +166,6 @@ class ReturController extends Controller
 		{
 			$pemesanan = PemesananList::find($request->Id[$key]);
 			$pemesanan->QRetur = $request->QRetur[$key];
-			$pemesanan->ReturCode = $request->ReturCode;
 			$pemesanan->save();
 		}
     

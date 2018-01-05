@@ -31,10 +31,9 @@
         <h3 class="box-title">Pemesanan Detail</h3>
       </div>
       <div class="box-body">
-				<input type="hidden" name="OldPemesanan" value="{{$pemesanan->PesanCode}}">
         <div class="form-group">
           {!! Form::label('PesanCode', 'Pesan Code') !!}
-          {!! Form::text('PesanCode', $pemesanan -> PesanCode, array('id' => 'PesanCode', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input Code', 'required')) !!}
+          {!! Form::text('PesanCode', $pemesanan -> PesanCode, array('id' => 'PesanCode', 'class' => 'form-control', 'readonly')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Tgl', 'Date') !!}
@@ -47,7 +46,7 @@
         </div>
         <div class="form-group">
           {!! Form::label('Supplier Code', 'Supplier Code') !!}
-          {!! Form::text('SCode', $pemesanan -> SCode, array('class' => 'form-control', 'id' => 'SCode', 'placeholder' => 'ABC01', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'maxlength' => '5', 'required')) !!}
+          {!! Form::text('SCode', $pemesanan -> SCode, array('class' => 'form-control', 'id' => 'SCode', 'readonly')) !!}
           <p class="help-block">Enter the beginning of the Supplier Code, then pick from the dropdown</p>
         </div>
       </div>
@@ -231,28 +230,5 @@ $(document).ready(function(){
 		$(this).parent().parent().remove();
 	});
 });
-	
-//autocomplete on SCode
-$("#SCode").autocomplete({
-	autoFocus: true,
-	source: function( request, response ) {
-		$.post("/dropdown/supplierlist/" + request.term, { '_token':'{{ csrf_token() }}' }, function(data){})
-		.done(function(data){
-			response($.map(data, function (value, key) {
-				return {
-						label: value.label
-				};
-			}));
-		})
-		.fail(function(){})
-	}
-});
-	
-function capital() {
-	var x = document.getElementById("PesanCode");
-	x.value = x.value.toUpperCase();
-	var x = document.getElementById("SCode");
-	x.value = x.value.toUpperCase();
-}
 </script>
 @stop

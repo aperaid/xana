@@ -31,10 +31,9 @@
         <h3 class="box-title">Retur Detail</h3>
       </div>
       <div class="box-body">
-				<input type="hidden" name="OldRetur" value="{{$retur->ReturCode}}">
         <div class="form-group">
           {!! Form::label('ReturCode', 'Retur Code') !!}
-          {!! Form::text('ReturCode', $retur->ReturCode, array('id' => 'ReturCode', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input Code', 'required')) !!}
+          {!! Form::text('ReturCode', $retur->ReturCode, array('id' => 'ReturCode', 'class' => 'form-control', 'readonly')) !!}
         </div>
         <div class="form-group">
           {!! Form::label('Tgl', 'Date') !!}
@@ -123,10 +122,5 @@ $(document).ready(function(){
 			$(this).closest('tr').find("#QRetur").val(0);
 	});
 });
-
-function capital() {
-	var x = document.getElementById("ReturCode");
-	x.value = x.value.toUpperCase();
-}
 </script>
 @stop

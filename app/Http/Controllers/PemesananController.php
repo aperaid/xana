@@ -7,7 +7,9 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Pemesanan;
 use App\PemesananList;
+use App\PurchaseInvoice;
 use App\Penerimaan;
+use App\Supplier;
 use App\Retur;
 use App\History;
 use Session;
@@ -68,21 +70,33 @@ class PemesananController extends Controller
   public function store(Request $request){
 		//Validation
 		$this->validate($request, [
-			'PesanCode'=>'required|unique:pemesanan',
 			'Tgl'=>'required',
 			'SCode'=>'required'
 		], [
-			'PesanCode.required' => 'The Pesan Code field is required.',
-			'PesanCode.unique' => 'The Pesan Code has already been taken.',
 			'Tgl.required' => 'The Date field is required.',
 			'SCode.required' => 'The Supplier Code field is required.'
 		]);
 		
+		$date = explode('/', $request->Tgl);
+		$count = Supplier::where('SCode', $request->SCode)->first();
+		
+		$pesancode = 'PESAN/'.$request->SCode.'/'.$date[2].$date[1].$date[0].'/'.str_pad($count->Count, 5, '0', STR_PAD_LEFT);
+		$purchaseinvoicecode = 'INVOICE/'.$request->SCode.'/'.$date[2].$date[1].$date[0].'/'.str_pad($count->Count, 5, '0', STR_PAD_LEFT);
+		
+		$count->Count = $count->Count + 1;
+		$count->save();
+		
 		$pemesanan = new Pemesanan;
-		$pemesanan->PesanCode = $request->PesanCode;
+		$pemesanan->PesanCode = $pesancode;
 		$pemesanan->Tgl = $request->Tgl;
 		$pemesanan->SCode = $request->SCode;
 		$pemesanan->save();
+		
+		$purchaseinvoice = new PurchaseInvoice;
+		$purchaseinvoice->PurchaseInvoice = $purchaseinvoicecode;
+		$purchaseinvoice->Tgl = $request->Tgl;
+		$purchaseinvoice->PesanCode = $pesancode;
+		$purchaseinvoice->save();
 		
 		$pemesananlists = $request->Barang;
 		foreach ($pemesananlists as $key => $pemesananlist)
@@ -91,7 +105,7 @@ class PemesananController extends Controller
 			$pemesananlist->Quantity = $request->Quantity[$key];
 			$pemesananlist->Amount = str_replace(".","",substr($request->Amount[$key], 3));
 			$pemesananlist->ICode = $request->ICode[$key];
-			$pemesananlist->PesanCode = $request->PesanCode;
+			$pemesananlist->PesanCode = $pesancode;
 			$pemesananlist->save();
 		}
 		
@@ -100,22 +114,30 @@ class PemesananController extends Controller
 		$history->History = 'Create Pemesanan on Code '.$request['Pemesanan'];
 		$history->save();
 		
-		return redirect()->route('pemesanan.show', $pemesanan->id)->with('message', 'Pemesanan with Code '.$pemesanan->PesanCode.' is  created');
+		return redirect()->route('pemesanan.show', $pemesanan->id)->with('message', 'Pemesanan with Code '.$pesancode.' is  created');
   }
 
   public function show($id){
-    $pemesanan = Pemesanan::select('pemesanan.*', 'supplier.*', 'penerimaan.id as idTerima', 'penerimaan.TerimaCode', 'penerimaan.Transport as TransportTerima', 'penerimaan.Tgl as TglTerima', 'retur.id as idRetur', 'retur.ReturCode', 'retur.Transport as TransportRetur', 'retur.Tgl as TglRetur')
+    $pemesanan = Pemesanan::select('pemesanan.id as idPesan', 'pemesanan.*', 'supplier.*', 'penerimaan.id as idTerima', 'penerimaan.TerimaCode', 'penerimaan.Transport as TransportTerima', 'penerimaan.Tgl as TglTerima', 'retur.id as idRetur', 'retur.ReturCode', 'retur.Transport as TransportRetur', 'retur.Tgl as TglRetur', 'purchaseinvoice.id as idInvoice', 'purchaseinvoice.PurchaseInvoice', 'purchaseinvoice.Tgl as TglInvoice', 'purchaseinvoice.Discount', 'purchaseinvoice.Catatan', 'purchaseinvoice.TglTerima', 'purchaseinvoice.Termin', 'purchaseinvoice.Pembulatan')
 		->leftJoin('penerimaan', 'pemesanan.PesanCode', 'penerimaan.PesanCode')
 		->leftJoin('retur', 'pemesanan.PesanCode', 'retur.PesanCode')
+		->leftJoin('purchaseinvoice', 'pemesanan.PesanCode', 'purchaseinvoice.PesanCode')
 		->leftJoin('supplier', 'pemesanan.SCode', 'supplier.SCode')
 		->where('pemesanan.id', $id)
 		->first();
-    $pemesananlists = PemesananList::select('pemesananlist.*', 'pemesanan.*', 'inventory.Barang', 'inventory.Type')
+    $pemesananlists = PemesananList::select(['pemesananlist.*', DB::raw('pemesananlist.Amount*pemesananlist.QTerima AS Total'), 'pemesanan.*', 'inventory.Barang', 'inventory.Type'])
 		->leftJoin('pemesanan', 'pemesananlist.PesanCode', 'pemesanan.PesanCode')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
 		->where('pemesanan.id', $id)
     ->orderBy('pemesanan.id', 'asc')
     ->get();
+		
+		$Total = array_sum($pemesananlists->pluck('Total')->toArray());
+		$GrandTotal = $Total+$pemesanan->TransportTerima-$pemesanan->Discount-$pemesanan->Pembulatan-$pemesanan->TransportRetur;
+		
+		$tglterima = str_replace('/', '-', $pemesanan->TglTerima);
+		$duedate = date('d/m/Y', strtotime($tglterima."+".$pemesanan->Termin." days"));
+		
 		$terimacheck = Penerimaan::leftJoin('pemesanan', 'penerimaan.PesanCode', 'pemesanan.PesanCode')
 		->where('pemesanan.id', $id)
 		->first();
@@ -136,6 +158,9 @@ class PemesananController extends Controller
       ->with('url', 'pemesanan')
       ->with('pemesanan', $pemesanan)
       ->with('pemesananlists', $pemesananlists)
+      ->with('Total', $Total)
+      ->with('GrandTotal', $GrandTotal)
+      ->with('duedate', $duedate)
       ->with('terimacheck', $terimacheck)
       ->with('returcheck', $returcheck)
       ->with('qreturcheck', $qreturcheck)
@@ -170,20 +195,15 @@ class PemesananController extends Controller
   public function update(Request $request, $id){
 		//Validation
 		$this->validate($request, [
-			'PesanCode'=>'required|unique:pemesanan,PesanCode,'.$request->OldPemesanan.',PesanCode',
 			'Tgl'=>'required',
 			'SCode'=>'required'
 		], [
-			'PesanCode.required' => 'The Pesan Code field is required.',
-			'PesanCode.unique' => 'The Pesan Code has already been taken.',
 			'Tgl.required' => 'The Date field is required.',
 			'SCode.required' => 'The Supplier Code field is required.'
 		]);
     
 		$pemesanan = Pemesanan::find($id);
-		$pemesanan->PesanCode = $request->PesanCode;
 		$pemesanan->Tgl = $request->Tgl;
-		$pemesanan->SCode = $request->SCode;
 		$pemesanan->save();
 
     PemesananList::where('PesanCode', $pemesanan->PesanCode)->delete();

@@ -32,10 +32,6 @@
 			</div>
       <div class="box-body">
         <div class="form-group">
-          {!! Form::label('ReturCode', 'Retur Code') !!}
-          {!! Form::text('ReturCode', null, array('id' => 'ReturCode', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input Code', 'required')) !!}
-        </div>
-        <div class="form-group">
           {!! Form::label('Tgl', 'Date') !!}
           <div class="input-group">
             <div class="input-group-addon">
@@ -124,10 +120,5 @@ $(document).ready(function(){
 			$(this).closest('tr').find("#QRetur").val(0);
 	});
 });
-
-function capital() {
-	var x = document.getElementById("ReturCode");
-	x.value = x.value.toUpperCase();
-}
 </script>
 @stop

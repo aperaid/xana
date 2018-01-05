@@ -23,7 +23,7 @@
         <li @if ($top_menu_sel=="menu_invoice") class="active" @endif ><a href="{{route('invoice.index')}}"><i class="fa fa-list-alt"></i> <span>Invoice</span></a></li>
       </ul>
     </li>
-    <li class="treeview @if ($top_menu_sel=="menu_supplier" || $top_menu_sel=="menu_permintaan" || $top_menu_sel=="menu_pemesanan" || $top_menu_sel=="menu_penerimaan" ||  $top_menu_sel=="menu_retur" || $top_menu_sel=="menu_invoice2") active @endif ">
+    <li class="treeview @if ($top_menu_sel=="menu_supplier" || $top_menu_sel=="menu_permintaan" || $top_menu_sel=="menu_pemesanan" || $top_menu_sel=="menu_penerimaan" ||  $top_menu_sel=="menu_retur" || $top_menu_sel=="menu_purchaseinvoice") active @endif ">
       <a href="#">
         <i class="fa fa-cart-plus"></i>
         <span>Pembelian</span>
@@ -35,7 +35,7 @@
         <li @if ($top_menu_sel=="menu_pemesanan") class="active" @endif ><a href="{{route('pemesanan.index')}}"><i class="fa fa-file-text-o"></i> <span>Pemesanan</span></a></li>
         <li @if ($top_menu_sel=="menu_penerimaan") class="active" @endif ><a href="{{route('penerimaan.index')}}"><i class="fa fa-automobile"></i> <span>Penerimaan</span></a></li>
         <li @if ($top_menu_sel=="menu_retur") class="active" @endif ><a href="{{route('retur.index')}}"><i class="fa fa-history"></i> <span>Retur</span></a></li>
-        <li @if ($top_menu_sel=="menu_invoice2") class="active" @endif ><a href="{{route('customer.index')}}"><i class="fa fa-list-alt"></i> <span>Invoice</span></a></li>
+        <li @if ($top_menu_sel=="menu_purchaseinvoice") class="active" @endif ><a href="{{route('purchaseinvoice.index')}}"><i class="fa fa-list-alt"></i> <span>Purchase Invoice</span></a></li>
       </ul>
     </li>
     <li class="treeview @if ($top_menu_sel=="menu_stockproject" ||  $top_menu_sel=="menu_view" ||  $top_menu_sel=="menu_adjustment" || $top_menu_sel=="menu_transfer" || $top_menu_sel=="menu_register" || $top_menu_sel=="menu_remove") active @endif ">

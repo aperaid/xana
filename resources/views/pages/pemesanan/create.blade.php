@@ -32,10 +32,6 @@
 			</div>
       <div class="box-body">
         <div class="form-group">
-          {!! Form::label('PesanCode', 'Pesan Code') !!}
-          {!! Form::text('PesanCode', null, array('id' => 'PesanCode', 'class' => 'form-control', 'autocomplete' => 'off', 'onKeyUp' => 'capital()', 'placeholder' => 'Input Code', 'required')) !!}
-        </div>
-        <div class="form-group">
           {!! Form::label('Tgl', 'Date') !!}
           <div class="input-group">
             <div class="input-group-addon">
@@ -238,8 +234,6 @@ $("#SCode").autocomplete({
 });
 
 function capital() {
-	var x = document.getElementById("PesanCode");
-	x.value = x.value.toUpperCase();
 	var x = document.getElementById("SCode");
 	x.value = x.value.toUpperCase();
 }

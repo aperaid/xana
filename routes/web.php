@@ -148,6 +148,10 @@ Route::group(['middleware' => 'auth'], function () {
 	
   Route::resource('retur', 'ReturController');
 	Route::post('/retur/delete', 'ReturController@DeleteRetur')->name('retur.destroy');
+	
+	Route::resource('purchaseinvoice', 'PurchaseInvoiceController');
+  Route::post('purchaseinvoice/updatelunas', ['as' => 'purchaseinvoice.updatelunas', 'uses' => 'PurchaseInvoiceController@postLunas']);
+  Route::get('purchaseinvoice/invoice/{id}', ['as' => 'purchaseinvoice.invoice', 'uses' => 'PurchaseInvoiceController@getInvoice']);
 /*
  * item info
  */

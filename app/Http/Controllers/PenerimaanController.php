@@ -66,18 +66,20 @@ class PenerimaanController extends Controller
   public function store(Request $request){
 		//Validation
 		$this->validate($request, [
-			'TerimaCode'=>'required|unique:penerimaan',
 			'Tgl'=>'required',
 			'PesanCode'=>'required'
 		], [
-			'TerimaCode.required' => 'The Terima Code field is required.',
-			'TerimaCode.unique' => 'The Terima Code has already been taken.',
 			'Tgl.required' => 'The Date field is required.',
 			'PesanCode.required' => 'The Pesan Code field is required.'
 		]);
 		
+		$date = explode('/', $request->Tgl);
+		$pesancode = explode('/', $request->PesanCode);
+		
+		$terimacode = 'TERIMA/'.$pesancode[1].'/'.$date[2].$date[1].$date[0].'/'.$pesancode[3];
+		
 		$penerimaan = new Penerimaan;
-		$penerimaan->TerimaCode = $request->TerimaCode;
+		$penerimaan->TerimaCode = $terimacode;
 		$penerimaan->Tgl = $request->Tgl;
 		$penerimaan->Transport = str_replace(".","",substr($request->Transport, 3));
 		$penerimaan->PesanCode = $request->PesanCode;
@@ -88,16 +90,16 @@ class PenerimaanController extends Controller
 		{
 			$pemesanan = PemesananList::find($request->Id[$key]);
 			$pemesanan->QTerima = $request->QTerima[$key];
-			$pemesanan->TerimaCode = $request->TerimaCode;
+			$pemesanan->TerimaCode = $terimacode;
 			$pemesanan->save();
 		}
 		
 		$history = new History;
 		$history->User = Auth::user()->name;
-		$history->History = 'Create Penerimaan on Code '.$request['TerimaCode'];
+		$history->History = 'Create Penerimaan on Code '.$terimacode;
 		$history->save();
 		
-		return redirect()->route('penerimaan.show', $penerimaan->id)->with('message', 'Penerimaan with Code '.$penerimaan->TerimaCode.' is  created');
+		return redirect()->route('penerimaan.show', $penerimaan->id)->with('message', 'Penerimaan with Code '.$terimacode.' is  created');
   }
 
   public function show($id){
@@ -105,7 +107,7 @@ class PenerimaanController extends Controller
 		->leftJoin('pemesanan', 'penerimaan.PesanCode', 'pemesanan.PesanCode')
 		->where('penerimaan.id', $id)
 		->first();
-    $pemesananlists = PemesananList::select('pemesananlist.QTerima', 'pemesananlist.ICode', 'inventory.*')
+    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.QTerima', 'pemesananlist.ICode', 'inventory.Barang', 'inventory.Type')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
 		->where('pemesananlist.TerimaCode', $penerimaan->TerimaCode)
     ->get();
@@ -140,7 +142,7 @@ class PenerimaanController extends Controller
 		->leftJoin('pemesanan', 'penerimaan.PesanCode', 'pemesanan.PesanCode')
 		->where('penerimaan.id', $id)
 		->first();
-    $pemesananlists = PemesananList::select('pemesananlist.QTerima', 'pemesananlist.ICode', 'inventory.*')
+    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.QTerima', 'pemesananlist.ICode', 'inventory.Barang', 'inventory.Type')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
 		->where('pemesananlist.TerimaCode', $penerimaan->TerimaCode)
     ->get();
@@ -160,18 +162,14 @@ class PenerimaanController extends Controller
   public function update(Request $request, $id){
 		//Validation
 		$this->validate($request, [
-			'TerimaCode'=>'required|unique:penerimaan,TerimaCode,'.$request->OldTerima.',TerimaCode',
 			'Tgl'=>'required',
 			'Transport'=>'required'
 		], [
-			'TerimaCode.required' => 'The Terima Code field is required.',
-			'TerimaCode.unique' => 'The Terima Code has already been taken.',
 			'Tgl.required' => 'The Date field is required.',
 			'Transport.required' => 'The Transport field is required.'
 		]);
     
 		$penerimaan = Penerimaan::find($id);
-		$penerimaan->TerimaCode = $request->TerimaCode;
 		$penerimaan->Tgl = $request->Tgl;
 		$penerimaan->Transport = str_replace(".","",substr($request->Transport, 3));
 		$penerimaan->PesanCode = $request->PesanCode;
@@ -182,7 +180,6 @@ class PenerimaanController extends Controller
 		{
 			$pemesanan = PemesananList::find($request->Id[$key]);
 			$pemesanan->QTerima = $request->QTerima[$key];
-			$pemesanan->TerimaCode = $request->TerimaCode;
 			$pemesanan->save();
 		}
     
