@@ -34,9 +34,13 @@
               @if ( $pemesanan->TerimaCode == NULL ) <!-- belum dikirim -->
 								<td><span class="badge bg-red">Pesan</span></td>
 							@elseif ( $pemesanan -> SumQuantity > $pemesanan -> SumQTerima ) <!-- setengah diterima -->
-								<td><span class="badge bg-yellow">Kirim</span></td>
-							@elseif ( $pemesanan -> SumQuantity == $pemesanan -> SumQTerima ) <!-- penerimaan selesai  -->
-								<td><span class="badge bg-green">Terima</span></td>
+								<td><span class="badge bg-orange">Kirim</span></td>
+							@elseif ( ($pemesanan -> SumQuantity == $pemesanan -> SumQTerima) && $pemesanan -> TglTerima == '') <!-- penerimaan selesai/tgl terima  -->
+								<td><span class="badge bg-yellow">Tgl Terima</span></td>
+							@elseif ( $pemesanan -> Lunas == 0) <!-- Jatuh Tempo  -->
+								<td><span class="badge bg-blue">Jatuh Tempo</span></td>
+							@elseif ( $pemesanan -> Lunas == 1) <!-- Lunas  -->
+								<td><span class="badge bg-green">Lunas</span></td>
 							@endif
             </tr>
             @endforeach

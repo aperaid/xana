@@ -37,10 +37,13 @@ class PemesananController extends Controller
 			DB::raw('sum(pemesananlist.QTerima) AS SumQTerima'),
 			'penerimaan.TerimaCode',
 			'penerimaan.Transport',
+			'purchaseinvoice.TglTerima',
+			'purchaseinvoice.Lunas',
 			'supplier.Company'
 		])
 		->leftJoin('pemesananlist', 'pemesanan.PesanCode', 'pemesananlist.PesanCode')
 		->leftJoin('penerimaan', 'pemesanan.PesanCode', 'penerimaan.PesanCode')
+		->leftJoin('purchaseinvoice', 'pemesanan.PesanCode', 'purchaseinvoice.PesanCode')
 		->leftJoin('supplier', 'pemesanan.SCode', 'supplier.SCode')
 		->groupBy('pemesanan.PesanCode')
 		->get();

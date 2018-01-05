@@ -27,6 +27,8 @@
 					</div>
           <div class="col-sm-8">
             <div class="form-group">
+							<input id="id" type="hidden" value="{{$purchaseinvoice->id}}">
+							<input id="Lunas" type="hidden" value="{{$purchaseinvoice->Lunas}}">
               {!! Form::label('PesanCode', 'Pesan Code', ['class' => "col-sm-4 control-label"]) !!}
               <div class="col-sm-8">
                 {!! Form::text('PesanCode', $purchaseinvoice->PesanCode, array('class' => 'form-control', 'readonly')) !!}
@@ -146,6 +148,13 @@
             <a href="{{route('invoice.Invj', $purchaseinvoice->id)}}" button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print Invoice</a>
             <!-- Submit Button -->
             {!! Form::submit('Update', array('class' => 'btn btn-info pull-right')) !!}
+						@if($purchaseinvoice->TglTerima=='')
+							<button type="button" class="btn btn-danger pull-right" style="margin-right: 5px;" disabled>Belum Lunas</button>
+						@elseif($purchaseinvoice->Lunas==0)
+							<button type="button" class="btn btn-danger pull-right lunas" style="margin-right: 5px;">Belum Lunas</button>
+						@else
+							<button type="button" class="btn btn-success pull-right lunas" style="margin-right: 5px;">Lunas</button>
+						@endif
           </div>
           <!-- box-footer -->
         </div>
@@ -186,6 +195,16 @@ $(document).ready(function(){
 	else if(parseInt($(this).val()) < 0)
 		$(this).val(0);
 	});*/
+});
+
+$(".lunas").click(function(){
+  $.post("../../purchaseinvoice/updatelunas", {"_token":"{{csrf_token()}}", id: $("#id").val(), LunasType: $("#Lunas").val()}, function(){})
+  .done(function(data){
+    location.reload();
+  })
+  .fail(function(data){
+    console.log('fail');
+  });
 });
 
 $(function() {
