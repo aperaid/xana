@@ -16,7 +16,16 @@
           <h3 class="box-title">Purchase Invoice Detail</h3>
         </div>
         <div class="box-body with-border">
-          <div class="col-sm-9">
+					<div class="col-sm-1">
+						@if($purchaseinvoice->TglTerima == '')
+							<img src="{{ URL::to('/img/Tgl Terima.PNG') }}" class="img-square">
+						@elseif($purchaseinvoice->Lunas == 0)
+							<img src="{{ URL::to('/img/Jatuh Tempo.PNG') }}" class="img-square">
+						@elseif($purchaseinvoice->Lunas == 1)
+							<img src="{{ URL::to('/img/Lunas.PNG') }}" class="img-square">
+						@endif
+					</div>
+          <div class="col-sm-8">
             <div class="form-group">
               {!! Form::label('PesanCode', 'Pesan Code', ['class' => "col-sm-4 control-label"]) !!}
               <div class="col-sm-8">
@@ -80,7 +89,7 @@
 								{!! Form::text('TglTerima', $purchaseinvoice->TglTerima, ['id' => 'TglTerima', 'class' => 'form-control', 'autocomplete' => 'off']) !!}
 							</div>
 						</div>
-						{!! Form::label('Termin', 'Termin', ['class' => "col-sm-1 control-label"]) !!}
+						{!! Form::label('Termin', 'Termin Hari', ['class' => "col-sm-1 control-label"]) !!}
             <div class="col-sm-2">
 							{!! Form::number('Termin', $purchaseinvoice->Termin, array('class' => 'form-control', 'placeholder' => 'Hari')) !!}
             </div>

@@ -31,7 +31,7 @@
 									<h2 class="page-header">
 										<small class="pull-right">Date: {{ $pemesanan -> Tgl }}</small><br>
 										<i class="fa fa-globe"></i> PT. {{env('APP_COMPANY')}} | {{ $pemesanan -> PesanCode }}
-										<small class="pull-right">Transport: {{ 'Rp '. number_format( $pemesanan -> Transport, 2,',', '.' ) }}</small>
+										<small class="pull-right">Transport: {{ 'Rp '. number_format( $pemesanan -> TransportTerima, 2,',', '.' ) }}</small>
 									</h2>
 								</div>
 							</div>
@@ -326,7 +326,16 @@
 								<h3 class="box-title">Purchase Invoice Detail</h3>
 							</div>
 							<div class="box-body with-border">
-								<div class="col-sm-9">
+								<div class="col-sm-1">
+									@if($pemesanan->TglTerima == '')
+										<img src="{{ URL::to('/img/Tgl Terima.PNG') }}" class="img-square">
+									@elseif($pemesanan->Lunas == 0)
+										<img src="{{ URL::to('/img/Jatuh Tempo.PNG') }}" class="img-square">
+									@elseif($pemesanan->Lunas == 1)
+										<img src="{{ URL::to('/img/Lunas.PNG') }}" class="img-square">
+									@endif
+								</div>
+								<div class="col-sm-8">
 									<div class="form-group">
 										{!! Form::label('Invoice', 'No. Invoice', ['class' => "col-sm-4 control-label"]) !!}
 										<div class="col-sm-8">
@@ -390,7 +399,7 @@
 											{!! Form::text('TglTerima', $pemesanan->TglTerima, ['class' => 'form-control', 'readonly']) !!}
 										</div>
 									</div>
-									{!! Form::label('Termin', 'Termin', ['class' => "col-sm-1 control-label"]) !!}
+									{!! Form::label('Termin', 'Termin Hari', ['class' => "col-sm-1 control-label"]) !!}
 									<div class="col-sm-2">
 										{!! Form::number('Termin', $pemesanan->Termin, array('class' => 'form-control', 'readonly')) !!}
 									</div>

@@ -128,7 +128,7 @@ class ReturController extends Controller
 		->leftJoin('pemesanan', 'retur.PesanCode', 'pemesanan.PesanCode')
 		->where('retur.id', $id)
 		->first();
-    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.QRetur', 'pemesananlist.ICode', 'inventory.Barang', 'inventory.Type')
+    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.QTerima', 'pemesananlist.QRetur', 'pemesananlist.ICode', 'inventory.Barang', 'inventory.Type')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
 		->where('pemesananlist.ReturCode', $retur->ReturCode)
     ->get();

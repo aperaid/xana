@@ -68,6 +68,7 @@
           <thead>
 						<tr>
 							<th hidden>Id</th>
+							<th hidden>Quantity</th>
 							<th>Barang</th>
 							<th>ICode</th>
 							<th width="10%">QTerima</th>
@@ -80,6 +81,7 @@
 						@foreach($pemesananlists as $pemesananlist)
 							<tr class='tr_input'>
 								<td hidden><input type='text' name='Id[]' id='Id' value='{{$pemesananlist->id}}' class='form-control input-sm' readonly></td>
+								<td hidden><input type='text' name='Quantity[]' id='Quantity' value='{{$pemesananlist->Quantity}}' class='form-control input-sm' readonly></td>
 								<td><input type='text' name='Barang[]' id='Barang' value='{{$pemesananlist->Barang}}' class='form-control input-sm' readonly></td>
 								<td><input type='text' name='ICode[]' id='ICode' value='{{$pemesananlist->ICode}}' class='form-control input-sm' readonly></td>
 								<td><input type='number' name='QTerima[]' id='QTerima' value='{{$pemesananlist->QTerima}}' class='form-control input-sm' placeholder='100' autocomplete required></td>
@@ -120,6 +122,10 @@ $(document).ready(function(){
 	$(document).on('keyup', '#QTerima', function(){
 		if(parseInt($(this).closest('tr').find("#QTerima").val()) < 0)
 			$(this).closest('tr').find("#QTerima").val(0);
+		else if(parseInt($(this).closest('tr').find("#QTerima").val()) > $(this).closest('tr').find("#Quantity").val())
+			$(this).closest('tr').find("#QTerima").val($(this).closest('tr').find("#Quantity").val());
+		else
+			$(this).closest('tr').find("#Quantity").val();
 	});
 });
 </script>

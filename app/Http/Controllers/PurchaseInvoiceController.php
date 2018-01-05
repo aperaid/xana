@@ -110,6 +110,127 @@ class PurchaseInvoiceController extends Controller
     
     return redirect()->route('purchaseinvoice.edit', $id);
   }
+	
+	function terbilang($x, $style=4){
+    if($x<0) {
+      $hasil = "minus ". trim(kekata($x));
+    } else {
+      $hasil = ucwords(trim($this->kekata($x)));
+    }     
+    switch ($style) {
+      case 1:
+        $hasil = strtoupper($hasil);
+        break;
+      case 2:
+        $hasil = strtolower($hasil);
+        break;
+      case 3:
+        $hasil = ucwords($hasil);
+        break;
+      default:
+        $hasil = ucfirst($hasil);
+        break;
+    }
+    return $hasil;
+  }
+	
+	public function getInvoice($id){
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+    
+		$purchaseinvoice = PurchaseInvoice::select([
+			'pemesanan.id as idPesan',
+			'purchaseinvoice.*',
+			DB::raw('SUM(pemesananlist.Amount*pemesananlist.QTerima) AS Total'),
+			'penerimaan.Transport as TransportTerima',
+			'retur.Transport as TransportRetur',
+			'supplier.Company'
+		])
+		->leftJoin('pemesanan', 'purchaseinvoice.PesanCode', 'pemesanan.PesanCode')
+		->leftJoin('pemesananlist', 'pemesanan.PesanCode', 'pemesananlist.PesanCode')
+		->leftJoin('penerimaan', 'pemesanan.PesanCode', 'penerimaan.PesanCode')
+		->leftJoin('retur', 'pemesanan.PesanCode', 'retur.PesanCode')
+		->leftJoin('supplier', 'pemesanan.SCode', 'supplier.SCode')
+		->where('purchaseinvoice.id', $id)
+		->groupBy('pemesananlist.PesanCode')
+		->first();
+		
+		$GrandTotal = $purchaseinvoice->Total+$purchaseinvoice->TransportTerima-$purchaseinvoice->Discount-$purchaseinvoice->Pembulatan-$purchaseinvoice->TransportRetur;
+		
+		$tglterima = str_replace('/', '-', $purchaseinvoice->TglTerima);
+		$duedate = date('d/m/Y', strtotime($tglterima."+".$purchaseinvoice->Termin." days"));
+		
+		$purchaseinvoices = PurchaseInvoice::select([
+			'purchaseinvoice.*',
+			'pemesananlist.*',
+			'inventory.*'
+		])
+		->leftJoin('pemesanan', 'purchaseinvoice.PesanCode', 'pemesanan.PesanCode')
+		->leftJoin('pemesananlist', 'pemesanan.PesanCode', 'pemesananlist.PesanCode')
+		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
+		->get();
+    
+    $document = $phpWord->loadTemplate(public_path('/template/PurchaseInvoice.docx'));
+    
+    $document->setValue('Company', ''.$purchaseinvoice->Company.'');
+    $document->setValue('CompAlamat', ''.$purchaseinvoice->CompAlamat.'');
+    $document->setValue('CompPhone', ''.$purchaseinvoice->CompPhone.'');
+    $document->setValue('PCode', ''.$purchaseinvoice->PCode.'');
+    $document->setValue('Project', ''.$purchaseinvoice->Project.'');
+    $document->setValue('Invoice', ''.$purchaseinvoice->Invoice.'');
+    $document->setValue('Tgl', ''.$transaksis->first()->Tgl.'');
+    $document->setValue('POCode', ''.$pocode->POCode.'');
+    $document->setValue('Total', ''.number_format($total, 0, ',','.').'');
+    $document->setValue('Disc', ''.$purchaseinvoice->podisc.'');
+    $document->setValue('Discount', ''.number_format($Discount, 0, ',','.').'');
+    $document->setValue('Transport', ''.number_format($Transport, 0, ',','.').'');
+    $document->setValue('PPN', ''.number_format($Pajak, 0, ',','.').'');
+    $document->setValue('Totals', ''.number_format($GrandTotal, 0, ',','.').'');
+    $document->setValue('Terbilang', ''.$this->terbilang(round($GrandTotal)).' Rupiah'.'');
+
+    foreach ($transaksis as $key => $transaksi)
+    {
+      $key2 = $key+1;
+      $document->setValue('Key'.$key, ''.$key2.'');
+      $document->setValue('Type'.$key, ''.$transaksi->Type.'');
+      $document->setValue('Barang'.$key, ''.$transaksi->Barang.'');
+      $document->setValue('Quantity'.$key, ''.$transaksi->QTertanda.'');
+      $document->setValue('Sat'.$key, 'PCS');
+      $document->setValue('Price'.$key, ''.number_format($transaksi->Amount, 0, ',', '.').'');
+      $document->setValue('Total'.$key, ''.number_format($total2[$key], 0, ',', '.').'');
+    }
+    
+    for($x=0;$x<20;$x++){
+      $document->setValue('Key'.$x, '');
+      $document->setValue('Type'.$x, '');
+      $document->setValue('Barang'.$x, '');
+      $document->setValue('Quantity'.$x, '');
+      $document->setValue('Sat'.$x, '');
+      $document->setValue('Price'.$x, '');
+      $document->setValue('Total'.$x, '');
+    }
+    
+    $user = substr(gethostbyaddr($_SERVER['REMOTE_ADDR']), 0, -3);
+    if($invoice->PPN==1)
+			$path = sprintf("C:\Users\Public\Documents\PPN\JUAL\INV\INV_", $user);
+		else
+			$path = sprintf("C:\Users\Public\Documents\NON PPN\JUAL\INV\INV_", $user);
+    $clear = str_replace("/","_",$invoice->Invoice);
+    $download = sprintf('INV_%s.docx', $clear);
+    
+    //save as a random file in temp file
+		$temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+		$document->saveAs($temp_file);
+		
+		// Your browser will name the file "myFile.docx"
+		// regardless of what it's named on the server 
+		header("Content-Disposition: attachment; filename=$download");
+		//readfile($temp_file); // or 
+		echo file_get_contents($temp_file);
+		unlink($temp_file);  // remove temp file
+		
+		//Session::flash('message', 'Downloaded to Server Public Documents file name INV_'.$download);
+    //return redirect()->route('invoice.showjual', $id);
+  }
 
 	public function postLunas(Request $request){
 		$purchaseinvoice = PurchaseInvoice::find($request->id);

@@ -142,7 +142,7 @@ class PenerimaanController extends Controller
 		->leftJoin('pemesanan', 'penerimaan.PesanCode', 'pemesanan.PesanCode')
 		->where('penerimaan.id', $id)
 		->first();
-    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.QTerima', 'pemesananlist.ICode', 'inventory.Barang', 'inventory.Type')
+    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.Quantity', 'pemesananlist.QTerima', 'pemesananlist.ICode', 'inventory.Barang', 'inventory.Type')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
 		->where('pemesananlist.TerimaCode', $penerimaan->TerimaCode)
     ->get();

@@ -118,7 +118,7 @@ class PemesananController extends Controller
   }
 
   public function show($id){
-    $pemesanan = Pemesanan::select('pemesanan.id as idPesan', 'pemesanan.*', 'supplier.*', 'penerimaan.id as idTerima', 'penerimaan.TerimaCode', 'penerimaan.Transport as TransportTerima', 'penerimaan.Tgl as TglTerima', 'retur.id as idRetur', 'retur.ReturCode', 'retur.Transport as TransportRetur', 'retur.Tgl as TglRetur', 'purchaseinvoice.id as idInvoice', 'purchaseinvoice.PurchaseInvoice', 'purchaseinvoice.Tgl as TglInvoice', 'purchaseinvoice.Discount', 'purchaseinvoice.Catatan', 'purchaseinvoice.TglTerima', 'purchaseinvoice.Termin', 'purchaseinvoice.Pembulatan')
+    $pemesanan = Pemesanan::select('pemesanan.id as idPesan', 'pemesanan.*', 'supplier.*', 'penerimaan.id as idTerima', 'penerimaan.TerimaCode', 'penerimaan.Transport as TransportTerima', 'penerimaan.Tgl as TglTerima', 'retur.id as idRetur', 'retur.ReturCode', 'retur.Transport as TransportRetur', 'retur.Tgl as TglRetur', 'purchaseinvoice.id as idInvoice', 'purchaseinvoice.PurchaseInvoice', 'purchaseinvoice.Tgl as TglInvoice', 'purchaseinvoice.Discount', 'purchaseinvoice.Catatan', 'purchaseinvoice.Lunas', 'purchaseinvoice.TglTerima', 'purchaseinvoice.Termin', 'purchaseinvoice.Pembulatan')
 		->leftJoin('penerimaan', 'pemesanan.PesanCode', 'penerimaan.PesanCode')
 		->leftJoin('retur', 'pemesanan.PesanCode', 'retur.PesanCode')
 		->leftJoin('purchaseinvoice', 'pemesanan.PesanCode', 'purchaseinvoice.PesanCode')
