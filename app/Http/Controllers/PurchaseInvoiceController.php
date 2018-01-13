@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Input;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\PurchaseInvoice;
+use App\Penerimaan;
+use App\Retur;
 use App\History;
 use Session;
 use DB;
@@ -49,28 +51,17 @@ class PurchaseInvoiceController extends Controller
     $purchaseinvoice = PurchaseInvoice::select([
 			'pemesanan.id as idPesan',
 			'purchaseinvoice.*',
-			DB::raw('SUM(pemesananlist.Amount*pemesananlist.QTerima) AS Total'),
-			'penerimaan.Transport as TransportTerima',
-			'retur.Transport as TransportRetur',
 			'supplier.Company'
 		])
 		->leftJoin('pemesanan', 'purchaseinvoice.PesanCode', 'pemesanan.PesanCode')
-		->leftJoin('pemesananlist', 'pemesanan.PesanCode', 'pemesananlist.PesanCode')
-		->leftJoin('penerimaan', 'pemesanan.PesanCode', 'penerimaan.PesanCode')
-		->leftJoin('retur', 'pemesanan.PesanCode', 'retur.PesanCode')
 		->leftJoin('supplier', 'pemesanan.SCode', 'supplier.SCode')
 		->where('purchaseinvoice.id', $id)
-		->groupBy('pemesananlist.PesanCode')
 		->first();
-		
-		$GrandTotal = $purchaseinvoice->Total+$purchaseinvoice->TransportTerima-$purchaseinvoice->Discount-$purchaseinvoice->Pembulatan-$purchaseinvoice->TransportRetur;
-		
-		$tglterima = str_replace('/', '-', $purchaseinvoice->TglTerima);
-		$duedate = date('d/m/Y', strtotime($tglterima."+".$purchaseinvoice->Termin." days"));
 		
     $purchaseinvoices = PurchaseInvoice::select([
 			'purchaseinvoice.*',
 			'pemesananlist.*',
+			DB::raw('(pemesananlist.QTTerima-pemesananlist.QTRetur)*pemesananlist.Amount AS Total'),
 			'inventory.*'
 		])
 		->leftJoin('pemesanan', 'purchaseinvoice.PesanCode', 'pemesanan.PesanCode')
@@ -78,13 +69,34 @@ class PurchaseInvoiceController extends Controller
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
 		->get();
 		
+		$penerimaans = Penerimaan::select('penerimaan.*')
+		->leftJoin('purchaseinvoice', 'penerimaan.PesanCode', 'purchaseinvoice.PesanCode')
+		->where('purchaseinvoice.id', $id)
+		->get();
+		
+		$returs = Retur::select('retur.*')
+		->leftJoin('purchaseinvoice', 'retur.PesanCode', 'purchaseinvoice.PesanCode')
+		->where('purchaseinvoice.id', $id)
+		->get();
+		
+		$Total = array_sum($purchaseinvoices->pluck('Total')->toArray());
+		$TransportTerima = array_sum($penerimaans->pluck('Transport')->toArray());
+		$TransportRetur = array_sum($returs->pluck('Transport')->toArray());
+		$GrandTotal = $Total+$TransportTerima-$purchaseinvoice->Discount-$purchaseinvoice->Pembulatan-$TransportRetur;
+		
+		$tglterima = str_replace('/', '-', $purchaseinvoice->TglTerima);
+		$duedate = date('d/m/Y', strtotime($tglterima."+".$purchaseinvoice->Termin." days"));
+		
     if(in_array("edit", $this->access)){
       return view('pages.purchaseinvoice.edit')
       ->with('url', 'purchaseinvoice')
       ->with('purchaseinvoice', $purchaseinvoice)
       ->with('purchaseinvoices', $purchaseinvoices)
-			->with('GrandTotal', $GrandTotal)
-			->with('duedate', $duedate)
+      ->with('Total', $Total)
+      ->with('TransportTerima', $TransportTerima)
+      ->with('TransportRetur', $TransportRetur)
+      ->with('GrandTotal', $GrandTotal)
+      ->with('duedate', $duedate)
       ->with('top_menu_sel', 'menu_purchaseinvoice')
       ->with('page_title', 'Purchase Invoice')
       ->with('page_description', 'View');

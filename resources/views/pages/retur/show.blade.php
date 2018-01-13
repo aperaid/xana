@@ -130,7 +130,7 @@ $("#delete").click(function(){
 $("#deleteform").submit(function(event){
   $.post("delete", { "_token": "{{ csrf_token() }}", ReturCode: $("#ReturCode").val() }, function(data){})
   .done(function(data){
-		window.location.replace("../retur");
+		window.location.replace("../pemesanan/"+{{$retur->idPesan}});
   });
 });
 </script>

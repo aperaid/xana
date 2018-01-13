@@ -9,12 +9,12 @@
 		<div class="nav-tabs-custom">
 			<ul class="nav nav-tabs">
         <li class="active"><a href="#pemesanan_tab" data-toggle="tab">Pemesanan</a></li>
-				@if($pemesanan -> TerimaCode!='')
+				@if(count($penerimaans)!=0)
 					<li><a href="#penerimaan_tab" data-toggle="tab">Penerimaan</a></li>
 				@else
 					<li class="disabled"><a>Penerimaan</a></li>
 				@endif
-				@if($pemesanan -> ReturCode!='')
+				@if(count($returs)!=0)
 					<li><a href="#retur_tab" data-toggle="tab">Retur</a></li>
 				@else
 					<li class="disabled"><a>Retur</a></li>
@@ -31,7 +31,7 @@
 									<h2 class="page-header">
 										<small class="pull-right">Date: {{ $pemesanan -> Tgl }}</small><br>
 										<i class="fa fa-globe"></i> PT. {{env('APP_COMPANY')}} | {{ $pemesanan -> PesanCode }}
-										<small class="pull-right">Transport: {{ 'Rp '. number_format( $pemesanan -> TransportTerima, 2,',', '.' ) }}</small>
+										<small class="pull-right">Transport: {{ 'Rp '. number_format( $TransportTerima, 2,',', '.' ) }}</small>
 									</h2>
 								</div>
 							</div>
@@ -81,6 +81,7 @@
 							<!-- Table row -->
 							<div class="row">
 								<div class="col-md-12 table-responsive">
+									<input type='hidden' id="PesanCode" value='{{$pemesanan->PesanCode}}'>
 									<table class="table table-striped">
 										<thead>
 											<tr>
@@ -103,9 +104,9 @@
 												@if(env('APP_TYPE')=='Jual')
 													<td>{{ $pemesananlist -> Type }}</td>
 												@endif
-												<td>{{ $pemesananlist -> QTerima or '0'.'/'.$pemesananlist -> Quantity }}</td>
+												<td>{{ $pemesananlist -> QTTerima.'/'.$pemesananlist -> Quantity }}</td>
 												<td>Rp {{ number_format( $pemesananlist -> Amount, 2,',', '.' ) }}</td>
-													@if ( !$terimacheck ) <!-- belum dikirim -->
+													@if ( $pemesananlist -> QTTerima == 0 ) <!-- belum dikirim -->
 														<td>
 															<div class="progress progress-xs">
 																<div class="progress-bar progress-bar-red" style="width:10%"></div>
@@ -113,7 +114,7 @@
 														</td>
 														<td><span class="badge bg-red">Barang Dipesan</span></td>
 
-													@elseif ( $pemesananlist -> Quantity > $pemesananlist -> QTerima ) <!-- setengah diterima -->
+													@elseif ( $pemesananlist -> Quantity > $pemesananlist -> QTTerima ) <!-- setengah diterima -->
 														<td>
 															<div class="progress progress-xs">
 																<div class="progress-bar progress-bar-yellow" style="width:50%"></div>
@@ -121,7 +122,7 @@
 														</td>
 														<td><span class="badge bg-yellow">Separuh Barang Diterima</span></td>
 
-													@elseif ( $pemesananlist -> Quantity == $pemesananlist -> QTerima ) <!-- penerimaan selesai  -->
+													@elseif ( $pemesananlist -> Quantity == $pemesananlist -> QTTerima ) <!-- penerimaan selesai  -->
 														<td>
 															<div class="progress progress-xs">
 																<div class="progress-bar progress-bar-green" style="width:100%"></div>
@@ -138,9 +139,10 @@
 							<div class="row">
 								<div class="col-md-12">
 									<a href="{{route('pemesanan.index')}}"><button type="button" class="btn btn-default pull-left" style="margin-right: 5px;">Back</button></a>
-									<a href="{{route('penerimaan.create', 'id='.$pemesanan->idPesan)}}"><button type="button" style="margin-right: 5px;" @if ( $terimacheck )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right" @endif>Penerimaan</button></a>
-									<a href="{{route('pemesanan.edit', $pemesanan->idPesan)}}"><button type="button" style="margin-right: 5px;" @if ( $terimacheck )	class="btn btn-default pull-right" disabled	@else class="btn btn-primary pull-right" @endif>Edit</button></a>
-									<button type="button" style="margin-right: 5px;" id="delete" @if ( $terimacheck )	class="btn btn-default pull-right" disabled	@else class="btn btn-danger pull-right" @endif>Delete</button>
+									<a href="{{route('retur.create', 'id='.$pemesanan->idPesan)}}">	<button type="button" style="margin-right: 5px;" @if ( count($penerimaans)==0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-warning pull-right" @endif>Retur</button></a>
+									<a href="{{route('penerimaan.create', 'id='.$pemesanan->idPesan)}}"><button type="button" style="margin-right: 5px;" @if ( $pemesananlists->sum('Quantity')==$pemesananlists->sum('QTTerima') )	class="btn btn-default pull-right" disabled	@else class="btn btn-success pull-right" @endif>Penerimaan</button></a>
+									<a href="{{route('pemesanan.edit', $pemesanan->idPesan)}}"><button type="button" style="margin-right: 5px;" @if ( count($penerimaans)!=0) class="btn btn-default pull-right" disabled	@else class="btn btn-primary pull-right" @endif>Edit</button></a>
+									<button type="button" style="margin-right: 5px;" id="delete" @if ( count($penerimaans)!=0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-danger pull-right" @endif>Delete</button>
 								</div>
 							</div>
 						</div>
@@ -149,173 +151,52 @@
 					<!-- penerimaan TAB -->
 					<div class="tab-pane" id="penerimaan_tab">
 						<div class="box-body">
-							<div class="row">
-								<div class="col-md-3">
-									<div class="box box-primary">
-										<div class="box-header with-border">
-											<h3 class="box-title">Penerimaan Detail</h3>
-										</div>
-										<div class="box-body">
-											<div class="form-group">
-												{!! Form::label('TerimaCode', 'Terima Code') !!}
-												<input type="text" id="TerimaCode" value="{{$pemesanan->TerimaCode}}" class="form-control" readonly>
-											</div>
-											<div>
-												<a href="{{route('penerimaan.show', $pemesanan->idTerima)}}"><button type="button" class="btn btn-success btn-block">View</button></a>
-											</div>
-											<div class="form-group">
-												{!! Form::label('TglTerima', 'Date') !!}
-												<div class="input-group">
-													<div class="input-group-addon">
-														<i class="fa fa-calendar"></i>
-													</div>
-													{!! Form::text('TglTerima', $pemesanan -> TglTerima, array('class' => 'form-control', 'readonly')) !!}
-												</div>
-											</div>
-											<div class="form-group">
-												{!! Form::label('TransportTerima', 'Biaya Transport') !!}
-												{!! Form::text('TransportTerima', 'Rp '. number_format( $pemesanan -> TransportTerima, 2,',', '.' ), array('class' => 'form-control', 'readonly')) !!}
-											</div>
-											<div class="form-group">
-												{!! Form::label('PesanCode', 'Pesan Code') !!}
-												{!! Form::text('PesanCode', $pemesanan->PesanCode, array('class' => 'form-control', 'id' => 'PesanCode', 'readonly')) !!}
-											</div>
-										</div>
-										<!-- box-body -->
-									</div>
-									<!-- box -->
-								</div>
-								<!-- col -->
-								<div class="col-md-9">
-									<div class="box box-primary">
-										<div class="box-header with-border">
-											<h3 class="box-title">Penerimaan Item</h3>
-										</div>
-										<div class="box-body">
-											<table class="table table-bordered table-striped table-responsive">
-												<thead>
-													<tr>
-														<th>Barang</th>
-														<th>ICode</th>
-														<th width="10%">QTerima</th>
-														@if(env('APP_TYPE')=='Jual')
-															<th width="30%">Kategori</th>
-														@endif
-													</tr>
-												</thead>
-												<tbody>
-													@foreach($pemesananlists as $pemesananlist)
-													<tr>
-														<td>{{ $pemesananlist -> Barang }}</td>
-														<td>{{ $pemesananlist -> ICode }}</td>
-														<td>{{ $pemesananlist -> QTerima }}</td>
-														@if(env('APP_TYPE')=='Jual')
-															<td>{{ $pemesananlist -> Type }}</td>
-														@endif
-													</tr>
-													@endforeach
-												</tbody>
-											</table>
-										</div>
-									</div>
-									<!-- box -->
-								</div>
-									<!-- col -->
-							</div>
-							<!-- row -->
-							<div class="row">
-								<div class="col-md-12">
-									<a href="{{route('pemesanan.index')}}"><button type="button" class="btn btn-default pull-left" style="margin-right: 5px;">Back</button></a>
-									<a href="{{route('retur.create', 'id='.$pemesanan->idPesan)}}">	<button type="button" style="margin-right: 5px;" @if ( $returcheck || ($qreturcheck->SumQuantity!=$qreturcheck->SumQTerima))	class="btn btn-default pull-right" disabled	@else class="btn btn-warning pull-right" @endif>Retur</button></a>
-									<a href="{{route('penerimaan.edit', $pemesanan->idTerima)}}"><button type="button" style="margin-right: 5px;" @if ( $returcheck )	class="btn btn-default pull-right" disabled	@else class="btn btn-primary pull-right" @endif>Edit</button></a>
-								</div>
-							</div>
+							<table id="datatablesterima" class="table table-hover table-bordered">
+                <thead>
+                  <tr>
+                    <th hidden>id</th>
+                    <th>Terima Code</th>
+                    <th>Tanggal</th>
+                    <th>Transport</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach( $penerimaans as $penerimaan )
+                  <tr>
+                    <td hidden>{{ $penerimaan -> id }}</td>
+                    <td>{{ $penerimaan -> TerimaCode }}</td>
+                    <td>{{ $penerimaan -> Tgl }}</td>
+                    <td>Rp {{ number_format( $penerimaan -> Transport, 2,',', '.' ) }}</td>
+                  </tr>
+                  @endforeach
+                </tbody>
+							</table>
 						</div>
 					</div>
 					
 					<!-- retur TAB -->
 					<div class="tab-pane" id="retur_tab">
 						<div class="box-body">
-							<div class="row">
-								<div class="col-md-3">
-									<div class="box box-primary">
-										<div class="box-header with-border">
-											<h3 class="box-title">Retur Detail</h3>
-										</div>
-										<div class="box-body">
-											<div class="form-group">
-												{!! Form::label('ReturCode', 'Retur Code') !!}
-												<input type="text" id="ReturCode" value="{{$pemesanan->ReturCode}}" class="form-control" readonly>
-											</div>
-											<div>
-												<a href="{{route('retur.show', $pemesanan->idRetur)}}"><button type="button" class="btn btn-success btn-block">View</button></a>
-											</div>
-											<div class="form-group">
-												{!! Form::label('TglRetur', 'Date') !!}
-												<div class="input-group">
-													<div class="input-group-addon">
-														<i class="fa fa-calendar"></i>
-													</div>
-													{!! Form::text('TglRetur', $pemesanan -> TglRetur, array('class' => 'form-control', 'readonly')) !!}
-												</div>
-											</div>
-											<div class="form-group">
-												{!! Form::label('TransportRetur', 'Biaya Transport') !!}
-												{!! Form::text('TransportRetur', 'Rp '. number_format( $pemesanan -> TransportRetur, 2,',', '.' ), array('class' => 'form-control', 'readonly')) !!}
-											</div>
-											<div class="form-group">
-												{!! Form::label('PesanCode', 'Pesan Code') !!}
-												{!! Form::text('PesanCode', $pemesanan->PesanCode, array('class' => 'form-control', 'id' => 'PesanCode', 'readonly')) !!}
-											</div>
-										</div>
-										<!-- box-body -->
-									</div>
-									<!-- box -->
-								</div>
-								<!-- col -->
-								<div class="col-md-9">
-									<div class="box box-primary">
-										<div class="box-header with-border">
-											<h3 class="box-title">Retur Item</h3>
-										</div>
-										<div class="box-body">
-											<table class="table table-bordered table-striped table-responsive">
-												<thead>
-													<tr>
-														<th>Barang</th>
-														<th>ICode</th>
-														<th width="10%">QRetur</th>
-														@if(env('APP_TYPE')=='Jual')
-															<th width="30%">Kategori</th>
-														@endif
-													</tr>
-												</thead>
-												<tbody>
-													@foreach($pemesananlists as $pemesananlist)
-													<tr>
-														<td>{{ $pemesananlist -> Barang }}</td>
-														<td>{{ $pemesananlist -> ICode }}</td>
-														<td>{{ $pemesananlist -> QRetur }}</td>
-														@if(env('APP_TYPE')=='Jual')
-															<td>{{ $pemesananlist -> Type }}</td>
-														@endif
-													</tr>
-													@endforeach
-												</tbody>
-											</table>
-										</div>
-									</div>
-									<!-- box -->
-								</div>
-									<!-- col -->
-							</div>
-							<!-- row -->
-							<div class="row">
-								<div class="col-md-12">
-									<a href="{{route('pemesanan.index')}}"><button type="button" class="btn btn-default pull-left" style="margin-right: 5px;">Back</button></a>
-									<a href="{{route('retur.edit', $pemesanan->idRetur)}}"><button type="button" style="margin-right: 5px;" class="btn btn-primary pull-right">Edit</button></a>
-								</div>
-							</div>
+							<table id="datatablesretur" class="table table-hover table-bordered">
+                <thead>
+                  <tr>
+                    <th hidden>id</th>
+                    <th>Retur Code</th>
+                    <th>Tanggal</th>
+                    <th>Transport</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach( $returs as $retur )
+                  <tr>
+                    <td hidden>{{ $retur -> id }}</td>
+                    <td>{{ $retur -> ReturCode }}</td>
+                    <td>{{ $retur -> Tgl }}</td>
+                    <td>Rp {{ number_format( $retur -> Transport, 2,',', '.' ) }}</td>
+                  </tr>
+                  @endforeach
+                </tbody>
+							</table>
 						</div>
 					</div>
 					
@@ -373,9 +254,9 @@
 										<tr>
 											<td>{{$pemesananlists->Type}}</td>
 											<td>{{$pemesananlists->Barang}}</td>
-											<td>{{$pemesananlists->QTerima}}</td>
+											<td>{{$pemesananlists->QTTerima-$pemesananlists->QTRetur}}</td>
 											<td>Rp {{ number_format($pemesananlists->Amount, 2, ',', '.') }}</td>
-											<td>Rp {{ number_format($pemesananlists->QTerima*$pemesananlists->Amount, 2,',','.') }}</td>
+											<td>Rp {{ number_format(($pemesananlists->QTTerima-$pemesananlists->QTRetur)*$pemesananlists->Amount, 2,',','.') }}</td>
 										</tr>
 										@endforeach
 									</tbody>
@@ -436,14 +317,14 @@
 									</div>
 									{!! Form::label('TransportRetur', 'Transport Retur (-)', ['class' => "col-sm-1 control-label"]) !!}
 									<div class="col-sm-2">
-										{!! Form::text('TransportRetur', 'Rp '.number_format($pemesanan->TransportRetur, 2, ',','.'), ['class' => 'form-control', 'readonly']) !!}
+										{!! Form::text('TransportRetur', 'Rp '.number_format($TransportRetur, 2, ',','.'), ['class' => 'form-control', 'readonly']) !!}
 									</div>
 								</div>
 								<!-- Grand Total Input -->
 								<div class="form-group">
 									{!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
 									<div class="col-sm-3">
-										{!! Form::text('Transport', 'Rp '.number_format($pemesanan->TransportTerima, 2, ',','.'), ['class' => 'form-control', 'readonly']) !!}
+										{!! Form::text('Transport', 'Rp '.number_format($TransportTerima, 2, ',','.'), ['class' => 'form-control', 'readonly']) !!}
 									</div>
 									{!! Form::label('GrandTotal', 'Grand Total', ['class' => "col-sm-2 control-label"]) !!}
 									<div class="col-sm-3">
@@ -507,6 +388,24 @@ $("#deleteform").submit(function(event){
   .done(function(data){
 		window.location.replace("../pemesanan");
   });
+});
+
+$(document).ready(function () {
+	var table = $("#datatablesterima").DataTable({
+	});
+
+	$('#datatablesterima tbody').on('click', 'tr', function () {
+		var data = table.row( this ).data();
+		window.open("../penerimaan/" + data[0], "_self");
+	});
+	
+	var table2 = $("#datatablesretur").DataTable({
+	});
+
+	$('#datatablesretur tbody').on('click', 'tr', function () {
+		var data = table2.row( this ).data();
+		window.open("../retur/" + data[0], "_self");
+	});
 });
 </script>
 @stop

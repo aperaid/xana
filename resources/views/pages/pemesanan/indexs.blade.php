@@ -24,18 +24,18 @@
             </tr>
           </thead>
           <tbody>
-            @foreach($pemesanans as $pemesanan)
+            @foreach($pemesanans as $key => $pemesanan)
             <tr>
               <td>{{$pemesanan->id}}</td>
               <td>{{$pemesanan->PesanCode}}</td>
               <td>{{$pemesanan->Tgl}}</td>
               <td>{{$pemesanan->Company}}</td>
-              <td>Rp {{ number_format( $pemesanan->Price+$pemesanan->Transport, 2,',', '.' ) }}</td>
-              @if ( $pemesanan->TerimaCode == NULL ) <!-- belum dikirim -->
+              <td>Rp {{ number_format( $pemesanan->Price+$transports[$key], 2,',', '.' ) }}</td>
+              @if ( $pemesanan -> SumQTTerima == 0 ) <!-- belum dikirim -->
 								<td><span class="badge bg-red">Pesan</span></td>
-							@elseif ( $pemesanan -> SumQuantity > $pemesanan -> SumQTerima ) <!-- setengah diterima -->
+							@elseif ( $pemesanan -> SumQuantity > $pemesanan -> SumQTTerima ) <!-- setengah diterima -->
 								<td><span class="badge bg-orange">Kirim</span></td>
-							@elseif ( ($pemesanan -> SumQuantity == $pemesanan -> SumQTerima) && $pemesanan -> TglTerima == '') <!-- penerimaan selesai/tgl terima  -->
+							@elseif ( ($pemesanan -> SumQuantity == $pemesanan -> SumQTTerima) && $pemesanan -> TglTerima == '') <!-- penerimaan selesai/tgl terima  -->
 								<td><span class="badge bg-yellow">Tgl Terima</span></td>
 							@elseif ( $pemesanan -> Lunas == 0) <!-- Jatuh Tempo  -->
 								<td><span class="badge bg-blue">Jatuh Tempo</span></td>

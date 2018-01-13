@@ -34,6 +34,6 @@ class CreatePurchaseinvoiceTable extends Migration
      */
     public function down()
     {
-        //
+      Schema::drop('purchaseinvoice');
     }
 }

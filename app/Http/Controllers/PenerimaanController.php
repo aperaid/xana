@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Pemesanan;
 use App\PemesananList;
 use App\Penerimaan;
+use App\PenerimaanList;
 use App\Retur;
 use App\History;
 use Session;
@@ -46,7 +47,7 @@ class PenerimaanController extends Controller
 	}
 	
   public function create(){
-		$pemesanans = Pemesanan::select('pemesanan.PesanCode', 'pemesananlist.*', 'inventory.Barang', 'inventory.Type')
+		$pemesanans = Pemesanan::select('pemesanan.id as idPesan', 'pemesanan.PesanCode', 'pemesananlist.*', 'inventory.Barang', 'inventory.Type')
 		->leftJoin('pemesananlist', 'pemesanan.PesanCode', 'pemesananlist.PesanCode')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
 		->where('pemesanan.id', Input::get('id'))
@@ -76,7 +77,9 @@ class PenerimaanController extends Controller
 		$date = explode('/', $request->Tgl);
 		$pesancode = explode('/', $request->PesanCode);
 		
-		$terimacode = 'TERIMA/'.$pesancode[1].'/'.$date[2].$date[1].$date[0].'/'.$pesancode[3];
+		$last_id = Penerimaan::max('id') + 1;
+		
+		$terimacode = 'TERIMA/'.$pesancode[1].'/'.$date[2].$date[1].$date[0].'/'.str_pad($last_id, 5, '0', STR_PAD_LEFT);
 		
 		$penerimaan = new Penerimaan;
 		$penerimaan->TerimaCode = $terimacode;
@@ -85,13 +88,24 @@ class PenerimaanController extends Controller
 		$penerimaan->PesanCode = $request->PesanCode;
 		$penerimaan->save();
 		
-		$pemesanans = $request->Id;
-		foreach ($pemesanans as $key => $pemesanan)
+		$pemesananlists = $request->Id;
+		foreach ($pemesananlists as $key => $pemesananlist)
 		{
-			$pemesanan = PemesananList::find($request->Id[$key]);
-			$pemesanan->QTerima = $request->QTerima[$key];
-			$pemesanan->TerimaCode = $terimacode;
-			$pemesanan->save();
+			$pemesananlist = PemesananList::find($request->Id[$key]);
+			$pemesananlist->QTTerima = $pemesananlist->QTTerima+$request->QTerima[$key];
+			$pemesananlist->save();
+		}
+		
+		$penerimaanlists = $request->Id;
+		foreach ($penerimaanlists as $key => $penerimaanlist)
+		{
+			if($request->QTerima[$key]!=0){
+				$penerimaanlist = new PenerimaanList;
+				$penerimaanlist->QTerima = $request->QTerima[$key];
+				$penerimaanlist->TerimaCode = $terimacode;
+				$penerimaanlist->idPesanList = $request->Id[$key];
+				$penerimaanlist->save();
+			}
 		}
 		
 		$history = new History;
@@ -107,20 +121,13 @@ class PenerimaanController extends Controller
 		->leftJoin('pemesanan', 'penerimaan.PesanCode', 'pemesanan.PesanCode')
 		->where('penerimaan.id', $id)
 		->first();
-    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.QTerima', 'pemesananlist.ICode', 'inventory.Barang', 'inventory.Type')
+    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.ICode', 'penerimaanlist.QTerima', 'inventory.Barang', 'inventory.Type')
+		->leftJoin('penerimaanlist', 'pemesananlist.id', 'penerimaanlist.idPesanList')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
-		->where('pemesananlist.TerimaCode', $penerimaan->TerimaCode)
+		->where('penerimaanlist.TerimaCode', $penerimaan->TerimaCode)
     ->get();
 		
-		$returcheck = Retur::leftJoin('pemesanan', 'retur.PesanCode', 'pemesanan.PesanCode')
-		->where('pemesanan.PesanCode', $penerimaan->PesanCode)
-		->first();
-		$qreturcheck = PemesananList::select([
-			DB::raw('sum(pemesananlist.Quantity) AS SumQuantity'),
-			DB::raw('sum(pemesananlist.QTerima) AS SumQTerima')
-		])
-		->where('PesanCode', $penerimaan->PesanCode)
-		->groupBy('PesanCode')
+		$returcheck = Retur::where('Retur.PesanCode', $penerimaan->PesanCode)
 		->first();
     
     if(in_array("show", $this->access)){
@@ -129,7 +136,6 @@ class PenerimaanController extends Controller
       ->with('penerimaan', $penerimaan)
       ->with('pemesananlists', $pemesananlists)
       ->with('returcheck', $returcheck)
-      ->with('qreturcheck', $qreturcheck)
       ->with('top_menu_sel', 'menu_penerimaan')
       ->with('page_title', 'Penerimaan')
       ->with('page_description', 'Show');
@@ -142,9 +148,10 @@ class PenerimaanController extends Controller
 		->leftJoin('pemesanan', 'penerimaan.PesanCode', 'pemesanan.PesanCode')
 		->where('penerimaan.id', $id)
 		->first();
-    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.Quantity', 'pemesananlist.QTerima', 'pemesananlist.ICode', 'inventory.Barang', 'inventory.Type')
+    $pemesananlists = PemesananList::select('pemesananlist.Quantity', 'pemesananlist.QTTerima', 'pemesananlist.ICode', 'penerimaanlist.id', 'penerimaanlist.QTerima', 'inventory.Barang', 'inventory.Type')
+		->leftJoin('penerimaanlist', 'pemesananlist.id', 'penerimaanlist.idPesanList')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
-		->where('pemesananlist.TerimaCode', $penerimaan->TerimaCode)
+		->where('penerimaanlist.TerimaCode', $penerimaan->TerimaCode)
     ->get();
 
     if(in_array("edit", $this->access)){
@@ -175,12 +182,16 @@ class PenerimaanController extends Controller
 		$penerimaan->PesanCode = $request->PesanCode;
 		$penerimaan->save();
 		
-		$pemesanans = $request->Id;
-		foreach ($pemesanans as $key => $pemesanan)
+		$penerimaanlists = $request->Id;
+		foreach ($penerimaanlists as $key => $penerimaanlist)
 		{
-			$pemesanan = PemesananList::find($request->Id[$key]);
-			$pemesanan->QTerima = $request->QTerima[$key];
-			$pemesanan->save();
+			$penerimaanlist = PenerimaanList::find($request->Id[$key]);
+			$pemesananlist = PemesananList::where('id', $penerimaanlist->idPesanList)->first();
+			$pemesananlist->QTTerima = $pemesananlist->QTTerima-$penerimaanlist->QTerima+$request->QTerima[$key];
+			$penerimaanlist->QTerima = $request->QTerima[$key];
+			$penerimaanlist->save();
+			$pemesananlist->save();
+			
 		}
     
     $history = new History;
@@ -192,18 +203,21 @@ class PenerimaanController extends Controller
   }
 
   public function DeletePenerimaan(Request $request){
-    Penerimaan::where('TerimaCode', $request->TerimaCode)->delete();
-		DB::statement('ALTER TABLE penerimaan auto_increment = 1;');
-		
-		$pemesanans = PemesananList::where('TerimaCode', $request->TerimaCode)
+		$pemesananlists = PemesananList::select('pemesananlist.*', 'penerimaanlist.QTerima')
+		->leftJoin('penerimaanlist', 'pemesananlist.id', 'penerimaanlist.idPesanList')
+		->where('TerimaCode', $request->TerimaCode)
 		->get();
-		foreach ($pemesanans as $pemesanan)
+		
+		foreach ($pemesananlists as $pemesananlist)
 		{
-			$pemesanan = PemesananList::find($pemesanan->id);
-			$pemesanan->QTerima = null;
-			$pemesanan->TerimaCode = null;
-			$pemesanan->save();
+			$pemesananlist->QTTerima = $pemesananlist->QTTerima-$pemesananlist->QTerima;
+			$pemesananlist->save();
 		}
+		
+		Penerimaan::where('TerimaCode', $request->TerimaCode)->delete();
+		DB::statement('ALTER TABLE penerimaan auto_increment = 1;');
+		PenerimaanList::where('TerimaCode', $request->TerimaCode)->delete();
+		DB::statement('ALTER TABLE penerimaanlist auto_increment = 1;');
     
     $history = new History;
     $history->User = Auth::user()->name;

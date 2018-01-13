@@ -81,10 +81,10 @@
 						@foreach($pemesananlists as $pemesananlist)
 							<tr class='tr_input'>
 								<td hidden><input type='text' name='Id[]' id='Id' value='{{$pemesananlist->id}}' class='form-control input-sm' readonly></td>
-								<td hidden><input type='text' name='Quantity[]' id='Quantity' value='{{$pemesananlist->Quantity}}' class='form-control input-sm' readonly></td>
+								<td hidden><input type='text' name='Quantity[]' id='Quantity' value='{{$pemesananlist->Quantity-$pemesananlist->QTTerima+$pemesananlist->QTerima}}' class='form-control input-sm' readonly></td>
 								<td><input type='text' name='Barang[]' id='Barang' value='{{$pemesananlist->Barang}}' class='form-control input-sm' readonly></td>
 								<td><input type='text' name='ICode[]' id='ICode' value='{{$pemesananlist->ICode}}' class='form-control input-sm' readonly></td>
-								<td><input type='number' name='QTerima[]' id='QTerima' value='{{$pemesananlist->QTerima}}' class='form-control input-sm' placeholder='100' autocomplete required></td>
+								<td><input type='number' name='QTerima[]' id='QTerima' value='{{$pemesananlist->QTerima}}' class='form-control input-sm' placeholder='100' autocomplete='off' required></td>
 								@if(env('APP_TYPE')=='Jual')
 									<td><input type='text' name='Type[]' id='Type' value='{{$pemesananlist->Type}}' class='form-control input-sm' readonly></td>
 								@endif

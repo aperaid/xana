@@ -12,7 +12,7 @@
   <div class="col-xs-12">
     <div class="box box-primary">
       <div class="box-body">
-        <a href="{{route('retur.index')}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
+        <a href="{{route('pemesanan.show', $pemesanans[0]->idPesan)}}"><button type="button" class="btn btn-default pull-left">Cancel</button></a>
         {!! Form::submit('Insert',  array('class' => 'btn btn-success pull-right')) !!}
 			</div>
 			<!-- box-body -->
@@ -78,7 +78,7 @@
             @foreach($pemesanans as $pemesanan)
 							<tr class='tr_input'>
 								<td hidden><input type='text' name='Id[]' id='Id' value='{{$pemesanan->id}}' class='form-control input-sm' readonly></td>
-								<td hidden><input type='text' name='QTerima[]' id='QTerima' value='{{$pemesanan->QTerima}}' class='form-control input-sm' readonly></td>
+								<td hidden><input type='text' name='QTerima[]' id='QTerima' value='{{$pemesanan->QTTerima-$pemesanan->QTRetur}}' class='form-control input-sm' readonly></td>
 								<td><input type='text' name='Barang[]' id='Barang' value='{{$pemesanan->Barang}}' class='form-control input-sm' readonly></td>
 								<td><input type='text' name='ICode[]' id='ICode' value='{{$pemesanan->ICode}}' class='form-control input-sm' readonly></td>
 								<td><input type='number' name='QRetur[]' id='QRetur' value=0 class='form-control input-sm' required></td>

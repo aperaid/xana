@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePermintaanlistTable extends Migration
+class CreateReturlistTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreatePermintaanlistTable extends Migration
      */
     public function up()
     {
-      Schema::create('permintaanlist', function (Blueprint $table) {
-        $table->increments('id');
-        $table->integer('Quantity');
-        $table->integer('Amount');
-				$table->string('MintaCode');
-        $table->string('ICode');
-      });
+      Schema::create('returlist', function (Blueprint $table) {
+				$table->increments('id');
+        $table->integer('QRetur');
+        $table->string('ReturCode');
+        $table->string('idPesanList');
+			});
     }
 
     /**
@@ -29,6 +28,6 @@ class CreatePermintaanlistTable extends Migration
      */
     public function down()
     {
-      Schema::drop('permintaanlist');
+      Schema::drop('returlist');
     }
 }

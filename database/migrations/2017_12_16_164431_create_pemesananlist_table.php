@@ -16,12 +16,10 @@ class CreatePemesananlistTable extends Migration
       Schema::create('pemesananlist', function (Blueprint $table) {
         $table->increments('id');
         $table->integer('Quantity');
+        $table->integer('QTTerima')->default(0);
+        $table->integer('QTRetur')->default(0);
         $table->integer('Amount');
 				$table->string('PesanCode');
-        $table->integer('QTerima')->nullable();
-        $table->string('TerimaCode')->nullable();
-        $table->integer('QRetur')->nullable();
-        $table->string('ReturCode')->nullable();
         $table->string('ICode');
       });
     }

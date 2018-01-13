@@ -8,7 +8,9 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Pemesanan;
 use App\PemesananList;
+use App\PenerimaanList;
 use App\Retur;
+use App\ReturList;
 use App\History;
 use Session;
 use DB;
@@ -45,7 +47,7 @@ class ReturController extends Controller
 	}
 	
   public function create(){
-		$pemesanans = Pemesanan::select('pemesanan.PesanCode', 'pemesananlist.*', 'inventory.Barang', 'inventory.Type')
+		$pemesanans = Pemesanan::select('pemesanan.id as idPesan', 'pemesanan.PesanCode', 'pemesananlist.*', 'inventory.Barang', 'inventory.Type')
 		->leftJoin('pemesananlist', 'pemesanan.PesanCode', 'pemesananlist.PesanCode')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
 		->where('pemesanan.id', Input::get('id'))
@@ -75,7 +77,9 @@ class ReturController extends Controller
 		$date = explode('/', $request->Tgl);
 		$pesancode = explode('/', $request->PesanCode);
 		
-		$returcode = 'RETUR/'.$pesancode[1].'/'.$date[2].$date[1].$date[0].'/'.$pesancode[3];
+		$last_id = Retur::max('id') + 1;
+		
+		$returcode = 'RETUR/'.$pesancode[1].'/'.$date[2].$date[1].$date[0].'/'.str_pad($last_id, 5, '0', STR_PAD_LEFT);
 		
 		$retur = new Retur;
 		$retur->ReturCode = $returcode;
@@ -84,13 +88,24 @@ class ReturController extends Controller
 		$retur->PesanCode = $request->PesanCode;
 		$retur->save();
 		
-		$pemesanans = $request->Id;
-		foreach ($pemesanans as $key => $pemesanan)
+		$pemesananlists = $request->Id;
+		foreach ($pemesananlists as $key => $pemesananlist)
 		{
-			$pemesanan = PemesananList::find($request->Id[$key]);
-			$pemesanan->QRetur = $request->QRetur[$key];
-			$pemesanan->ReturCode = $returcode;
-			$pemesanan->save();
+			$pemesananlist = PemesananList::find($request->Id[$key]);
+			$pemesananlist->QTRetur = $pemesananlist->QTRetur+$request->QRetur[$key];
+			$pemesananlist->save();
+		}
+		
+		$returlists = $request->Id;
+		foreach ($returlists as $key => $returlist)
+		{
+			if($request->QRetur[$key]!=0){
+				$returlist = new ReturList;
+				$returlist->QRetur = $request->QRetur[$key];
+				$returlist->ReturCode = $returcode;
+				$returlist->idPesanList = $request->Id[$key];
+				$returlist->save();
+			}
 		}
 		
 		$history = new History;
@@ -106,9 +121,10 @@ class ReturController extends Controller
 		->leftJoin('pemesanan', 'retur.PesanCode', 'pemesanan.PesanCode')
 		->where('retur.id', $id)
 		->first();
-    $pemesananlists = PemesananList::select('pemesananlist.QRetur', 'pemesananlist.ICode', 'inventory.*')
+    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.ICode', 'returlist.QRetur', 'inventory.Barang', 'inventory.Type')
+		->leftJoin('returlist', 'pemesananlist.id', 'returlist.idPesanList')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
-		->where('pemesananlist.ReturCode', $retur->ReturCode)
+		->where('returlist.ReturCode', $retur->ReturCode)
     ->get();
     
     if(in_array("show", $this->access)){
@@ -128,9 +144,10 @@ class ReturController extends Controller
 		->leftJoin('pemesanan', 'retur.PesanCode', 'pemesanan.PesanCode')
 		->where('retur.id', $id)
 		->first();
-    $pemesananlists = PemesananList::select('pemesananlist.id', 'pemesananlist.QTerima', 'pemesananlist.QRetur', 'pemesananlist.ICode', 'inventory.Barang', 'inventory.Type')
+    $pemesananlists = PemesananList::select('pemesananlist.Quantity', 'pemesananlist.QTRetur', 'pemesananlist.ICode', 'returlist.id', 'returlist.QRetur', 'inventory.Barang', 'inventory.Type')
+		->leftJoin('returlist', 'pemesananlist.id', 'returlist.idPesanList')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
-		->where('pemesananlist.ReturCode', $retur->ReturCode)
+		->where('returlist.ReturCode', $retur->ReturCode)
     ->get();
 
     if(in_array("edit", $this->access)){
@@ -161,12 +178,15 @@ class ReturController extends Controller
 		$retur->PesanCode = $request->PesanCode;
 		$retur->save();
 		
-		$pemesanans = $request->Id;
-		foreach ($pemesanans as $key => $pemesanan)
+		$returlists = $request->Id;
+		foreach ($returlists as $key => $returlist)
 		{
-			$pemesanan = PemesananList::find($request->Id[$key]);
-			$pemesanan->QRetur = $request->QRetur[$key];
-			$pemesanan->save();
+			$returlist = ReturList::find($request->Id[$key]);
+			$pemesananlist = PemesananList::where('id', $returlist->idPesanList)->first();
+			$pemesananlist->QTRetur = $pemesananlist->QTRetur-$returlist->QRetur+$request->QRetur[$key];
+			$returlist->QRetur = $request->QRetur[$key];
+			$returlist->save();
+			$pemesananlist->save();
 		}
     
     $history = new History;
@@ -178,18 +198,21 @@ class ReturController extends Controller
   }
 
   public function DeleteRetur(Request $request){
+		$pemesananlists = PemesananList::select('pemesananlist.*', 'returlist.QRetur')
+		->leftJoin('returlist', 'pemesananlist.id', 'returlist.idPesanList')
+		->where('ReturCode', $request->ReturCode)
+		->get();
+		
+		foreach ($pemesananlists as $pemesananlist)
+		{
+			$pemesananlist->QTRetur = $pemesananlist->QTRetur-$pemesananlist->QRetur;
+			$pemesananlist->save();
+		}
+		
     Retur::where('ReturCode', $request->ReturCode)->delete();
 		DB::statement('ALTER TABLE retur auto_increment = 1;');
-		
-		$pemesanans = PemesananList::where('ReturCode', $request->ReturCode)
-		->get();
-		foreach ($pemesanans as $pemesanan)
-		{
-			$pemesanan = PemesananList::find($pemesanan->id);
-			$pemesanan->QRetur = null;
-			$pemesanan->ReturCode = null;
-			$pemesanan->save();
-		}
+		ReturList::where('ReturCode', $request->ReturCode)->delete();
+		DB::statement('ALTER TABLE returlist auto_increment = 1;');
     
     $history = new History;
     $history->User = Auth::user()->name;

@@ -65,9 +65,9 @@
               <tr>
 								<td>{{$purchaseinvoices->Type}}</td>
                 <td>{{$purchaseinvoices->Barang}}</td>
-                <td>{{$purchaseinvoices->QTerima}}</td>
+                <td>{{$purchaseinvoices->QTTerima-$purchaseinvoices->QTRetur}}</td>
                 <td>Rp {{ number_format($purchaseinvoices->Amount, 2, ',', '.') }}</td>
-                <td>Rp {{ number_format($purchaseinvoices->QTerima*$purchaseinvoices->Amount, 2,',','.') }}</td>
+                <td>Rp {{ number_format(($purchaseinvoices->QTTerima-$purchaseinvoices->QTRetur)*$purchaseinvoices->Amount, 2,',','.') }}</td>
               </tr>
               @endforeach
             </tbody>
@@ -77,7 +77,7 @@
 					<div class="form-group">
 						{!! Form::label('Total', 'Total', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-8">
-              {!! Form::text('Total', 'Rp '.number_format($purchaseinvoice->Total, 2, ',','.'), array('id' => 'Total', 'class' => 'form-control', 'readonly')) !!}
+              {!! Form::text('Total', 'Rp '.number_format($Total, 2, ',','.'), array('id' => 'Total', 'class' => 'form-control', 'readonly')) !!}
             </div>
 					</div>
 					<!-- Termin Input -->
@@ -128,14 +128,14 @@
             </div>
 						{!! Form::label('TransportRetur', 'Transport Retur (-)', ['class' => "col-sm-1 control-label"]) !!}
             <div class="col-sm-2">
-							{!! Form::text('TransportRetur', 'Rp '.number_format($purchaseinvoice->TransportRetur, 2, ',','.'), ['class' => 'form-control', 'readonly']) !!}
+							{!! Form::text('TransportRetur', 'Rp '.number_format($TransportRetur, 2, ',','.'), ['class' => 'form-control', 'readonly']) !!}
             </div>
           </div>
           <!-- Grand Total Input -->
           <div class="form-group">
             {!! Form::label('Transport', 'Transport', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">
-							{!! Form::text('Transport', 'Rp '.number_format($purchaseinvoice->TransportTerima, 2, ',','.'), ['class' => 'form-control', 'readonly']) !!}
+							{!! Form::text('Transport', 'Rp '.number_format($TransportTerima, 2, ',','.'), ['class' => 'form-control', 'readonly']) !!}
             </div>
             {!! Form::label('GrandTotal', 'Grand Total', ['class' => "col-sm-2 control-label"]) !!}
             <div class="col-sm-3">

@@ -74,10 +74,10 @@
 					<tbody>
 					  <tr class='tr_input'>
 							<td><a href='javascript:void(0);' class='glyphicon glyphicon-remove'></a></td>
-							<td><input type='text' name='Barang[]' id='Barang_0' class='form-control input-sm Barang' placeholder='Main Frame' autocomplete required></td>
+							<td><input type='text' name='Barang[]' id='Barang_0' class='form-control input-sm Barang' placeholder='Main Frame' autocomplete='off' required></td>
 							<td><input type='text' name='ICode[]' id='ICode_0' class='form-control input-sm ICode' readonly></td>
-							<td><input type='number' name='Quantity[]' id='Quantity_0' class='form-control input-sm Quantity' placeholder='100' autocomplete required></td>
-							<td><input type='text' name='Amount[]' id='Amount_0' class='form-control input-sm Amount' placeholder='Rp 100.000' autocomplete required></td>
+							<td><input type='number' name='Quantity[]' id='Quantity_0' class='form-control input-sm Quantity' placeholder='100' autocomplete='off' required></td>
+							<td><input type='text' name='Amount[]' id='Amount_0' class='form-control input-sm Amount' placeholder='Rp 100.000' autocomplete='off' required></td>
 							@if(env('APP_TYPE')=='Jual')
 								<td><input type='text' name='Type[]' id='Type_0' class='form-control input-sm Type' readonly></td>
 							@endif
@@ -118,9 +118,9 @@ $(document).ready(function(){
 
 		// Create row with input elements
 		if("{{env('APP_TYPE')}}"=='Sewa'){
-			var html = "<tr class='tr_input'><td><a href='javascript:void(0);' class='remCF glyphicon glyphicon-remove'></a></td><td><input type='text' type='text' name='Barang[]' id='Barang_"+index+"' class='form-control input-sm Barang' placeholder='Main Frame' autocomplete required></td><td><input type='text' name='ICode[]' id='ICode_"+index+"' class='form-control input-sm ICode' readonly></td><td><input type='number' name='Quantity[]' id='Quantity_"+index+"' class='form-control input-sm Quantity' placeholder='100' autocomplete required></td><td><input type='text' name='Amount[]' id='Amount_"+index+"' class='form-control input-sm Amount' placeholder='Rp 100.000' autocomplete required></td></tr>";
+			var html = "<tr class='tr_input'><td><a href='javascript:void(0);' class='remCF glyphicon glyphicon-remove'></a></td><td><input type='text' type='text' name='Barang[]' id='Barang_"+index+"' class='form-control input-sm Barang' placeholder='Main Frame' autocomplete='off' required></td><td><input type='text' name='ICode[]' id='ICode_"+index+"' class='form-control input-sm ICode' readonly></td><td><input type='number' name='Quantity[]' id='Quantity_"+index+"' class='form-control input-sm Quantity' placeholder='100' autocomplete='off' required></td><td><input type='text' name='Amount[]' id='Amount_"+index+"' class='form-control input-sm Amount' placeholder='Rp 100.000' autocomplete='off' required></td></tr>";
 		}else{
-			var html = "<tr class='tr_input'><td><a href='javascript:void(0);' class='remCF glyphicon glyphicon-remove'></a></td><td><input type='text' type='text' name='Barang[]' id='Barang_"+index+"' class='form-control input-sm Barang' placeholder='Main Frame' autocomplete required></td><td><input type='text' name='ICode[]' id='ICode_"+index+"' class='form-control input-sm ICode' readonly></td><td><input type='number' name='Quantity[]' id='Quantity_"+index+"' class='form-control input-sm Quantity' placeholder='100' autocomplete required></td><td><input type='text' name='Amount[]' id='Amount_"+index+"' class='form-control input-sm Amount' placeholder='Rp 100.000' autocomplete required></td><td><input type='text' name='Type[]' id='Type_"+index+"' class='form-control input-sm Type' readonly></td></tr>";
+			var html = "<tr class='tr_input'><td><a href='javascript:void(0);' class='remCF glyphicon glyphicon-remove'></a></td><td><input type='text' type='text' name='Barang[]' id='Barang_"+index+"' class='form-control input-sm Barang' placeholder='Main Frame' autocomplete='off' required></td><td><input type='text' name='ICode[]' id='ICode_"+index+"' class='form-control input-sm ICode' readonly></td><td><input type='number' name='Quantity[]' id='Quantity_"+index+"' class='form-control input-sm Quantity' placeholder='100' autocomplete='off' required></td><td><input type='text' name='Amount[]' id='Amount_"+index+"' class='form-control input-sm Amount' placeholder='Rp 100.000' autocomplete='off' required></td><td><input type='text' name='Type[]' id='Type_"+index+"' class='form-control input-sm Type' readonly></td></tr>";
 		}
 
 		// Append data

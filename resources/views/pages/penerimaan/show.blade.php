@@ -9,9 +9,8 @@
     <div class="box box-primary">
       <div class="box-body">
         <a href="{{route('penerimaan.index')}}"><button type="button" class="btn btn-default pull-left">Back</button></a>
-				<a href="{{route('retur.create', 'id='.$penerimaan->id)}}">	<button type="button" style="margin-right: 5px;" @if ( $returcheck || ($qreturcheck->SumQuantity!=$qreturcheck->SumQTerima))	class="btn btn-default pull-right" disabled	@else class="btn btn-warning pull-right" @endif>Retur</button></a>
-        <a href="{{route('penerimaan.edit', $penerimaan->id)}}"><button type="button" style="margin-right: 5px;" @if ( $returcheck )	class="btn btn-default pull-right" disabled	@else class="btn btn-primary pull-right" @endif>Edit</button></a>
-        <button type="button" id="delete" class="btn btn-danger pull-right" style="margin-right: 5px;">Delete</button>
+        <a href="{{route('penerimaan.edit', $penerimaan->id)}}"><button type="button" style="margin-right: 5px;"class="btn btn-primary pull-right">Edit</button></a>
+        <button type="button" style="margin-right: 5px;" id="delete" @if ( count($returcheck)!=0 )	class="btn btn-default pull-right" disabled	@else class="btn btn-danger pull-right" @endif>Delete</button>
       </div>
       <!-- box-body -->
     </div>
@@ -131,7 +130,7 @@ $("#delete").click(function(){
 $("#deleteform").submit(function(event){
   $.post("delete", { "_token": "{{ csrf_token() }}", TerimaCode: $("#TerimaCode").val() }, function(data){})
   .done(function(data){
-		window.location.replace("../penerimaan");
+		window.location.replace("../pemesanan/"+{{$penerimaan->idPesan}});
   });
 });
 </script>

@@ -81,7 +81,7 @@
 						@foreach($pemesananlists as $pemesananlist)
 							<tr class='tr_input'>
 								<td hidden><input type='text' name='Id[]' id='Id' value='{{$pemesananlist->id}}' class='form-control input-sm' readonly></td>
-								<td hidden><input type='text' name='QTerima[]' id='QTerima' value='{{$pemesananlist->QTerima}}' class='form-control input-sm' readonly></td>
+								<td hidden><input type='text' name='QTerima[]' id='QTerima' value='{{$pemesananlist->Quantity-$pemesananlist->QTRetur+$pemesananlist->QRetur}}' class='form-control input-sm' readonly></td>
 								<td><input type='text' name='Barang[]' id='Barang' value='{{$pemesananlist->Barang}}' class='form-control input-sm' readonly></td>
 								<td><input type='text' name='ICode[]' id='ICode' value='{{$pemesananlist->ICode}}' class='form-control input-sm' readonly></td>
 								<td><input type='number' name='QRetur[]' id='QRetur' value='{{$pemesananlist->QRetur}}' class='form-control input-sm' placeholder='100' autocomplete required></td>

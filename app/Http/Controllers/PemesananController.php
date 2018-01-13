@@ -9,6 +9,7 @@ use App\Pemesanan;
 use App\PemesananList;
 use App\PurchaseInvoice;
 use App\Penerimaan;
+use App\PenerimaanList;
 use App\Supplier;
 use App\Retur;
 use App\History;
@@ -31,27 +32,33 @@ class PemesananController extends Controller
 	
 	public function index(){
 		$pemesanans = Pemesanan::select([
-			'pemesanan.*',
-			DB::raw('SUM(pemesananlist.Amount*pemesananlist.QTerima) AS Price'),
+			'pemesanan.id',
+			'pemesanan.PesanCode',
+			'pemesanan.Tgl',
+			DB::raw('SUM(pemesananlist.Amount*pemesananlist.Quantity) AS Price'),
 			DB::raw('sum(pemesananlist.Quantity) AS SumQuantity'),
-			DB::raw('sum(pemesananlist.QTerima) AS SumQTerima'),
-			'penerimaan.TerimaCode',
-			'penerimaan.Transport',
+			DB::raw('sum(pemesananlist.QTTerima) AS SumQTTerima'),
 			'purchaseinvoice.TglTerima',
 			'purchaseinvoice.Lunas',
 			'supplier.Company'
 		])
 		->leftJoin('pemesananlist', 'pemesanan.PesanCode', 'pemesananlist.PesanCode')
-		->leftJoin('penerimaan', 'pemesanan.PesanCode', 'penerimaan.PesanCode')
 		->leftJoin('purchaseinvoice', 'pemesanan.PesanCode', 'purchaseinvoice.PesanCode')
 		->leftJoin('supplier', 'pemesanan.SCode', 'supplier.SCode')
 		->groupBy('pemesanan.PesanCode')
 		->get();
 		
+		$transports = Pemesanan::select([DB::raw('SUM(penerimaan.Transport) as SumTransport')])
+		->leftJoin('penerimaan', 'pemesanan.PesanCode', 'penerimaan.PesanCode')
+		->groupBy('pemesanan.PesanCode')
+		->pluck('SumTransport')
+		->toArray();
+		
 		if(in_array("index", $this->access)){
 			return view('pages.pemesanan.indexs')
 			->with('url', 'pemesanan')
 			->with('pemesanans', $pemesanans)
+			->with('transports', $transports)
 			->with('top_menu_sel', 'menu_pemesanan')
 			->with('page_title', 'Pemesanan')
 			->with('page_description', 'Index');
@@ -121,52 +128,48 @@ class PemesananController extends Controller
   }
 
   public function show($id){
-    $pemesanan = Pemesanan::select('pemesanan.id as idPesan', 'pemesanan.*', 'supplier.*', 'penerimaan.id as idTerima', 'penerimaan.TerimaCode', 'penerimaan.Transport as TransportTerima', 'penerimaan.Tgl as TglTerima', 'retur.id as idRetur', 'retur.ReturCode', 'retur.Transport as TransportRetur', 'retur.Tgl as TglRetur', 'purchaseinvoice.id as idInvoice', 'purchaseinvoice.PurchaseInvoice', 'purchaseinvoice.Tgl as TglInvoice', 'purchaseinvoice.Discount', 'purchaseinvoice.Catatan', 'purchaseinvoice.Lunas', 'purchaseinvoice.TglTerima', 'purchaseinvoice.Termin', 'purchaseinvoice.Pembulatan')
-		->leftJoin('penerimaan', 'pemesanan.PesanCode', 'penerimaan.PesanCode')
-		->leftJoin('retur', 'pemesanan.PesanCode', 'retur.PesanCode')
-		->leftJoin('purchaseinvoice', 'pemesanan.PesanCode', 'purchaseinvoice.PesanCode')
+    $pemesanan = Pemesanan::select(['pemesanan.id as idPesan', 'pemesanan.*', 'supplier.*', 'purchaseinvoice.id as idInvoice', 'purchaseinvoice.*'])
 		->leftJoin('supplier', 'pemesanan.SCode', 'supplier.SCode')
+		->leftJoin('purchaseinvoice', 'pemesanan.PesanCode', 'purchaseinvoice.PesanCode')
 		->where('pemesanan.id', $id)
 		->first();
-    $pemesananlists = PemesananList::select(['pemesananlist.*', DB::raw('pemesananlist.Amount*pemesananlist.QTerima AS Total'), 'pemesanan.*', 'inventory.Barang', 'inventory.Type'])
+    $pemesananlists = PemesananList::select(['pemesananlist.*', DB::raw('(pemesananlist.QTTerima-pemesananlist.QTRetur)*pemesananlist.Amount AS Total'), 'inventory.Barang', 'inventory.Type'])
 		->leftJoin('pemesanan', 'pemesananlist.PesanCode', 'pemesanan.PesanCode')
 		->leftJoin('inventory', 'pemesananlist.ICode', 'inventory.Code')
 		->where('pemesanan.id', $id)
     ->orderBy('pemesanan.id', 'asc')
     ->get();
 		
+		$penerimaans = Penerimaan::select('penerimaan.*')
+		->leftJoin('pemesanan', 'penerimaan.PesanCode', 'pemesanan.PesanCode')
+		->where('pemesanan.id', $id)
+		->get();
+		
+		$returs = Retur::select('retur.*')
+		->leftJoin('pemesanan', 'retur.PesanCode', 'pemesanan.PesanCode')
+		->where('pemesanan.id', $id)
+		->get();
+		
 		$Total = array_sum($pemesananlists->pluck('Total')->toArray());
-		$GrandTotal = $Total+$pemesanan->TransportTerima-$pemesanan->Discount-$pemesanan->Pembulatan-$pemesanan->TransportRetur;
+		$TransportTerima = array_sum($penerimaans->pluck('Transport')->toArray());
+		$TransportRetur = array_sum($returs->pluck('Transport')->toArray());
+		$GrandTotal = $Total+$TransportTerima-$pemesanan->Discount-$pemesanan->Pembulatan-$TransportRetur;
 		
 		$tglterima = str_replace('/', '-', $pemesanan->TglTerima);
 		$duedate = date('d/m/Y', strtotime($tglterima."+".$pemesanan->Termin." days"));
-		
-		$terimacheck = Penerimaan::leftJoin('pemesanan', 'penerimaan.PesanCode', 'pemesanan.PesanCode')
-		->where('pemesanan.id', $id)
-		->first();
-		
-		$returcheck = Retur::leftJoin('pemesanan', 'retur.PesanCode', 'pemesanan.PesanCode')
-		->where('pemesanan.id', $id)
-		->first();
-		$qreturcheck = PemesananList::select([
-			DB::raw('sum(pemesananlist.Quantity) AS SumQuantity'),
-			DB::raw('sum(pemesananlist.QTerima) AS SumQTerima')
-		])
-		->where('PesanCode', $pemesanan->PesanCode)
-		->groupBy('PesanCode')
-		->first();
     
     if(in_array("show", $this->access)){
       return view('pages.pemesanan.show')
       ->with('url', 'pemesanan')
       ->with('pemesanan', $pemesanan)
       ->with('pemesananlists', $pemesananlists)
+			->with('penerimaans', $penerimaans)
+			->with('returs', $returs)
       ->with('Total', $Total)
+      ->with('TransportTerima', $TransportTerima)
+      ->with('TransportRetur', $TransportRetur)
       ->with('GrandTotal', $GrandTotal)
       ->with('duedate', $duedate)
-      ->with('terimacheck', $terimacheck)
-      ->with('returcheck', $returcheck)
-      ->with('qreturcheck', $qreturcheck)
       ->with('top_menu_sel', 'menu_pemesanan')
       ->with('page_title', 'Pemesanan')
       ->with('page_description', 'Show');
@@ -232,10 +235,17 @@ class PemesananController extends Controller
   }
 
   public function DeletePemesanan(Request $request){
+		$SCode = Pemesanan::where('PesanCode', $request->PesanCode)->first()->SCode;
+		$count = Supplier::where('SCode', $SCode)->first();
+		$count->Count = $count->Count-1;
+		$count->save();
+		
     Pemesanan::where('PesanCode', $request->PesanCode)->delete();
 		DB::statement('ALTER TABLE pemesanan auto_increment = 1;');
     PemesananList::where('PesanCode', $request->PesanCode)->delete();
 		DB::statement('ALTER TABLE pemesananlist auto_increment = 1;');
+    PurchaseInvoice::where('PesanCode', $request->PesanCode)->delete();
+		DB::statement('ALTER TABLE purchaseinvoice auto_increment = 1;');
     
     $history = new History;
     $history->User = Auth::user()->name;
